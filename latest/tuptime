@@ -23,7 +23,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '2.0.00-Beta-01'
+version = '2.0.00-Beta-02'
 
 def sanitize(text_value):
     """Remove especial characters"""
@@ -111,11 +111,11 @@ def main():
                           default=False,
                           action='store',
                           help='time format')
-        parser.add_option('-u', '--update',
-                          dest='update',
+        parser.add_option('-x', '--silent',
+                          dest='silent',
                           default=False,
                           action='store_true',
-                          help='update and save values only')
+                          help='update values without print')
         parser.add_option('-v', '--verbose',
                           dest='verbose',
                           default=False,
@@ -241,13 +241,18 @@ def main():
        	vprint('Last btime from db:', last_btime)
 
 	# - Test if system was resterted
-	if last_btime < btime:
-	    vprint('System was restarted')
-	    conn.execute('insert into tuptime values (?,?)', (str(uptime), str(btime)))
-	    last_btime = btime
-	else:
-	    vprint('System wasn\'t restarted. Updating db values...')
-            conn.execute('update tuptime set uptime = '+ str(uptime) +' where oid = (select max(oid) from tuptime)')
+	try:
+	    if last_btime < btime:
+	        vprint('System was restarted')
+	        conn.execute('insert into tuptime values (?,?)', (str(uptime), str(btime)))
+	        last_btime = btime
+	    else:
+	        vprint('System wasn\'t restarted. Updating db values...')
+                conn.execute('update tuptime set uptime = '+ str(uptime) +' where oid = (select max(oid) from tuptime)')
+	except Exception as e:
+	    if type(e).__name__ == 'OperationalError':
+	        vprint('WARNING values not saved into db - Test file permissions')
+	    vprint('WARNING', e)
 
 	# - Get number of startups
        	conn.execute('select max(oid) from tuptime')
@@ -271,7 +276,7 @@ def main():
 	except Exception as e:
             sys.exit('ERROR closing db connection: '+ str(e))
 
-	if opt.update:	
+	if opt.silent:	
 	    vprint('Only update')
 	else:
 	    # - Get average uptime and uptime rate
