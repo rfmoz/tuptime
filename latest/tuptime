@@ -28,6 +28,7 @@ def_time_format = '%H:%M:%S   %d-%b-%Y'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 
+
 def sanitize(text_value):
     """Remove especial characters"""
     excluded = "[\',\",\;,\|,\<,\>]"  # excluded characters
@@ -35,7 +36,7 @@ def sanitize(text_value):
     if resultd:
         return resultd
     else:
-        raise Exception ('ERROR inside: '+ text_value)
+        raise Exception('ERROR inside: '+ text_value)
 
 
 def yes_or_not(question):
