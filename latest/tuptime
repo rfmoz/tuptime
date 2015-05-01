@@ -1,12 +1,12 @@
 #!/usr/bin/python2.7
 # -*- coding: utf-8 -*-
 
-# tuptime - Backup and track files from hosts keeping them inside a repository
+# tuptime - Report the historical and statistical running time of the system, keeping it between restarts.
 # Copyright (C) 2011-2015 - Ricardo F.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
+# the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 
 # This program is distributed in the hope that it will be useful,
@@ -23,7 +23,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '2.0.00-Beta-02'
+version = '2.0.00'
 
 def sanitize(text_value):
     """Remove especial characters"""
@@ -74,7 +74,7 @@ def time_conv(secs):
                 human_tm += str(int(tm[key]))+' '+str(key) + ', '
                 zero_enter = False
 
-        if human_tm.find('minutes, '):  # nice phrase end, remove comma
+        if human_tm.find('minutes, '):  # nice sentence end, remove comma
            human_tm = human_tm.replace('minutes, ', 'minutes and ')
 
         return str(human_tm[:-2])  # return without last comma and space chareacter
