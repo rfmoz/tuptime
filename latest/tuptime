@@ -17,13 +17,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    import sys, os, optparse, time, re, string, sqlite3
+    import sys, os, optparse, re, string, sqlite3
     from datetime import datetime
     from distutils.util import strtobool
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '2.0.00'
+version = '2.1.00'
+def_time_format = '%H:%M:%S   %d-%b-%Y'
+def_db_file = '/var/lib/tuptime/tuptime.db'
+def_seconds = False
 
 def sanitize(text_value):
     """Remove especial characters"""
@@ -47,7 +50,7 @@ def yes_or_not(question):
 
 def vprint(*args):
     """Print verbose information"""
-    if enable_verbose:
+    if opt.verbose:
         for arg in args:
             print arg,
         print
@@ -83,32 +86,24 @@ def time_conv(secs):
         
 
 def main():
-	def_conf_file = '/etc/tuptime/tuptime.cfg'  # default configuration file
-	def_time_format = '%H:%M:%S   %d-%b-%Y'
-	def_db_file = '/var/lib/tuptime/tuptime.db'
+	global opt
 
         # - Reading command line parameters
         parser = optparse.OptionParser() 
-        parser.add_option('-f', '--conf',
-                          dest='conf_file',
-                          default=def_conf_file,
-                          action='store',
-                          help='configuration file',
-                          metavar="FILE")
         parser.add_option('-d', '--database',
                           dest='db_file',
-                          default=False,
+                          default=def_db_file,
                           action='store',
                           help='database file',
                           metavar="FILE")
         parser.add_option('-s', '--seconds',
-                          dest='time_type',
-                          default=False,
+                          dest='seconds',
+                          default=def_seconds,
                           action='store_true',
-                          help='output time in seconds')
+                          help='output time in seconds and epoch')
         parser.add_option('-t', '--time',
                           dest='time_format',
-                          default=False,
+                          default=def_time_format,
                           action='store',
                           help='time format')
         parser.add_option('-x', '--silent',
@@ -117,10 +112,10 @@ def main():
                           action='store_true',
                           help='update values without print')
         parser.add_option('-v', '--verbose',
-                          dest='verbose',
-                          default=False,
-                          action='store_true',
-                         help='verbose output')
+			  dest='verbose',
+			  default=False,
+			  action='store_true',
+                          help='verbose output')
         parser.add_option('-V', '--version',
                           dest='version',
                           default=False,
@@ -128,67 +123,10 @@ def main():
                           help='show version')
         opt, _ = parser.parse_args()
 
-        # - Parse verbose option 
-        global enable_verbose
-        if opt.verbose:
-            enable_verbose = True
-        else:
-            enable_verbose = False
-
         # - Parse version option 
         if opt.version:
             print 'tuptime version', version
             sys.exit(0)
-
-        # - Get and parse configuration file
-        vprint('Configuration file:', opt.conf_file)
-        if (os.path.isfile(opt.conf_file)):
-            try:
-	        file_vars = dict()
-		with open(opt.conf_file) as f:
-	            vprint('Start processing configuration file')
-    		    for line in f:
-	                vprint('Reading line: ' + str(line).rstrip())
-		        eq_index = line.find('=')
-			var_name = line[:eq_index].strip()
-			value = line[eq_index + 1:].strip()
-			file_vars[var_name] = value
-			# Assign variables from file if aren't in the command line
-			try:
-			    if var_name.startswith('db_file') and not opt.db_file:
-			        opt.db_file = sanitize(file_vars['db_file'])
-	                        vprint('Assign db_file: '+ str(opt.db_file))
-			except Exception as e:
-			    vprint('WARNING reading db_file', e)
-			    opt.db_file == False
-			try:
-			    if var_name.startswith('time_format') and not opt.time_format:
-			        opt.time_format = sanitize(file_vars['time_format'])
-	                        vprint('Assign time_format: '+ str(opt.time_format))
-			except Exception as e:
-			    vprint('WARNING reading time_format', e)
-			    opt.time_format == False
-			try:
-			    if var_name.startswith('time_type') and not opt.time_type:
-			        if sanitize(file_vars['time_type']).lower() in ('seconds', 'second', 'sec', 'secs'):
-			            opt.time_type = True
-				else:
-				    opt.time_type = False
-	                        vprint('Assign time_type: '+ str(opt.time_type))
-			except Exception as e:
-			    vprint('WARNING reading time_type from file', e)
-			    opt.time_type = False
-	            vprint('End configuration file processing')
-            except Exception as e:
-                sys.exit('ERROR reading configuration file: '+ str(opt.conf_file) +' '+  str(e))
-        else:
-	    vprint('Configuration file not used')
-
-	# - Setting default values if command line and file parameters aren't defined
-	if opt.db_file == False:
-	    opt.db_file = def_db_file
-	if opt.time_format == False:
- 	    opt.time_format = def_time_format
 
 	# - Reading /proc/uptime
 	try:
@@ -284,7 +222,7 @@ def main():
 	    uprate = float((total_uptime * 100 ) / ((last_btime + uptime) - first_btime))
 	    vprint("")
 
-	    if opt.time_type:
+	    if opt.seconds:
 	        print "System startups:\t" + str(startups) + "   since   "  + str(first_btime)
 	        print "Average uptime: \t" + str(average)
 	        print "Current uptime: \t" + str(uptime) + "   since   " + str(last_btime)
