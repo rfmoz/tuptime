@@ -23,7 +23,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '2.1.00'
+version = '2.1.01'
 def_time_format = '%H:%M:%S   %d-%b-%Y'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
@@ -70,176 +70,176 @@ def time_conv(secs):
         tm['hours'], tm['minutes'] = divmod(tm['minutes'], 60)
         tm['days'], tm['hours'] = divmod(tm['hours'], 24)
         tm['years'], tm['days'] = divmod(tm['days'], 365)
-	
+
         for key in tm_tuple:  # avoid print empty values at the beginning
-           if tm[key] == 0 and zero_enter:
+            if tm[key] == 0 and zero_enter:
                 continue
-           else:
+            else:
                 human_tm += str(int(tm[key]))+' '+str(key) + ', '
                 zero_enter = False
 
         if human_tm.find('minutes, '):  # nice sentence end, remove comma
-           human_tm = human_tm.replace('minutes, ', 'minutes and ')
+            human_tm = human_tm.replace('minutes, ', 'minutes and ')
 
         return str(human_tm[:-2])  # return without last comma and space chareacter
     except Exception as e:
         sys.exit('ERROR converting seconds: '+ str(e))
-        
+
 
 def main():
-	global opt
+    global opt
 
-        # - Reading command line parameters
-        parser = optparse.OptionParser() 
-        parser.add_option('-d', '--database',
-                          dest='db_file',
-                          default=def_db_file,
-                          action='store',
-                          help='database file',
-                          metavar="FILE")
-        parser.add_option('-s', '--seconds',
-                          dest='seconds',
-                          default=def_seconds,
-                          action='store_true',
-                          help='output time in seconds and epoch')
-        parser.add_option('-t', '--time',
-                          dest='time_format',
-                          default=def_time_format,
-                          action='store',
-                          help='time format')
-        parser.add_option('-x', '--silent',
-                          dest='silent',
-                          default=False,
-                          action='store_true',
-                          help='update values without print')
-        parser.add_option('-v', '--verbose',
-			  dest='verbose',
-			  default=False,
-			  action='store_true',
-                          help='verbose output')
-        parser.add_option('-V', '--version',
-                          dest='version',
-                          default=False,
-                          action='store_true',
-                          help='show version')
-        opt, _ = parser.parse_args()
+    # - Reading command line parameters
+    parser = optparse.OptionParser()
+    parser.add_option('-d', '--database',
+        dest='db_file',
+        default=def_db_file,
+        action='store',
+        help='database file',
+        metavar="FILE")
+    parser.add_option('-s', '--seconds',
+        dest='seconds',
+        default=def_seconds,
+        action='store_true',
+        help='output time in seconds and epoch')
+    parser.add_option('-t', '--time',
+        dest='time_format',
+        default=def_time_format,
+        action='store',
+        help='time format')
+    parser.add_option('-x', '--silent',
+        dest='silent',
+        default=False,
+        action='store_true',
+        help='update values without print')
+    parser.add_option('-v', '--verbose',
+        dest='verbose',
+        default=False,
+        action='store_true',
+        help='verbose output')
+    parser.add_option('-V', '--version',
+        dest='version',
+        default=False,
+        action='store_true',
+        help='show version')
+    opt, _ = parser.parse_args()
 
-        # - Parse version option 
-        if opt.version:
-            print 'tuptime version', version
-            sys.exit(0)
+    # - Parse version option
+    if opt.version:
+        print 'tuptime version', version
+        sys.exit(0)
 
-	# - Reading /proc/uptime
-	try:
-	    with open('/proc/uptime', 'r', 0) as fl:
-	        uptime = float(fl.readline().split()[0])
-	        vprint('/proc/uptime = ' + str(uptime))
-	except Exception as e:
-	    sys.exit('ERROR reading /proc/uptime'+ str(e))
+    # - Reading /proc/uptime
+    try:
+        with open('/proc/uptime', 'r', 0) as fl:
+            uptime = float(fl.readline().split()[0])
+            vprint('/proc/uptime = ' + str(uptime))
+    except Exception as e:
+        sys.exit('ERROR reading /proc/uptime'+ str(e))
 
-	# - Reading btime from /proc/stat
-	try:
-	    with open('/proc/stat', 'r', 0) as fl:
-	        for line in fl:
-	            if line.startswith('btime'):
-		        btime = int(line.split()[1])
-	        vprint('/proc/stat btime = ' + str(btime))
-	except Exception as e:
-	    sys.exit('ERROR reading /proc/stat'+ str(e))
+    # - Reading btime from /proc/stat
+    try:
+        with open('/proc/stat', 'r', 0) as fl:
+            for line in fl:
+                if line.startswith('btime'):
+                    btime = int(line.split()[1])
+            vprint('/proc/stat btime = ' + str(btime))
+    except Exception as e:
+        sys.exit('ERROR reading /proc/stat'+ str(e))
 
-	# - Assure state of db file
-	try:
-	    if os.path.isdir(os.path.dirname(opt.db_file)):
-                vprint('Directory exists:', os.path.dirname(opt.db_file))
-	    else:
-                vprint('Creating directory', opt.db_file)	
-	        os.makedirs(os.path.dirname(opt.db_file))
+    # - Assure state of db file
+    try:
+        if os.path.isdir(os.path.dirname(opt.db_file)):
+            vprint('Directory exists:', os.path.dirname(opt.db_file))
+        else:
+            vprint('Creating directory', opt.db_file)
+            os.makedirs(os.path.dirname(opt.db_file))
 
-	    if os.path.isfile(opt.db_file):
-	        vprint('DB file exists:', opt.db_file)
-	    else:
-                db = sqlite3.connect(opt.db_file)
-                conn = db.cursor()
-                conn.execute('create table if not exists tuptime(uptime, btime)')
-                conn.execute('insert into tuptime values (?,?)', (uptime, btime))
-                db.commit()
-                db.close()
-	except Exception as e:
-	    sys.exit('ERROR creating db file: '+ str(e))
+        if os.path.isfile(opt.db_file):
+            vprint('DB file exists:', opt.db_file)
+        else:
+            db = sqlite3.connect(opt.db_file)
+            conn = db.cursor()
+            conn.execute('create table if not exists tuptime(uptime, btime)')
+            conn.execute('insert into tuptime values (?,?)', (uptime, btime))
+            db.commit()
+            db.close()
+    except Exception as e:
+        sys.exit('ERROR creating db file: '+ str(e))
 
-	# - Creating db connection
-	try:
-	   db = sqlite3.connect(opt.db_file)
-           conn = db.cursor()
-	except Exception as e:
-	    sys.exit('ERROR connecting db: '+ str(e))
+    # - Creating db connection
+    try:
+        db = sqlite3.connect(opt.db_file)
+        conn = db.cursor()
+    except Exception as e:
+        sys.exit('ERROR connecting db: '+ str(e))
 
-	# - Reading last btime for db
-	conn.execute('select btime from tuptime where oid = (select max(oid) from tuptime)')
- 	last_btime = int(conn.fetchone()[0])
-       	vprint('Last btime from db:', last_btime)
+    # - Reading last btime for db
+    conn.execute('select btime from tuptime where oid = (select max(oid) from tuptime)')
+    last_btime = int(conn.fetchone()[0])
+    vprint('Last btime from db:', last_btime)
 
-	# - Test if system was resterted
-	try:
-	    if last_btime < btime:
-	        vprint('System was restarted')
-	        conn.execute('insert into tuptime values (?,?)', (str(uptime), str(btime)))
-	        last_btime = btime
-	    else:
-	        vprint('System wasn\'t restarted. Updating db values...')
-                conn.execute('update tuptime set uptime = '+ str(uptime) +' where oid = (select max(oid) from tuptime)')
-	except Exception as e:
-	    if type(e).__name__ == 'OperationalError':
-	        vprint('WARNING values not saved into db - Test file permissions')
-	    vprint('WARNING', e)
+    # - Test if system was resterted
+    try:
+        if last_btime < btime:
+            vprint('System was restarted')
+            conn.execute('insert into tuptime values (?,?)', (str(uptime), str(btime)))
+            last_btime = btime
+        else:
+            vprint('System wasn\'t restarted. Updating db values...')
+            conn.execute('update tuptime set uptime = '+ str(uptime) +' where oid = (select max(oid) from tuptime)')
+    except Exception as e:
+        if type(e).__name__ == 'OperationalError':
+            vprint('WARNING values not saved into db - Test file permissions')
+        vprint('WARNING', e)
 
-	# - Get number of startups
-       	conn.execute('select max(oid) from tuptime')
- 	startups = int(conn.fetchone()[0])
-	vprint('System startups registered in db:', startups)
-	
-	# - Get first btime	
-       	conn.execute('select btime from tuptime limit 1')
- 	first_btime = int(conn.fetchone()[0])
-	vprint('First btime from db:', first_btime)
+    # - Get number of startups
+    conn.execute('select max(oid) from tuptime')
+    startups = int(conn.fetchone()[0])
+    vprint('System startups registered in db:', startups)
 
-	# - Get total uptime
-	conn.execute('select sum(uptime) from tuptime')
-	total_uptime = float(conn.fetchone()[0])
-	vprint('Total uptime registered from db:', total_uptime)
+    # - Get first btime
+    conn.execute('select btime from tuptime limit 1')
+    first_btime = int(conn.fetchone()[0])
+    vprint('First btime from db:', first_btime)
 
-	# - Closing db connection
-	try:
-	    db.commit()
-	    db.close()
-	except Exception as e:
-            sys.exit('ERROR closing db connection: '+ str(e))
+    # - Get total uptime
+    conn.execute('select sum(uptime) from tuptime')
+    total_uptime = float(conn.fetchone()[0])
+    vprint('Total uptime registered from db:', total_uptime)
 
-	if opt.silent:	
-	    vprint('Only update')
-	else:
-	    # - Get average uptime and uptime rate
-	    average = float(total_uptime / startups)
-	    uprate = float((total_uptime * 100 ) / ((last_btime + uptime) - first_btime))
-	    vprint("")
+    # - Closing db connection
+    try:
+        db.commit()
+        db.close()
+    except Exception as e:
+        sys.exit('ERROR closing db connection: '+ str(e))
 
-	    if opt.seconds:
-	        print "System startups:\t" + str(startups) + "   since   "  + str(first_btime)
-	        print "Average uptime: \t" + str(average)
-	        print "Current uptime: \t" + str(uptime) + "   since   " + str(last_btime)
-	        print "Uptime rate: \t\t" + str(round(uprate, 5)) + ' %'
-	        print "System time: \t\t" + str(total_uptime)
-	    else:
-	        # - Get some values in human readable style
-	        first_btime_h = str(datetime.fromtimestamp(first_btime).strftime(opt.time_format))
-	        last_btime_h = str(datetime.fromtimestamp(last_btime).strftime(opt.time_format))
-	        average_h = str(time_conv(total_uptime / startups))
+    if opt.silent:
+        vprint('Only update')
+    else:
+        # - Get average uptime and uptime rate
+        average = float(total_uptime / startups)
+        uprate = float((total_uptime * 100 ) / ((last_btime + uptime) - first_btime))
+        vprint("")
 
-	        print "System startups:\t" + str(startups) + "   since   "  + first_btime_h
-	        print "Average uptime: \t" + average_h
-	        print "Current uptime: \t" + time_conv(uptime) + "   since   " + last_btime_h
-	        print "Uptime rate: \t\t" + str(round(uprate, 5)) + ' %'
-	        print "System time: \t\t" + time_conv(total_uptime)
+        if opt.seconds:
+            print "System startups:\t" + str(startups) + "   since   " + str(first_btime)
+            print "Average uptime: \t" + str(average)
+            print "Current uptime: \t" + str(uptime) + "   since   " + str(last_btime)
+            print "Uptime rate: \t\t" + str(round(uprate, 5)) + ' %'
+            print "System time: \t\t" + str(total_uptime)
+        else:
+            # - Get some values in human readable style
+            first_btime_h = str(datetime.fromtimestamp(first_btime).strftime(opt.time_format))
+            last_btime_h = str(datetime.fromtimestamp(last_btime).strftime(opt.time_format))
+            average_h = str(time_conv(total_uptime / startups))
+
+            print "System startups:\t" + str(startups) + "   since   " + first_btime_h
+            print "Average uptime: \t" + average_h
+            print "Current uptime: \t" + time_conv(uptime) + "   since   " + last_btime_h
+            print "Uptime rate: \t\t" + str(round(uprate, 5)) + ' %'
+            print "System time: \t\t" + time_conv(total_uptime)
 
 if __name__ == "__main__":
     main()
