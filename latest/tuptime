@@ -205,8 +205,10 @@ def main():
     vprint('First btime from db:', first_btime)
 
     # - Get total uptime
-    conn.execute('select sum(uptime) from tuptime')
-    total_uptime = float(conn.fetchone()[0])
+    #conn.execute('select sum(uptime) from tuptime')
+    # hack for allow unprivileged users that can not update database show results
+    conn.execute('select sum(uptime) from tuptime where oid < (select max(oid) from tuptime)')
+    total_uptime = sum(filter(None, [conn.fetchone()[0], uptime]))
     vprint('Total uptime registered from db:', total_uptime)
 
     # - Closing db connection
