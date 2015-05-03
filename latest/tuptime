@@ -97,12 +97,6 @@ def main():
         action='store',
         help='database file',
         metavar='FILE')
-    parser.add_option('-g', '--graceful',
-        dest='shutdown',
-        action='store_const',
-        default=0,
-        const=1,
-        help='gracefully shutdown')
     parser.add_option('-s', '--seconds',
         dest='seconds',
         default=def_seconds,
@@ -167,8 +161,8 @@ def main():
             vprint('Creating DB file: ', opt.db_file)
             db = sqlite3.connect(opt.db_file)
             conn = db.cursor()
-            conn.execute('create table if not exists tuptime(uptime real, btime integer, shutdown)')
-            conn.execute('insert into tuptime values (?,?,?)', (uptime, btime, opt.shutdown))
+            conn.execute('create table if not exists tuptime(uptime real, btime integer)')
+            conn.execute('insert into tuptime values (?,?)', (uptime, btime))
             db.commit()
             db.close()
     except Exception as e:
@@ -194,7 +188,7 @@ def main():
             last_btime = btime
         else:
             vprint('System wasn\'t restarted. Updating db values...')
-            conn.execute('update tuptime set uptime = '+ str(uptime) +', shutdown = '+ str(opt.shutdown) +' where oid = (select max(oid) from tuptime)')
+            conn.execute('update tuptime set uptime = '+ str(uptime) +' where oid = (select max(oid) from tuptime)')
     except Exception as e:
         if type(e).__name__ == 'OperationalError':
             vprint('WARNING values not saved into db - Test file permissions')
@@ -215,11 +209,6 @@ def main():
     total_uptime = float(conn.fetchone()[0])
     vprint('Total uptime registered from db:', total_uptime)
 
-    # - Get bad shutdowns
-    conn.execute('select count(shutdown) from tuptime where shutdown = "0"')
-    bad_shdown = int(conn.fetchone()[0])
-    vprint('Bad shutdowns: ', bad_shdown)
-
     # - Closing db connection
     try:
         db.commit()
@@ -236,7 +225,7 @@ def main():
         vprint('')
 
         if opt.seconds:
-            print 'System startups:\t' + str(startups) + ' ['+ str(bad_shdown) +'F]   since   ' + str(first_btime)
+            print 'System startups:\t' + str(startups) + '   since   ' + str(first_btime)
             print 'Average uptime: \t' + str(average)
             print 'Current uptime: \t' + str(uptime) + '   since   ' + str(last_btime)
             print 'Uptime rate: \t\t' + str(round(uprate, 5)) + ' %'
@@ -247,7 +236,7 @@ def main():
             last_btime_h = str(datetime.fromtimestamp(last_btime).strftime(opt.time_format))
             average_h = str(time_conv(total_uptime / startups))
 
-            print 'System startups:\t' + str(startups) + ' ['+ str(bad_shdown) +'F]  since   ' + first_btime_h
+            print 'System startups:\t' + str(startups) + '   since   ' + first_btime_h
             print 'Average uptime: \t' + average_h
             print 'Current uptime: \t' + time_conv(uptime) + '   since   ' + last_btime_h
             print 'Uptime rate: \t\t' + str(round(uprate, 5)) + ' %'
