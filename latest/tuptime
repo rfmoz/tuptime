@@ -97,6 +97,12 @@ def main():
         action='store',
         help='database file',
         metavar='FILE')
+    parser.add_option('-g', '--graceful',
+        dest='shutdown',
+        action='store_const',
+        default=0,
+        const=1,
+        help='gracefully shutdown')
     parser.add_option('-s', '--seconds',
         dest='seconds',
         default=def_seconds,
@@ -150,19 +156,19 @@ def main():
     # - Assure state of db file
     try:
         if os.path.isdir(os.path.dirname(opt.db_file)):
-            vprint('Directory exists:', os.path.dirname(opt.db_file))
+            vprint('Directory exists =', os.path.dirname(opt.db_file))
         else:
-            vprint('Creating directory', opt.db_file)
+            vprint('Creating directory =', opt.db_file)
             os.makedirs(os.path.dirname(opt.db_file))
 
         if os.path.isfile(opt.db_file):
-            vprint('DB file exists:', opt.db_file)
+            vprint('DB file exists =', opt.db_file)
         else:
-            vprint('Creating DB file: ', opt.db_file)
+            vprint('Creating DB file =', opt.db_file)
             db = sqlite3.connect(opt.db_file)
             conn = db.cursor()
-            conn.execute('create table if not exists tuptime(uptime real, btime integer)')
-            conn.execute('insert into tuptime values (?,?)', (uptime, btime))
+            conn.execute('create table if not exists tuptime(uptime real, btime integer, shutdown)')
+            conn.execute('insert into tuptime values (?,?,?)', (str(uptime), str(btime), str(opt.shutdown)))
             db.commit()
             db.close()
     except Exception as e:
@@ -178,17 +184,17 @@ def main():
     # - Reading last btime for db
     conn.execute('select btime from tuptime where oid = (select max(oid) from tuptime)')
     last_btime = int(conn.fetchone()[0])
-    vprint('Last btime from db:', last_btime)
+    vprint('Last btime from db =', last_btime)
 
     # - Test if system was resterted
     try:
         if last_btime < btime:
             vprint('System was restarted')
-            conn.execute('insert into tuptime values (?,?)', (str(uptime), str(btime)))
+            conn.execute('insert into tuptime values (?,?,?)', (str(uptime), str(btime), str(opt.shutdown)))
             last_btime = btime
         else:
             vprint('System wasn\'t restarted. Updating db values...')
-            conn.execute('update tuptime set uptime = '+ str(uptime) +' where oid = (select max(oid) from tuptime)')
+            conn.execute('update tuptime set uptime = '+ str(uptime) +', shutdown = '+ str(opt.shutdown) +' where oid = (select max(oid) from tuptime)')
     except Exception as e:
         if type(e).__name__ == 'OperationalError':
             vprint('WARNING values not saved into db - Test file permissions')
@@ -197,19 +203,27 @@ def main():
     # - Get number of startups
     conn.execute('select max(oid) from tuptime')
     startups = int(conn.fetchone()[0])
-    vprint('System startups registered in db:', startups)
+    vprint('System startups registered in db =', startups)
 
     # - Get first btime
     conn.execute('select btime from tuptime limit 1')
     first_btime = int(conn.fetchone()[0])
-    vprint('First btime from db:', first_btime)
+    vprint('First btime from db =', first_btime)
 
     # - Get total uptime
-    #conn.execute('select sum(uptime) from tuptime')
+    # conn.execute('select sum(uptime) from tuptime')
     # hack for allow unprivileged users that can not update database show results
     conn.execute('select sum(uptime) from tuptime where oid < (select max(oid) from tuptime)')
     total_uptime = sum(filter(None, [conn.fetchone()[0], uptime]))
-    vprint('Total uptime registered from db:', total_uptime)
+    vprint('Total uptime registered from db =', total_uptime)
+
+    # - Get bad shutdowns
+    conn.execute('select count(shutdown) from tuptime where shutdown = 0 and oid < (select max(oid) from tuptime)')
+    bad_shdown = int(conn.fetchone()[0])
+    # conn.execute('select count(shutdown) from tuptime where shutdown = 1 and oid < (select max(oid) from tuptime)')
+    # ok_shdown = int(conn.fetchone()[0])
+    # hack for avoid one query to the db
+    ok_shdown = startups - bad_shdown - 1
 
     # - Closing db connection
     try:
@@ -228,6 +242,7 @@ def main():
 
         if opt.seconds:
             print 'System startups:\t' + str(startups) + '   since   ' + str(first_btime)
+            print 'System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad'
             print 'Average uptime: \t' + str(average)
             print 'Current uptime: \t' + str(uptime) + '   since   ' + str(last_btime)
             print 'Uptime rate: \t\t' + str(round(uprate, 5)) + ' %'
@@ -239,6 +254,7 @@ def main():
             average_h = str(time_conv(total_uptime / startups))
 
             print 'System startups:\t' + str(startups) + '   since   ' + first_btime_h
+            print 'System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad'
             print 'Average uptime: \t' + average_h
             print 'Current uptime: \t' + time_conv(uptime) + '   since   ' + last_btime_h
             print 'Uptime rate: \t\t' + str(round(uprate, 5)) + ' %'
