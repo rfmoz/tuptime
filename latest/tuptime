@@ -113,6 +113,11 @@ def main():
         default=def_time_format,
         action='store',
         help='time format')
+    parser.add_option('-x', '--silent',
+        dest='silent',
+        default=False,
+        action='store_true',
+        help='update values without print')
     parser.add_option('-v', '--verbose',
         dest='verbose',
         default=False,
@@ -123,11 +128,6 @@ def main():
         default=False,
         action='store_true',
         help='show version')
-    parser.add_option('-x', '--silent',
-        dest='silent',
-        default=False,
-        action='store_true',
-        help='update values without print')
     opt, _ = parser.parse_args()
 
     # - Parse version option
