@@ -1,10 +1,13 @@
 [Unit]
 Description=Tuptime service
 After=local-fs.target
-RemainAfterExit=yes
 
 [Service]
-Type=forking
+Type=oneshot
 User=root
+RemainAfterExit=true
 ExecStart=/usr/bin/tuptime -x
 ExecStop=/usr/bin/tuptime -xg
+
+[Install]
+WantedBy=local-fs.target
