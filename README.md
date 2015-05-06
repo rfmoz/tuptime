@@ -20,11 +20,13 @@ Run first with a privileged user:
 
 And you will get some similar to this:
 
-	System startups:	1   since   15:49:05   01-May-2015
-	Average uptime: 	14 minutes and 59 seconds
-	Current uptime: 	14 minutes and 59 seconds   since   15:49:05   01-May-2015
+	System startups:	1   since   12:24:08 03/05/15
+	System shutdowns:	0 ok   -   0 bad
+	Average uptime: 	1 hours, 19 minutes and 38 seconds
+	Current uptime: 	1 hours, 19 minutes and 38 seconds   since   12:24:08 03/05/15
 	Uptime rate: 		100.0 %
-	System time: 		14 minutes and 59 seconds
+	System time: 		1 hours, 19 minutes and 38 seconds
 
-For keep it updated, add the init script and a cron entry... {todo}
+For keep it updated, add the init script or systemd file and a cron entry.
 
+More information into Tuptime Manual "tuptime-manual.txt"

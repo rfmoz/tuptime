@@ -24,7 +24,7 @@ except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
 version = '2.2.00'
-def_time_format = '%H:%M:%S   %d-%b-%Y'
+def_date_format = '%X %x'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 
@@ -91,7 +91,12 @@ def main():
 
     # - Reading command line parameters
     parser = optparse.OptionParser()
-    parser.add_option('-d', '--database',
+    parser.add_option('-d', '--date',
+        dest='date_format',
+        default=def_date_format,
+        action='store',
+        help='date format')
+    parser.add_option('-f', '--filedb',
         dest='db_file',
         default=def_db_file,
         action='store',
@@ -108,11 +113,6 @@ def main():
         default=def_seconds,
         action='store_true',
         help='output time in seconds and epoch')
-    parser.add_option('-t', '--time',
-        dest='time_format',
-        default=def_time_format,
-        action='store',
-        help='time format')
     parser.add_option('-x', '--silent',
         dest='silent',
         default=False,
@@ -249,8 +249,8 @@ def main():
             print 'System time: \t\t' + str(total_uptime)
         else:
             # - Get some values in human readable style
-            first_btime_h = str(datetime.fromtimestamp(first_btime).strftime(opt.time_format))
-            last_btime_h = str(datetime.fromtimestamp(last_btime).strftime(opt.time_format))
+            first_btime_h = str(datetime.fromtimestamp(first_btime).strftime(opt.date_format))
+            last_btime_h = str(datetime.fromtimestamp(last_btime).strftime(opt.date_format))
             average_h = str(time_conv(total_uptime / startups))
 
             print 'System startups:\t' + str(startups) + '   since   ' + first_btime_h

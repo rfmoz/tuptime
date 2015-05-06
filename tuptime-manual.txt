@@ -1,0 +1,205 @@
+                         ----------------------
+                            Tuptime    Manual
+                         ----------------------
+                             version 2.2.00
+                               Ricardo F.
+                              10/May/2015
+
+
+
+============
+| Abstract |
+============
+
+Tuptime report historical and statistical running time of the system, keeping it between restarts.
+Indeed, it can:
+  - count system startups
+  - register first boot time (a.k.a. installation time)
+  - count nicely and accidentally shutdowns 
+  - average uptime
+  - current uptime
+  - uptime rate since first boot time
+  - accumulated system time
+
+
+=================
+| Prerequisites |
+=================
+
+Almost these version of the following software:
+
+   python 2.7 with this modules:
+      sys, optparse, os, re, string, sqlite3, datetime, disutils
+
+
+================
+| Installation |
+================
+
+Clone repository and copy executable file:
+
+	# cp tuptime/latest/tuptime /usr/bin/tuptime
+
+Copy cron file:
+
+	# cp tuptime/latest/cron.d/tuptime /etc/cron.d/tuptime
+
+If is a system with systemd, copy service file and enable it:
+	
+	# cp tuptime/latest/systemd/tuptime.service /etc/systemd/system/
+        # systemctl enable tuptime.service
+
+If the systemd don't have systemd, copy init file:
+
+	# cp tuptime/latest/init.d/tuptime /etc/init.d/tuptime
+	# update-rc.d tuptime defaults
+
+Finally, run it:
+
+	# tuptime
+
+
+============================
+| Command line  parameters |
+============================
+
+These are the command line options, no configuration file is used:
+
+  -h, --help            show this help message and exit
+  -d DATE_FORMAT, --date=DATE_FORMAT
+                        date format
+  -f FILE, --filedb=FILE
+                        database file
+  -g, --graceful        gracefully shutdown
+  -s, --seconds         output time in seconds and epoch
+  -x, --silent          update values without print
+  -v, --verbose         verbose output
+  -V, --version         show version
+
+
+-h, --help
+  Print a quick reference of the command line parameters.
+
+  Examples:
+         tuptime -h
+         tuptime --help
+
+
+-d <DATE_FORMAT>, --date=<DATE_FORMAT>
+  Change the format of the date. By it's printed based on locales.
+  Allow values are:
+
+	%a	Weekday as locale’s abbreviated name.
+	%A	Weekday as locale’s full name.
+	%w	Weekday as a decimal number, where 0 is Sunday and 6 is 
+		Saturday.
+	%d	Day of the month as a zero-padded decimal number.
+	%b	Month as locale’s abbreviated name.
+	%B	Month as locale’s full name.
+	%m	Month as a zero-padded decimal number.
+	%y	Year without century as a zero-padded decimal number.
+	%Y	Year with century as a decimal number.
+	%H	Hour (24-hour clock) as a zero-padded decimal number.
+	%I	Hour (12-hour clock) as a zero-padded decimal number.
+	%p	Locale’s equivalent of either AM or PM.
+	%M	Minute as a zero-padded decimal number.
+	%S	Second as a zero-padded decimal number.
+	%f	Microsecond as a decimal number, zero-padded on the left.
+	%z	UTC offset in the form +HHMM or -HHMM (empty string if the 
+		the object is naive).
+	%Z	Time zone name (empty string if the object is naive).
+	%j	Day of the year as a zero-padded decimal number.
+	%U	Week number of the year (Sunday as the first day of the week) 
+		as a zero padded decimal number. All days in a new year 
+		preceding the first Sunday are considered to be in week 0.
+	%W	Week number of the year (Monday as the first day of the week) 
+		as a decimal number. All days in a new year preceding the 
+		first Monday are considered to be in week 0.
+	%c	Locale’s appropriate date and time representation.
+	%x	Locale’s appropriate date representation.
+	%X	Locale’s appropriate time representation.
+	%%	A literal '%' character.
+
+
+  Examples:
+         tuptime -d '%X %x'  # (Default)
+         tuptime -d '%H:%M:%S   %m-%d-%Y'  # British style
+         tuptime -d '%H:%M:%S   %d-%b-%Y'  # Spanish style
+
+
+-f <FILE>, --filedb=<FILE>
+  Define an alternative database file. Default is located in 
+  '/var/lib/tuptime/tuptime.db'
+
+  Examples:
+         tuptime -f /var/lib/tuptime/tuptime.db  # (Default)
+         tuptime -f /tmp/test1.db
+         tuptime --filedb /tmp/test2.db
+
+  
+-g, --graceful
+  Register last time in the db as a graceful shutdown. This option is the way
+  that tuptime have for know if is a good or a bad shutdown, like a hang of the
+  system, for example. This is used in the init.d and systemd files at the 
+  shutdown process.
+
+  Examples:
+         tuptime -g
+         tuptime --graceful
+
+
+-s, --seconds
+  Change default human readable date style and print times in seconds and
+  dates in epoch.
+
+  Examples:
+         tuptime -s
+         tuptime --seconds
+
+
+-x, --silent
+  Any output is printed. Only update values and save them into disk.
+
+  Examples:
+         tuptime -x
+         tuptime --silent
+
+
+-v, --verbose
+  Print information about the internals of tuptime. It's good for debugging 
+  how it gets the variables.
+
+  Examples:
+         tuptime -v
+         tuptime --verbose
+
+
+-V, --version:
+  Print version number and exit.
+
+  Examples:
+         tuptime -V
+         tuptime --version
+
+
+======================
+| Schedule execution |
+======================
+
+It's importat to have a schedule execution. If the init or systemd scripts
+are installed as it needs, the program only update values at startup and 
+shutdown, but if the system fails, hangs or whatever, the uptime time it's 
+lost. Add this line to cron for avoid it.
+
+30 *    * * *   root    if [ -x /usr/bin/tuptime ]; then /usr/bin/tuptime -x > /dev/null; fi
+
+
+================
+| Some Toughts |
+================
+
+Usually the installation it's made with a privileged user, for that reason,
+the database file it's created with restricted permissions and unprivileged
+users can only read it. This situation it's covered for print values, but 
+not for update database. In this habitual case, a privileged user need to
+execute tuptime for update values at startup and shutdown.
