@@ -1,6 +1,7 @@
 [Unit]
 Description=Tuptime service
 After=local-fs.target
+Requires=local-fs.target
 
 [Service]
 Type=oneshot
