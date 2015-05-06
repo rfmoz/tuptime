@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "purge" ] ; then
+	if [ -d "/var/lib/tuptime/" ]; then
+		rm -rf /var/lib/tuptime/
+	fi
+
+fi
