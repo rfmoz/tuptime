@@ -29,4 +29,7 @@ And you will get some similar to this:
 
 For keep it updated, add the init script or systemd file and a cron entry.
 
-More information into Tuptime Manual "tuptime-manual.txt"
+
+### More information
+
+Please, read tuptime-manual.txt for a complete reference guide.
