@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+
+# Backup files if they exists previously
+if [ -d "/var/lib/tuptime/" ]; then
+	cd /var/lib/tuptime && tar -zcvf /var/lib/tuptime/tuptime-backup-"$(date +%y-%m-%d).tar.gz" * --exclude='tuptime*.tar.gz'
+fi
