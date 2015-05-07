@@ -3,7 +3,6 @@ set -e
 
 
 if [ -f "/etc/systemd/system/tuptime.service" ]; then
-	systemctl enable tuptime.service
-	systemctl status tuptime.service
+        systemctl enable tuptime.service
+        systemctl start tuptime.service
 fi
-
