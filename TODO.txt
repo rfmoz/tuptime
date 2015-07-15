@@ -1,0 +1,13 @@
+# Add shutdowns stats, for example:
+
+System startups
+System shutdowns: (add sum)
+Average uptime
+Average downtime
+Current uptime
+Current downtime
+Uptime rate
+Downtime rate
+System uptime
+System life
+
