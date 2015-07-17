@@ -1,0 +1,288 @@
+#!/usr/bin/python2.7
+# -*- coding: utf-8 -*-
+
+# tuptime - Report the historical and statistical running time of the system, keeping it between restarts.
+# Copyright (C) 2011-2015 - Ricardo F.
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+try:
+    import sys, os, optparse, re, string, sqlite3
+    from datetime import datetime
+    from distutils.util import strtobool
+except Exception as e:
+    sys.exit('ERROR modules are not imported correctly: ' + str(e))
+
+version = '2.3.00'
+def_date_format = '%X %x'
+def_db_file = '/var/lib/tuptime/tuptime.db'
+def_seconds = False
+
+
+def sanitize(text_value):
+    """Remove especial characters"""
+    excluded = "[\',\",\;,\|,\<,\>]"  # excluded characters
+    resultd = re.sub(excluded, '', (string.strip(text_value.split('#', 1)[0].split(';', 1)[0].split(',', 1)[0])))
+    if resultd:
+        return resultd
+    else:
+        raise Exception('ERROR inside: '+ text_value)
+
+
+def yes_or_not(question):
+    """Ask user for y/n"""
+    sys.stdout.write('%s [y/n]\n' % question)
+    while True:
+        try:
+            return strtobool(raw_input().lower())
+        except ValueError:
+            sys.stdout.write('Please respond with \'y\' or \'n\'.\n')
+
+
+def vprint(*args):
+    """Print verbose information"""
+    if opt.verbose:
+        for arg in args:
+            print arg,
+        print
+
+
+def time_conv(secs):
+    """Convert seconds to human readable syle"""
+    try:
+        if secs == 0:
+            return '0 seconds'
+
+        tm = {'years': int(0), 'days': int(0), 'hours': int(0), 'minutes': int(0), 'seconds': int(0)}
+        tm_tuple = ('years', 'days', 'hours', 'minutes', 'seconds')
+        zero_enter = True
+        human_tm = ''
+
+        # Get times values
+        tm['minutes'], tm['seconds'] = divmod(secs, 60)
+        tm['hours'], tm['minutes'] = divmod(tm['minutes'], 60)
+        tm['days'], tm['hours'] = divmod(tm['hours'], 24)
+        tm['years'], tm['days'] = divmod(tm['days'], 365)
+
+        for key in tm_tuple:  # avoid print empty values at the beginning
+            if tm[key] == 0 and zero_enter:
+                continue
+            else:
+                human_tm += str(int(tm[key]))+' '+str(key) + ', '
+                zero_enter = False
+
+        if human_tm.find('minutes, '):  # nice sentence end, remove comma
+            human_tm = human_tm.replace('minutes, ', 'minutes and ')
+
+        return str(human_tm[:-2])  # return without last comma and space chareacter
+    except Exception as e:
+        sys.exit('ERROR converting seconds: '+ str(e))
+
+
+def main():
+    global opt
+
+    # - Reading command line parameters
+    parser = optparse.OptionParser()
+    parser.add_option('-d', '--date',
+        dest='date_format',
+        default=def_date_format,
+        action='store',
+        help='date format')
+    parser.add_option('-f', '--filedb',
+        dest='db_file',
+        default=def_db_file,
+        action='store',
+        help='database file',
+        metavar='FILE')
+    parser.add_option('-g', '--graceful',
+        dest='shutdown',
+        action='store_const',
+        default=0,
+        const=1,
+        help='gracefully shutdown')
+    parser.add_option('-s', '--seconds',
+        dest='seconds',
+        default=def_seconds,
+        action='store_true',
+        help='output time in seconds and epoch')
+    parser.add_option('-x', '--silent',
+        dest='silent',
+        default=False,
+        action='store_true',
+        help='update values without print')
+    parser.add_option('-v', '--verbose',
+        dest='verbose',
+        default=False,
+        action='store_true',
+        help='verbose output')
+    parser.add_option('-V', '--version',
+        dest='version',
+        default=False,
+        action='store_true',
+        help='show version')
+    opt, _ = parser.parse_args()
+
+    # - Parse version option
+    if opt.version:
+        print 'tuptime version', version
+        sys.exit(0)
+
+    # - Reading /proc/uptime
+    try:
+        with open('/proc/uptime', 'r', 0) as fl:
+            uptime = float(fl.readline().split()[0])
+            vprint('/proc/uptime = ' + str(uptime))
+    except Exception as e:
+        sys.exit('ERROR reading /proc/uptime'+ str(e))
+
+    # - Reading btime from /proc/stat
+    try:
+        with open('/proc/stat', 'r', 0) as fl:
+            for line in fl:
+                if line.startswith('btime'):
+                    btime = int(line.split()[1])
+            vprint('/proc/stat btime = ' + str(btime))
+    except Exception as e:
+        sys.exit('ERROR reading /proc/stat'+ str(e))
+
+    # - Assure state of db file
+    try:
+        if os.path.isdir(os.path.dirname(opt.db_file)):
+            vprint('Directory exists =', os.path.dirname(opt.db_file))
+        else:
+            vprint('Creating directory =', opt.db_file)
+            os.makedirs(os.path.dirname(opt.db_file))
+
+        if os.path.isfile(opt.db_file):
+            vprint('DB file exists =', opt.db_file)
+        else:
+            vprint('Creating DB file =', opt.db_file)
+            db = sqlite3.connect(opt.db_file)
+            conn = db.cursor()
+            conn.execute('create table if not exists tuptime(uptime real, btime integer, shutdown)')
+            conn.execute('insert into tuptime values (?,?,?)', (str(uptime), str(btime), str(opt.shutdown)))
+            db.commit()
+            db.close()
+    except Exception as e:
+        sys.exit('ERROR creating db file: '+ str(e))
+
+    # - Creating db connection
+    try:
+        db = sqlite3.connect(opt.db_file)
+        conn = db.cursor()
+    except Exception as e:
+        sys.exit('ERROR connecting db: '+ str(e))
+
+    # - Reading last btime for db
+    conn.execute('select btime from tuptime where oid = (select max(oid) from tuptime)')
+    last_btime = int(conn.fetchone()[0])
+    vprint('Last btime from db =', last_btime)
+
+    # - Test if system was resterted
+    try:
+        if last_btime < btime:
+            vprint('System was restarted')
+            conn.execute('insert into tuptime values (?,?,?)', (str(uptime), str(btime), str(opt.shutdown)))
+            last_btime = btime
+        else:
+            vprint('System wasn\'t restarted. Updating db values...')
+            conn.execute('update tuptime set uptime = '+ str(uptime) +', shutdown = '+ str(opt.shutdown) +' where oid = (select max(oid) from tuptime)')
+    except Exception as e:
+        if type(e).__name__ == 'OperationalError':
+            vprint('WARNING values not saved into db - Test file permissions')
+        vprint('WARNING', e)
+
+    # - Get number of startups
+    conn.execute('select max(oid) from tuptime')
+    startups = int(conn.fetchone()[0])
+    vprint('System startups registered in db =', startups)
+
+    # - Get first btime
+    conn.execute('select btime from tuptime limit 1')
+    first_btime = int(conn.fetchone()[0])
+    vprint('First btime from db =', first_btime)
+
+    # - Get total uptime
+    # conn.execute('select sum(uptime) from tuptime')
+    # hack for allow unprivileged users that can not update database show results
+    conn.execute('select sum(uptime) from tuptime where oid < (select max(oid) from tuptime)')
+    total_uptime = sum(filter(None, [conn.fetchone()[0], uptime]))
+    vprint('Total uptime registered from db =', total_uptime)
+
+    # - Get bad shutdowns
+    conn.execute('select count(shutdown) from tuptime where shutdown = 0 and oid < (select max(oid) from tuptime)')
+    bad_shdown = int(conn.fetchone()[0])
+    # conn.execute('select count(shutdown) from tuptime where shutdown = 1 and oid < (select max(oid) from tuptime)')
+    # ok_shdown = int(conn.fetchone()[0])
+    # hack for avoid one query to the db
+    ok_shdown = startups - bad_shdown - 1
+
+    # - Get life time
+    conn.execute('select btime from tuptime where oid = (select min(oid) from tuptime)')
+    first_btime = int(conn.fetchone()[0])
+    sys_life = (last_btime + uptime) - first_btime
+
+    # - Closing db connection
+    try:
+        db.commit()
+        db.close()
+    except Exception as e:
+        sys.exit('ERROR closing db connection: '+ str(e))
+
+    if opt.silent:
+        vprint('Only update')
+    else:
+        # - Get average uptime and uptime rate
+        average = float(total_uptime / startups)
+        uprate = float((total_uptime * 100 ) / (sys_life))
+	if startups == 1:
+            total_downtime = 0 
+	else:
+            total_downtime = float(sys_life - total_uptime)
+	downrate = abs(float((total_downtime * 100 ) / (sys_life)))
+        average_down = float(total_downtime / startups)
+
+        vprint('')
+
+        if opt.seconds:
+            print 'System startups:\t' + str(startups) + '   since   ' + str(first_btime)
+            print 'System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad'
+            print 'Average uptime: \t' + str(average)
+            print 'Average downtime: \t' + str(average_down)
+            print 'Current uptime: \t' + str(uptime) + '   since   ' + str(last_btime)
+            print 'Uptime rate: \t\t' + str(round(uprate, 5)) + ' %'
+            print 'Downtime rate: \t\t' + str(round(downrate, 5)) + ' %'
+            print 'System uptime: \t\t' + str(total_uptime)
+            print 'System downtime: \t' + str(total_downtime)
+            print 'System life: \t\t' + str(sys_life)
+        else:
+            # - Get some values in human readable style
+            first_btime_h = str(datetime.fromtimestamp(first_btime).strftime(opt.date_format))
+            last_btime_h = str(datetime.fromtimestamp(last_btime).strftime(opt.date_format))
+            average_h = str(time_conv(total_uptime / startups))
+            average_down_h = str(time_conv(total_downtime / startups))
+
+            print 'System startups:\t' + str(startups) + '   since   ' + first_btime_h
+            print 'System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad'
+            print 'Average uptime: \t' + average_h
+            print 'Average downtime: \t' + average_down_h
+            print 'Current uptime: \t' + time_conv(uptime) + '   since   ' + last_btime_h
+            print 'Uptime rate: \t\t' + str(round(uprate, 5)) + ' %'
+            print 'Downtime rate: \t\t' + str(round(downrate, 5)) + ' %'
+            print 'System uptime: \t\t' + time_conv(total_uptime)
+            print 'System downtime: \t' + time_conv(total_downtime)
+            print 'System life: \t\t' + time_conv(sys_life)
+
+if __name__ == "__main__":
+    main()
