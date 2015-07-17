@@ -258,14 +258,14 @@ def main():
         if opt.seconds:
             print 'System startups:\t' + str(startups) + '   since   ' + str(first_btime)
             print 'System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad'
-            print 'Average downtime: \t' + str(average_down)
             print 'Average uptime: \t' + str(average)
+            print 'Average downtime: \t' + str(average_down)
             print 'Current uptime: \t' + str(uptime) + '   since   ' + str(last_btime)
-            print 'Downtime rate: \t\t' + str(round(downrate, 5)) + ' %'
             print 'Uptime rate: \t\t' + str(round(uprate, 5)) + ' %'
-            print 'System life: \t\t' + str(sys_life)
-            print 'System downtime: \t' + str(total_downtime)
+            print 'Downtime rate: \t\t' + str(round(downrate, 5)) + ' %'
             print 'System uptime: \t\t' + str(total_uptime)
+            print 'System downtime: \t' + str(total_downtime)
+            print 'System life: \t\t' + str(sys_life)
         else:
             # - Get some values in human readable style
             first_btime_h = str(datetime.fromtimestamp(first_btime).strftime(opt.date_format))
@@ -275,14 +275,14 @@ def main():
 
             print 'System startups:\t' + str(startups) + '   since   ' + first_btime_h
             print 'System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad'
-            print 'Average downtime: \t' + average_down_h
             print 'Average uptime: \t' + average_h
+            print 'Average downtime: \t' + average_down_h
             print 'Current uptime: \t' + time_conv(uptime) + '   since   ' + last_btime_h
-            print 'Downtime rate: \t\t' + str(round(downrate, 5)) + ' %'
             print 'Uptime rate: \t\t' + str(round(uprate, 5)) + ' %'
-            print 'System life: \t\t' + time_conv(sys_life)
-            print 'System downtime: \t' + time_conv(total_downtime)
+            print 'Downtime rate: \t\t' + str(round(downrate, 5)) + ' %'
             print 'System uptime: \t\t' + time_conv(total_uptime)
+            print 'System downtime: \t' + time_conv(total_downtime)
+            print 'System life: \t\t' + time_conv(sys_life)
 
 if __name__ == "__main__":
     main()

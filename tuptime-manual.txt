@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                             version 2.2.00
+                             version 2.3.00
                                Ricardo F.
-                              10/May/2015
+                              16/Jul/2015
 
 
 
@@ -16,10 +16,10 @@ Indeed, it can:
   - count system startups
   - register first boot time (a.k.a. installation time)
   - count nicely and accidentally shutdowns 
-  - average uptime
+  - average uptime and downtime
   - current uptime
-  - uptime rate since first boot time
-  - accumulated system time
+  - uptime and downtime rate since first boot time
+  - accumulated system uptime, downtime and total
 
 
 =================
@@ -188,8 +188,8 @@ These are the command line options, no configuration file is used:
 
 It's importat to have a schedule execution. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
-shutdown, but if the system fails, hangs or whatever, the uptime time it's 
-lost. Add this line to cron for avoid it.
+shutdown, but if the system fails, hangs or whatever, the uptime time will
+be lost. Add this line to cron for avoid it.
 
 30 *    * * *   root    if [ -x /usr/bin/tuptime ]; then /usr/bin/tuptime -x > /dev/null; fi
 
@@ -198,8 +198,8 @@ lost. Add this line to cron for avoid it.
 | Some Toughts |
 ================
 
-Usually the installation it's made with a privileged user, for that reason,
+Usually the installation is made with a privileged user, for that reason,
 the database file it's created with restricted permissions and unprivileged
-users can only read it. This situation it's covered for print values, but 
+users can only read it. This situation is covered for print values, but 
 not for update database. In this habitual case, a privileged user need to
 execute tuptime for update values at startup and shutdown.
