@@ -244,6 +244,7 @@ def main():
         for row_num in xrange(1, (startups + 1)):
             conn.execute('select * from tuptime where oid = '+ str(row_num))
             values = list(conn.fetchone())
+            vprint('Fetched row '+ str(row_num) +' with '+ str(values))
             row_dict = dict(zip(keys, values))  # join key + value for db row
             if row_dict['pwoff_status'] == 1:
                 e_pwoff = 'OK'
