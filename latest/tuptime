@@ -211,19 +211,16 @@ def main():
     # - Get number of startups
     conn.execute('select max(oid) from tuptime')
     startups = int(conn.fetchone()[0])
-    vprint('System startups registered in db =', startups)
 
     # - Get first btime
     conn.execute('select btime from tuptime limit 1')
     first_btime = int(conn.fetchone()[0])
-    vprint('First btime from db =', first_btime)
 
     # - Get total uptime
     # conn.execute('select sum(uptime) from tuptime')
     # hack for allow unprivileged users that can not update database show results
     conn.execute('select sum(uptime) from tuptime where oid < (select max(oid) from tuptime)')
     total_uptime = sum(filter(None, [conn.fetchone()[0], uptime]))
-    vprint('Total uptime registered from db =', total_uptime)
 
     # - Get bad shutdowns
     conn.execute('select count(shutdown) from tuptime where shutdown = \'0\' and oid < (select max(oid) from tuptime)')
