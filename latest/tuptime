@@ -23,10 +23,13 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '2.4.00'
+version = '2.4.10'
 def_date_format = '%X %x'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
+max_drift_secs = 1  # Max seconds allowed in btime for consider the system restarted. In some particular 
+                    # cases the btime value from /proc/stat may change and produce a false shutdown register.
+                    # More info in Debian bug 119971 and into the NTP docs.
 
 
 def sanitize(text_value):
@@ -196,7 +199,7 @@ def main():
 
     # - Test if system was resterted
     try:
-        if last_btime < btime:
+        if (last_btime + max_drift_secs ) < btime:
             vprint('System was restarted')
             conn.execute('insert into tuptime values (?,?,?)', (str(uptime), str(btime), str(opt.shutdown)))
             last_btime = btime
