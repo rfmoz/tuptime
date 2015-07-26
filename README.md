@@ -44,25 +44,6 @@ If you do the same a few days ago, the output may will be more similar to this:
 	System downtime: 	53 days, 3 hours, 45 minutes and 27 seconds
 	System life: 		70 days, 22 hours, 22 minutes and 13 seconds
 
-And if you add the enumerate (-e) option, the system life will be printed:
-
-	Startup:  1  at  10:03:31 05/03/15
-	Uptime:   2 minutes and 9 seconds
-	Shutdown: OK  at  10:05:40 05/03/15
-
-	Downtime: 15 seconds
-
-	Startup:  2  at  10:05:56 05/03/15
-	Uptime:   3 minutes and 14 seconds
-	Shutdown: OK  at  10:09:10 05/03/15
-
-	Downtime: 1 hours, 40 minutes and 56 seconds
-
-	Startup:  3  at  11:50:07 05/03/15
-	Uptime:   9 seconds
-	Shutdown: BAD  at  11:50:16 05/03/15
-
-
 Don forguet! For keep it updated, add the init script or systemd file and a cron entry.
 
 
