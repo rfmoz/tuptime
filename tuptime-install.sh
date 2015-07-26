@@ -40,7 +40,7 @@ git clone https://github.com/rfrail3/tuptime.git ${F_TMP1}
 
 echo "Copying files..."
 cp -a ${F_TMP1}/latest/tuptime ${D_BIN}/tuptime
-chmod 744 ${D_BIN}/tuptime
+chmod 755 ${D_BIN}/tuptime
 
 systemctl --version &> /dev/null
 if [ $? -eq 0 ]; then
