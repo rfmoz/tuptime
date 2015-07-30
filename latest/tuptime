@@ -29,7 +29,8 @@ def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 max_drift_secs = 1  # Max seconds allowed in btime for consider the system restarted. In some particular 
                     # cases the btime value from /proc/stat may change and produce a false shutdown register.
-                    # More info in Debian bug 119971 and into the NTP docs.
+                    # Usually happend on virtualized enviroments, servers with high load or ntp.
+                    # Related to kernel jiffies / HZ and lost ticks.
 
 
 def sanitize(text_value):
