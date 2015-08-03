@@ -23,7 +23,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '2.4.10'
+version = '2.4.25'
 def_date_format = '%X %x'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
@@ -198,8 +198,11 @@ def main():
     vprint('Last btime from db =', last_btime)
 
     # - Test if system was resterted
+    # It's better to discover a shutdown with last_btime + uptime + drift rather than last_btime + drift only 
+    # because btime can change, for example, when ntp are syncing the clock.
+
     try:
-        if (last_btime + max_drift_secs ) < btime:
+	if (last_btime + uptime + max_drift_secs) < btime:
             vprint('System was restarted')
             conn.execute('insert into tuptime values (?,?,?)', (str(uptime), str(btime), str(opt.shutdown)))
             last_btime = btime
