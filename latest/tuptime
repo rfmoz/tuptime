@@ -23,7 +23,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '2.5.10'
+version = '2.5.11'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 locale.setlocale(locale.LC_ALL, '')
@@ -322,7 +322,7 @@ def main():
             print 'Downtime rate: \t\t' + str(round(downrate, 5)) + ' %'
             print 'System uptime: \t\t' + str(total_uptime)
             print 'System downtime: \t' + str(total_downtime)
-            print 'System life: \t\t' + str(sys_life)
+            print 'System life: \t\t' + str(round(sys_life, 2))
         else:
             # - Get some values in human readable style
             first_btime_h = str(datetime.fromtimestamp(first_btime).strftime(opt.date_format))
