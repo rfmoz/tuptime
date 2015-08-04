@@ -1,8 +1,8 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                             version 2.4.26
-                               Ricardo F.
+                             version 2.5.00
+                                Ricardo F.
                               04/August/2015
 
 
@@ -30,7 +30,7 @@ Indeed, it can:
 Almost these version of the following software:
 
    python 2.7 with this modules:
-      sys, optparse, os, re, string, sqlite3, datetime, disutils
+      sys, optparse, os, re, string, sqlite3, datetime, disutils, locale
 
 
 ================

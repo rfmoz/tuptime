@@ -17,16 +17,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    import sys, os, optparse, re, string, sqlite3
+    import sys, os, optparse, re, string, sqlite3, locale
     from datetime import datetime
     from distutils.util import strtobool
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '2.4.26'
-def_date_format = '%X %x'
+version = '2.5.00'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
+locale.setlocale(locale.LC_ALL, '')
+def_date_format = '%X %x'
 
 
 def sanitize(text_value):
@@ -232,7 +233,7 @@ def main():
     total_uptime = sum(filter(None, [conn.fetchone()[0], uptime]))
 
     # - Get bad shutdowns
-    conn.execute('select count(shutdown) from tuptime where shutdown = \'0\' and oid < (select max(oid) from tuptime)')
+    conn.execute('select count(shutdown) from tuptime where shutdown == 0 and oid < (select max(oid) from tuptime)')
     bad_shdown = int(conn.fetchone()[0])
     # conn.execute('select count(shutdown) from tuptime where shutdown = 1 and oid < (select max(oid) from tuptime)')
     # ok_shdown = int(conn.fetchone()[0])

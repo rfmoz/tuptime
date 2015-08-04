@@ -2,7 +2,7 @@
 
 #
 # Tuptime installation script
-# v.1.0
+# v.1.1
 #
 
 git --version &> /dev/null
@@ -24,7 +24,7 @@ else
 	else
                 echo '###########################################################################'
 		echo "Please, ensure that this Python modules are available in the local system:"
-		echo "sys, os, optparse, re, string, sqlite3 datetime distutils"
+		echo "sys, os, optparse, re, string, sqlite3 datetime distutils locale"
                 echo '###########################################################################'
 	fi
 fi
@@ -45,7 +45,7 @@ chmod 755 ${D_BIN}/tuptime
 systemctl --version &> /dev/null
 if [ $? -eq 0 ]; then
 	echo "Copying systemd file..."
-	cp -a ${F_TMP1}/latest/systemd/tuptime.service  /etc/systemd/system/
+	cp -a ${F_TMP1}/latest/systemd/tuptime.service  /lib/systemd/system/
 	systemctl enable tuptime.service
 else
 	echo "Copying init file..."
