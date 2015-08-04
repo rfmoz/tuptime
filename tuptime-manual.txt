@@ -1,7 +1,7 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                             version 2.5.00
+                             version 2.5.10
                                 Ricardo F.
                               04/August/2015
 
@@ -47,7 +47,7 @@ Copy cron file:
 
 If is a system with systemd, copy service file and enable it:
 	
-	# cp tuptime/latest/systemd/tuptime.service /etc/systemd/system/
+	# cp tuptime/latest/systemd/tuptime.service /lib/systemd/system/
         # systemctl enable tuptime.service
 
 If the systemd don't have systemd, copy init file:
