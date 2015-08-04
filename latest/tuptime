@@ -198,10 +198,11 @@ def main():
     # How tuptime do it:
     #    Checking if last_btime saved into db plus uptime is lower than actual btime
     #
-    # In some particular cases the btime value from /proc/stat may change. If only test last_btime vs
+    # In some particular cases the btime value from /proc/stat may change. Testing only last_btime vs
     # actual btime can produce a false shutdown register.
     # Usually happend on virtualized enviroments, servers with high load or when ntp are running.
     # Related to kernel system clock frequency, computation of jiffies / HZ and the problem of lost ticks.
+    # More info in Debian bug 119971 and rfc1589
 
     try:
 	if (last_btime + uptime) < btime:
