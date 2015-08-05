@@ -1,0 +1,10 @@
+Package: tuptime
+Version: 2.5.00
+Section: utils
+Priority: optional
+Architecture: all
+Depends: python (>= 2.7), python2.7 (>= 2.7), systemd (>= 215-17)
+Maintainer: Ricardo F.  <rfrail3@yahoo.es>
+Description: tool for get historical system running time.
+ Tuptime report historical and statistical running time of the system, 
+ keeping it between restarts.
