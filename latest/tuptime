@@ -23,7 +23,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '2.5.12'
+version = '2.5.20'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 locale.setlocale(locale.LC_ALL, '')
@@ -177,7 +177,7 @@ def main():
             vprint('Creating DB file =', opt.db_file)
             db = sqlite3.connect(opt.db_file)
             conn = db.cursor()
-            conn.execute('create table if not exists tuptime(uptime real, btime integer, shutdown)')
+            conn.execute('create table if not exists tuptime(uptime real, btime integer, shutdown integer)')
             conn.execute('insert into tuptime values (?,?,?)', (str(uptime), str(btime), str(opt.shutdown)))
             db.commit()
             db.close()

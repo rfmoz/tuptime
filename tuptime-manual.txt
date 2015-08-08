@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                             version 2.5.12
+                             version 2.5.20
                                 Ricardo F.
-                              04/August/2015
+                             08/August/2015
 
 
 
