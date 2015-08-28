@@ -23,7 +23,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '2.5.20'
+version = '2.5.30'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 locale.setlocale(locale.LC_ALL, '')
@@ -217,6 +217,10 @@ def main():
     except Exception as e:
         if type(e).__name__ == 'OperationalError':
             vprint('WARNING values not saved into db - Test file permissions')
+	if (last_btime + uptime) < btime:
+	    # If you see this error, maybe systemd script isn't executed at startup 
+	    # or the db file (def_db_file) have wrong permissions.
+	    sys.exit('ERROR After system restart, the values must be saved into db. Please, execute tuptime with a privileged user.')
         vprint('WARNING', e)
 
     # - Get number of startups
