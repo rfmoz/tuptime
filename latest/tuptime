@@ -122,7 +122,7 @@ def main():
 
     # - Parse version option
     if opt.version:
-        print('tuptime version', version)
+        print ('tuptime version ' + version)
         sys.exit(0)
 
     # - Reading /proc/uptime
