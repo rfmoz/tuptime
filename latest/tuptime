@@ -17,9 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    import sys, os, optparse, re, string, sqlite3, locale
+    import sys, os, optparse, sqlite3, locale
     from datetime import datetime
-    from distutils.util import strtobool
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
