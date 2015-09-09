@@ -2,7 +2,7 @@
 
 #
 # Tuptime installation script
-# v.1.1
+# v.1.2
 #
 
 git --version &> /dev/null
@@ -14,19 +14,19 @@ fi
 
 pyver=`python --version 2>&1 /dev/null`
 if [ $? -ne 0 ]; then
-	echo "ERROR: Python not available"
-	echo "Please, install version 2.7"; exit 1
+        echo "ERROR: Python not available"
+        echo "Please, install version 2.7 or greater (3.X recomended)"; exit 1
 else
-	pynum=`echo ${pyver} | tr -d '.''' | grep -Eo  '[0-9]*' | cut -c 1-2`
-	if [ $pynum -ne 27 ] ; then
-		echo "ERROR: Its needed Python version 2.7, not ${pyver}"
-		echo "Please, upgrade it."; exit 1
-	else
+        pynum=`echo ${pyver} | tr -d '.''' | grep -Eo  '[0-9]*' | cut -c 1-2`
+        if [ $pynum -lt 27 ] ; then
+                echo "ERROR: Its needed Python version 2.7 or greater (3.X recomended), not ${pyver}"
+                echo "Please, upgrade it."; exit 1
+        else
                 echo '###########################################################################'
-		echo "Please, ensure that this Python modules are available in the local system:"
-		echo "sys, os, optparse, re, string, sqlite3 datetime distutils locale"
+                echo "Please, ensure that this Python modules are available in the local system:"
+                echo "sys, optparse, os, sqlite3, datetime, locale, platform"
                 echo '###########################################################################'
-	fi
+        fi
 fi
 
 F_TMP1=`mktemp -d`

@@ -14,6 +14,10 @@ Copy the "tuptime" file located under "latest/" directory to "/usr/bin/" and mak
 	cp tuptime/latest/tuptime /usr/bin/tuptime
 	chmod ugo+x /usr/bin/tuptime
 
+Assure that the system pass the prerequisites:
+
+	Linux or FreeBSD+linprocfs with python 2.7 or 3.X and a few modules (sys, optparse, os, sqlite3, datetime, locale, platform)
+
 Run first with a privileged user:
 
 	tuptime

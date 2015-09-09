@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                             version 2.5.20
+                             version 2.6.10
                                 Ricardo F.
-                             08/August/2015
+                            08/September/2015
 
 
 
@@ -27,10 +27,14 @@ Indeed, it can:
 | Prerequisites |
 =================
 
-Almost these version of the following software:
+Operating system:
+   - Linux
+   - FreeBSD with linprocfs mounted
 
-   python 2.7 with this modules:
-      sys, optparse, os, re, string, sqlite3, datetime, disutils, locale
+Software:
+   - Python 2.7 or Python 3.X (Latest recomended)
+   - Python modules:
+       sys, optparse, os, sqlite3, datetime, locale, platform
 
 
 ================
@@ -201,7 +205,7 @@ are installed as it needs, the program only update values at startup and
 shutdown, but if the system fails, hangs or whatever, the uptime time will
 be lost. Add this line to cron for avoid it.
 
-30 *    * * *   root    if [ -x /usr/bin/tuptime ]; then /usr/bin/tuptime -x > /dev/null; fi
+15 *    * * *   root    if [ -x /usr/bin/tuptime ]; then /usr/bin/tuptime -x > /dev/null; fi
 
 
 ================
