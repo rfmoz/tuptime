@@ -3,7 +3,7 @@ Version: 2.6.10
 Section: utils
 Priority: optional
 Architecture: all
-Depends: python (>= 2.7), python2.7 (>= 2.7), systemd (>= 215-17)
+Depends: python (>= 2.7), systemd (>= 215-17)
 Maintainer: Ricardo F.  <rfrail3@yahoo.es>
 Description: report historical system running time.
  Tuptime report historical and statistical running time of the system, 
