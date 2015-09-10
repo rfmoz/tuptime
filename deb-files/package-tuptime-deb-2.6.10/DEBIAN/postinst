@@ -2,7 +2,7 @@
 set -e
 
 
-if [ -f "/etc/systemd/system/tuptime.service" ]; then
+if [ -f "/lib/systemd/system/tuptime.service" ]; then
         systemctl enable tuptime.service
         systemctl start tuptime.service
 fi
