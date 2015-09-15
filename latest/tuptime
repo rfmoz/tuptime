@@ -330,61 +330,62 @@ def main():
                 else:
                     print('Downtime: ' + e_downtime_h)
                 print('')
-    # Large uptime
-    # hack for allow unprivileged users that can not update database show results
-    conn.execute('select max(uptime), btime, oid from tuptime where oid < (select max(oid) from tuptime)')
-    large_uptime_time_db, large_uptime_date_db, large_uptime_row = conn.fetchone()
-    if large_uptime_time_db > uptime:
-        large_uptime_time = large_uptime_time_db
-        large_uptime_date = large_uptime_date_db
+    if startups < 1:
+        # Large uptime
+        # hack for allow unprivileged users that can not update database show results
+        conn.execute('select max(uptime), btime from tuptime where oid < (select max(oid) from tuptime)')
+        larg_up_uptime, larg_up_btime = conn.fetchone()
+        # Short uptime
+        # hack for allow unprivileged users that can not update database show results
+        conn.execute('select min(uptime), btime from tuptime where oid < (select max(oid) from tuptime)')
+        shrt_up_uptime, shrt_up_btime = conn.fetchone()
+        # Large dowtime
+        # hack for allow unprivileged users that can not update database show results
+        conn.execute('select max(downtime), btime, uptime from tuptime where oid < (select max(oid) from tuptime)')
+        larg_down_downtime, larg_down_btime, larg_uptime = conn.fetchone()
+        larg_down_date = larg_down_bdate + larg_uptime
+        # Short dowtime
+        # hack for allow unprivileged users that can not update database show results
+        conn.execute('select min(downtime), btime, uptime from tuptime where oid < (select max(oid) from tuptime)')
+        shrt_down_downtime, shrt_down_btime, shrt_down_uptime = conn.fetchone()
+        shrt_down_date = shrt_down_btime + shrt_down_uptime
     else:
-        large_uptime_time = uptime
-        large_uptime_date = last_btime
-        large_uptime_row += 1
-
-    # Short uptime
-    # hack for allow unprivileged users that can not update database show results
-    conn.execute('select min(uptime), btime, oid from tuptime where oid < (select max(oid) from tuptime)')
-    short_uptime_time_db, short_uptime_date_db, short_uptime_row = conn.fetchone()
-    if short_uptime_time_db < uptime:
-        short_uptime_time = short_uptime_time_db
-        short_uptime_date = short_uptime_date_db
-    else:
-        short_uptime_time = uptime
-        short_uptime_date = last_btime
-        short_uptime_row += 1
+        larg_up_uptime = 0; arg_up_btime = 0; larg_up_row = 0
+        shrt_up_uptime = 0; shrt_up_btime = 0; shrt_up_row = 0
+        larg_down_date = 0
+        larg_down_downtime = 0
+        shrt_down_date = 0
+        shrt_down_downtime = 0
+    if larg_up_uptime <= uptime:
+        larg_up_btime = uptime
+        larg_up_uptime = last_btime
+        larg_up_row += 1
+    if shrt_up_uptime >= uptime:
+        shrt_up_uptime = uptime
+        shrt_up_btime = last_btime
+        shrt_up_row += 1
      
-    # Large dowtime
-    # hack for allow unprivileged users that can not update database show results
-    conn.execute('select max(downtime), btime, oid, uptime from tuptime where oid < (select max(oid) from tuptime)')
-    large_downtime_time, large_downtime_date_db, large_downtime_row, large_uptime_db = conn.fetchone()
-    large_downtime_date = large_downtime_date_db + large_uptime_db
 
-    # short dowtime
-    # hack for allow unprivileged users that can not update database show results
-    conn.execute('select min(downtime), btime, oid, uptime from tuptime where oid < (select max(oid) from tuptime)')
-    short_downtime_time, short_downtime_date_db, short_downtime_row, short_uptime_db = conn.fetchone()
-    short_downtime_date = short_downtime_date_db + short_uptime_db
 
     if opt.seconds:
-        print('Large uptime:\t\t[' + str(large_uptime_row) +'] '+ str(large_uptime_time) + '   started at   ' + str(large_uptime_date))    
-        print('Large downtime:\t\t[' + str(large_downtime_row) +'] '+ str(large_downtime_time) + '   started at   ' + str(large_downtime_date))    
-        print('Short uptime:\t\t[' + str(short_uptime_row) +'] '+ str(short_uptime_time) + '   started at   ' + str(short_uptime_date))    
-        print('Short downtime:\t\t[' + str(short_downtime_row) +'] '+ str(short_downtime_time) + '   started at   ' + str(short_downtime_date))    
+        print('Large uptime:\t\t'+ str(larg_uptime_time) + '   started at   ' + str(larg_uptime_date))    
+        print('Large downtime:\t\t'+ str(larg_down_downtim) + '   started at   ' + str(larg_downtime_date))    
+        print('Short uptime:\t\t'+ str(shrt_uptime_time) + '   started at   ' + str(shrt_uptime_date))    
+        print('Short downtime:\t\t'+ str(shrt_down_downtime) + '   started at   ' + str(shrt_down_date))    
     else:
-        large_uptime_date_h = str(datetime.fromtimestamp(large_uptime_date).strftime(opt.date_format))
-        large_downtime_date_h = str(datetime.fromtimestamp(large_downtime_date).strftime(opt.date_format))
-        short_uptime_date_h = str(datetime.fromtimestamp(short_uptime_date).strftime(opt.date_format))
-        short_downtime_date_h = str(datetime.fromtimestamp(short_downtime_date).strftime(opt.date_format))
-        large_uptime_time_h =  time_conv(large_uptime_time)
-        large_downtime_time_h = time_conv(large_downtime_time)
-        short_uptime_time_h = time_conv(short_uptime_time)
-        short_downtime_time_h = time_conv(short_downtime_time)
+        larg_uptime_date_h = str(datetime.fromtimestamp(larg_up_btime).strftime(opt.date_format))
+        larg_downtime_date_h = str(datetime.fromtimestamp(larg_down_date).strftime(opt.date_format))
+        shrt_uptime_date_h = str(datetime.fromtimestamp(shrt_up_btime).strftime(opt.date_format))
+        shrt_down_date_h = str(datetime.fromtimestamp(shrt_down_date).strftime(opt.date_format))
+        larg_uptime_time_h =  time_conv(larg_up_uptime)
+        larg_down_downtime_h = time_conv(larg_down_downtime)
+        shrt_uptime_time_h = time_conv(shrt_up_uptime)
+        shrt_down_downtime_h = time_conv(shrt_down_downtime)
         
-        print('Large uptime:\t\t[' + str(large_uptime_row) +'] '+ str(large_uptime_time_h) + '   started at   ' + str(large_uptime_date_h))    
-        print('Large downtime:\t\t[' + str(large_downtime_row) +'] '+ str(large_downtime_time_h) + '   started at   ' + str(large_downtime_date_h))    
-        print('Short uptime:\t\t[' + str(short_uptime_row) +'] '+ str(short_uptime_time_h) + '   started at   ' + str(short_uptime_date_h))    
-        print('Short downtime:\t\t[' + str(short_downtime_row) +'] '+ str(short_downtime_time_h) + '   started at   ' + str(short_downtime_date_h))    
+        print('Large uptime:\t\t'+ str(larg_uptime_time_h) + '   started at   ' + str(larg_uptime_date_h))    
+        print('Large downtime:\t\t'+ str(larg_down_downtime_h) + '   started at   ' + str(larg_downtime_date_h))    
+        print('Short uptime:\t\t'+ str(shrt_uptime_time_h) + '   started at   ' + str(shrt_uptime_date_h))    
+        print('Short downtime:\t\t'+ str(shrt_down_downtime_h) + '   started at   ' + str(shrt_down_date_h))    
 
     print('')
 
