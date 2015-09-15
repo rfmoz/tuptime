@@ -92,7 +92,7 @@ def main():
         help='database file',
         metavar='FILE')
     parser.add_option('-g', '--graceful',
-        dest='pwoff_status',
+        dest='pwoff_state',
         action='store_const',
         default='0',
         const='1',
@@ -162,8 +162,8 @@ def main():
             vprint('Creating DB file = ', opt.db_file)
             db = sqlite3.connect(opt.db_file)
             conn = db.cursor()
-            conn.execute('create table if not exists tuptime(uptime real, btime integer, pwoff_status integer, downtime real, offbtime integer)')
-            conn.execute('insert into tuptime values (?,?,?,?,?)', (str(uptime), str(btime), str(opt.pwoff_status), str('-1'), str('-1')))
+            conn.execute('create table if not exists tuptime(uptime real, btime integer, pwoff_state integer, downtime real, offbtime integer)')
+            conn.execute('insert into tuptime values (?,?,?,?,?)', (str(uptime), str(btime), str(opt.pwoff_state), str('-1'), str('-1')))
             db.commit()
             db.close()
     except Exception as e:
@@ -190,7 +190,7 @@ def main():
     #    Checking if last_btime saved into db plus uptime is lower than actual btime
     #
     # In some particular cases the btime value from /proc/stat may change. Testing only last_btime vs
-    # actual btime can produce a false pwoff_status register.
+    # actual btime can produce a false pwoff_state register.
     # Usually happend on virtualized enviroments, servers with high load or when ntp are running.
     # Related to kernel system clock frequency, computation of jiffies / HZ and the problem of lost ticks.
     # More info in Debian bug 119971 and rfc1589
@@ -198,24 +198,25 @@ def main():
     try:
         if (last_btime + uptime) < btime:
             vprint('System was restarted')
-            # - Reading last uptime for db
+            # - Reading last uptime for db for update shutdowns times
             conn.execute('select uptime from tuptime where oid = (select max(oid) from tuptime)')
             last_uptime = float(conn.fetchone()[0])
-            vprint('Last uptime from db = ', last_uptime)
+            vprint('Last uptime from db = ', str(last_uptime))
             conn.execute('update tuptime set downtime = '+ str(round((btime - (last_uptime + last_btime)), 2)) +', offbtime = '+ str(last_uptime + last_btime) +' where oid = (select max(oid) from tuptime)')  # Save downtime for previous boot
-            conn.execute('insert into tuptime values (?,?,?,?,?)', (str(uptime), str(btime), str(opt.pwoff_status), str('-1'), str('-1')))
-            last_btime = btime
+            conn.execute('insert into tuptime values (?,?,?,?,?)', (str(uptime), str(btime), str(opt.pwoff_state), str('-1'), str('-1')))  # Create entry for new boot
         else:
             vprint('System wasn\'t restarted. Updating db values...')
-            conn.execute('update tuptime set uptime = '+ str(uptime) +', pwoff_status = '+ str(opt.pwoff_status) +' where oid = (select max(oid) from tuptime)')
+            conn.execute('update tuptime set uptime = '+ str(uptime) +', pwoff_state = '+ str(opt.pwoff_state) +' where oid = (select max(oid) from tuptime)')
     except Exception as e:
         if type(e).__name__ == 'OperationalError':
             vprint('WARNING values not saved into db - Test file permissions')
         if (last_btime + uptime) < btime:
             # If you see this error, maybe systemd script isn't executed at startup
             # or the db file (def_db_file) have wrong permissions.
-            vprint('WARNING', e)
+            vprint('WARNING', str(e))
             sys.exit('ERROR After system restart, the values must be saved into db. Please, execute tuptime with a privileged user.')
+    vprint('')
+
     # - Get number of startups
     conn.execute('select max(oid) from tuptime')
     startups = int(conn.fetchone()[0])
@@ -231,9 +232,9 @@ def main():
     total_uptime = sum(filter(None, [conn.fetchone()[0], uptime]))
 
     # - Get bad shutdowns
-    conn.execute('select count(pwoff_status) from tuptime where pwoff_status = 0 and oid < (select max(oid) from tuptime)')
+    conn.execute('select count(pwoff_state) from tuptime where pwoff_state = 0 and oid < (select max(oid) from tuptime)')
     bad_shdown = int(conn.fetchone()[0])
-    # conn.execute('select count(pwoff_status) from tuptime where pwoff_status = 1 and oid < (select max(oid) from tuptime)')
+    # conn.execute('select count(pwoff_state) from tuptime where pwoff_state = 1 and oid < (select max(oid) from tuptime)')
     # ok_shdown = int(conn.fetchone()[0])
     # hack for avoid one query to the db
     ok_shdown = startups - bad_shdown - 1
@@ -241,17 +242,17 @@ def main():
     # - Get life time
     conn.execute('select btime from tuptime where oid = (select min(oid) from tuptime)')
     first_btime = int(conn.fetchone()[0])
-    sys_life = (last_btime + uptime) - first_btime
+    sys_life = (btime + uptime) - first_btime
 
     # - Print each row registered in db
-    if opt.enum:
-        keys = ('uptime', 'btime', 'pwoff_status', 'downtime', 'offbtime')
+    if opt.enum and not opt.silent:
+        keys = ('uptime', 'btime', 'pwoff_state', 'downtime', 'offbtime')
         for row_num in range(1, (startups + 1)):
             conn.execute('select * from tuptime where oid = '+ str(row_num))
             values = list(conn.fetchone())
             vprint('Fetched row '+ str(row_num) +' with '+ str(values))
             row_dict = dict(zip(keys, values))  # join key + value for db row
-            if row_dict['pwoff_status'] == 1:
+            if row_dict['pwoff_state'] == 1:
                 e_pwoff = 'OK'
             else:
                 e_pwoff = 'BAD'
@@ -260,34 +261,34 @@ def main():
                 e_btime = row_dict['btime']
                 e_uptime = round(row_dict['uptime'], dec)
                 e_uptime_only = round(uptime, dec)
-                e_pwoff_status = row_dict['offbtime']
+                e_pwoff_state = row_dict['offbtime']
             else:
                 e_btime = datetime.fromtimestamp(row_dict['btime']).strftime(opt.date_format)
                 e_uptime = time_conv(row_dict['uptime'])
                 e_uptime_only = time_conv(uptime)
-                e_pwoff_status = datetime.fromtimestamp(row_dict['offbtime']).strftime(opt.date_format)
+                e_pwoff_state = datetime.fromtimestamp(row_dict['offbtime']).strftime(opt.date_format)
 
             print('Startup:  ' + str(row_num) + '  at  '+ str(e_btime))
             if not row_num == startups:  # For avoid last shutdown and hack for unprivileged users
                 print('Uptime:   ' + str(e_uptime))
-                print('Shutdown: ' + str(e_pwoff) + '  at  '+ str(e_pwoff_status))
+                print('Shutdown: ' + str(e_pwoff) + '  at  '+ str(e_pwoff_state))
             else:
                 print('Uptime:   ' + str(e_uptime_only))
             print('')
 
             e_downtime = row_dict['downtime']
-	    if e_downtime >= 0:   # Avoid first -1 register
+            if e_downtime >= 0:   # Avoid first -1 register
                 e_downtime_h = time_conv(e_downtime)
                 if opt.seconds:
                     print('Downtime: ' + str(round(e_downtime, dec)))
                 else:
                     print('Downtime: ' + e_downtime_h)
                 print('')
-        print('')
+        sys.exit()
 
     if startups > 1:
         # This queries select all rows minus last row for allow unprivileged users that can not update database
-        # show correct results. The nested ifs supersede the last row information in each case if is the case.
+        # show correct results. The nested ifs supersede the last row information in each case if is applicable.
         # Large uptime
         conn.execute('select max(uptime), btime from tuptime where oid < (select max(oid) from tuptime)')
         larg_up_uptime, larg_up_btime = conn.fetchone()
@@ -308,10 +309,10 @@ def main():
         larg_down_downtime = 0; larg_down_offtime = 0
         shrt_down_downtime = 0; shrt_down_offtime = 0
     if larg_up_uptime <= uptime or larg_up_uptime == 0:
-        larg_up_btime = last_btime
+        larg_up_btime = btime
         larg_up_uptime = uptime
     if shrt_up_uptime > uptime or shrt_up_uptime == 0:
-        shrt_up_btime = last_btime
+        shrt_up_btime = btime
         shrt_up_uptime = uptime
 
     # - Closing db connection
@@ -334,7 +335,6 @@ def main():
         downrate = abs(float((total_downtime * 100 ) / (sys_life)))
         average_down = float(total_downtime / startups)
 
-
         if opt.seconds:
             average = round(average, dec)
             average_down = round(average_down, dec)
@@ -355,7 +355,7 @@ def main():
             shrt_down_downtime = time_conv(shrt_down_downtime)
             shrt_down_offtime = datetime.fromtimestamp(shrt_down_offtime).strftime(opt.date_format)
             uptime = time_conv(uptime)
-            last_btime = datetime.fromtimestamp(last_btime).strftime(opt.date_format)
+            btime = datetime.fromtimestamp(btime).strftime(opt.date_format)
             total_uptime = time_conv(total_uptime)
             total_downtime = time_conv(total_downtime)
             sys_life = time_conv(sys_life)
@@ -363,26 +363,23 @@ def main():
         print('System startups:\t' + str(startups) + '   since   ' + str(first_btime))
         print('System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad')
         print('')
-        print('Large uptime:\t\t'+ str(larg_up_uptime) + '   started at   ' + str(larg_up_btime))    
-        print('Short uptime:\t\t'+ str(shrt_up_uptime) + '   started at   ' + str(shrt_up_btime))    
+        print('Largest uptime:\t\t'+ str(larg_up_uptime) + '   started at   ' + str(larg_up_btime))    
+        print('Shortest uptime:\t'+ str(shrt_up_uptime) + '   started at   ' + str(shrt_up_btime))    
         print('Average uptime: \t' + str(average))
         print('')
         if str(larg_down_downtime) == '0' or str(larg_down_downtime) == '0 seconds':
-            print('Large downtime:\t\t'+ str(larg_down_downtime))    
+            print('Largest downtime:\t'+ str(larg_down_downtime))    
         else:
-            print('Large downtime:\t\t'+ str(larg_down_downtime) + '   started at   ' + str(larg_down_offtime))    
+            print('Largest downtime:\t'+ str(larg_down_downtime) + '   started at   ' + str(larg_down_offtime))    
         if str(shrt_down_downtime) == '0' or str(shrt_down_downtime) == '0 seconds':
-            print('Short downtime:\t\t'+ str(shrt_down_downtime))    
+            print('Shortest downtime:\t'+ str(shrt_down_downtime))    
         else:
-            print('Short downtime:\t\t'+ str(shrt_down_downtime) + '   started at   ' + str(shrt_down_offtime))    
+            print('Shortest downtime:\t'+ str(shrt_down_downtime) + '   started at   ' + str(shrt_down_offtime))    
         print('Average downtime: \t' + str(average_down))
         print('')
-        print('Current uptime: \t' + str(uptime) + '   since   ' + str(last_btime))
-        print('Uptime rate: \t\t' + str(round(uprate, dec)) + ' %')
-        print('Downtime rate: \t\t' + str(round(downrate, dec)) + ' %')
-        print('')
-        print('System uptime: \t\t' + str(total_uptime))
-        print('System downtime: \t' + str(total_downtime))
+        print('Current uptime: \t' + str(uptime) + '   since   ' + str(btime))
+        print('System uptime: \t\t' + str(round(uprate, dec)) + ' %   -   ' + str(total_uptime))
+        print('System downtime: \t' + str(round(downrate, dec)) + ' %   -   ' + str(total_downtime))
         print('System life: \t\t' + str(sys_life))
 
 if __name__ == "__main__":
