@@ -67,7 +67,7 @@ sqlite3 ${TMP_DB} "UPDATE tuptime SET downtime = '-1', offbtime = '-1' where oid
 # Backup old db and restore the new
 mv ${SOURCE_DB} ${SOURCE_DB}.back
 mv ${TMP_DB} ${SOURCE_DB}
-chown 644 ${SOURCE_DB}
+chmod 644 ${SOURCE_DB}
 
 rm -f ${TMP_DB}
 
