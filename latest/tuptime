@@ -158,6 +158,19 @@ def main():
 
         if os.path.isfile(opt.db_file):
             vprint('DB file exists = ', opt.db_file)
+            try:  # Test db version
+                db = sqlite3.connect(opt.db_file)
+                conn = db.cursor()
+                conn.execute('pragma table_info(tuptime)')
+                table_info=conn.fetchall()
+                db.commit()
+                db.close()
+                if len(table_info) == 3:
+                    print('Database file with old format!')
+                    print('Please, execute this script: https://github.com/rfrail3/tuptime/blob/master/scripts/db-migrate.sh')
+                    sys.exit('ERROR Invalid db file format.')
+            except Exception as e:
+                sys.exit('ERROR testing db format.')
         else:
             vprint('Creating DB file = ', opt.db_file)
             db = sqlite3.connect(opt.db_file)
@@ -178,9 +191,11 @@ def main():
 
     # - Reading last btime for db
     try:
-        conn.execute('select btime from tuptime where oid = (select max(oid) from tuptime)')
-        last_btime = int(conn.fetchone()[0])
+        conn.execute('select btime, uptime from tuptime where oid = (select max(oid) from tuptime)')
+        last_btime, last_uptime = conn.fetchone()
         vprint('Last btime from db = ', last_btime)
+        vprint('Last uptime from db = ', str(last_uptime))
+        lasts = last_uptime + last_btime
     except Exception as e:
         sys.exit('ERROR reading from db: '+ str(e))
 
@@ -198,11 +213,6 @@ def main():
     try:
         if (last_btime + uptime) < btime:
             vprint('System was restarted')
-            # - Reading last uptime for db for update shutdowns times
-            conn.execute('select uptime from tuptime where oid = (select max(oid) from tuptime)')
-            last_uptime = float(conn.fetchone()[0])
-            vprint('Last uptime from db = ', str(last_uptime))
-            lasts = last_uptime + last_btime  # Temp variable for clear query
             conn.execute('update tuptime set downtime = '+ str(round((btime - lasts), 2)) +', offbtime = '+ str(lasts) +' where oid = (select max(oid) from tuptime)')  # Save downtime for previous boot
             conn.execute('insert into tuptime values (?,?,?,?,?)', (str(uptime), str(btime), str(opt.pwoff_state), str('-1'), str('-1')))  # Create entry for new boot
         else:
