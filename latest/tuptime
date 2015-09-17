@@ -167,7 +167,7 @@ def main():
                 db.close()
                 if len(table_info) == 3:
                     print('Database file with old format')
-                    print('Please, execute this script: https://github.com/rfrail3/tuptime/blob/master/scripts/db-migrate.sh')
+                    print('Please, execute this script: https://github.com/rfrail3/tuptime/blob/master/scripts/db-tuptime-migrate.sh')
                     sys.exit('ERROR Invalid db file format')
             except Exception as e:
                 sys.exit('ERROR testing db format')
@@ -209,6 +209,9 @@ def main():
     # Usually happend on virtualized enviroments, servers with high load or when ntp are running.
     # Related to kernel system clock frequency, computation of jiffies / HZ and the problem of lost ticks.
     # More info in Debian bug 119971 and rfc1589
+    #
+    # For avoid problems with extreme corner cases, please be sure that the init/systemd script and 
+    # cron line works as expected.
 
     try:
         if (last_btime + uptime) < btime:
