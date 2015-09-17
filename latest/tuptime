@@ -229,6 +229,7 @@ def main():
             # If you see this error, maybe systemd script isn't executed at startup
             # or the db file (def_db_file) have wrong permissions.
             sys.exit('ERROR After system restart, the values must be saved into db. Please, execute tuptime with a privileged user.')
+    vprint('')
 
     # - Get number of startups
     conn.execute('select max(oid) from tuptime')
