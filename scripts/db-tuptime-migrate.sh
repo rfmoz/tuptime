@@ -30,18 +30,18 @@ TMP_DB=`mktemp`  # For temporary process db
 cp ${SOURCE_DB} ${TMP_DB}
 
 # Check db format
-sqlite3 ${TMP_DB} "PRAGMA table_info(tuptime);" | grep -E 'pwoff_state|downtime|offbtime' > /dev/null 
+sqlite3 ${TMP_DB} "PRAGMA table_info(tuptime);" | grep -E 'end_state|downtime|offbtime' > /dev/null 
 if [ $? -eq 0 ]; then
 	echo "Database is already in new format"
         exit 3
 fi
 
-# Change shutdown column to pwoff_state
+# Change shutdown column to end_state
 sqlite3 ${TMP_DB} "ALTER TABLE tuptime RENAME TO tuptime_old;"
 
-sqlite3 ${TMP_DB} "CREATE TABLE tuptime (uptime REAL, btime INT, pwoff_state INT, downtime REAL, offbtime INT);"
+sqlite3 ${TMP_DB} "CREATE TABLE tuptime (uptime REAL, btime INT, end_state INT, downtime REAL, offbtime INT);"
 
-sqlite3 ${TMP_DB} "INSERT INTO tuptime(uptime, btime, pwoff_state) SELECT uptime, btime, shutdown FROM tuptime_old;"
+sqlite3 ${TMP_DB} "INSERT INTO tuptime(uptime, btime, end_state) SELECT uptime, btime, shutdown FROM tuptime_old;"
 
 sqlite3 ${TMP_DB} "DROP TABLE tuptime_old;"
 
