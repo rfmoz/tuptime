@@ -36,6 +36,7 @@ def maxwidth(table, index):
     return max([len(str(row[index])) for row in table])
 
 def pprint_table(table):
+    """Print formated table"""
     colpad = []
     side_spaces=3
 
@@ -99,6 +100,11 @@ def main():
         default=def_date_format,
         action='store',
         help='date format')
+    parser.add_option('-e', '--end',
+        dest='end',
+        default=False,
+        action='store_true',
+        help='order by end state (only with -t or -l)')
     parser.add_option('-f', '--filedb',
         dest='db_file',
         default=def_db_file,
@@ -106,7 +112,7 @@ def main():
         help='database file',
         metavar='FILE')
     parser.add_option('-g', '--graceful',
-        dest='pwoff_state',
+        dest='end_state',
         action='store_const',
         default='0',
         const='1',
@@ -214,8 +220,8 @@ def main():
             vprint('Creating DB file = ', opt.db_file)
             db = sqlite3.connect(opt.db_file)
             conn = db.cursor()
-            conn.execute('create table if not exists tuptime(uptime real, btime integer, pwoff_state integer, downtime real, offbtime integer)')
-            conn.execute('insert into tuptime values (?,?,?,?,?)', (str(uptime), str(btime), str(opt.pwoff_state), str('-1'), str('-1')))
+            conn.execute('create table if not exists tuptime(uptime real, btime integer, end_state integer, downtime real, offbtime integer)')
+            conn.execute('insert into tuptime values (?,?,?,?,?)', (str(uptime), str(btime), str(opt.end_state), str('-1'), str('-1')))
             db.commit()
             db.close()
     except Exception as e:
@@ -244,7 +250,7 @@ def main():
     #    Checking if last_btime saved into db plus uptime is lower than actual btime
     #
     # In some particular cases the btime value from /proc/stat may change. Testing only last_btime vs
-    # actual btime can produce a false pwoff_state register.
+    # actual btime can produce a false end_state register.
     # Usually happend on virtualized enviroments, servers with high load or when ntp are running.
     # Related to kernel system clock frequency, computation of jiffies / HZ and the problem of lost ticks.
     # More info in Debian bug 119971 and rfc1589
@@ -256,10 +262,10 @@ def main():
         if (last_btime + uptime) < btime:
             vprint('System was restarted')
             conn.execute('update tuptime set downtime = '+ str(round((btime - lasts), 2)) +', offbtime = '+ str(lasts) +' where oid = (select max(oid) from tuptime)')  # Save downtimes for previous boot
-            conn.execute('insert into tuptime values (?,?,?,?,?)', (str(uptime), str(btime), str(opt.pwoff_state), str('-1'), str('-1')))  # Create entry for new boot
+            conn.execute('insert into tuptime values (?,?,?,?,?)', (str(uptime), str(btime), str(opt.end_state), str('-1'), str('-1')))  # Create entry for new boot
         else:
             vprint('System wasn\'t restarted. Updating db values...')
-            conn.execute('update tuptime set uptime = '+ str(uptime) +', pwoff_state = '+ str(opt.pwoff_state) +' where oid = (select max(oid) from tuptime)')
+            conn.execute('update tuptime set uptime = '+ str(uptime) +', end_state = '+ str(opt.end_state) +' where oid = (select max(oid) from tuptime)')
     except Exception as e:
         if type(e).__name__ == 'OperationalError':
             vprint('WARNING values not saved into db - Test file permissions')
@@ -285,7 +291,7 @@ def main():
     total_uptime = sum(filter(None, [conn.fetchone()[0], uptime]))
 
     # - Get shutdowns states
-    conn.execute('select count(pwoff_state) from tuptime where pwoff_state = 0 and oid < (select max(oid) from tuptime)')
+    conn.execute('select count(end_state) from tuptime where end_state = 0 and oid < (select max(oid) from tuptime)')
     bad_shdown = int(conn.fetchone()[0])
     ok_shdown = startups - bad_shdown - 1
 
@@ -296,47 +302,51 @@ def main():
 
     # - Print each row registered in db
     if (opt.lst or opt.table) and not opt.silent:
-        keys_dict = ('startup', 'uptime', 'btime', 'pwoff_state', 'downtime', 'offbtime')
+        keys_dict = ('startup', 'uptime', 'btime', 'end_state', 'downtime', 'offbtime')
+        if opt.table:
+            tbl = []  # Initialize table with header
+            tbl.append(['Nº', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Offtime'])
+            tbl.append([''] * len(tbl[0]))
 
         # Get all rows
         conn.execute('select oid, * from tuptime')
         db_rows = conn.fetchall()
 
-        if opt.table:
-            tbl = []
-            tbl.append(['Nº', 'Startup Date', 'Uptime', 'Shutdown Date', 'State', 'Offtime'])
-            tbl.append(['', '', '', '', '', ''])
-
-        # Parse order options
+        # Parse order option
         if opt.reverse:
             db_rows=db_rows[::-1]
-        if opt.uptime:
-            db_rows=sorted(db_rows, key=itemgetter(1), reverse=opt.reverse)
-        if opt.offtime:
-            db_rows=sorted(db_rows, key=itemgetter(4), reverse=opt.reverse)
-        if opt.uptime and opt.offtime:
-            db_rows=sorted(db_rows, key=itemgetter(1,4), reverse=opt.reverse)
+            opt.reverse = not opt.reverse
+        else:
+            opt.reverse = not opt.reverse
+
+        if opt.uptime or opt.offtime or opt.end:
+            # In the case of multiple match the order is: uptime > end > offtime
+            key_itemg_lst = []
+            if opt.uptime: key_itemg_lst.append(1)
+            if opt.end: key_itemg_lst.append(3)
+            if opt.offtime: key_itemg_lst.append(4)
+            db_rows=sorted(db_rows, key=itemgetter(*key_itemg_lst), reverse=opt.reverse)
 
         for db_row_value in db_rows:
             vprint('Processing row ' + str(db_row_value))
             row_dict = dict(zip(keys_dict, db_row_value))  # join key + value for db row
 
-            if row_dict['pwoff_state'] == 1:
-                e_pwoff = 'OK'
+            if row_dict['end_state'] == 1:
+                e_end = 'OK'
             else:
-                e_pwoff = 'BAD'
+                e_end = 'BAD'
 
             if opt.seconds:
                 e_btime = row_dict['btime']
                 e_uptime = round(row_dict['uptime'], dec)
                 e_uptime_only = round(uptime, dec)
-                e_pwoff_state = row_dict['offbtime']
+                e_offbtime = row_dict['offbtime']
                 e_downtime = round(row_dict['downtime'], dec)
             else:
                 e_btime = datetime.fromtimestamp(row_dict['btime']).strftime(opt.date_format)
                 e_uptime = time_conv(row_dict['uptime'])
                 e_uptime_only = time_conv(uptime)
-                e_pwoff_state = datetime.fromtimestamp(row_dict['offbtime']).strftime(opt.date_format)
+                e_offbtime = datetime.fromtimestamp(row_dict['offbtime']).strftime(opt.date_format)
                 e_downtime = time_conv(row_dict['downtime'])
 
             if opt.lst:  # Print list values
@@ -345,7 +355,7 @@ def main():
                     print('Uptime:   ' + str(e_uptime_only))
                 else:
                     print('Uptime:   ' + str(e_uptime))
-                    print('Shutdown: ' + str(e_pwoff) + '  at  '+ str(e_pwoff_state))
+                    print('Shutdown: ' + str(e_end) + '  at  '+ str(e_offbtime))
                 if row_dict['downtime'] >= 0:   # Avoid '-1' registers
                     print('Downtime: ' + str(e_downtime))
                     print('')
@@ -353,16 +363,18 @@ def main():
             if opt.table:  # Fill table
                 if row_dict['downtime'] >= 0:   # Avoid '-1' registers
                     if row_dict['startup'] == startups:
-                        tbl.append([str(row_dict['startup']), str(e_btime), str(e_uptime_only), str(e_pwoff_state), str(e_pwoff), str(e_downtime)])
+                        tbl.append([str(row_dict['startup']), str(e_btime), str(e_uptime_only), str(e_offbtime), str(e_end), str(e_downtime)])
                     else:
-                        tbl.append([str(row_dict['startup']), str(e_btime), str(e_uptime), str(e_pwoff_state), str(e_pwoff), str(e_downtime)])
+                        tbl.append([str(row_dict['startup']), str(e_btime), str(e_uptime), str(e_offbtime), str(e_end), str(e_downtime)])
                 else:
                     tbl.append([str(row_dict['startup']), str(e_btime), str(e_uptime_only), str(''), str(''), str('')])
 
         # - Print table
         if opt.table:
-            if opt.lst:
+            if opt.lst and not (opt.uptime or opt.offtime or opt.end):
                 print('\n')
+            elif opt.lst:
+                print('')
             pprint_table(tbl)
         sys.exit()            
 
