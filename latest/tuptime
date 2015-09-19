@@ -19,7 +19,6 @@
 try:
     import sys, os, optparse, sqlite3, locale, platform
     from datetime import datetime
-    from prettytable import PrettyTable
     from operator import itemgetter
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
@@ -31,6 +30,24 @@ locale.setlocale(locale.LC_ALL, '')
 def_date_format = '%X %x'
 dec = int(2)  # Decimals for printed values
 
+
+def maxwidth(table, index):
+    """Get the maximum width of the given column index"""
+    return max([len(str(row[index])) for row in table])
+
+def pprint_table(table):
+    colpad = []
+    side_spaces=3
+
+    for i in range(len(table[0])):
+        colpad.append(maxwidth(table, i))
+
+    for row in table:
+        sys.stdout.write(str(row[0]).ljust(colpad[0] + 1))
+        for i in range(1, len(row)):
+            col = str(row[i]).rjust(colpad[i] + side_spaces)
+            sys.stdout.write(str(''+  col))
+        print ('')
 
 def vprint(*args):
     """Print verbose information"""
@@ -82,11 +99,6 @@ def main():
         default=def_date_format,
         action='store',
         help='date format')
-    parser.add_option('-e', '--enumerate',
-        dest='enum',
-        default=False,
-        action='store_true',
-        help='enumerate system life as list')
     parser.add_option('-f', '--filedb',
         dest='db_file',
         default=def_db_file,
@@ -99,11 +111,16 @@ def main():
         default='0',
         const='1',
         help='gracefully shutdown')
+    parser.add_option('-l', '--list',
+        dest='lst',
+        default=False,
+        action='store_true',
+        help='enumerate system life as list')
     parser.add_option('-o', '--offtime',
         dest='offtime',
         default=False,
         action='store_true',
-        help='order by offtime')
+        help='order by offtime (only with -t or -l)')
     parser.add_option('-r', '--reverse',
         dest='reverse',
         default=False,
@@ -123,7 +140,7 @@ def main():
         dest='uptime',
         default=False,
         action='store_true',
-        help='order by uptime')
+        help='order by uptime (only with -t or -l)')
     parser.add_option('-x', '--silent',
         dest='silent',
         default=False,
@@ -278,19 +295,17 @@ def main():
     sys_life = (btime + uptime) - first_btime
 
     # - Print each row registered in db
-    if (opt.enum or opt.table) and not opt.silent:
+    if (opt.lst or opt.table) and not opt.silent:
         keys_dict = ('startup', 'uptime', 'btime', 'pwoff_state', 'downtime', 'offbtime')
-        csv_data = []
 
         # Get all rows
         conn.execute('select oid, * from tuptime')
         db_rows = conn.fetchall()
 
         if opt.table:
-            keys_h = ['Nº', 'Startup Date', 'Uptime', 'Shutdown Date', 'State', 'Offtime']
-            # Inicializating table
-            t = PrettyTable(keys_h)
-            t.align = 'r'  # Table align right all
+            tbl = []
+            tbl.append(['Nº', 'Startup Date', 'Uptime', 'Shutdown Date', 'State', 'Offtime'])
+            tbl.append(['', '', '', '', '', ''])
 
         # Parse order options
         if opt.reverse:
@@ -299,7 +314,7 @@ def main():
             db_rows=sorted(db_rows, key=itemgetter(1), reverse=opt.reverse)
         if opt.offtime:
             db_rows=sorted(db_rows, key=itemgetter(4), reverse=opt.reverse)
-        if opt.offtime and opt.uptime:
+        if opt.uptime and opt.offtime:
             db_rows=sorted(db_rows, key=itemgetter(1,4), reverse=opt.reverse)
 
         for db_row_value in db_rows:
@@ -324,7 +339,7 @@ def main():
                 e_pwoff_state = datetime.fromtimestamp(row_dict['offbtime']).strftime(opt.date_format)
                 e_downtime = time_conv(row_dict['downtime'])
 
-            if opt.enum:
+            if opt.lst:  # Print list values
                 print('Startup:  ' + str(row_dict['startup']) + '  at  '+ str(e_btime))
                 if row_dict['startup'] == startups:  # Avoid last shutdown and hack for unprivileged users
                     print('Uptime:   ' + str(e_uptime_only))
@@ -335,17 +350,20 @@ def main():
                     print('Downtime: ' + str(e_downtime))
                     print('')
 
-            if opt.table:
+            if opt.table:  # Fill table
                 if row_dict['downtime'] >= 0:   # Avoid '-1' registers
                     if row_dict['startup'] == startups:
-                        t.add_row([str(row_dict['startup']), str(e_btime), str(e_uptime_only), str(e_pwoff_state), str(e_pwoff), str(e_downtime)])
+                        tbl.append([str(row_dict['startup']), str(e_btime), str(e_uptime_only), str(e_pwoff_state), str(e_pwoff), str(e_downtime)])
                     else:
-                        t.add_row([str(row_dict['startup']), str(e_btime), str(e_uptime), str(e_pwoff_state), str(e_pwoff), str(e_downtime)])
+                        tbl.append([str(row_dict['startup']), str(e_btime), str(e_uptime), str(e_pwoff_state), str(e_pwoff), str(e_downtime)])
                 else:
-                    t.add_row([str(row_dict['startup']), str(e_btime), str(e_uptime_only), str(''), str(''), str('')])
+                    tbl.append([str(row_dict['startup']), str(e_btime), str(e_uptime_only), str(''), str(''), str('')])
 
+        # - Print table
         if opt.table:
-            print (t)
+            if opt.lst:
+                print('\n')
+            pprint_table(tbl)
         sys.exit()            
 
     if startups > 1:
