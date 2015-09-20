@@ -1,7 +1,7 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                             version 2.6.10
+                             version 2.6.12
                                 Ricardo F.
                             08/September/2015
 
@@ -29,12 +29,12 @@ Indeed, it can:
 
 Operating system:
    - Linux
-   - FreeBSD with linprocfs mounted
+   - FreeBSD
 
 Software:
    - Python 2.7 or Python 3.X (Latest recomended)
    - Python modules:
-       sys, optparse, os, sqlite3, datetime, locale, platform
+       sys, optparse, os, sqlite3, datetime, locale, platform, time
 
 
 ================
