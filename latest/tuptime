@@ -317,12 +317,11 @@ def main():
             tbl.append([''] * len(tbl[0]))
 
         # Get all rows
-        conn.execute('select oid, * from tuptime')
-        db_rows = conn.fetchall()
-
-        # Parse order option
         if not opt.reverse:
-            db_rows=db_rows[::-1]
+            conn.execute('select oid, * from tuptime order by oid desc')
+        else:
+            conn.execute('select oid, * from tuptime')
+        db_rows = conn.fetchall()
 
         if opt.uptime or opt.offtime or opt.end:
             # In the case of multiple matches the order is: uptime > end > offtime
