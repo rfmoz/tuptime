@@ -217,3 +217,5 @@ the database file is created with restricted permissions and the unprivileged
 users can only read it. This situation is covered for print values, but 
 not for update database. In this habitual case, a privileged user need to
 execute tuptime for update values at startup and shutdown.
+
+For process each row: tuptime | awk -F'[[:space:]][[:space:]][[:space:]]*' '{print $1}'
