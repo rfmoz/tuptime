@@ -16,7 +16,7 @@ Copy the "tuptime" file located under "latest/" directory to "/usr/bin/" and mak
 
 Assure that the system pass the prerequisites:
 
-	Linux or FreeBSD+linprocfs with python 2.7 or 3.X and a few modules (sys, optparse, os, sqlite3, datetime, locale, platform)
+	Linux or FreeBSD with python 2.7 or 3.X and a few modules (sys, optparse, os, sqlite3, datetime, locale, platform)
 
 Run first with a privileged user:
 
@@ -35,7 +35,7 @@ And you will get some similar to this:
 	System downtime: 	0 seconds
 	System life: 		2 hours, 2 minutes and 41 seconds
 
-If you do the same a few days ago, the output may will be more similar to this:
+If you do the same a few days after, the output may will be more similar to this:
 
 	System startups:	60   since   16:31:28 05/06/15
 	System shutdowns:	59 ok   -   0 bad
