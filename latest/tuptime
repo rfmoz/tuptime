@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    import sys, os, optparse, sqlite3, locale, platform
+    import sys, os, optparse, sqlite3, locale, platform, subprocess, time
     from datetime import datetime
     from operator import itemgetter
 except Exception as e:
@@ -169,29 +169,37 @@ def main():
         print ('tuptime version ' + version)
         sys.exit(0)
 
-    # - Swich for running in FreeBSD (with linprocfs) or Linux
+    # - Swich for running in FreeBSD or Linux
     if (platform.system() == "FreeBSD"):
-        procfs = "/compat/linux/proc"
+        # procfs = "/compat/linux/proc"
+        try:  # Get sysctl values
+            sysctl = subprocess.check_output(['/sbin/sysctl', 'kern.boottime']);
+            sec = sysctl.split()[4].replace(',','')
+            btime = int(sec)
+            uptime = float((time.time() - btime))
+            vprint('uptime = ' + str(uptime))
+            vprint('btime = ' + str(btime))
+        except Exception as e:
+            sys.exit('ERROR reading sysctl ' + str(e))
     else:
         procfs = "/proc"
+        # - Reading /proc/uptime
+        try:
+            with open(procfs + '/uptime') as fl:
+                uptime = float(fl.readline().split()[0])
+                vprint(procfs + '/uptime = ' + str(uptime))
+        except Exception as e:
+            sys.exit('ERROR reading ' + procfs + '/uptime'+ str(e))
 
-    # - Reading /proc/uptime
-    try:
-        with open(procfs + '/uptime') as fl:
-            uptime = float(fl.readline().split()[0])
-            vprint(procfs + '/uptime = ' + str(uptime))
-    except Exception as e:
-        sys.exit('ERROR reading ' + procfs + '/uptime'+ str(e))
-
-    # - Reading btime from /proc/stat
-    try:
-        with open(procfs + '/stat') as fl:
-            for line in fl:
-                if line.startswith('btime'):
-                    btime = int(line.split()[1])
-            vprint(procfs + '/stat btime = ' + str(btime))
-    except Exception as e:
-        sys.exit('ERROR reading ' + procfs + '/stat'+ str(e))
+        # - Reading btime from /proc/stat
+        try:
+            with open(procfs + '/stat') as fl:
+                for line in fl:
+                    if line.startswith('btime'):
+                        btime = int(line.split()[1])
+                vprint(procfs + '/stat btime = ' + str(btime))
+        except Exception as e:
+            sys.exit('ERROR reading ' + procfs + '/stat'+ str(e))
 
     # - Assure state of db file
     try:
