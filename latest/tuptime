@@ -99,7 +99,7 @@ def main():
         dest='date_format',
         default=def_date_format,
         action='store',
-        help='date format')
+        help='date format output')
     parser.add_option('-e', '--end',
         dest='end',
         default=False,
@@ -116,7 +116,7 @@ def main():
         action='store_const',
         default='0',
         const='1',
-        help='gracefully shutdown')
+        help='register a gracefully shutdown')
     parser.add_option('-l', '--list',
         dest='lst',
         default=False,
@@ -151,7 +151,7 @@ def main():
         dest='silent',
         default=False,
         action='store_true',
-        help='update values without print')
+        help='update values into db without output')
     parser.add_option('-v', '--verbose',
         dest='verbose',
         default=False,

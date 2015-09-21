@@ -73,18 +73,18 @@ These are the command line options, no configuration file is used:
 
   -h, --help            show this help message and exit
   -d DATE_FORMAT, --date=DATE_FORMAT
-                        date format
+                        date format output
   -e, --end             order by end state (only with -t or -l)
   -f FILE, --filedb=FILE
                         database file
-  -g, --graceful        gracefully shutdown
+  -g, --graceful        register a gracefully shutdown
   -l, --list            enumerate system life as list
   -o, --offtime         order by offtime (only with -t or -l)
   -r, --reverse         reverse order (only with -t or -l)
   -s, --seconds         output time in seconds and epoch
   -t, --table           enumerate system life as table
   -u, --uptime          order by uptime (only with -t or -l)
-  -x, --silent          update values without print
+  -x, --silent          update values into db without output
   -v, --verbose         verbose output
   -V, --version         show version
 
