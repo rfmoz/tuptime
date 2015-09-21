@@ -131,7 +131,7 @@ def main():
         dest='reverse',
         default=True,
         action='store_false',
-        help='reverse order')
+        help='reverse order (only with -t or -l)')
     parser.add_option('-s', '--seconds',
         dest='seconds',
         default=def_seconds,

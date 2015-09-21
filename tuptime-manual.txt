@@ -1,7 +1,7 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                             version 2.6.10
+                             version 3.0.00
                                 Ricardo F.
                             08/September/2015
 
@@ -16,11 +16,11 @@ Indeed, it can:
   - count system startups
   - register first boot time (a.k.a. installation time)
   - count nicely and accidentally shutdowns 
-  - average uptime and downtime
-  - current uptime
-  - uptime and downtime rate since first boot time
+  - uptime and downtime percentage since first boot time
   - accumulated system uptime, downtime and total
-  - report each startup, uptime, shutdown and downtime
+  - largest, shortest and average uptime and downtime
+  - current uptime
+  - print formatted table or list with most of the previous values
 
 
 =================
@@ -29,12 +29,13 @@ Indeed, it can:
 
 Operating system:
    - Linux
-   - FreeBSD with linprocfs mounted
+   - FreeBSD
 
 Software:
    - Python 2.7 or Python 3.X (Latest recomended)
-   - Python modules:
-       sys, optparse, os, sqlite3, datetime, locale, platform
+   - Python modules (most included in python core by default):
+       sys, os, optparse, sqlite3, datetime, locale, platform, subprocess,
+       operator, time
 
 
 ================
@@ -73,11 +74,16 @@ These are the command line options, no configuration file is used:
   -h, --help            show this help message and exit
   -d DATE_FORMAT, --date=DATE_FORMAT
                         date format
-  -e, --enumerate       enumerate system life
+  -e, --end             order by end state (only with -t or -l)
   -f FILE, --filedb=FILE
                         database file
   -g, --graceful        gracefully shutdown
+  -l, --list            enumerate system life as list
+  -o, --offtime         order by offtime (only with -t or -l)
+  -r, --reverse         reverse order (only with -t or -l)
   -s, --seconds         output time in seconds and epoch
+  -t, --table           enumerate system life as table
+  -u, --uptime          order by uptime (only with -t or -l)
   -x, --silent          update values without print
   -v, --verbose         verbose output
   -V, --version         show version
@@ -133,12 +139,15 @@ These are the command line options, no configuration file is used:
          tuptime -d '%H:%M:%S   %d-%b-%Y'  # Spanish style
 
 
--e, --enumerate
-  Enumerate each startup, uptime, shutdown and downtime.
+-e, --end
+  Order table or list by end status at power off. Therefore, only works 
+  in conjunction with (-t) or (-l) options.
 
   Examples:
-         tuptimoe -e
-         tuptimoe --enumerate
+         tuptime -te
+         tuptime -le
+         tuptime -t --end
+         tuptime -l --end
 
 
 -f <FILE>, --filedb=<FILE>
@@ -162,6 +171,37 @@ These are the command line options, no configuration file is used:
          tuptime --graceful
 
 
+-l, --list
+  Enumerate as list each startup number, startup date, uptime, shutdown date, 
+  end status and offtime. Multiple order options can be combined together.
+
+  Examples:
+         tuptimoe -l
+         tuptimoe --list
+
+
+-o, --offtime
+  Order table or list by offtime. Therefore, only works in conjunction with 
+  (-t) or (-l) options.
+
+  Examples:
+         tuptime -to
+         tuptime -lo
+         tuptime -t --offtime
+         tuptime -l --offtime
+
+
+-r, --reverse
+  Reverse the order for table or list output. Therefore, only works in conjunction with 
+  any of (-t), (-l), (-e), (-o) and (-u) options.
+
+  Examples:
+         tuptime -tr
+         tuptime -lur
+         tuptime -teo --reverse
+         tuptime -l --reverse
+
+
 -s, --seconds
   Change default human readable date style and print times in seconds and
   dates in epoch.
@@ -169,6 +209,26 @@ These are the command line options, no configuration file is used:
   Examples:
          tuptime -s
          tuptime --seconds
+
+
+-t, --table
+  Enumerate as table each startup number, startup date, uptime, shutdown date, 
+  end status and offtime. Multiple order options can be combined together.
+
+  Examples:
+         tuptimoe -t
+         tuptimoe --table
+
+
+-u, --uptime
+  Order table or list by uptime. Therefore, only works in conjunction with 
+  (-t) or (-l) options.
+
+  Examples:
+         tuptime -tu
+         tuptime -lu
+         tuptime -t --uptime
+         tuptime -l --uptime
 
 
 -x, --silent
@@ -218,4 +278,6 @@ users can only read it. This situation is covered for print values, but
 not for update database. In this habitual case, a privileged user need to
 execute tuptime for update values at startup and shutdown.
 
-For process each row: tuptime | awk -F'[[:space:]][[:space:]][[:space:]]*' '{print $1}'
+Note:
+For batch process colums printed in table mode with awk (first for example):
+   # tuptime | awk -F'[[:space:]][[:space:]][[:space:]]*' '{print $1}'
