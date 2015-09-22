@@ -22,7 +22,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '3.0.00'
+version = '3.0.00-beta'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 locale.setlocale(locale.LC_ALL, '')
@@ -105,7 +105,7 @@ def main():
         dest='end',
         default=False,
         action='store_true',
-        help='order by end state (only with -t or -l)')
+        help='order by end state')
     parser.add_option('-f', '--filedb',
         dest='db_file',
         default=def_db_file,
@@ -124,15 +124,15 @@ def main():
         action='store_true',
         help='enumerate system life as list')
     parser.add_option('-o', '--offtime',
-        dest='offbtime',
+        dest='offtime',
         default=False,
         action='store_true',
-        help='order by offtime (only with -t or -l)')
+        help='order by offtime')
     parser.add_option('-r', '--reverse',
         dest='reverse',
         default=False,
         action='store_true',
-        help='reverse order (only with -t or -l)')
+        help='reverse order')
     parser.add_option('-s', '--seconds',
         dest='seconds',
         default=def_seconds,
@@ -147,7 +147,7 @@ def main():
         dest='uptime',
         default=False,
         action='store_true',
-        help='order by uptime (only with -t or -l)')
+        help='order by uptime')
     parser.add_option('-x', '--silent',
         dest='silent',
         default=False,
@@ -164,6 +164,7 @@ def main():
         action='store_true',
         help='show version')
     opt, _ = parser.parse_args()
+
 
     # - Parse version option
     if opt.version:
@@ -299,7 +300,7 @@ def main():
             tbl.append([''] * len(tbl[0]))
 
         # Construct keywords and order type
-        if opt.uptime or opt.offbtime or opt.end:
+        if opt.uptime or opt.offtime or opt.end:
             eq_by=[]
             if opt.reverse:
                 eq_order='asc'
@@ -307,8 +308,8 @@ def main():
                 eq_order='desc'
             if opt.uptime:
                 eq_by.append('uptime')
-            if opt.offbtime:
-                eq_by.append('offbtime')
+            if opt.offtime:
+                eq_by.append('downtime')
             if opt.end:
                 eq_by.append('endst')
         else:
@@ -319,8 +320,7 @@ def main():
                 eq_order='asc'
         eq_by =", ".join(eq_by)
 
-        print(eq_by)
-        conn.execute('select oid, * from tuptime order by offbtime asc')
+        conn.execute('select oid, * from tuptime order by '+ eq_by +' '+ eq_order)
         db_rows = conn.fetchall()
 
         for db_row_value in db_rows:
@@ -498,5 +498,4 @@ def main():
     print('Current uptime: \t' + str(uptime) + '   since   ' + str(btime))
 
 if __name__ == "__main__":
-    print('Non working code!')
     main()
