@@ -287,7 +287,13 @@ def main():
 
     if opt.silent:
         vprint('Only update')
-        sys.exit()            
+        # - Closing db connection
+        try:
+            db.commit()
+            db.close()
+            sys.exit()            
+        except Exception as e:
+            sys.exit('ERROR closing db connection at update only: '+ str(e))
     else:
         vprint('')
 
