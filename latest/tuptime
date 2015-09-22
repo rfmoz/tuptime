@@ -19,7 +19,6 @@
 try:
     import sys, os, optparse, sqlite3, locale, platform, subprocess, time
     from datetime import datetime
-    from operator import itemgetter
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
@@ -125,14 +124,14 @@ def main():
         action='store_true',
         help='enumerate system life as list')
     parser.add_option('-o', '--offtime',
-        dest='offtime',
+        dest='offbtime',
         default=False,
         action='store_true',
         help='order by offtime (only with -t or -l)')
     parser.add_option('-r', '--reverse',
         dest='reverse',
-        default=True,
-        action='store_false',
+        default=False,
+        action='store_true',
         help='reverse order (only with -t or -l)')
     parser.add_option('-s', '--seconds',
         dest='seconds',
@@ -299,20 +298,30 @@ def main():
             tbl.append(['Nº', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Offtime'])
             tbl.append([''] * len(tbl[0]))
 
-        # Get all rows
-        if not opt.reverse:
-            conn.execute('select oid, * from tuptime order by oid desc')
+        # Construct keywords and order type
+        if opt.uptime or opt.offbtime or opt.end:
+            eq_by=[]
+            if opt.reverse:
+                eq_order='asc'
+            else:
+                eq_order='desc'
+            if opt.uptime:
+                eq_by.append('uptime')
+            if opt.offbtime:
+                eq_by.append('offbtime')
+            if opt.end:
+                eq_by.append('endst')
         else:
-            conn.execute('select oid, * from tuptime')
-        db_rows = conn.fetchall()
+            eq_by=['oid']
+            if opt.reverse:
+                eq_order='desc'
+            else:
+                eq_order='asc'
+        eq_by =", ".join(eq_by)
 
-        if opt.uptime or opt.offtime or opt.end:
-            # In the case of multiple matches the order is: uptime > end > offtime
-            key_itemg_lst = []
-            if opt.uptime: key_itemg_lst.append(1)
-            if opt.end: key_itemg_lst.append(3)
-            if opt.offtime: key_itemg_lst.append(4)
-            db_rows=sorted(db_rows, key=itemgetter(*key_itemg_lst), reverse=opt.reverse)
+        print(eq_by)
+        conn.execute('select oid, * from tuptime order by offbtime asc')
+        db_rows = conn.fetchall()
 
         for db_row_value in db_rows:
             vprint('Processing row ' + str(db_row_value))
@@ -489,4 +498,5 @@ def main():
     print('Current uptime: \t' + str(uptime) + '   since   ' + str(btime))
 
 if __name__ == "__main__":
+    print('Non working code!')
     main()
