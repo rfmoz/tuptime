@@ -25,6 +25,13 @@ if [ $? -ne 0 ]; then
         exit 2
 fi
 
+# Test bc command
+bc -version > /dev/null
+if [ $? -ne 0 ]; then
+        echo "Please, install "bc" command."
+        exit 2
+fi
+
 TMP_DB=`mktemp`  # For temporary process db
 
 cp ${SOURCE_DB} ${TMP_DB}
