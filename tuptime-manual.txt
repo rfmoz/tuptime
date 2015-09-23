@@ -268,6 +268,21 @@ be lost. Add this line to cron for avoid it.
 15 *    * * *   root    if [ -x /usr/bin/tuptime ]; then /usr/bin/tuptime -x > /dev/null; fi
 
 
+=============================================
+| DB format changes from 2.x to 3.x version |
+=============================================
+
+If this error appears:
+
+...(a few lines)...
+sqlite3.OperationalError: no such column: endst
+
+Is because the database have the format of the 2.x release. For migrate it, 
+please, execute the script "db-tuptime-migrate.sh" which is located at:
+
+https://github.com/rfrail3/tuptime/blob/master/scripts/db-tuptime-migrate.sh
+ 
+
 ================
 | Some Toughts |
 ================

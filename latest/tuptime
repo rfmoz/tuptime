@@ -197,19 +197,6 @@ def main():
 
         if os.path.isfile(opt.db_file):
             vprint('DB file exists = ', opt.db_file)
-            try:  # Test db version
-                db = sqlite3.connect(opt.db_file)
-                conn = db.cursor()
-                conn.execute('pragma table_info(tuptime)')
-                table_info=conn.fetchall()
-                db.commit()
-                db.close()
-                if len(table_info) == 3:
-                    print('Database file with old format')
-                    print('Please, execute this script: https://github.com/rfrail3/tuptime/blob/master/scripts/db-tuptime-migrate.sh')
-                    sys.exit('ERROR Invalid db file format')
-            except Exception as e:
-                sys.exit('ERROR testing db format')
         else:
             vprint('Creating DB file = ', opt.db_file)
             db = sqlite3.connect(opt.db_file)
@@ -255,8 +242,10 @@ def main():
     try:
         if (last_btime + uptime) < btime:
             vprint('System was restarted')
-            conn.execute('update tuptime set downtime = '+ str(round((btime - lasts), 2)) +', offbtime = '+ str(lasts) +' where oid = (select max(oid) from tuptime)')  # Save downtimes for previous boot
-            conn.execute('insert into tuptime values (?,?,?,?,?)', (str(uptime), str(btime), str(opt.endst), str('-1'), str('-1')))  # Create entry for new boot
+            # Save downtimes for previous boot
+            conn.execute('update tuptime set downtime = '+ str(round((btime - lasts), 2)) +', offbtime = '+ str(lasts) +' where oid = (select max(oid) from tuptime)')
+            # Create entry for new boot
+            conn.execute('insert into tuptime values (?,?,?,?,?)', (str(uptime), str(btime), str(opt.endst), str('-1'), str('-1')))
         else:
             vprint('System wasn\'t restarted. Updating db values...')
             conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(opt.endst) +' where oid = (select max(oid) from tuptime)')
@@ -276,7 +265,7 @@ def main():
         if opt.lst or opt.table:
             keys_dict = ('startup', 'uptime', 'btime', 'endst', 'downtime', 'offbtime')
             lst = []  # Initialize list
-            tbl = []  # Initialize table with header
+            tbl = []  # Initialize table plus its header
             tbl.append(['Nº', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Offtime'])
             tbl.append([''] * len(tbl[0]))
 
