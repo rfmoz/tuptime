@@ -241,11 +241,10 @@ def main():
     # Related to kernel system clock frequency, computation of jiffies / HZ and the problem of lost ticks.
     # More info in Debian bug 119971 and rfc1589
     #
-    # For avoid problems with extreme corner cases, please be sure that the init/systemd script and
-    # cron line works as expected.
-    # This condition fail if the uptime at first execution after startup is greather than the difference 
-    # between btime - last_btime. Extremly rare condition in large runing servers with tuptime well
-    # configured.
+    # For avoid problems with extreme corner cases, please be sure that the init/systemd script and cron
+    # line works as expected.
+    # A uptime record can be lost if tuptime is executed, at first time after boot, when the uptime is greater
+    # than the difference between btime - last_btime. Extremly rare condition if tuptime is well configured.
 
     try:
         if (last_btime + uptime) < btime:
@@ -274,7 +273,7 @@ def main():
             keys_dict = ('startup', 'btime', 'uptime', 'offbtime', 'endst', 'downtime')
             lst = []  # Initialize list
             tbl = []  # Initialize table plus its header
-            tbl.append(['Nº', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Downtime'])
+            tbl.append(['No.', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Downtime'])
             tbl.append([''] * len(tbl[0]))
 
             # Select all rows and correct last uptime for unprivileged users

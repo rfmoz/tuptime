@@ -3,7 +3,7 @@
                          ----------------------
                              version 3.0.00
                                 Ricardo F.
-                            08/September/2015
+                            24/September/2015
 
 
 
@@ -55,10 +55,16 @@ If is a system with systemd, copy service file and enable it:
 	# cp tuptime/latest/systemd/tuptime.service /lib/systemd/system/
         # systemctl enable tuptime.service
 
-If the systemd don't have systemd, copy init file:
+If the linux system don't have systemd, copy init file:
 
-	# cp tuptime/latest/init.d/tuptime /etc/init.d/tuptime
+	# cp tuptime/latest/init.d/tuptime.init.d-debian7 /etc/init.d/tuptime
 	# update-rc.d tuptime defaults
+
+# If is a FreeBSD, copy rc file:
+
+        # cp tuptime/latest/rc.d/tuptime-freebsd /usr/local/etc/rc.d/tuptime
+        # chmod 555 /usr/local/etc/rc.d/tuptime
+	# echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
 Finally, run it:
 
