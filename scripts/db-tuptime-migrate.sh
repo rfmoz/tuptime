@@ -45,11 +45,8 @@ fi
 
 # Change shutdown column to end_state
 sqlite3 ${TMP_DB} "ALTER TABLE tuptime RENAME TO tuptime_old;"
-
-sqlite3 ${TMP_DB} "CREATE TABLE tuptime (uptime REAL, btime INT, end_state INT, downtime REAL, offbtime INT);"
-
-sqlite3 ${TMP_DB} "INSERT INTO tuptime(uptime, btime, end_state) SELECT uptime, btime, shutdown FROM tuptime_old;"
-
+sqlite3 ${TMP_DB} "CREATE TABLE tuptime (uptime REAL, btime INT, endst INT, downtime REAL, offbtime INT);"
+sqlite3 ${TMP_DB} "INSERT INTO tuptime(uptime, btime, endst) SELECT uptime, btime, shutdown FROM tuptime_old;"
 sqlite3 ${TMP_DB} "DROP TABLE tuptime_old;"
 
 # Adding values for new columns downtime and offbtime
@@ -70,6 +67,12 @@ done
 
 # Clear last row shutdown values
 sqlite3 ${TMP_DB} "UPDATE tuptime SET downtime = '-1', offbtime = '-1' where oid = ${I}" 
+
+# Order columns
+sqlite3 ${TMP_DB} "ALTER TABLE tuptime RENAME TO tuptime_old;"
+sqlite3 ${TMP_DB} "CREATE TABLE tuptime (btime INT, uptime REAL, offbtime INT, endst INT, downtime REAL);"
+sqlite3 ${TMP_DB} "INSERT INTO tuptime(btime, uptime, offbtime, endst, downtime) SELECT btime, uptime, offbtime, endst, downtime FROM tuptime_old;"
+sqlite3 ${TMP_DB} "DROP TABLE tuptime_old;"
 
 # Backup old db and restore the new
 mv ${SOURCE_DB} ${SOURCE_DB}.back
