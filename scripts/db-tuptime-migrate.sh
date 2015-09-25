@@ -6,7 +6,7 @@
 # Change the db origin:
 #      uptime real, btime integer, shutdown integer
 # to:
-#      uptime real, btime integer, pwoff_state integer, downtime real, offbtime integer
+#      btime integer, uptime real, offbtime integer, endst integer, downtime real
 
 SOURCE_DB='/var/lib/tuptime/tuptime.db'
 
