@@ -22,10 +22,11 @@ else
                 echo "ERROR: Its needed Python version 2.7 or greater (3.X recomended), not ${pyver}"
                 echo "Please, upgrade it."; exit 1
         else
-                echo '############################################################################'
-                echo "Please, ensure that these Python modules are available in the local system:"
-                echo "sys, optparse, os, sqlite3, datetime, locale, platform"
-                echo '############################################################################'
+                echo '###################################################################################'
+                echo "Please, ensure that these Python modules are available in the local system. Its"
+                echo "probably that they are included into default Python installation:"
+                echo "sys, os, optparse, sqlite3, locale, platform, subprocess, time, datetime, operator"
+                echo '####################################################################################'
         fi
 fi
 
@@ -46,6 +47,7 @@ systemctl --version &> /dev/null
 if [ $? -eq 0 ]; then
 	echo "Copying systemd file..."
 	cp -a ${F_TMP1}/latest/systemd/tuptime.service  /lib/systemd/system/
+	systemctl daemon-reload
 	systemctl enable tuptime.service
 else
 	echo "Copying init file..."
