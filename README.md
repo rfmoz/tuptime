@@ -16,7 +16,7 @@ Copy the "tuptime" file located under "latest/" directory to "/usr/bin/" and mak
 
 Assure that the system pass the prerequisites:
 
-	Linux or FreeBSD+linprocfs with python 2.7 or 3.X and a few modules (sys, optparse, os, sqlite3, datetime, locale, platform)
+	Linux or FreeBSD with python 2.7 or 3.X 
 
 Run first with a privileged user:
 
@@ -24,29 +24,68 @@ Run first with a privileged user:
 
 And you will get some similar to this:
 
-	System startups:	1   since   12:50:34 07/16/15
+	System startups:	1   since   21:54:09 24/09/15
 	System shutdowns:	0 ok   -   0 bad
-	Average uptime: 	2 hours, 2 minutes and 41 seconds
+	System uptime: 		100.0 %   -   21 minutes and 30 seconds
+	System downtime: 	0.0 %   -   0 seconds
+	System life: 		21 minutes and 30 seconds
+
+	Largest uptime:		21 minutes and 30 seconds   from   21:54:09 24/09/15
+	Shortest uptime:	21 minutes and 30 seconds   from   21:54:09 24/09/15
+	Average uptime: 	21 minutes and 30 seconds
+
+	Largest downtime:	0 seconds
+	Shortest downtime:	0 seconds
 	Average downtime: 	0 seconds
-	Current uptime: 	2 hours, 2 minutes and 41 seconds   since   12:50:34 07/16/15
-	Uptime rate: 		100.0 %
-	Downtime rate: 		0.0 %
-	System uptime: 		2 hours, 2 minutes and 41 seconds
-	System downtime: 	0 seconds
-	System life: 		2 hours, 2 minutes and 41 seconds
 
-If you do the same a few days ago, the output may will be more similar to this:
+	Current uptime: 	21 minutes and 30 seconds   since   21:54:09 24/09/15
 
-	System startups:	60   since   16:31:28 05/06/15
-	System shutdowns:	59 ok   -   0 bad
-	Average uptime: 	7 hours, 6 minutes and 36 seconds
-	Average downtime: 	21 hours, 15 minutes and 45 seconds
-	Current uptime: 	6 hours, 44 minutes and 48 seconds   since   08:08:53 07/16/15
-	Uptime rate: 		25.05993 %
-	Downtime rate: 		74.94007 %
-	System uptime: 		17 days, 18 hours, 36 minutes and 46 seconds
-	System downtime: 	53 days, 3 hours, 45 minutes and 27 seconds
-	System life: 		70 days, 22 hours, 22 minutes and 13 seconds
+If you do the same a few days after, the output may will be more similar to this:
+
+	System startups:	110   since   10:15:27 08/08/15
+	System shutdowns:	107 ok   -   2 bad
+	System uptime: 		4.04 %   -   1 days, 22 hours, 4 minutes and 44 seconds
+	System downtime: 	95.96 %   -   45 days, 13 hours, 57 minutes and 30 seconds
+	System life: 		47 days, 12 hours, 2 minutes and 15 seconds
+
+	Largest uptime:		2 hours, 10 minutes and 44 seconds   from   20:49:17 09/08/15
+	Shortest uptime:	9 seconds   from   10:23:36 08/08/15
+	Average uptime: 	25 minutes and 8 seconds
+
+	Largest downtime:	7 days, 10 hours, 17 minutes and 26 seconds   from   06:09:45 10/08/15
+	Shortest downtime:	15 seconds   from   19:27:24 19/09/15
+	Average downtime: 	9 hours, 56 minutes and 42 seconds
+
+	Current uptime: 	23 minutes and 33 seconds   since   21:54:09 24/09/15
+
+Or this, with -t | --table option:
+
+	No.      Startup Date                              Uptime       Shutdown Date   End                   Downtime
+                                                                                                                                    
+	1   10:15:27 08/08/15                          42 seconds   10:16:09 08/08/15    OK                 16 seconds
+	2   10:16:26 08/08/15                          49 seconds   10:17:15 08/08/15    OK                 16 seconds
+	3   10:17:32 08/08/15            5 minutes and 47 seconds   10:23:19 08/08/15    OK                 16 seconds
+	4   10:23:36 08/08/15                           9 seconds   10:23:45 08/08/15   BAD                 42 seconds
+	5   10:24:28 08/08/15   2 hours, 9 minutes and 27 seconds   12:33:55 08/08/15    OK  41 minutes and 44 seconds
+        . . .
+
+Or this, with -l | --list option:
+
+	Startup:  1  at  10:15:27 08/08/15
+	Uptime:   42 seconds
+	Shutdown: OK  at  10:16:09 08/08/15
+	Downtime: 16 seconds
+
+	Startup:  2  at  10:16:26 08/08/15
+	Uptime:   49 seconds
+	Shutdown: OK  at  10:17:15 08/08/15
+	Downtime: 16 seconds
+
+	Startup:  3  at  10:17:32 08/08/15
+	Uptime:   5 minutes and 47 seconds
+	Shutdown: OK  at  10:23:19 08/08/15
+	Downtime: 16 seconds
+	. . .
 
 Don forguet! For keep it updated, add the init script or systemd file and a cron entry.
 
