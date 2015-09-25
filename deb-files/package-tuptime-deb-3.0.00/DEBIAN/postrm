@@ -8,5 +8,6 @@ if [ "$1" = "purge" ] ; then
 
 	if [ -e "/lib/systemd/system/tuptime.service" ]; then
 		rm -f /lib/systemd/system/tuptime.service
+		systemctl daemon-reload
 	fi
 fi
