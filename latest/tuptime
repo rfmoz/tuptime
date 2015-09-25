@@ -242,9 +242,8 @@ def main():
     # More info in Debian bug 119971 and rfc1589
     #
     # For avoid problems with extreme corner cases, please be sure that the init/systemd script and cron
-    # line works as expected.
-    # A uptime record can be lost if tuptime is executed, at first time after boot, when the uptime is greater
-    # than the difference between btime - last_btime. Extremly rare condition if tuptime is well configured.
+    # line works as expected. A uptime record can be lost if tuptime is executed, at first time after boot,
+    # when the uptime is greater than the difference between btime - last_btime.
 
     try:
         if (last_btime + uptime) < btime:

@@ -187,7 +187,7 @@ These are the command line options, no configuration file is used:
 
 
 -o, --offtime
-  Order table or list by offtime. Therefore, only works in conjunction with 
+  Order table or list by offtime / downtime. Therefore, only works in conjunction with 
   (-t) or (-l) options.
 
   Examples:
@@ -219,7 +219,7 @@ These are the command line options, no configuration file is used:
 
 -t, --table
   Enumerate as table each startup number, startup date, uptime, shutdown date, 
-  end status and offtime. Multiple order options can be combined together.
+  end status and downtime. Multiple order options can be combined together.
 
   Examples:
          tuptimoe -t
@@ -299,6 +299,5 @@ users can only read it. This situation is covered for print values, but
 not for update database. In this habitual case, a privileged user need to
 execute tuptime for update values at startup and shutdown.
 
-Note:
-For batch process colums printed in table mode with awk (first for example):
+For batch process colums printed in table mode, awk can be used, for example:
    # tuptime | awk -F'[[:space:]][[:space:]][[:space:]]*' '{print $1}'
