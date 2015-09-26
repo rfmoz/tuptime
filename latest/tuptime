@@ -281,6 +281,7 @@ def main():
             db_rows[-1] = list(db_rows[-1])
             db_rows[-1][2] = uptime
             db_rows[-1] = tuple(db_rows[-1])
+            db_rows_sz = len(db_rows)
 
             if opt.uptime or opt.downtime or opt.end:
                 # In the case of multiple matches the order is: uptime > end > downtime
@@ -306,36 +307,30 @@ def main():
                 if opt.seconds:
                     e_btime = row_dict['btime']
                     e_uptime = round(row_dict['uptime'], dec)
-                    e_uptime_only = round(uptime, dec)
                     e_offbtime = row_dict['offbtime']
                     e_downtime = round(row_dict['downtime'], dec)
                 else:
                     e_btime = datetime.fromtimestamp(row_dict['btime']).strftime(opt.date_format)
                     e_uptime = time_conv(row_dict['uptime'])
-                    e_uptime_only = time_conv(uptime)
                     e_offbtime = datetime.fromtimestamp(row_dict['offbtime']).strftime(opt.date_format)
                     e_downtime = time_conv(row_dict['downtime'])
                 e_startup = row_dict['startup']
 
                 if opt.lst:  # Fill list
                     lst.append('Startup:  ' + str(e_startup) + '  at  '+ str(e_btime))
-                    if e_startup == len(db_rows):  # Avoid last shutdown and hack for unprivileged users
-                        lst.append('Uptime:   ' + str(e_uptime_only))
+                    if e_startup == db_rows_sz:
+                        lst.append('Uptime:   ' + str(e_uptime))
                     else:
                         lst.append('Uptime:   ' + str(e_uptime))
                         lst.append('Shutdown: ' + str(e_end) + '  at  '+ str(e_offbtime))
-                    if row_dict['downtime'] >= 0:   # Avoid '-1' registers
                         lst.append('Downtime: ' + str(e_downtime))
                     lst.append('')
 
                 if opt.table:  # Fill table
-                    if row_dict['downtime'] >= 0:   # Avoid '-1' registers
-                        if e_startup == len(db_rows):
-                            tbl.append([str(e_startup), str(e_btime), str(e_uptime_only), str(e_offbtime), str(e_end), str(e_downtime)])
-                        else:
-                            tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(e_offbtime), str(e_end), str(e_downtime)])
+                    if e_startup == db_rows_sz:
+                        tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(''), str(''), str('')])
                     else:
-                        tbl.append([str(e_startup), str(e_btime), str(e_uptime_only), str(''), str(''), str('')])
+                        tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(e_offbtime), str(e_end), str(e_downtime)])
 
         else:
             # - Get number of startups
