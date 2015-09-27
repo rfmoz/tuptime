@@ -76,6 +76,12 @@ def time_conv(secs):
         sys.exit('ERROR converting seconds: '+ str(e))
 
 
+def removekey(d, key):
+    r = dict(d)
+    del r[key]
+    return r
+
+
 def main():
     global opt
 
@@ -103,6 +109,11 @@ def main():
         default='0',
         const='1',
         help='register a gracefully shutdown')
+    parser.add_option('-k', '--kernel',
+        dest='kernel',
+        action='store_true',
+        default=False,
+        help='print kernel version')
     parser.add_option('-l', '--list',
         dest='lst',
         default=False,
@@ -191,6 +202,7 @@ def main():
                 vprint(procfs + '/stat btime = ' + str(btime))
         except Exception as e:
             sys.exit('ERROR reading ' + procfs + '/stat'+ str(e))
+    kernel = platform.platform()
 
     # - Assure state of db file
     try:
@@ -206,8 +218,8 @@ def main():
             vprint('Creating DB file = ', opt.db_file)
             db = sqlite3.connect(opt.db_file)
             conn = db.cursor()
-            conn.execute('create table if not exists tuptime(btime integer, uptime real, offbtime integer, endst integer, downtime real)')
-            conn.execute('insert into tuptime values (?,?,?,?,?)', (str(btime), str(uptime), str('-1'), str(opt.endst), str('-1')))
+            conn.execute('create table if not exists tuptime(btime integer, uptime real, offbtime integer, endst integer, downtime real, kernel text)')
+            conn.execute('insert into tuptime values (?,?,?,?,?,?)', (str(btime), str(uptime), str('-1'), str(opt.endst), str('-1'), str(kernel)))
             db.commit()
             db.close()
     except Exception as e:
@@ -251,10 +263,10 @@ def main():
             # Save downtimes for previous boot
             conn.execute('update tuptime set downtime = '+ str(round((btime - lasts), 2)) +', offbtime = '+ str(int(lasts)) +' where oid = (select max(oid) from tuptime)')
             # Create entry for new boot
-            conn.execute('insert into tuptime values (?,?,?,?,?)', (str(btime), str(uptime), str('-1'), str(opt.endst), str('-1')))
+            conn.execute('insert into tuptime values (?,?,?,?,?,?)', (str(btime), str(uptime), str('-1'), str(opt.endst), str('-1'), str(kernel)))
         else:
             vprint('System wasn\'t restarted. Updating db values...')
-            conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(opt.endst) +' where oid = (select max(oid) from tuptime)')
+            conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(opt.endst) +', kernel = \''+ str(kernel) +'\' where oid = (select max(oid) from tuptime)')
     except Exception as e:
         if type(e).__name__ == 'OperationalError':
             vprint('WARNING values not saved into db - Test file permissions')
@@ -269,10 +281,10 @@ def main():
     else:
         # - Print each row registered in db
         if opt.lst or opt.table:
-            keys_dict = ('startup', 'btime', 'uptime', 'offbtime', 'endst', 'downtime')
+            keys_dict = ('startup', 'btime', 'uptime', 'offbtime', 'endst', 'downtime', 'kernel')
             lst = []  # Initialize list
             tbl = []  # Initialize table plus its header
-            tbl.append(['No.', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Downtime'])
+            tbl.append(['No.', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Downtime', 'Kernel'])
             tbl.append([''] * len(tbl[0]))
 
             # Select all rows and correct last uptime for unprivileged users
@@ -280,6 +292,7 @@ def main():
             db_rows = conn.fetchall()
             db_rows[-1] = list(db_rows[-1])
             db_rows[-1][2] = uptime
+            db_rows[-1][6] = uptime
             db_rows[-1] = tuple(db_rows[-1])
             db_rows_sz = len(db_rows)
 
@@ -324,13 +337,15 @@ def main():
                         lst.append('Uptime:   ' + str(e_uptime))
                         lst.append('Shutdown: ' + str(e_end) + '  at  '+ str(e_offbtime))
                         lst.append('Downtime: ' + str(e_downtime))
+                    if opt.kernel:
+                        lst.append('Kernel:   ' + str(kernel))
                     lst.append('')
 
                 if opt.table:  # Fill table
                     if e_startup == db_rows_sz:
-                        tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(''), str(''), str('')])
+                        tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(''), str(''), str(''), str(kernel)])
                     else:
-                        tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(e_offbtime), str(e_end), str(e_downtime)])
+                        tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(e_offbtime), str(e_end), str(e_downtime), str(kernel)])
 
         else:
             # - Get number of startups
@@ -357,34 +372,44 @@ def main():
             first_btime = int(conn.fetchone()[0])
             sys_life = (btime + uptime) - first_btime
 
+            # - Get number of different kernels used
+            #conn.execute('select count(distinct kernel) from tuptime')
+            conn.execute('select distinct kernel from tuptime')
+            kernel_cnt = conn.fetchall()
+            kernel_cnt.append(tuple([kernel]))
+            vprint('Different kernels: \t' + str(list(kernel_cnt)))
+            kernel_cnt = len(set(kernel_cnt))
+
             if startups > 1:
                 # The following two uptime queries select all rows minus last row for allow unprivileged users that can not
                 # update database show correct results. The last two downtime don't need last row
                 # Large uptime
-                conn.execute('select max(uptime), btime from tuptime where oid < (select max(oid) from tuptime)')
-                larg_up_uptime, larg_up_btime = conn.fetchone()
+                conn.execute('select max(uptime), btime, kernel from tuptime where oid < (select max(oid) from tuptime)')
+                larg_up_uptime, larg_up_btime, larg_up_kern = conn.fetchone()
                 # Short uptime
-                conn.execute('select min(uptime), btime from tuptime where oid < (select max(oid) from tuptime)')
-                shrt_up_uptime, shrt_up_btime = conn.fetchone()
+                conn.execute('select min(uptime), btime, kernel from tuptime where oid < (select max(oid) from tuptime)')
+                shrt_up_uptime, shrt_up_btime, shrt_up_kern = conn.fetchone()
                 # Large dowtime
-                conn.execute('select max(downtime), offbtime from tuptime where oid < (select max(oid) from tuptime)')
-                larg_down_downtime, larg_down_offbtime = conn.fetchone()
+                conn.execute('select max(downtime), offbtime, kernel from tuptime where oid < (select max(oid) from tuptime)')
+                larg_down_downtime, larg_down_offbtime, larg_down_kern = conn.fetchone()
                 # Short dowtime
-                conn.execute('select min(downtime), offbtime from tuptime where oid < (select max(oid) from tuptime)')
-                shrt_down_downtime, shrt_down_offbtime = conn.fetchone()
+                conn.execute('select min(downtime), offbtime, kernel from tuptime where oid < (select max(oid) from tuptime)')
+                shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = conn.fetchone()
             else:  # Initialize empty values
                 larg_up_uptime = 0; larg_up_btime = 0
                 shrt_up_uptime = 0; shrt_up_btime = 0
-                larg_down_downtime = 0; larg_down_offbtime = 0
-                shrt_down_downtime = 0; shrt_down_offbtime = 0
+                larg_down_downtime = 0; larg_down_offbtime = 0; larg_down_kern = 0
+                shrt_down_downtime = 0; shrt_down_offbtime = 0; shrt_down_kern = 0
 
             # Supersede the last row values for large/short uptime if is applicable.
             if larg_up_uptime <= uptime or larg_up_btime == 0:
                 larg_up_uptime = uptime
                 larg_up_btime = btime
+                larg_up_kern = kernel
             if shrt_up_uptime > uptime or shrt_up_btime == 0:
                 shrt_up_uptime = uptime
                 shrt_up_btime = btime
+                shrt_up_kern = kernel
 
     # - Closing db connection
     try:
@@ -403,6 +428,14 @@ def main():
                 print(l)
 
         if opt.table:
+            # Delete kernel if is not used
+            if not opt.kernel:
+                kern_tbl = []
+                for x in tbl:
+                    del x[-1]
+                    kern_tbl.append(x)
+                tbl = kern_tbl
+
             # Create table pad and print
             colpad = []
             side_spaces = 3
@@ -458,20 +491,36 @@ def main():
         print('System uptime: \t\t' + str(round(uprate, dec)) + ' %   -   ' + str(total_uptime))
         print('System downtime: \t' + str(round(downrate, dec)) + ' %   -   ' + str(total_downtime))
         print('System life: \t\t' + str(sys_life))
+        if opt.kernel:
+            print('System kernels: \t' + str(kernel_cnt))
         print('')
         print('Largest uptime:\t\t'+ str(larg_up_uptime) + '   from   ' + str(larg_up_btime))
+        if opt.kernel:
+            print('...with kernel: \t'+ str(larg_up_kern))
         print('Shortest uptime:\t'+ str(shrt_up_uptime) + '   from   ' + str(shrt_up_btime))
+        if opt.kernel:
+            print('...with kernel: \t'+ str(shrt_up_kern))
         print('Average uptime: \t' + str(average_up))
         print('')
         if startups == 1:
             print('Largest downtime:\t'+ str(larg_down_downtime))
+            if opt.kernel:
+                print('...with kernel: \t'+ str(larg_down_kern))
             print('Shortest downtime:\t'+ str(shrt_down_downtime))
+            if opt.kernel:
+                print('...with kernel: \t'+ str(shrt_down_kern))
         else:
             print('Largest downtime:\t'+ str(larg_down_downtime) + '   from   ' + str(larg_down_offbtime))
+            if opt.kernel:
+                print('...with kernel: \t'+ str(larg_down_kern))
             print('Shortest downtime:\t'+ str(shrt_down_downtime) + '   from   ' + str(shrt_down_offbtime))
+            if opt.kernel:
+                print('...with kernel: \t'+ str(shrt_down_kern))
         print('Average downtime: \t' + str(average_down))
         print('')
         print('Current uptime: \t' + str(uptime) + '   since   ' + str(btime))
+        if opt.kernel:
+            print('...with kernel: \t'+ str(kernel))
 
 if __name__ == "__main__":
     main()
