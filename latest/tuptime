@@ -325,6 +325,7 @@ def main():
                     e_offbtime = datetime.fromtimestamp(row_dict['offbtime']).strftime(opt.date_format)
                     e_downtime = time_conv(row_dict['downtime'])
                 e_startup = row_dict['startup']
+                e_kernel = row_dict['kernel']
 
                 if opt.lst:  # Fill list
                     lst.append('Startup:  ' + str(e_startup) + '  at  '+ str(e_btime))
@@ -335,15 +336,15 @@ def main():
                         lst.append('Shutdown: ' + str(e_end) + '  at  '+ str(e_offbtime))
                         lst.append('Downtime: ' + str(e_downtime))
                     if opt.kernel:
-                        lst.append('Kernel:   ' + str(kernel))
+                        lst.append('Kernel:   ' + str(e_kernel))
                     lst.append('')
 
                 if opt.table:  # Fill table
                     if opt.kernel:
                         if e_startup == db_rows_sz:
-                            tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(''), str(''), str(''), str(kernel)])
+                            tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(''), str(''), str(''), str(e_kernel)])
                         else:
-                            tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(e_offbtime), str(e_end), str(e_downtime), str(kernel)])
+                            tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(e_offbtime), str(e_end), str(e_downtime), str(e_kernel)])
                     else:
                         if e_startup == db_rows_sz:
                             tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(''), str(''), str('')])
