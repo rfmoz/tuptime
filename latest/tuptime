@@ -23,7 +23,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '3.0.00-beta'
+version = '3.1.00-beta'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 locale.setlocale(locale.LC_ALL, '')
@@ -76,12 +76,6 @@ def time_conv(secs):
         sys.exit('ERROR converting seconds: '+ str(e))
 
 
-def removekey(d, key):
-    r = dict(d)
-    del r[key]
-    return r
-
-
 def main():
     global opt
 
@@ -113,7 +107,7 @@ def main():
         dest='kernel',
         action='store_true',
         default=False,
-        help='print kernel version')
+        help='print kernel information')
     parser.add_option('-l', '--list',
         dest='lst',
         default=False,
@@ -284,15 +278,18 @@ def main():
             keys_dict = ('startup', 'btime', 'uptime', 'offbtime', 'endst', 'downtime', 'kernel')
             lst = []  # Initialize list
             tbl = []  # Initialize table plus its header
-            tbl.append(['No.', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Downtime', 'Kernel'])
+            if opt.kernel:
+                tbl.append(['No.', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Downtime', 'Kernel'])
+            else:
+                tbl.append(['No.', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Downtime'])
             tbl.append([''] * len(tbl[0]))
 
-            # Select all rows and correct last uptime for unprivileged users
+            # Select all rows and correct last uptime and kernel for unprivileged users
             conn.execute('select oid, * from tuptime')
             db_rows = conn.fetchall()
             db_rows[-1] = list(db_rows[-1])
             db_rows[-1][2] = uptime
-            db_rows[-1][6] = uptime
+            db_rows[-1][6] = kernel
             db_rows[-1] = tuple(db_rows[-1])
             db_rows_sz = len(db_rows)
 
@@ -342,10 +339,16 @@ def main():
                     lst.append('')
 
                 if opt.table:  # Fill table
-                    if e_startup == db_rows_sz:
-                        tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(''), str(''), str(''), str(kernel)])
+                    if opt.kernel:
+                        if e_startup == db_rows_sz:
+                            tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(''), str(''), str(''), str(kernel)])
+                        else:
+                            tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(e_offbtime), str(e_end), str(e_downtime), str(kernel)])
                     else:
-                        tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(e_offbtime), str(e_end), str(e_downtime), str(kernel)])
+                        if e_startup == db_rows_sz:
+                            tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(''), str(''), str('')])
+                        else:
+                            tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(e_offbtime), str(e_end), str(e_downtime)])
 
         else:
             # - Get number of startups
@@ -373,11 +376,9 @@ def main():
             sys_life = (btime + uptime) - first_btime
 
             # - Get number of different kernels used
-            #conn.execute('select count(distinct kernel) from tuptime')
             conn.execute('select distinct kernel from tuptime')
             kernel_cnt = conn.fetchall()
             kernel_cnt.append(tuple([kernel]))
-            vprint('Different kernels: \t' + str(list(kernel_cnt)))
             kernel_cnt = len(set(kernel_cnt))
 
             if startups > 1:
@@ -428,14 +429,6 @@ def main():
                 print(l)
 
         if opt.table:
-            # Delete kernel if is not used
-            if not opt.kernel:
-                kern_tbl = []
-                for x in tbl:
-                    del x[-1]
-                    kern_tbl.append(x)
-                tbl = kern_tbl
-
             # Create table pad and print
             colpad = []
             side_spaces = 3
