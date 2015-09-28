@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                             version 3.0.00
+                             version 3.1.00
                                 Ricardo F.
-                            25/September/2015
+                            28/September/2015
 
 
 
@@ -22,6 +22,7 @@ Indeed, it can:
   - Largest, shortest and average uptime and downtime
   - Current uptime
   - Print formatted table or list with most of the previous values
+  - Register used kernels
 
 
 
@@ -114,21 +115,23 @@ Finally, run it:
 These are the command line options, no configuration file is used:
 
   -h, --help            show this help message and exit
+  -c, --ckernel         classify / order by kernel
   -d DATE_FORMAT, --date=DATE_FORMAT
                         date format output
   -e, --end             order by end state
   -f FILE, --filedb=FILE
                         database file
   -g, --graceful        register a gracefully shutdown
+  -k, --kernel          print kernel information
   -l, --list            enumerate system life as list
   -o, --offtime         order by offtime / downtime
   -r, --reverse         reverse order
   -s, --seconds         output time in seconds and epoch
   -t, --table           enumerate system life as table
   -u, --uptime          order by uptime
-  -x, --silent          update values into db without output
   -v, --verbose         verbose output
   -V, --version         show version
+  -x, --silent          update values into db without output
 
 
 -h, --help
@@ -137,6 +140,17 @@ These are the command line options, no configuration file is used:
   Examples:
          tuptime -h
          tuptime --help
+
+
+-c, --ckernel
+  Order table or list by kernel name. Therefore, only works in conjunction 
+  with (-k) and (-t) or (-l) options.
+
+  Examples:
+         tuptime -ckl
+         tuptime -ckt
+         tuptime -t --ckernel
+         tuptime -l --ckernel
 
 
 -d <DATE_FORMAT>, --date=<DATE_FORMAT>
@@ -213,6 +227,16 @@ These are the command line options, no configuration file is used:
          tuptime --graceful
 
 
+-k, --kernel
+  Add kernel information to the output.
+
+  Examples:
+         tuptime -k
+         tuptime -lk
+         tuptime --kernel
+         tuptime -t --kernel
+
+
 -l, --list
   Enumerate as list each startup number, startup date, uptime, shutdown date, 
   end status and offtime. Multiple order options can be combined together.
@@ -273,14 +297,6 @@ These are the command line options, no configuration file is used:
          tuptime -l --uptime
 
 
--x, --silent
-  Any output is printed. Only update values and save them into disk.
-
-  Examples:
-         tuptime -x
-         tuptime --silent
-
-
 -v, --verbose
   Print information about the internals of tuptime. It's good for debugging 
   how it gets the variables.
@@ -296,6 +312,14 @@ These are the command line options, no configuration file is used:
   Examples:
          tuptime -V
          tuptime --version
+
+
+-x, --silent
+  Any output is printed. Only update values and save them into disk.
+
+  Examples:
+         tuptime -x
+         tuptime --silent
 
 
 
@@ -335,6 +359,10 @@ the database file is created with restricted permissions and the unprivileged
 users can only read it. This situation is covered for print values, but 
 not for update database. In this habitual case, a privileged user need to
 execute tuptime for update values at startup and shutdown at least.
+
+Kernel name is registered each time that tuptime update values. If ksplice is
+used to update the kernel, last kernel will have the whole time asignement
+since the last system start.
 
 Table output can be processed with awk, for example:
 
