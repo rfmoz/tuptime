@@ -493,36 +493,28 @@ def main():
         print('System uptime: \t\t' + str(round(uprate, dec)) + ' %   -   ' + str(total_uptime))
         print('System downtime: \t' + str(round(downrate, dec)) + ' %   -   ' + str(total_downtime))
         print('System life: \t\t' + str(sys_life))
-        if opt.kernel:
-            print('System kernels: \t' + str(kernel_cnt))
+        if opt.kernel: print('System kernels: \t' + str(kernel_cnt))
         print('')
         print('Largest uptime:\t\t'+ str(larg_up_uptime) + '   from   ' + str(larg_up_btime))
-        if opt.kernel:
-            print('...with kernel: \t'+ str(larg_up_kern))
+        if opt.kernel: print('...with kernel: \t'+ str(larg_up_kern))
         print('Shortest uptime:\t'+ str(shrt_up_uptime) + '   from   ' + str(shrt_up_btime))
-        if opt.kernel:
-            print('...with kernel: \t'+ str(shrt_up_kern))
+        if opt.kernel: print('...with kernel: \t'+ str(shrt_up_kern))
         print('Average uptime: \t' + str(average_up))
         print('')
         if startups == 1:
             print('Largest downtime:\t'+ str(larg_down_downtime))
-            if opt.kernel:
-                print('...with kernel: \t'+ str(larg_down_kern))
+            if opt.kernel: print('...with kernel: \t'+ str(larg_down_kern))
             print('Shortest downtime:\t'+ str(shrt_down_downtime))
-            if opt.kernel:
-                print('...with kernel: \t'+ str(shrt_down_kern))
+            if opt.kernel: print('...with kernel: \t'+ str(shrt_down_kern))
         else:
             print('Largest downtime:\t'+ str(larg_down_downtime) + '   from   ' + str(larg_down_offbtime))
-            if opt.kernel:
-                print('...with kernel: \t'+ str(larg_down_kern))
+            if opt.kernel: print('...with kernel: \t'+ str(larg_down_kern))
             print('Shortest downtime:\t'+ str(shrt_down_downtime) + '   from   ' + str(shrt_down_offbtime))
-            if opt.kernel:
-                print('...with kernel: \t'+ str(shrt_down_kern))
+            if opt.kernel: print('...with kernel: \t'+ str(shrt_down_kern))
         print('Average downtime: \t' + str(average_down))
         print('')
         print('Current uptime: \t' + str(uptime) + '   since   ' + str(btime))
-        if opt.kernel:
-            print('...with kernel: \t'+ str(kernel))
+        if opt.kernel: print('...with kernel: \t'+ str(kernel))
 
 if __name__ == "__main__":
     main()
