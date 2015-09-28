@@ -81,6 +81,11 @@ def main():
 
     # - Reading command line parameters
     parser = optparse.OptionParser()
+    parser.add_option('-c', '--ckernel',
+        dest='ckernel',
+        action='store_true',
+        default=False,
+        help='classify / order by kernel')
     parser.add_option('-d', '--date',
         dest='date_format',
         default=def_date_format,
@@ -138,11 +143,6 @@ def main():
         default=False,
         action='store_true',
         help='order by uptime')
-    parser.add_option('-x', '--silent',
-        dest='silent',
-        default=False,
-        action='store_true',
-        help='update values into db without output')
     parser.add_option('-v', '--verbose',
         dest='verbose',
         default=False,
@@ -153,10 +153,18 @@ def main():
         default=False,
         action='store_true',
         help='show version')
+    parser.add_option('-x', '--silent',
+        dest='silent',
+        default=False,
+        action='store_true',
+        help='update values into db without output')
     opt, _ = parser.parse_args()
 
     # - Check requirements of combination of operators
-    if opt.reverse or opt.uptime or opt.end or opt.downtime:
+    if opt.reverse or opt.uptime or opt.end or opt.downtime or opt.ckernel:
+        if opt.ckernel:
+            if not opt.kernel:
+                sys.exit('ERROR used operator must be combined with [-k|--kernel]')
         if not opt.table and not opt.lst:
             sys.exit('ERROR used operators must be combined with [-t|--table]  or [-l|--list]')
 
@@ -278,10 +286,7 @@ def main():
             keys_dict = ('startup', 'btime', 'uptime', 'offbtime', 'endst', 'downtime', 'kernel')
             lst = []  # Initialize list
             tbl = []  # Initialize table plus its header
-            if opt.kernel:
-                tbl.append(['No.', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Downtime', 'Kernel'])
-            else:
-                tbl.append(['No.', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Downtime'])
+            tbl.append(['No.', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Downtime', 'Kernel'])
             tbl.append([''] * len(tbl[0]))
 
             # Select all rows and correct last uptime and kernel for unprivileged users
@@ -293,13 +298,14 @@ def main():
             db_rows[-1] = tuple(db_rows[-1])
             db_rows_sz = len(db_rows)
 
-            if opt.uptime or opt.downtime or opt.end:
-                # In the case of multiple matches the order is: uptime > end > downtime
+            if opt.uptime or opt.downtime or opt.end or opt.ckernel:
+                # In the case of multiple matches the order is: uptime > end > downtime > kernel
                 key_itemg_lst = []
                 opt.reverse = not opt.reverse
                 if opt.uptime: key_itemg_lst.append(2)
                 if opt.end: key_itemg_lst.append(4)
                 if opt.downtime: key_itemg_lst.append(5)
+                if opt.ckernel: key_itemg_lst.append(6)
                 db_rows = sorted(db_rows, key=itemgetter(*key_itemg_lst), reverse=opt.reverse)
             else:
                 if opt.reverse:
@@ -340,16 +346,10 @@ def main():
                     lst.append('')
 
                 if opt.table:  # Fill table
-                    if opt.kernel:
-                        if e_startup == db_rows_sz:
-                            tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(''), str(''), str(''), str(e_kernel)])
-                        else:
-                            tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(e_offbtime), str(e_end), str(e_downtime), str(e_kernel)])
+                    if e_startup == db_rows_sz:
+                        tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(''), str(''), str(''), str(e_kernel)])
                     else:
-                        if e_startup == db_rows_sz:
-                            tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(''), str(''), str('')])
-                        else:
-                            tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(e_offbtime), str(e_end), str(e_downtime)])
+                        tbl.append([str(e_startup), str(e_btime), str(e_uptime), str(e_offbtime), str(e_end), str(e_downtime), str(e_kernel)])
 
         else:
             # - Get number of startups
@@ -430,6 +430,14 @@ def main():
                 print(l)
 
         if opt.table:
+            # Delete kernel if is not used
+            if not opt.kernel:
+                kern_tbl = []
+                for x in tbl:
+                    del x[-1]
+                    kern_tbl.append(x)
+                tbl = kern_tbl
+
             # Create table pad and print
             colpad = []
             side_spaces = 3

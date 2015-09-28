@@ -74,6 +74,12 @@ sqlite3 ${TMP_DB} "CREATE TABLE tuptime (btime INT, uptime REAL, offbtime INT, e
 sqlite3 ${TMP_DB} "INSERT INTO tuptime(btime, uptime, offbtime, endst, downtime) SELECT btime, uptime, offbtime, endst, downtime FROM tuptime_old;"
 sqlite3 ${TMP_DB} "DROP TABLE tuptime_old;"
 
+# Adding new column
+sqlite3 ${TMP_DB} "ALTER TABLE tuptime RENAME TO tuptime_old;"
+sqlite3 ${TMP_DB} "CREATE TABLE tuptime (btime INT, uptime REAL, offbtime INT, endst INT, downtime REAL, kernel TEXT);"
+sqlite3 ${TMP_DB} "INSERT INTO tuptime(btime, uptime, offbtime, endst, downtime, kernel) SELECT btime, uptime, offbtime, endst, downtime, '' FROM tuptime_old;"
+sqlite3 ${TMP_DB} "DROP TABLE tuptime_old;"
+
 # Backup old db and restore the new
 mv ${SOURCE_DB} ${SOURCE_DB}.back
 mv ${TMP_DB} ${SOURCE_DB}
