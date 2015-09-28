@@ -398,10 +398,10 @@ def main():
                 conn.execute('select min(downtime), offbtime, kernel from tuptime where oid < (select max(oid) from tuptime)')
                 shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = conn.fetchone()
             else:  # Initialize empty values
-                larg_up_uptime = 0; larg_up_btime = 0
-                shrt_up_uptime = 0; shrt_up_btime = 0
-                larg_down_downtime = 0; larg_down_offbtime = 0; larg_down_kern = 0
-                shrt_down_downtime = 0; shrt_down_offbtime = 0; shrt_down_kern = 0
+                larg_up_uptime = 0; larg_up_btime = 0; larg_up_kern = None
+                shrt_up_uptime = 0; shrt_up_btime = 0; shrt_up_kern = None
+                larg_down_downtime = 0; larg_down_offbtime = 0; larg_down_kern = None
+                shrt_down_downtime = 0; shrt_down_offbtime = 0; shrt_down_kern = None
 
             # Supersede the last row values for large/short uptime if is applicable.
             if larg_up_uptime <= uptime or larg_up_btime == 0:
@@ -432,11 +432,11 @@ def main():
         if opt.table:
             # Delete kernel if is not used
             if not opt.kernel:
-                kern_tbl = []
+                tbl_no_kern = []
                 for x in tbl:
                     del x[-1]
-                    kern_tbl.append(x)
-                tbl = kern_tbl
+                    tbl_no_kern.append(x)
+                tbl = tbl_no_kern
 
             # Create table pad and print
             colpad = []
