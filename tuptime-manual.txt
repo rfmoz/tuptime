@@ -84,6 +84,23 @@ For Linux systems:
 
 For FreeBSD system:
 
+   * Using FreeBSD packages
+
+     FreeBSD packages for tuptime can be found at the following URLs
+
+       FreeBSD 10 64bit:  http://pkg.ssnet.ca/10amd64-default/All/tuptime-3.1.00.txz
+       FreeBSD 10 32bit:  http://pkg.ssnet.ca/10i386-default/All/tuptime-3.1.00.txz
+
+       FreeBSD 11 64bit:  http://pkg.ssnet.ca/11amd64-default/All/tuptime-3.1.00.txz
+       FreeBSD 11 ARMv6:  http://pkg.ssnet.ca/11armv6-default/All/tuptime-3.1.00.txz
+
+     After downloading the correct package you can install it using pkg:
+
+       # pkg add tuptime-3.1.00.txz
+
+     Add an entry to crontab
+         */5     *       *       *       *       root	/usr/local/bin/tuptime -x
+
    + Manual install
 
       Clone repository and copy executable file:
