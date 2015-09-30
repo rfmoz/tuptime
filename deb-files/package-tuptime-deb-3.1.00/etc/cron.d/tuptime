@@ -5,4 +5,4 @@
 
 MAILTO=root
 
-5/* *    * * *   root    if [ -x /usr/bin/tuptime ]; then /usr/bin/tuptime -x > /dev/null; fi
+*/5 *    * * *   root    if [ -x /usr/bin/tuptime ]; then /usr/bin/tuptime -x > /dev/null; fi
