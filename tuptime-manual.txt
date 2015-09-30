@@ -93,7 +93,7 @@ For FreeBSD system:
 
       Add an entry to crontab
 
-         5/*     *       *       *       *       root    /usr/local/bin/tuptime -x
+         */5     *       *       *       *       root    /usr/local/bin/tuptime -x
 
       Copy rc.d file:
 
