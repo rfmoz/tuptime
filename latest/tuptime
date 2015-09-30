@@ -28,7 +28,7 @@ def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 locale.setlocale(locale.LC_ALL, '')
 def_date_format = '%X %x'
-dec = int(2)  # Decimals for printed values
+dec = int(2)  # Decimals for seconds output
 
 
 def vprint(*args):
@@ -264,7 +264,7 @@ def main():
         if (last_btime + uptime) < btime:
             vprint('System was restarted')
             # Save downtimes for previous boot
-            conn.execute('update tuptime set offbtime = '+ str(int(round(lasts, 0))) +', downtime = '+ str(round((btime - lasts), dec)) +' where oid = (select max(oid) from tuptime)')
+            conn.execute('update tuptime set offbtime = '+ str(int(round(lasts, 0))) +', downtime = '+ str(round((btime - lasts), 2)) +' where oid = (select max(oid) from tuptime)')
             # Create entry for new boot
             conn.execute('insert into tuptime values (?,?,?,?,?,?)', (str(btime), str(uptime), str('-1'), str(opt.endst), str('-1'), str(kernel)))
         else:
