@@ -99,7 +99,7 @@ For FreeBSD system:
        # pkg add tuptime-3.1.00.txz
 
      Add an entry to crontab
-         5/*     *       *       *       *       root	/usr/local/bin/tuptime -x
+         */5     *       *       *       *       root	/usr/local/bin/tuptime -x
 
    + Manual install
 
