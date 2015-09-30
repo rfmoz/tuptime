@@ -23,7 +23,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '3.1.00-beta'
+version = '3.1.01-beta'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 locale.setlocale(locale.LC_ALL, '')
@@ -49,6 +49,7 @@ def time_conv(secs):
     try:
         if secs == 0:
             return '0 seconds'
+        secs = round(secs, 0)  # Rounded to 0 in human style
 
         tm = {'years': int(0), 'days': int(0), 'hours': int(0), 'minutes': int(0), 'seconds': int(0)}
         tm_tuple = ('years', 'days', 'hours', 'minutes', 'seconds')
@@ -263,7 +264,7 @@ def main():
         if (last_btime + uptime) < btime:
             vprint('System was restarted')
             # Save downtimes for previous boot
-            conn.execute('update tuptime set downtime = '+ str(round((btime - lasts), 2)) +', offbtime = '+ str(int(lasts)) +' where oid = (select max(oid) from tuptime)')
+            conn.execute('update tuptime set offbtime = '+ str(int(lasts)) +', downtime = '+ str(round((btime - lasts), dec)) +' where oid = (select max(oid) from tuptime)')
             # Create entry for new boot
             conn.execute('insert into tuptime values (?,?,?,?,?,?)', (str(btime), str(uptime), str('-1'), str(opt.endst), str('-1'), str(kernel)))
         else:
