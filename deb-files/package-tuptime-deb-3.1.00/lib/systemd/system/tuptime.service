@@ -1,7 +1,5 @@
 [Unit]
 Description=Tuptime service
-After=basic.target
-Requires=basic.target
 
 [Service]
 Type=oneshot
