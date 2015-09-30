@@ -93,7 +93,7 @@ For FreeBSD system:
 
       Add an entry to crontab
 
-         5/*     *       *       *       *       root    /usr/local/bin/tuptime -x
+         */5     *       *       *       *       root    /usr/local/bin/tuptime -x
 
       Copy rc.d file:
 
@@ -259,7 +259,7 @@ These are the command line options, no configuration file is used:
 
 -r, --reverse
   Reverse the order for table or list output. Therefore, only works in conjunction with 
-  any of (-t), (-l), (-e), (-o) and (-u) options.
+  any of (-t), (-l), (-e), (-o), (-u) and (-c) options.
 
   Examples:
          tuptime -tr
