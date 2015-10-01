@@ -23,12 +23,13 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '3.1.01-beta'
+version = '3.1.02-beta'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 locale.setlocale(locale.LC_ALL, '')
 def_date_format = '%X %x'
-dec = int(2)  # Decimals for seconds output
+dec = int(2)  # Decimals for percentage output
+dec_av = int(2)  # Decimals for average output
 
 
 def vprint(*args):
@@ -263,8 +264,12 @@ def main():
     try:
         if (last_btime + uptime) < btime:
             vprint('System was restarted')
+            offbtime_db = int(round(lasts, 0))
+            downtime_db = round((btime - lasts), 2)
+            vprint('Recording offbtime into db = ', str(offbtime_db))
+            vprint('Recording downtime into db = ', str(downtime_db))
             # Save downtimes for previous boot
-            conn.execute('update tuptime set offbtime = '+ str(int(round(lasts, 0))) +', downtime = '+ str(round((btime - lasts), 2)) +' where oid = (select max(oid) from tuptime)')
+            conn.execute('update tuptime set offbtime = '+ str(offbtime_db) +', downtime = '+ str(downtime_db) +' where oid = (select max(oid) from tuptime)')
             # Create entry for new boot
             conn.execute('insert into tuptime values (?,?,?,?,?,?)', (str(btime), str(uptime), str('-1'), str(opt.endst), str('-1'), str(kernel)))
         else:
@@ -323,9 +328,9 @@ def main():
 
                 if opt.seconds:
                     e_btime = row_dict['btime']
-                    e_uptime = round(row_dict['uptime'], dec)
+                    e_uptime = row_dict['uptime']
                     e_offbtime = row_dict['offbtime']
-                    e_downtime = round(row_dict['downtime'], dec)
+                    e_downtime = row_dict['downtime']
                 else:
                     e_btime = datetime.fromtimestamp(row_dict['btime']).strftime(opt.date_format)
                     e_uptime = time_conv(row_dict['uptime'])
@@ -455,22 +460,16 @@ def main():
 
     else:
         # - Get average uptime and uptime rate
-        average_up = float(total_uptime / startups)
-        uprate = float((total_uptime * 100) / (sys_life))
+        average_up = round((total_uptime / startups), dec_av)
+        uprate = round((total_uptime * 100) / (sys_life), dec)
         if startups == 1:
             total_downtime = 0
         else:
-            total_downtime = float(sys_life - total_uptime)
-        downrate = abs(float((total_downtime * 100) / (sys_life)))
-        average_down = float(total_downtime / startups)
+            total_downtime = sys_life - total_uptime
+        downrate = round((total_downtime * 100) / (sys_life), dec)
+        average_down = round((total_downtime / startups), dec_av)
 
-        if opt.seconds:
-            average_up = round(average_up, dec)
-            average_down = round(average_down, dec)
-            total_uptime = round(total_uptime, dec)
-            total_downtime = round(total_downtime, dec)
-            sys_life = round(sys_life, dec)
-        else:
+        if not opt.seconds:
             # - Values in human readable style
             first_btime = datetime.fromtimestamp(first_btime).strftime(opt.date_format)
             larg_up_uptime = time_conv(larg_up_uptime)
@@ -491,8 +490,8 @@ def main():
 
         print('System startups:\t' + str(startups) + '   since   ' + str(first_btime))
         print('System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad')
-        print('System uptime: \t\t' + str(round(uprate, dec)) + ' %   -   ' + str(total_uptime))
-        print('System downtime: \t' + str(round(downrate, dec)) + ' %   -   ' + str(total_downtime))
+        print('System uptime: \t\t' + str(uprate) + ' %   -   ' + str(total_uptime))
+        print('System downtime: \t' + str(downrate) + ' %   -   ' + str(total_downtime))
         print('System life: \t\t' + str(sys_life))
         if opt.kernel: print('System kernels: \t' + str(kernel_cnt))
         print('')
