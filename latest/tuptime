@@ -370,7 +370,7 @@ def main():
             # conn.execute('select sum(uptime) from tuptime')
             # hack for allow unprivileged users that can not update database show results
             conn.execute('select sum(uptime) from tuptime where oid < (select max(oid) from tuptime)')
-            total_uptime = sum(filter(None, [conn.fetchone()[0], uptime]))
+            total_uptime = round(sum(filter(None, [conn.fetchone()[0], uptime])), 2)
 
             # - Get shutdowns states
             conn.execute('select count(endst) from tuptime where endst = 0 and oid < (select max(oid) from tuptime)')
@@ -380,7 +380,6 @@ def main():
             # - Get life time
             conn.execute('select btime from tuptime where oid = (select min(oid) from tuptime)')
             first_btime = int(conn.fetchone()[0])
-            sys_life = (btime + uptime) - first_btime
 
             # - Get number of different kernels used
             conn.execute('select distinct kernel from tuptime')
@@ -459,13 +458,14 @@ def main():
                 print ('')
 
     else:
-        # - Get average uptime and uptime rate
+        # - Calculate values
+        sys_life = round(((btime + uptime) - first_btime), 2)
         average_up = round((total_uptime / startups), dec_av)
         uprate = round((total_uptime * 100) / (sys_life), dec)
         if startups == 1:
             total_downtime = 0
         else:
-            total_downtime = sys_life - total_uptime
+            total_downtime = round((sys_life - total_uptime), 2)
         downrate = round((total_downtime * 100) / (sys_life), dec)
         average_down = round((total_downtime / startups), dec_av)
 
