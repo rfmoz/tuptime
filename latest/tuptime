@@ -54,7 +54,6 @@ def time_conv(secs):
 
         tm = {'years': int(0), 'days': int(0), 'hours': int(0), 'minutes': int(0), 'seconds': int(0)}
         tm_tuple = ('years', 'days', 'hours', 'minutes', 'seconds')
-        zero_enter = True
         human_tm = ''
 
         # Get times values
@@ -63,8 +62,8 @@ def time_conv(secs):
         tm['days'], tm['hours'] = divmod(tm['hours'], 24)
         tm['years'], tm['days'] = divmod(tm['days'], 365)
 
-        for key in tm_tuple:  # avoid print empty values at the beginning
-            if tm[key] == 0 and zero_enter:
+        for j, key in enumerate(tm_tuple):  # avoid print empty values at the beginning
+            if (tm[key] == 0) and (j >= 0):
                 continue
             else:
                 human_tm += str(int(tm[key]))+' '+str(key) + ', '
@@ -79,7 +78,6 @@ def time_conv(secs):
                     human_tm = human_tm.replace('minutes', 'minute')
                 if human_tm.startswith('1 seconds, ') or human_tm.endswith(' 1 seconds, '):
                     human_tm = human_tm.replace('seconds', 'second')
-                zero_enter = False
         # Nice sentence end, remove comma
         if human_tm.find('minutes, ') or human_tm.find('minute, '):
             human_tm = human_tm.replace('minutes, ', 'minutes and ')
