@@ -182,7 +182,7 @@ def main():
             sysctl = subprocess.check_output(['/sbin/sysctl', 'kern.boottime']);
             sec = sysctl.split()[4].replace(',', '')
             btime = int(sec)
-            uptime = float((time.time() - btime))
+            uptime = round(float((time.time() - btime)), 2)
             vprint('uptime = ' + str(uptime))
             vprint('btime = ' + str(btime))
         except Exception as e:
