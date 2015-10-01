@@ -23,7 +23,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '3.1.02-beta'
+version = '3.1.10-beta'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 locale.setlocale(locale.LC_ALL, '')
@@ -54,6 +54,7 @@ def time_conv(secs):
 
         tm = {'years': int(0), 'days': int(0), 'hours': int(0), 'minutes': int(0), 'seconds': int(0)}
         tm_tuple = ('years', 'days', 'hours', 'minutes', 'seconds')
+        zero_enter = True
         human_tm = ''
 
         # Get times values
@@ -62,22 +63,16 @@ def time_conv(secs):
         tm['days'], tm['hours'] = divmod(tm['hours'], 24)
         tm['years'], tm['days'] = divmod(tm['days'], 365)
 
-        for j, key in enumerate(tm_tuple):  # avoid print empty values at the beginning
-            if (tm[key] == 0) and (j >= 0):
+        for key in tm_tuple:  # Avoid print empty values at the beginning
+            if (tm[key] == 0) and zero_enter:
                 continue
             else:
-                human_tm += str(int(tm[key]))+' '+str(key) + ', '
-                # Correct typo for 1 case
-                if human_tm.startswith('1 years, ') or human_tm.endswith(' 1 years, '):
-                    human_tm = human_tm.replace('years', 'year')
-                if human_tm.startswith('1 days, ') or human_tm.endswith(' 1 days, '):
-                    human_tm = human_tm.replace('days', 'day')
-                if human_tm.startswith('1 hours, ') or human_tm.endswith(' 1 hours, '):
-                    human_tm = human_tm.replace('hours', 'hour')
-                if human_tm.startswith('1 minutes, ') or human_tm.endswith(' 1 minutes, '):
-                    human_tm = human_tm.replace('minutes', 'minute')
-                if human_tm.startswith('1 seconds, ') or human_tm.endswith(' 1 seconds, '):
-                    human_tm = human_tm.replace('seconds', 'second')
+                if (int(tm[key])) == 1:  # Not plural for 1 unit
+                    human_tm += str(int(tm[key]))+' '+str(key[:-1]) + ', '
+                else:
+                    human_tm += str(int(tm[key]))+' '+str(key) + ', '
+                zero_enter = False
+
         # Nice sentence end, remove comma
         if human_tm.find('minutes, ') or human_tm.find('minute, '):
             human_tm = human_tm.replace('minutes, ', 'minutes and ')
