@@ -375,10 +375,6 @@ def main():
             bad_shdown = int(conn.fetchone()[0])
             ok_shdown = startups - bad_shdown - 1
 
-            # - Get first boot time
-            conn.execute('select btime from tuptime where oid = (select min(oid) from tuptime)')
-            first_btime = int(conn.fetchone()[0])
-
             # - Get number of different kernels used
             conn.execute('select distinct kernel from tuptime')
             kernel_cnt = conn.fetchall()
