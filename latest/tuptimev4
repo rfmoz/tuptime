@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    import sys, os, optparse, locale, platform, subprocess, time, sqlite3
+    import sys, os, optparse, locale, platform, subprocess, time
     from datetime import datetime
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
@@ -225,35 +225,22 @@ def main():
             vprint('DB file exists = ', opt.db_file)
         else:
             vprint('Creating DB file = ', opt.db_file)
-            #db = sqlite3.connect(opt.db_file)
-            #conn = db.cursor()
-            #conn.execute('create table if not exists tuptime(btime integer, uptime real, offbtime integer, endst integer, downtime real, kernel text)')
-            #conn.execute('insert into tuptime values (?,?,?,?,?,?)', (str(btime), str(uptime), str('-1'), str(opt.endst), str('-1'), str(kernel)))
-            #db.commit()
-            #db.close()
             with open('/var/tmp/tuptime.txt', 'w') as f:
                 f.write(str(btime)+':'+str(uptime)+':-1:'+str(opt.endst)+':-1:'+str(kernel)+'\n')
     except Exception as e:
         sys.exit('ERROR creating db file: '+ str(e))
 
-    try:
-        db = sqlite3.connect(opt.db_file)
-        conn = db.cursor()
-    except Exception as e:
-        sys.exit('ERROR connecting db: '+ str(e))
 
     try:  # - Reading last btime and uptime registered in db
-        #conn.execute('select btime, uptime from tuptime where oid = (select max(oid) from tuptime)')
-        #last_btime, last_uptime = conn.fetchone()
-
 	with open('/var/tmp/tuptime.txt', 'r') as f:
             rows_f = []
             for row in f.readlines():
+                vprint('Read line from file: '+str(row[:-1]))
                 if row != '\n':
                     rows_f.append(row[:-1].split(':'))
+        vprint('Rows readed: '+str(rows_f))
         vprint('Last btime from db = ', str(rows_f[-1][0]))
         vprint('Last uptime from db = ', str(rows_f[-1][1]))
-        print(rows_f)
         last_btime = int(rows_f[-1][0])
         last_uptime = float(rows_f[-1][1])
         lasts = last_uptime + last_btime
@@ -274,73 +261,56 @@ def main():
     # line works as expected. A uptime record can be lost if tuptime is executed, at first time after boot,
     # when the uptime is greater than the difference between btime - last_btime.
 
+    if (last_btime + uptime) < btime:
+        vprint('System was restarted')
+        offbtime_db = int(round(lasts, 0))
+        downtime_db = round((btime - lasts), 2)
+        vprint('Recording offbtime into db = ', str(offbtime_db))
+        vprint('Recording downtime into db = ', str(downtime_db))
+        # Save downtimes for previous boot
+        vprint('Last row after: '+str(rows_f[-1]))
+        rows_f[-1][2] = str(offbtime_db)
+        rows_f[-1][4] = str(downtime_db)
+        vprint('Last row before: '+str(rows_f[-1]))
+        # Create entry for new boot
+        rows_f.append([str(btime), str(uptime), str(-1), str(opt.endst), str(-1), str(kernel)])
+        vprint('Last row new: '+str(rows_f[-1]))
+    else:
+        vprint('System wasn\'t restarted. Updating db values...')
+        vprint('Last row after: '+str(rows_f[-1]))
+        rows_f[-1][1] = str(uptime)
+        rows_f[-1][3] = str(opt.endst)
+        rows_f[-1][5] = str(kernel)
+        vprint('Last row before: '+str(rows_f[-1]))
+
     try:
-        if (last_btime + uptime) < btime:
-            vprint('System was restarted')
-            offbtime_db = int(round(lasts, 0))
-            downtime_db = round((btime - lasts), 2)
-            vprint('Recording offbtime into db = ', str(offbtime_db))
-            vprint('Recording downtime into db = ', str(downtime_db))
-            # Save downtimes for previous boot
-            #conn.execute('update tuptime set offbtime = '+ str(offbtime_db) +', downtime = '+ str(downtime_db) +' where oid = (select max(oid) from tuptime)')
-            rows_f[-1][2] = str(offbtime_db)
-            rows_f[-1][4] = str(downtime_db)
-
-            # Create entry for new boot
-            #conn.execute('insert into tuptime values (?,?,?,?,?,?)', (str(btime), str(uptime), str('-1'), str(opt.endst), str('-1'), str(kernel)))
-            rows_f.append([str(btime), str(uptime), str(-1), str(opt.endst), str(-1), str(kernel)])
-
-        else:
-            vprint('System wasn\'t restarted. Updating db values...')
-            #conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(opt.endst) +', kernel = \''+ str(kernel) +'\' where oid = (select max(oid) from tuptime)')
-            rows_f[-1][1] = str(uptime)
-            rows_f[-1][3] = str(opt.endst)
-            rows_f[-1][5] = str(kernel)
-            
-
+        # Write file
+        with open('/var/tmp/tuptime.txt', 'w') as f:
+            for i in rows_f:
+                f.write(':'.join(i)+'\n')
+        vprint('Values saved into db')
     except Exception as e:
-        if type(e).__name__ == 'OperationalError':
-            vprint('WARNING values not saved into db - Test file permissions')
+        vprint('WARNING values not saved into db - Test file permissions')
         vprint('WARNING ', str(e))
         if (last_btime + uptime) < btime:
             # If you see this error, maybe systemd script isn't executed at startup
             # or the db file (def_db_file) have wrong permissions.
             sys.exit('ERROR After system restart, the values must be saved into db. Please, execute tuptime with a privileged user.')
-    print(rows_f)
-
-    with open('/var/tmp/tuptime.txt', 'w') as f:
-    
-        #for i in rows_f:
-            #f.write(i['btime']+':'+i['uptime']+':'+i['offbtime']+':'+i['endst']+':'+i['downtime']+':'+i['kernel']+'\n')
-  #      print("\n".join(map(str, rows_f[1:])))
-        for i in rows_f:
-            f.write(':'.join(i[1:])+'\n')
 
     for seq, j in enumerate(rows_f):
-            rows_f[seq][0] = int(rows_f[seq][0])
-            rows_f[seq][1] = int(rows_f[seq][1])
-            rows_f[seq][2] = float(rows_f[seq][2])
-            rows_f[seq][3] = int(rows_f[seq][3])
-            rows_f[seq][4] = int(rows_f[seq][4])
-            rows_f[seq][5] = float(rows_f[seq][5])
-            rows_f[seq][6] = str(rows_f[seq][6])
+        rows_f[seq].insert(0, (seq+1))
+        vprint('Formating row: '+str(j))
+        rows_f[seq][0] = int(rows_f[seq][0])
+        rows_f[seq][1] = int(rows_f[seq][1])
+        rows_f[seq][2] = float(rows_f[seq][2])
+        rows_f[seq][3] = int(rows_f[seq][3])
+        rows_f[seq][4] = int(rows_f[seq][4])
+        rows_f[seq][5] = float(rows_f[seq][5])
+        rows_f[seq][6] = str(rows_f[seq][6])
 
     if not opt.silent:
-        # - Get all rows and correct last for cover outdate db if the user can only read it
-        #conn.execute('select oid, * from tuptime')
         db_rows = rows_f
-        #db_rows = conn.fetchall()
-        #db_rows[-1] = list(db_rows[-1])
-        #db_rows[-1][2] = uptime
-        #db_rows[-1][6] = kernel
-        #db_rows[-1] = tuple(db_rows[-1])
         db_rows_sz = len(db_rows)
-
-    #try:
-    #    db.commit()
-    #    db.close()
-    #except Exception as e:
-    #    sys.exit('ERROR closing db connection: '+ str(e))
 
     # - End if silen is applicable
     if opt.silent:
