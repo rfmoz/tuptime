@@ -261,7 +261,6 @@ def main():
     # For avoid problems with extreme corner cases, please be sure that the init/systemd script and cron
     # line works as expected. A uptime record can be lost if tuptime is executed, at first time after boot,
     # when the uptime is greater than the difference between btime - last_btime.
-
     try:
         if (last_btime + uptime) < btime:
             vprint('System was restarted')
@@ -293,7 +292,7 @@ def main():
         db_rows[-1][2] = uptime
         db_rows[-1][6] = kernel
         db_rows[-1] = tuple(db_rows[-1])
-        db_rows_sz = len(db_rows)
+        startups = len(db_rows)
 
     try:
         db.commit()
@@ -339,7 +338,7 @@ def main():
 
             if opt.lst:  # Fill list
                 lst.append('Startup:  ' + str(row_dict['startup']) + '  at  '+ str(row_dict['btime']))
-                if row_dict['startup'] == db_rows_sz:
+                if row_dict['startup'] == startups:
                     lst.append('Uptime:   ' + str(row_dict['uptime']))
                 else:
                     lst.append('Uptime:   ' + str(row_dict['uptime']))
@@ -350,7 +349,7 @@ def main():
                 lst.append('')
 
             if opt.table:  # Fill table
-                if row_dict['startup'] == db_rows_sz:
+                if row_dict['startup'] == startups:
                     tbl.append([str(row_dict['startup']), str(row_dict['btime']), str(row_dict['uptime']), str(''), str(''), str(''), str(row_dict['kernel'])])
                 else:
                     tbl.append([str(row_dict['startup']), str(row_dict['btime']), str(row_dict['uptime']), str(row_dict['offbtime']), str(row_dict['endst']), str(row_dict['downtime']), str(row_dict['kernel'])])
@@ -365,8 +364,7 @@ def main():
             colpad = []
             side_spaces = 3
 
-            # Delete kernel if is not used
-            if not opt.kernel:
+            if not opt.kernel:  # Delete kernel if is not used
                 tbl_no_kern = []
                 for x in tbl:
                     del x[-1]
@@ -384,22 +382,32 @@ def main():
                 print ('')
 
     else:
+        # - Calculate values
+        row_dict = rows_to_dict(db_rows)
+        first_btime = int(row_dict[0]['btime'])
         total_uptime = 0
         bad_shdown = 0
         kernel_cnt = []
-
-        # - Calculate values
-        row_dict = rows_to_dict(db_rows)
-        startups = int(db_rows_sz)
-        first_btime = int(row_dict[0]['btime'])
 
         for row in row_dict:
            total_uptime = total_uptime + row['uptime']
            if row['endst'] == 0 and row['startup'] != startups:
                bad_shdown = bad_shdown + 1
            kernel_cnt.append(row['kernel'])
+
         ok_shdown = startups - bad_shdown - 1
         kernel_cnt = len(set(kernel_cnt))
+        sys_life = round(((btime + uptime) - first_btime), 2)
+        average_up = round((total_uptime / startups), dec_av)
+        uprate = round((total_uptime * 100) / (sys_life), dec)
+
+        if startups == 1:
+            total_downtime = 0
+        else:
+            total_downtime = round((sys_life - total_uptime), 2)
+
+        downrate = round((total_downtime * 100) / (sys_life), dec)
+        average_down = round((total_downtime / startups), dec_av)
 
         larg_up_uptime_row = max(row_dict, key=lambda x:x['uptime'])
         larg_up_uptime, larg_up_btime, larg_up_kern = larg_up_uptime_row['uptime'], larg_up_uptime_row['btime'], larg_up_uptime_row['kernel']
@@ -417,16 +425,6 @@ def main():
         else:
             larg_down_downtime = 0; larg_down_offbtime = 0; larg_down_kern = None
             shrt_down_downtime = 0; shrt_down_offbtime = 0; shrt_down_kern = None
-
-        sys_life = round(((btime + uptime) - first_btime), 2)
-        average_up = round((total_uptime / startups), dec_av)
-        uprate = round((total_uptime * 100) / (sys_life), dec)
-        if startups == 1:
-            total_downtime = 0
-        else:
-            total_downtime = round((sys_life - total_uptime), 2)
-        downrate = round((total_downtime * 100) / (sys_life), dec)
-        average_down = round((total_downtime / startups), dec_av)
 
         if not opt.seconds:  # - Human readable style
             first_btime = datetime.fromtimestamp(first_btime).strftime(opt.date_format)
