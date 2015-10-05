@@ -37,8 +37,7 @@ Operating system:
 Software:
    - Python 2.7 or Python 3.X (Latest recomended)
    - Python modules (most included in python core by default):
-       sys, os, optparse, sqlite3, datetime, locale, platform, subprocess,
-       operator, time
+       sys, os, optparse, sqlite3, datetime, locale, platform, subprocess, time
 
 If a distro is used, all is met with:
     - In Debian:  'python' package >= 2.7
