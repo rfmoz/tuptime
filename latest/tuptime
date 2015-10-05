@@ -22,7 +22,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '3.2.00-beta'
+version = '3.2.00'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 locale.setlocale(locale.LC_ALL, '')
