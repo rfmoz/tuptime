@@ -366,6 +366,29 @@ https://github.com/rfrail3/tuptime/blob/master/scripts/db-tuptime-migrate.sh
  
 
 
+====================================
+| Reset and modify / delete values |
+====================================
+
+Tuptime use a sqlite3 database located in "/var/lib/tuptime/tuptime.db" with
+the following format:
+
+tuptime (btime integer, 
+         uptime real, 
+         offbtime integer, 
+         endst integer, 
+         downtime real, 
+         kernel text)
+
+For reset all the values, simply detele the database file.
+
+Is it possible to query and modify it directly. But if a complete row is
+deleted and the db is not recreate completely, rowid keep the real information
+about startup number. Tuptime will advert about it if the verbose mode is 
+enabled.
+
+
+
 ================
 | Some Toughts |
 ================
