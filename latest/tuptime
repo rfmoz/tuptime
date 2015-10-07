@@ -326,7 +326,7 @@ def main():
         startups = len(db_rows)
         startups_num = db_rows[-1][0]
         if startups != startups_num:
-            vprint('WARNING real startups are not equal to enumerate startups - possible delete rows in db')
+            vprint('WARNING real startups are not equal to enumerate startups - possible deleted rows in db')
 
     try:
         db.commit()
@@ -357,7 +357,7 @@ def main():
                 db_rows = list(reversed(db_rows))
 
         for row_dict in rows_to_dict(db_rows):
-            vprint('Processing row: '+ str(row_dict))
+            # vprint('Processing row: '+ str(row_dict))
             if row_dict['endst'] == 1:
                 row_dict['endst'] = 'OK'
             else:
