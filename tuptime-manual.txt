@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                             version 3.2.00
+                             version 3.2.01
                                 Ricardo F.
-                             05/October/2015
+                             07/October/2015
 
 
 
@@ -366,9 +366,9 @@ https://github.com/rfrail3/tuptime/blob/master/scripts/db-tuptime-migrate.sh
  
 
 
-====================================
-| Reset and modify / delete values |
-====================================
+=====================================
+| Reset and modify or delete values |
+=====================================
 
 Tuptime use a sqlite3 database located in "/var/lib/tuptime/tuptime.db" with
 the following format:
@@ -383,9 +383,9 @@ tuptime (btime integer,
 For reset all the values, simply detele the database file.
 
 Is it possible to query and modify it directly. But if a complete row is
-deleted and the db is not recreate completely, rowid keep the real information
-about startup number. Tuptime will advert about it if the verbose mode is 
-enabled.
+deleted and the db is not recreate completely (vacuum), rowid keep the real
+information about startup number. Tuptime will advert about it if the verbose
+mode is enabled.
 
 
 
