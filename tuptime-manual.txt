@@ -359,6 +359,12 @@ If this error appears:
 ...(a few lines)...
 sqlite3.OperationalError: no such column: endst
 
+or:
+
+...(a few lines)...
+    db_rows[-1][4] = opt.endst
+IndexError: list assignment index out of range
+
 Is because the database have the format of the 2.x release. For migrate it, 
 please, execute the script "db-tuptime-migrate.sh" which is located at:
 
