@@ -22,7 +22,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '3.2.00'
+version = '3.2.01'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 locale.setlocale(locale.LC_ALL, '')
@@ -324,6 +324,9 @@ def main():
         db_rows[-1][6] = kernel
         db_rows[-1] = tuple(db_rows[-1])
         startups = len(db_rows)
+        startups_num = db_rows[-1][0]
+        if startups != startups_num:
+            vprint('WARNING real startups are not equal to enumerate startups - possible deleted rows in db')
 
     try:
         db.commit()
@@ -354,6 +357,7 @@ def main():
                 db_rows = list(reversed(db_rows))
 
         for row_dict in rows_to_dict(db_rows):
+            # vprint('Processing row: '+ str(row_dict))
             if row_dict['endst'] == 1:
                 row_dict['endst'] = 'OK'
             else:
@@ -367,7 +371,7 @@ def main():
 
             if opt.lst:  # Fill list
                 lst.append('Startup:  ' + str(row_dict['startup']) + '  at  '+ str(row_dict['btime']))
-                if row_dict['startup'] == startups:
+                if row_dict['startup'] == startups_num:
                     lst.append('Uptime:   ' + str(row_dict['uptime']))
                 else:
                     lst.append('Uptime:   ' + str(row_dict['uptime']))
@@ -378,7 +382,7 @@ def main():
                 lst.append('')
 
             if opt.table:  # Fill table
-                if row_dict['startup'] == startups:
+                if row_dict['startup'] == startups_num:
                     tbl.append([str(row_dict['startup']), str(row_dict['btime']), str(row_dict['uptime']), str(''), str(''), str(''), str(row_dict['kernel'])])
                 else:
                     tbl.append([str(row_dict['startup']), str(row_dict['btime']), str(row_dict['uptime']), str(row_dict['offbtime']), str(row_dict['endst']), str(row_dict['downtime']), str(row_dict['kernel'])])
@@ -419,7 +423,7 @@ def main():
 
         for row in row_dict:
             total_uptime += row['uptime']
-            if row['endst'] == 0 and row['startup'] != startups:
+            if row['endst'] == 0 and row['startup'] != startups_num:
                 bad_shdown += 1
             kernel_cnt.append(row['kernel'])
 

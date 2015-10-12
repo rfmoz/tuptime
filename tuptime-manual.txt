@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                             version 3.2.00
+                             version 3.2.01
                                 Ricardo F.
-                             05/October/2015
+                             07/October/2015
 
 
 
@@ -37,8 +37,7 @@ Operating system:
 Software:
    - Python 2.7 or Python 3.X (Latest recomended)
    - Python modules (most included in python core by default):
-       sys, os, optparse, sqlite3, datetime, locale, platform, subprocess,
-       operator, time
+       sys, os, optparse, sqlite3, datetime, locale, platform, subprocess, time
 
 If a distro is used, all is met with:
     - In Debian:  'python' package >= 2.7
@@ -360,11 +359,40 @@ If this error appears:
 ...(a few lines)...
 sqlite3.OperationalError: no such column: endst
 
+or:
+
+...(a few lines)...
+    db_rows[-1][4] = opt.endst
+IndexError: list assignment index out of range
+
 Is because the database have the format of the 2.x release. For migrate it, 
 please, execute the script "db-tuptime-migrate.sh" which is located at:
 
 https://github.com/rfrail3/tuptime/blob/master/scripts/db-tuptime-migrate.sh
  
+
+
+=====================================
+| Reset and modify or delete values |
+=====================================
+
+Tuptime use a sqlite3 database located in "/var/lib/tuptime/tuptime.db" with
+the following format:
+
+tuptime (btime integer, 
+         uptime real, 
+         offbtime integer, 
+         endst integer, 
+         downtime real, 
+         kernel text)
+
+For reset all the values, simply detele the database file.
+
+Is it possible to query and modify it directly. But if a complete row is
+deleted and the db is not recreate completely (vacuum), rowid keep the real
+information about startup number. Tuptime will advert about it if the verbose
+mode is enabled.
+
 
 
 ================
