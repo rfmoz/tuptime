@@ -6,3 +6,5 @@ if [ -f "/lib/systemd/system/tuptime.service" ]; then
         systemctl enable tuptime.service
         systemctl start tuptime.service
 fi
+
+tuptime -x
