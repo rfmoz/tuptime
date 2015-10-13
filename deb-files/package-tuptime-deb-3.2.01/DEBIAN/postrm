@@ -1,14 +1,19 @@
 #!/bin/sh
 set -e
 
-if [ -e "/lib/systemd/system/tuptime.service" ]; then
-	rm -f /lib/systemd/system/tuptime.service
+if [ "$1" = "remove" ] || [ "$1" = "purge" ] ; then
+
+	if [ -e "/lib/systemd/system/tuptime.service" ]; then
+                rm -f /lib/systemd/system/tuptime.service
+        fi
+
+        systemctl disable tuptime
+        systemctl daemon-reload
+
 fi
 
-systemctl disable tuptime
-systemctl daemon-reload
-
 if [ "$1" = "purge" ] ; then
+
 	if [ -d "/var/lib/tuptime/" ]; then
 		rm -rf /var/lib/tuptime/
 	fi
