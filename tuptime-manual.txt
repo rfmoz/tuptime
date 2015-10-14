@@ -170,7 +170,7 @@ These are the command line options, no configuration file is used:
 
 
 -d <DATE_FORMAT>, --date=<DATE_FORMAT>
-  Change the format of the date. By it's printed based on locales.
+  Change the date format. By default it's printed based on system locales.
   Allow values are:
 
 	%a	Weekday as locale’s abbreviated name.
