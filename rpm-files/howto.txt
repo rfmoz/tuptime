@@ -1,0 +1,5 @@
+hostname
+hostname rpm-server
+rpmbuild -ba SPECS/tuptime.spec
+rpmlint -i SPECS/tuptime.spec
+rm -rf BUILDROOT/*
