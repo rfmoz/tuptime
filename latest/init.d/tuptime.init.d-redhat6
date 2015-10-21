@@ -1,80 +1,71 @@
-PPNAME - <summary>
+#!/bin/sh
 #
-# chkconfig:   <default runlevel(s)> <start> <stop>
-# description: <description, split multiple lines with \
+# tuptime - Historical and statistical running time of the system.
+#
+# chkconfig:   12345  25  90
+# description: Report the historical and statistical running time  \
+#              of the system, keeping it between restarts. 
 #              a backslash>
 
-# http://fedoraproject.org/wiki/FCNewInit/Initscripts
 ### BEGIN INIT INFO
-# Provides:
-# Required-Start:
-# Required-Stop:
-# Should-Start:
-# Should-Stop:
-# Default-Start:
-# Default-Stop:
-# Short-Description:
-# Description:
+# Provides: tuptime
+# Required-Start: $local_fs $time
+# Required-Stop: $local_fs $time
+# Short-Description: start and stop tuptime
+# Description: Report the historical and statistical running time
+#  of the system, keeping it between restarts.
 ### END INIT INFO
 
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-exec="/usr/sbin/APPNAME"
-prog=${exec##*/}
+F_BIN='tuptime'
+SERVC="/usr/bin/$F_BIN"
 
-[ -e /etc/sysconfig/$prog ] && . /etc/sysconfig/$prog
 
-lockfile=/var/lock/subsys/$prog
-
-start() {
-    echo -n $"Starting $prog: "
-    # if not running, start it up here, usually something like "daemon $exec"
-    retval=$?
-    echo
-    [ $retval -eq 0 ] && touch $lockfile
-    return $retval
+do_start () {
+        # Start service
+	echo -n $"Starting tuptime: "
+        $SERVC -x > /dev/null
+    	retval=$?
+	 echo
+	[ $retval -eq 0 ]
+	return $retval
 }
 
-stop() {
-    echo -n $"Stopping $prog: "
-    # stop it here, often "killproc $prog"
-    retval=$?
-    echo
-    [ $retval -eq 0 ] && rm -f $lockfile
-    return $retval
+do_stop () {
+        # Stop service
+	echo -n $"Stopping tuptime: "
+        $SERVC -xg > /dev/null
+    	retval=$?
+	 echo
+	[ $retval -eq 0 ]
+	return $retval
 }
 
-restart() {
-    stop
-    start
+do_status () {
+        # Status service
+        $SERVC
 }
 
 case "$1" in
-    start|stop|restart)
-        $1
+  start|"")
+        do_start
         ;;
-    force-reload)
-        restart
+  restart)
+        do_stop
+        do_start
         ;;
-    status)
-        status $prog
+  stop)
+        do_stop
         ;;
-    try-restart|condrestart)
-        if status $prog >/dev/null ; then
-            restart
-        fi
+  status)
+        do_status
+        exit $?
         ;;
-    reload)
-        # If config can be reloaded without restarting, implement it here,
-        # remove the "exit", and add "reload" to the usage message below.
-        # For example:
-        # status $prog >/dev/null || exit 7
-        # killproc $prog -HUP
-        action $"Service ${0##*/} does not support the reload action: " /bin/false
+  *)
+        echo "Usage: $F_BIN [start|stop|restart|status]" >&2
         exit 3
         ;;
-    *)
-        echo $"Usage: $0 {start|stop|status|restart|try-restart|force-reload}"
-        exit 2
 esac
+
