@@ -7,6 +7,7 @@ if [ "$1" = "remove" ] || [ "$1" = "purge" ] ; then
                 rm -f /lib/systemd/system/tuptime.service
         fi
 
+        systemctl stop tuptime
         systemctl disable tuptime
         systemctl daemon-reload
 
