@@ -2,7 +2,7 @@
 
 #
 # Tuptime installation linux script
-# v.1.3
+# v.1.4
 #
 
 git --version &> /dev/null
@@ -49,11 +49,21 @@ if [ $? -eq 0 ]; then
 	cp -a ${F_TMP1}/latest/systemd/tuptime.service  /lib/systemd/system/
 	systemctl daemon-reload
 	systemctl enable tuptime.service
-else
+elif [ -f /lib/lsb/init-functions ]; then
 	echo "Copying init file..."
 	cp -a ${F_TMP1}/latest/init.d/tuptime.init.d-debian7 /etc/init.d/tuptime
 	chmod 755 /etc/init.d/tuptime
 	update-rc.d tuptime defaults
+elif [ -f /etc/rc.d/init.d/functions ]; then
+	echo "Copying init file..."
+	cp -a ${F_TMP1}/latest/init.d/tuptime.init.d-redhat6 /etc/init.d/tuptime
+	chmod 755 /etc/init.d/tuptime
+	chkconfig --add tuptime
+	chkconfig tuptime on
+else
+	echo "#####################################"
+	echo "ERROR - Any init file for your system"
+	echo "#####################################"
 fi
 
 echo "Copying cron file..."

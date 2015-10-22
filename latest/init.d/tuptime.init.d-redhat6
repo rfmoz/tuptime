@@ -5,7 +5,6 @@
 # chkconfig:   12345  25  90
 # description: Report the historical and statistical running time  \
 #              of the system, keeping it between restarts. 
-#              a backslash>
 
 ### BEGIN INIT INFO
 # Provides: tuptime
@@ -21,32 +20,35 @@
 
 F_BIN='tuptime'
 SERVC="/usr/bin/$F_BIN"
+lockfile="/var/lock/subsys/$F_BIN"
 
 
 do_start () {
         # Start service
-	echo -n $"Starting tuptime: "
-        $SERVC -x > /dev/null
-    	retval=$?
-	 echo
-	[ $retval -eq 0 ]
-	return $retval
+        echo -n $"Starting tuptime: "
+	daemon $SERVC -x
+        retval=$?
+         echo
+        [ $retval -eq 0 ] && touch ${lockfile}
+        return $retval
 }
 
 do_stop () {
         # Stop service
-	echo -n $"Stopping tuptime: "
-        $SERVC -xg > /dev/null
-    	retval=$?
-	 echo
-	[ $retval -eq 0 ]
-	return $retval
+        echo -n $"Stopping tuptime: "
+	daemon $SERVC -xg
+	$SERVC -xg
+        retval=$?
+         echo
+	[ $RETVAL = 0 ] && rm -f ${lockfile}
 }
 
 do_status () {
         # Status service
         $SERVC
 }
+
+
 
 case "$1" in
   start|"")
@@ -68,4 +70,3 @@ case "$1" in
         exit 3
         ;;
 esac
-
