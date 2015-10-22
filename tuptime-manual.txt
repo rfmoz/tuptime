@@ -3,7 +3,7 @@
                          ----------------------
                              version 3.2.01
                                 Ricardo F.
-                             07/October/2015
+                             22/October/2015
 
 
 
@@ -40,7 +40,7 @@ Software:
        sys, os, optparse, sqlite3, datetime, locale, platform, subprocess, time
 
 If a distro is used, all is met with:
-    - In Debian:  'python' package >= 2.7
+    - In Linux:  'python' package >= 2.7
     - In FreeBSD: '/usr/ports/lang/python' and '/usr/ports/databases/py-sqlite3'
 
 
@@ -53,8 +53,16 @@ For Linux systems:
 
    + Using .deb package
 
-      If is a system based on .deb package, install tuptime-x.x.xx.deb located
+      If is a system based on .deb package, install tuptime_x.deb located
       in this repo under tuptime/deb-package/
+      Note that systemd is required.
+
+   + Using .rpm package
+
+      If is a system based on .rpm package, install tuptime-x.rpm located
+      in this repo under tuptime/rpm-package/
+      Note that systemd is required.
+
 
    + Manual install
 
@@ -74,11 +82,19 @@ For Linux systems:
          # chmod 644 /lib/systemd/system/tuptime.service
          # systemctl enable tuptime.service
 
-      If have init system, copy its file:
+      If have upstart system, copy the file:
+
+         # cp tuptime/latest/init.d/tuptime.init.d-redhat6 /etc/init.d/tuptime
+	 # chmod 755 /etc/init.d/tuptime
+	 # chkconfig --add tuptime
+	 # chkconfig tuptime on
+
+      If have init system, copy the file:
 
          # cp tuptime/latest/init.d/tuptime.init.d-debian7 /etc/init.d/tuptime
          # chmod 755 /etc/init.d/tuptime
          # update-rc.d tuptime defaults
+	 # /etc/init.d/tuptime start
 
 
 For FreeBSD system:
@@ -170,7 +186,7 @@ These are the command line options, no configuration file is used:
 
 
 -d <DATE_FORMAT>, --date=<DATE_FORMAT>
-  Change the format of the date. By it's printed based on locales.
+  Change the date format. By default it's printed based on system locales.
   Allow values are:
 
 	%a	Weekday as locale’s abbreviated name.
