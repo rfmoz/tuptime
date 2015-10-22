@@ -1,6 +1,6 @@
 Name: tuptime
 Version: 3.2.01
-Release: 1
+Release: 2
 Summary: Report the historical and statistical running time of the system, keeping it between restarts.
 Packager: Ricardo F.
 
