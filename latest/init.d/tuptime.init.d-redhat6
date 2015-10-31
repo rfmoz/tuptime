@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+# tuptime - Historical and statistical running time of the system.
+#
+# chkconfig:   12345  25  90
+# description: Report the historical and statistical running time  \
+#              of the system, keeping it between restarts. 
+
+### BEGIN INIT INFO
+# Provides: tuptime
+# Required-Start: $local_fs $time
+# Required-Stop: $local_fs $time
+# Short-Description: start and stop tuptime
+# Description: Report the historical and statistical running time
+#  of the system, keeping it between restarts.
+### END INIT INFO
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+F_BIN='tuptime'
+SERVC="/usr/bin/$F_BIN"
+lockfile="/var/lock/subsys/$F_BIN"
+
+
+do_start () {
+        # Start service
+        echo -n $"Starting tuptime: "
+	daemon $SERVC -x
+        retval=$?
+         echo
+        [ $retval -eq 0 ] && touch ${lockfile}
+        return $retval
+}
+
+do_stop () {
+        # Stop service
+        echo -n $"Stopping tuptime: "
+	daemon $SERVC -xg
+	$SERVC -xg
+        retval=$?
+         echo
+	[ $RETVAL = 0 ] && rm -f ${lockfile}
+}
+
+do_status () {
+        # Status service
+        $SERVC
+}
+
+
+
+case "$1" in
+  start|"")
+        do_start
+        ;;
+  restart)
+        do_stop
+        do_start
+        ;;
+  stop)
+        do_stop
+        ;;
+  status)
+        do_status
+        exit $?
+        ;;
+  *)
+        echo "Usage: $F_BIN [start|stop|restart|status]" >&2
+        exit 3
+        ;;
+esac
