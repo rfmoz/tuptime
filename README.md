@@ -6,6 +6,8 @@ Tuptime is a tool for report the historical and statistical running time of the 
 
 ### Basic Installation and usage
 
+In a Linux or FreeBSD system...
+
 Clone the repo:
 	git clone https://github.com/rfrail3/tuptime.git
 
