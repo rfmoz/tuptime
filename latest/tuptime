@@ -220,7 +220,7 @@ def main():
             if platform_env == 'FreeBSD':
                 sysctl_bin = '/sbin/sysctl'
             if platform_env == 'Darwin':
-                sysctl_bin = '/usr/bin/sysctl'
+                sysctl_bin = '/usr/sbin/sysctl'
             sysctl = subprocess.check_output([sysctl_bin, 'kern.boottime']);
             sec = sysctl.split()[4].replace(',', '')
             btime = int(sec)
