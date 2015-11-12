@@ -213,10 +213,15 @@ def main():
         if not opt.table and not opt.lst:
             sys.exit('ERROR used operators must be combined with [-t|--table]  or [-l|--list]')
 
-    # - Swich for running in FreeBSD or Linux
-    if platform.system() == "FreeBSD":
+    # - Swich for running in FreeBSD, Darwin (MacOSX) or Linux
+    platform_env = platform.system()
+    if platform_env in ('FreeBSD', 'Darwin'):
         try:
-            sysctl = subprocess.check_output(['/sbin/sysctl', 'kern.boottime']);
+            if platform_env == 'FreeBSD':
+                sysctl_bin = '/sbin/sysctl'
+            if platform_env == 'Darwin':
+                sysctl_bin = '/usr/bin/sysctl'
+            sysctl = subprocess.check_output([sysctl_bin, 'kern.boottime']);
             sec = sysctl.split()[4].replace(',', '')
             btime = int(sec)
             uptime = round(float((time.time() - btime)), 2)
