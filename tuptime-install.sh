@@ -2,8 +2,13 @@
 
 #
 # Tuptime installation linux script
-# v.1.4
+# v.1.5
 #
+
+if [ "$(expr substr $(uname -s) 1 5)" != "Linux" ]; then
+	echo "Sorry, only for Linux systems"
+	exit 1
+fi
 
 git --version &> /dev/null
 if [ $? -ne 0 ]; then

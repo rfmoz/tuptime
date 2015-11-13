@@ -22,7 +22,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '3.2.01'
+version = '3.2.10'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 locale.setlocale(locale.LC_ALL, '')
@@ -213,17 +213,22 @@ def main():
         if not opt.table and not opt.lst:
             sys.exit('ERROR used operators must be combined with [-t|--table]  or [-l|--list]')
 
-    # - Swich for running in FreeBSD or Linux
-    if platform.system() == "FreeBSD":
+    # - Swich for running in FreeBSD, Darwin (MacOSX) or Linux
+    platform_env = platform.system()
+    if platform_env in ('FreeBSD', 'Darwin'):
         try:
-            sysctl = subprocess.check_output(['/sbin/sysctl', 'kern.boottime']);
+            if platform_env == 'FreeBSD':
+                sysctl_bin = '/sbin/sysctl'
+            if platform_env == 'Darwin':
+                sysctl_bin = '/usr/sbin/sysctl'
+            sysctl = subprocess.check_output([sysctl_bin, 'kern.boottime']);
             sec = sysctl.split()[4].replace(',', '')
             btime = int(sec)
             uptime = round(float((time.time() - btime)), 2)
             vprint('uptime = ' + str(uptime))
             vprint('btime = ' + str(btime))
         except Exception as e:
-            sys.exit('ERROR reading sysctl ' + str(e))
+            sys.exit('ERROR reading BSD sysctl ' + str(e))
     else:
         procfs = "/proc"
         try:
@@ -240,7 +245,7 @@ def main():
                         btime = int(line.split()[1])
                 vprint(procfs + '/stat btime = ' + str(btime))
         except Exception as e:
-            sys.exit('ERROR reading ' + procfs + '/stat'+ str(e))
+            sys.exit('ERROR reading Linux ' + procfs + '/stat'+ str(e))
     kernel = platform.platform()
 
     try:  # - Assure state of db file
