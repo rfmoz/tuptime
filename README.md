@@ -6,7 +6,7 @@ Tuptime is a tool for report the historical and statistical running time of the 
 
 ### Basic Installation and usage
 
-In a Linux or FreeBSD system...
+In a Linux, FreeBSD or OSX system...
 
 Clone the repo:
 	git clone https://github.com/rfrail3/tuptime.git
@@ -19,6 +19,7 @@ Copy the "tuptime" file located under "latest/" directory to "/usr/bin/" and mak
 Assure that the system pass the prerequisites:
 
 	Linux or FreeBSD with python 2.7 or 3.X 
+        OSX with python by default
 
 Run first with a privileged user:
 
