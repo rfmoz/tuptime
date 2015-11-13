@@ -147,28 +147,8 @@ For FreeBSD system:
 
 For OSX system:
 
-   * Manual install
-
-      Clone repository, create bin directory and copy executable file:
-
-         # mkdir /usr/local/bin/
-         # cp tuptime/latest/tuptime /usr/local/bin/tuptime
-         # chmod 755 /usr/local/bin/tuptime
-
-      Copy pseudocron file and enable it:
-
-         # cp tuptime/latest/launchd/tuptime-cron.plist /Library/LaunchAgents/
-         # launchctl load -w /Library/LaunchAgents/tuptime-cron.plist
-
-      Copy launchd hook:
-
-         # cp tuptime/latest/launchd/launchd-tuptime.sh /usr/local/bin/
-         # chmod 755 /usr/local/bin/launchd-tuptime.sh
-
-      Copy launchd service and enable it:
-
-         # cp tuptime/latest/launchd/tuptime.plist /Library/LaunchDaemons/
-         # launchctl load -w /Library/LaunchDaemons/tuptime.plist
+   Tuptime is compatible with OSX but, for now, the project lacks of launchd files
+   for the startup and the schedule run.
 
 
 
