@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                             version 3.2.01
+                             version 3.2.10
                                 Ricardo F.
-                             22/October/2015
+                             13/November/2015
 
 
 
@@ -33,6 +33,7 @@ Indeed, it can:
 Operating system:
    - Linux
    - FreeBSD
+   - OSX (Darwin)
 
 Software:
    - Python 2.7 or Python 3.X (Latest recomended)
@@ -42,6 +43,7 @@ Software:
 If a distro is used, all is met with:
     - In Linux:  'python' package >= 2.7
     - In FreeBSD: '/usr/ports/lang/python' and '/usr/ports/databases/py-sqlite3'
+    - In OSX: 'python' installed by default in base system
 
 
 
@@ -63,6 +65,11 @@ For Linux systems:
       in this repo under tuptime/rpm-package/
       Note that systemd is required.
 
+   + Using .sh script:
+      
+      Download and execute the installation script:
+
+         # bash <(curl -s https://raw.githubusercontent.com/rfrail3/tuptime/master/tuptime-install.sh)
 
    + Manual install
 
@@ -99,7 +106,11 @@ For Linux systems:
 
 For FreeBSD system:
 
-   * Using FreeBSD packages
+   * Using FreeBSD ports
+
+     Located at /usr/ports/sysutils/tuptime
+
+   * Using FreeBSD alternative packages
 
      FreeBSD packages for tuptime can be found at the following URLs
 
@@ -134,9 +145,30 @@ For FreeBSD system:
          # echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
 
-Finally, run it:
+For OSX system:
 
-         # tuptime
+   * Manual install
+
+      Clone repository, create bin directory and copy executable file:
+
+         # mkdir /usr/local/bin/
+         # cp tuptime/latest/tuptime /usr/local/bin/tuptime
+         # chmod 755 /usr/local/bin/tuptime
+
+      Copy pseudocron file and enable it:
+
+         # cp tuptime/latest/launchd/tuptime-cron.plist /Library/LaunchAgents/
+         # launchctl load -w /Library/LaunchAgents/tuptime-cron.plist
+
+      Copy launchd hook:
+
+         # cp tuptime/latest/launchd/launchd-tuptime.sh /usr/local/bin/
+         # chmod 755 /usr/local/bin/launchd-tuptime.sh
+
+      Copy launchd service and enable it:
+
+         # cp tuptime/latest/launchd/tuptime.plist /Library/LaunchDaemons/
+         # launchctl load -w /Library/LaunchDaemons/tuptime.plist
 
 
 
