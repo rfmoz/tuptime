@@ -22,7 +22,7 @@ try:
 except Exception as e:
     sys.exit('ERROR modules are not imported correctly: ' + str(e))
 
-version = '3.2.01-beta'
+version = '3.2.10-beta'
 def_db_file = '/var/lib/tuptime/tuptime.db'
 def_seconds = False
 locale.setlocale(locale.LC_ALL, '')
@@ -228,7 +228,7 @@ def main():
             vprint('uptime = ' + str(uptime))
             vprint('btime = ' + str(btime))
         except Exception as e:
-            sys.exit('ERROR reading sysctl ' + str(e))
+            sys.exit('ERROR reading BSD sysctl ' + str(e))
     else:
         procfs = "/proc"
         try:
@@ -245,7 +245,7 @@ def main():
                         btime = int(line.split()[1])
                 vprint(procfs + '/stat btime = ' + str(btime))
         except Exception as e:
-            sys.exit('ERROR reading ' + procfs + '/stat'+ str(e))
+            sys.exit('ERROR reading Linux ' + procfs + '/stat'+ str(e))
     kernel = platform.platform()
 
     try:  # - Assure state of db file
