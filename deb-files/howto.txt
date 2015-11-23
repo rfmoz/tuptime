@@ -1,2 +1,0 @@
-fakeroot dpkg-deb --build package-tuptime-deb-3.2.01
-lintian -i package-tuptime-deb-3.2.01.deb
