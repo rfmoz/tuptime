@@ -1,0 +1,12 @@
+[Unit]
+Description=Tuptime service
+
+[Service]
+Type=oneshot
+User=root
+RemainAfterExit=true
+ExecStart=/usr/bin/tuptime -x
+ExecStop=/usr/bin/tuptime -xg
+
+[Install]
+WantedBy=basic.target
