@@ -11,7 +11,7 @@ Package: tuptime
 Architecture: any
 Multi-Arch: foreign
 Depends: ${misc:Depends}, ${shlibs:Depends}
-  , python (>= 2.7)\
+  , python (>= 2.7)
   , systemd (>= 215-17)
 Description: report historical system running time.
  Tuptime report historical and statistical running time of the system, 
