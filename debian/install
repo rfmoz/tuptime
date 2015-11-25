@@ -1,0 +1,3 @@
+latest/systemd/tuptime.service lib/systemd/system/
+latest/cron.d/tuptime etc/cron.d
+latest/tuptime usr/sbin/tuptime
