@@ -93,6 +93,20 @@ Don't forget! For keep it updated, add it to the init system and to the cron ser
 
 
 
+### What offer tuptime different than uptimed and downtimed
+
+- It doesn't run as a daemon, at least, it only need execution when the init manager staratup and shutdown the system. For avoid problems with behaviours that can produce a swich off without a proper shutdown, like power failures, a cron job is shipped with the proyect for update the registers each n minutes. As a system administrator, you can easily choose the best numer for your particular system requirements.
+
+- Is written in Pyhton using common modules and as few as I can, easy to see whats inside it, modify if it is neccesary or port it to embedded devices.
+
+- It register the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it have the option for output the registers in seconds and epoch (-s), easy to pipe it to other commands.
+
+- Its main purpose is only one thing, tracking all of the system startups/shutdowns and present that information to the user with the more understandable way. Don't have mail alerts when a milestones are reached or the limitation of keep the last n records.
+
+- Its written for avoid false startups registers, actually there are some issues with uptimed related to that. Sometimes happend on virtualized enviroments, servers with high load or when ntp are running. That was one of the points for start with this project.
+
+
+
 ### More information
 
 Please, read tuptime-manual.txt for a complete reference guide.
