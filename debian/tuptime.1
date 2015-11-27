@@ -1,0 +1,87 @@
+.TH TUPTIME 1 2015-10-10 "3.2.01" "Linux Manual"
+
+.SH NAME
+tuptime \- Report historical and statistical running time of the system, keeping it between restarts.
+
+.SH SYNOPSIS
+tuptime [\-h | \-\-help] [\-c | \-\-ckernel] [{\-d | \-\-date}=<date\ format] [\-e | \-\-end] [{\-f | \-\-filedb}=<database\ file]  [\-g | \-\-graceful] [\-k | \-\-kernel] [\-l | \-\-list] [\-o | \-\-offtime] [\-r | \-\-reverse] [\-s | \-\-seconds] [\-t | \-\-table] [\-u | \-\-uptime] [\-v | \-\-verbose]  [\-V | \-\-version] [\-x | \-\-silent]
+
+.SH DESCRIPTION
+Tuptime is a tool for report the historical and statistical running time of 
+the system, keeping it between restarts. Indeed, it can:
+  - Count system startups
+  - Register first boot time (a.k.a. installation time)
+  - Count nicely and accidentally shutdowns
+  - Uptime and downtime percentage since first boot time
+  - Accumulated system uptime, downtime and total
+  - Largest, shortest and average uptime and downtime
+  - Current uptime
+  - Print formatted table or list with most of the previous values
+  - Register used kernels
+
+.SH OPTIONS
+.SS FIELDS
+.B \-h | \-\-help
+\- Show this help message and exit
+.PP
+.B \-c | \-\-ckernel
+\- Classify / order by kernel
+.PP
+.B \-d | \-\-date
+\- Date format
+.PP
+.B \-e | \-\-end
+\- Order by end state
+.PP
+.B \-f | \-\-file
+\- Database file
+.PP
+.B \-g | \-\-graceful
+\- Register a gracefully shutdown
+.PP
+.B \-k | \-\-kernel
+\- Print kernel information
+.PP
+.B \-l | \-\-list
+\- Enumerate system life as list
+.PP
+.B \-o | \-\-offtime
+\- Order by offtime / downtime
+.PP
+.B \-r | \-\-reverse
+\- Reverse order
+.PP
+.B \-s | \-\-seconds
+\- Output time in seconds and epoch
+.PP
+.B \-t | \-\-table
+\- Enumerate system life as table
+.PP
+.B \-u | \-\-uptime
+\- Order by uptime
+.PP
+.B \-v | \-\-verbose
+\- Verbose output
+.PP
+.B \-V | \-\-version
+\- Show version.
+.PP
+.B \-x | \-\-silent
+\- Update values without print
+.SH FILES
+https://github.com/rfrail3/tuptime
+
+.SH SEE ALSO
+Detailed documentation can be found in 
+/usr/share/doc/tuptime/tuptime-manual.txt.gz
+
+.SH "AUTHOR"
+.IX Header "AUTHORS"
+Ricardo F. <rfraile@rfraile.eu>
+.PP
+.SH "COPYRIGHT"
+.IX Header "COPYRIGHT"
+Copyright (C) 2015 by Ricardo F. All Rights Reserved.
+This product is distributed in the hope that it will be useful, but
+WITHOUT any warranty; without even the implied warranty of 
+MERCHANTABILITY or FITNESS for a particular purpose.
