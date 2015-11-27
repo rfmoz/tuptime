@@ -399,11 +399,11 @@ please, execute the script "db-tuptime-migrate.sh" which is located at:
 
 https://github.com/rfrail3/tuptime/blob/master/scripts/db-tuptime-migrate.sh
  
+ 
 
-
-=====================================
-| Reset and modify or delete values |
-=====================================
+==================
+| Database Specs |
+==================
 
 Tuptime use a sqlite3 database located in "/var/lib/tuptime/tuptime.db" with
 the following format:
@@ -414,6 +414,16 @@ tuptime (btime integer,
          endst integer, 
          downtime real, 
          kernel text)
+
+btime    Startup date in epoch
+uptime   Uptime seconds  
+offbtime Shutdown date in epoch
+endst    Type of shutdown [1 ok | 0 bad]
+downtime Downtime seconds
+kernel   Name of the kernel
+
+The number of startup sequency is extracted from "rowid", the signed integer 
+key that uniquely identifies the row within its table in sqlite.
 
 For reset all the values, simply detele the database file.
 
