@@ -1,3 +1,10 @@
+tuptime (3.2.01+git6db666b-2) unstable; urgency=medium
+
+  * ship tuptime in /usr/bin, upstream will make it usable by non-root
+    (Closes: #806380)
+
+ -- Antoine Beaupré <anarcat@debian.org>  Fri, 27 Nov 2015 09:59:43 -0500
+
 tuptime (3.2.01+git6db666b-1) unstable; urgency=low
 
   * Redo packaging based on upstream binary package. Closes: #638422
