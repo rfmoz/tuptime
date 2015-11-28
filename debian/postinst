@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for willie
+# postinst script for tuptime
 #
 # see: dh_installdeb(1)
 
@@ -20,6 +20,16 @@ set -e
 
 case "$1" in
     configure)
+        if ! getent passwd tuptime >/dev/null ; then
+            echo "adding tuptime user..."
+            adduser --quiet --system --no-create-home --group \
+                --home "/var/lib/tuptime" \
+                --shell '/bin/false' \
+                --gecos 'Tuptime execution user,,,' \
+                tuptime
+        fi
+        chown tuptime:tuptime /var/lib/tuptime
+        chmod 750 /var/lib/tuptime
         tuptime -x
     ;;
 

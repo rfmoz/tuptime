@@ -1,4 +1,4 @@
-tuptime (3.2.2) unstable; urgency=low
+tuptime (3.2.2-1) unstable; urgency=low
 
   * Adding compatibility with OS X (Darwin)
 

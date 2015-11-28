@@ -1,5 +1,5 @@
 #!/bin/sh
-# postrm script for willie
+# postrm script for tuptime
 #
 # see: dh_installdeb(1)
 
@@ -22,6 +22,7 @@ set -e
 case "$1" in
     purge|disappear)
         rm -rf /var/lib/tuptime/
+	deluser tuptime || true
     ;;
 
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade)

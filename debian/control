@@ -12,6 +12,7 @@ Architecture: any
 Multi-Arch: foreign
 Depends: ${misc:Depends}, ${shlibs:Depends}
   , python (>= 2.7)
+  , adduser
 Description: report historical system running time.
  Tuptime report historical and statistical running time of the system, 
  keeping it between restarts.
