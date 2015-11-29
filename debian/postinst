@@ -24,13 +24,13 @@ case "$1" in
             echo "adding tuptime user..."
             adduser --quiet --system --no-create-home --group \
                 --home "/var/lib/tuptime" \
-                --shell '/bin/false' \
+                --shell '/bin/sh' \
                 --gecos 'Tuptime execution user,,,' \
                 tuptime
         fi
         chown tuptime:tuptime /var/lib/tuptime
         chmod 750 /var/lib/tuptime
-        tuptime -x
+	su - tuptime -c "tuptime -x"
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
