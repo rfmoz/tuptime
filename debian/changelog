@@ -1,6 +1,7 @@
 tuptime (3.2.2-1) unstable; urgency=low
 
   * Changing execution user from root to tuptime
+  * Adding init script
 
  -- Ricardo F. <rfraile@rfraile.eu>  Sun, 29 Nov 2015 13:10:00 +0100
 
