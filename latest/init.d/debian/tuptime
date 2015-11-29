@@ -1,6 +1,6 @@
 #!/bin/sh
 # tuptime - Report the historical and statistical running time of the system, keeping it between restarts.
-# Copyright (C) 2015 - Ricardo F.
+# Author Ricardo F. - 2015
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 
 ### BEGIN INIT INFO
 # Provides:          tuptime
-# Required-Start:    $local_fs $time
-# Required-Stop:     $local_fs $time
+# Required-Start:    $local_fs $time $remote_fs
+# Required-Stop:     $local_fs $time $remote_fs
 # Should-Start:
 # Default-Start:     1 2 3 4 5
 # Default-Stop:      0 6
@@ -30,27 +30,27 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 . /lib/init/vars.sh
 . /lib/lsb/init-functions
 
-F_BIN='tuptime'
-SERVC="/usr/bin/$F_BIN"
+NAME='tuptime'
+DAEMON="/usr/bin/$NAME"
 
 
 do_start () {
         # Start service
-        log_action_begin_msg "Starting $F_BIN"
+        log_action_begin_msg "Starting $NAME"
         log_end_msg 0
-        $SERVC -x > /dev/null
+        $DAEMON -x > /dev/null
 }
 
 do_stop () {
         # Stop service
-        log_action_begin_msg "Stopping $F_BIN"
+        log_action_begin_msg "Stopping $NAME"
         log_end_msg 0
-        $SERVC -xg > /dev/null
+        $DAEMON -xg > /dev/null
 }
 
 do_status () {
 	# Status service
-	$SERVC
+	$DAEMON
 }
 
 
@@ -58,8 +58,8 @@ case "$1" in
   start|"")
         do_start
         ;;
-  restart)
-        log_action_begin_msg "Restarting $F_BIN"
+  restart|force-reload)
+        log_action_begin_msg "Restarting $NAME"
         log_end_msg 0
         do_stop
         do_start
@@ -72,7 +72,7 @@ case "$1" in
         exit $?
         ;;
   *)
-        echo "Usage: $F_BIN [start|stop|restart|status]" >&2
+        echo "Usage: $NAME [start|stop|restart|status]" >&2
         exit 3
         ;;
 esac
