@@ -5,5 +5,8 @@
 #export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
 #export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 
+override_dh_installinit:
+	dh_installinit --onlyscripts
+
 %:
 	dh $@ --with=systemd

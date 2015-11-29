@@ -20,8 +20,8 @@
 # Required-Start:    $local_fs $time $remote_fs
 # Required-Stop:     $local_fs $time $remote_fs
 # Should-Start:
-# Default-Start:     1 2 3 4 5
-# Default-Stop:      0 6
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
 # Short-Description: Start tuptime at boot time
 # Description:       Update tuptime.
 ### END INIT INFO
