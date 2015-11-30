@@ -1,4 +1,4 @@
-latest/systemd/tuptime.service lib/systemd/system/
-latest/init.d/debian/tuptime etc/init.d/
-latest/cron.d/tuptime etc/cron.d/
-latest/tuptime usr/bin/
+src/systemd/tuptime.service lib/systemd/system/
+src/init.d/debian/tuptime etc/init.d/
+src/cron.d/tuptime etc/cron.d/
+src/tuptime usr/bin/
