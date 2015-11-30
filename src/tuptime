@@ -16,11 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    import sys, os, optparse, locale, platform, subprocess, time, sqlite3
-    from datetime import datetime
-except Exception as e:
-    sys.exit('ERROR modules are not imported correctly: ' + str(e))
+import sys, os, optparse, locale, platform, subprocess, time, sqlite3
+from datetime import datetime
+
 
 version = '3.2.2'
 def_db_file = '/var/lib/tuptime/tuptime.db'
