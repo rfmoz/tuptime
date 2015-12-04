@@ -21,7 +21,7 @@ import sys, os, optparse, locale, platform, subprocess, time, sqlite3
 from datetime import datetime
 
 
-VESRSION = '3.2.2'
+VESRSION = '3.2.3-dev'
 DEF_DB_FILE = '/var/lib/tuptime/tuptime.db'
 DEF_SECONDS = False
 locale.setlocale(locale.LC_ALL, '')
