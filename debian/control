@@ -1,0 +1,18 @@
+Source: tuptime
+Section: utils
+Priority: optional
+Maintainer: Antoine Beaupré <anarcat@debian.org>
+Build-Depends: debhelper (>=9)
+             , dh-systemd (>= 1.5)
+Standards-Version: 3.9.6
+Homepage: https://github.com/rfrail3/tuptime
+
+Package: tuptime
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlibs:Depends}
+  , python (>= 2.7)
+  , adduser
+Description: report historical system running time.
+ Tuptime report historical and statistical running time of the system, 
+ keeping it between restarts.

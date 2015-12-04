@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                             version 3.2.10
+                             version 3.2.2
                                 Ricardo F.
-                             13/November/2015
+                             27/November/2015
 
 
 
@@ -52,18 +52,6 @@ If a distro is used, all is met with:
 ================
 
 For Linux systems:
-
-   + Using .deb package
-
-      If is a system based on .deb package, install tuptime_x.deb located
-      in this repo under tuptime/deb-package/
-      Note that systemd is required.
-
-   + Using .rpm package
-
-      If is a system based on .rpm package, install tuptime-x.rpm located
-      in this repo under tuptime/rpm-package/
-      Note that systemd is required.
 
    + Using .sh script:
       
@@ -114,17 +102,18 @@ For FreeBSD system:
 
      FreeBSD packages for tuptime can be found at the following URLs
 
-       FreeBSD 10 64bit:  http://pkg.ssnet.ca/10amd64-default/All/tuptime-3.1.00.txz
-       FreeBSD 10 32bit:  http://pkg.ssnet.ca/10i386-default/All/tuptime-3.1.00.txz
+       FreeBSD 10 64bit:  http://pkg.ssnet.ca/10amd64-default/All/tuptime-3.2.01.txz
+       FreeBSD 10 32bit:  http://pkg.ssnet.ca/10i386-default/All/tuptime-3.2.01.txz
 
-       FreeBSD 11 64bit:  http://pkg.ssnet.ca/11amd64-default/All/tuptime-3.1.00.txz
-       FreeBSD 11 ARMv6:  http://pkg.ssnet.ca/11armv6-default/All/tuptime-3.1.00.txz
+       FreeBSD 11 64bit:  http://pkg.ssnet.ca/11amd64-default/All/tuptime-3.2.01.txz
+       FreeBSD 11 ARMv6:  http://pkg.ssnet.ca/11armv6-default/All/tuptime-3.2.01.txz
 
      After downloading the correct package you can install it using pkg:
 
-       # pkg add tuptime-3.1.00.txz
+       # pkg add tuptime-3.2.01.txz
+       # echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
-     Add an entry to crontab
+     Add an entry to /etc/crontab
          */5     *       *       *       *       root	/usr/local/bin/tuptime -x
 
    + Manual install
@@ -134,7 +123,7 @@ For FreeBSD system:
          # cp tuptime/latest/tuptime /usr/local/bin/tuptime
          # chmod 755 /usr/local/bin/tuptime 
 
-      Add an entry to crontab
+      Add an entry to /etc/crontab
 
          */5     *       *       *       *       root    /usr/local/bin/tuptime -x
 
@@ -398,11 +387,11 @@ please, execute the script "db-tuptime-migrate.sh" which is located at:
 
 https://github.com/rfrail3/tuptime/blob/master/scripts/db-tuptime-migrate.sh
  
+ 
 
-
-=====================================
-| Reset and modify or delete values |
-=====================================
+==================
+| Database Specs |
+==================
 
 Tuptime use a sqlite3 database located in "/var/lib/tuptime/tuptime.db" with
 the following format:
@@ -413,6 +402,16 @@ tuptime (btime integer,
          endst integer, 
          downtime real, 
          kernel text)
+
+btime    Startup date in epoch
+uptime   Uptime seconds  
+offbtime Shutdown date in epoch
+endst    Type of shutdown [1 ok | 0 bad]
+downtime Downtime seconds
+kernel   Name of the kernel
+
+The number of startup sequency is extracted from "rowid", the signed integer 
+key that uniquely identifies the row within its table in sqlite.
 
 For reset all the values, simply detele the database file.
 
