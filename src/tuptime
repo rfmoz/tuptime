@@ -21,7 +21,6 @@ import sys, os, optparse, locale, platform, subprocess, time, sqlite3
 from datetime import datetime
 
 
-version = '3.2.3-dev'
 DEF_DB_FILE = '/var/lib/tuptime/tuptime.db'
 DEF_SECONDS = False
 locale.setlocale(locale.LC_ALL, '')
@@ -31,10 +30,24 @@ DEC_AV = int(2)  # Decimals for average output
 verbose = False
 
 
+def print_version(*args):
+    """Print version"""
+    version = '3.2.3-dev'
+    print('tuptime version ' + version)
+    sys.exit(0)
+
+
+def enable_verbose(*args):
+    """Enable verbose mode"""
+    global verbose
+    verbose = True
+
+
 def vprint(*args):
     """Print verbose information"""
     if verbose:
-        sys.stdout.write(*args)
+        for arg in args:
+            sys.stdout.write(str(arg))
         print('')
 
 
@@ -91,7 +104,7 @@ def rows_to_dict(db_rows):
 
 
 def get_arguments():
-
+    """Get arguments from command line"""
     parser = optparse.OptionParser()
     parser.add_option(
         '-c', '--ckernel',
@@ -181,16 +194,14 @@ def get_arguments():
     )
     parser.add_option(
         '-v', '--verbose',
-        dest='verbose',
-        default=False,
-        action='store_true',
+        action='callback',
+        callback=enable_verbose,
         help='verbose output'
     )
     parser.add_option(
         '-V', '--version',
-        dest='version',
-        default=False,
-        action='store_true',
+        action='callback',
+        callback=print_version,
         help='show version'
     )
     parser.add_option(
@@ -200,19 +211,9 @@ def get_arguments():
         action='store_true',
         help='update values into db without output'
     )
-    arguments, _ = parser.parse_args()
+    arg, _ = parser.parse_args()
 
-    return arguments
-
-def main():
-
-    arg = get_arguments()
-
-    if arg.version:
-        print('tuptime version ' + version)
-        sys.exit(0)
-
-    # - Check requirements of combination of operators
+    # - Check combination of operator requirements
     if arg.reverse or arg.uptime or arg.end or arg.downtime or arg.ckernel:
         if arg.ckernel:
             if not arg.kernel:
@@ -220,7 +221,11 @@ def main():
         if not arg.table and not arg.lst:
             sys.exit('ERROR used operators must be combined with [-t|--table]  or [-l|--list]')
 
-    # - Swich for running in FreeBSD, Darwin (MacOSX) or Linux
+    return arg
+
+
+def get_os_values():
+    """Get os values from FreeBSD, Darwin (MacOSX) or Linux"""
     platform_env = platform.system()
     if platform_env in ('FreeBSD', 'Darwin'):
         try:
@@ -255,18 +260,24 @@ def main():
             sys.exit('ERROR reading Linux ' + procfs + '/stat'+ str(excp))
     kernel = platform.platform()
 
-    try:  # - Assure state of db file
-        if os.path.isdir(os.path.dirname(arg.db_file)):
-            vprint('Directory exists = ', os.path.dirname(arg.db_file))
-        else:
-            vprint('Creating directory = ', arg.db_file)
-            os.makedirs(os.path.dirname(arg.db_file))
+    return btime, uptime, kernel
 
-        if os.path.isfile(arg.db_file):
-            vprint('DB file exists = ', arg.db_file)
+
+
+def assure_state_db(btime, uptime, kernel, endst, db_file):
+    """Assure state of db file and related directories"""
+    try:
+        if os.path.isdir(os.path.dirname(db_file)):
+            vprint('Directory exists = ', os.path.dirname(db_file))
         else:
-            vprint('Creating DB file = ', arg.db_file)
-            db_conn = sqlite3.connect(arg.db_file)
+            vprint('Creating path = ', os.path.dirname(db_file))
+            os.makedirs(os.path.dirname(db_file))
+
+        if os.path.isfile(db_file):
+            vprint('DB file exists = ', db_file)
+        else:
+            vprint('Creating DB file = ', db_file)
+            db_conn = sqlite3.connect(db_file)
             conn = db_conn.cursor()
             conn.execute('create table if not exists tuptime'
                          '(btime integer,'
@@ -279,13 +290,23 @@ def main():
                          (str(btime),
                           str(uptime),
                           str('-1'),
-                          str(arg.endst),
+                          str(endst),
                           str('-1'),
                           str(kernel)))
             db_conn.commit()
             db_conn.close()
     except Exception as excp:
         sys.exit('ERROR creating db file: '+ str(excp))
+
+
+def main():
+
+    arg = get_arguments()
+
+    btime, uptime, kernel = get_os_values()
+
+    assure_state_db(btime, uptime, kernel, arg.endst, arg.db_file)
+
 
     try:
         db_conn = sqlite3.connect(arg.db_file)
