@@ -217,48 +217,57 @@ def get_arguments():
     if arg.reverse or arg.uptime or arg.end or arg.downtime or arg.ckernel:
         if arg.ckernel:
             if not arg.kernel:
-                sys.exit('ERROR used operator must be combined with [-k|--kernel]')
+                parser.error('used operator must be combined with [-k|--kernel]')
         if not arg.table and not arg.lst:
-            sys.exit('ERROR used operators must be combined with [-t|--table]  or [-l|--list]')
+            parser.error('used operators must be combined with [-t|--table]  or [-l|--list]')
 
     return arg
 
 
 def get_os_values():
-    """Get os values from FreeBSD, Darwin (MacOSX) or Linux"""
-    platform_env = platform.system()
-    if platform_env in ('FreeBSD', 'Darwin'):
+    """Get values from each type of operating system"""
+    def os_bsd():
+        """Get values from BSD"""
+        vprint('BSD system')
         try:
-            if platform_env == 'FreeBSD':
-                sysctl_bin = '/sbin/sysctl'
-            if platform_env == 'Darwin':
-                sysctl_bin = '/usr/sbin/sysctl'
-            sysctl = subprocess.check_output([sysctl_bin, 'kern.boottime'])
-            sec = sysctl.split()[4].replace(',', '')
+            for path in os.environ["PATH"].split(os.pathsep):
+                sysctl_bin = os.path.join(path, 'sysctl')
+                if os.path.isfile(sysctl_bin) and os.access(sysctl_bin, os.X_OK):
+                    break
+            sysctl_out = subprocess.check_output([sysctl_bin, 'kern.boottime'])
+            sec = sysctl_out.split()[4].replace(',', '')
             btime = int(sec)
             uptime = round(float((time.time() - btime)), 2)
-            vprint('uptime = ' + str(uptime))
-            vprint('btime = ' + str(btime))
+            return btime, uptime
         except Exception as excp:
             sys.exit('ERROR reading BSD sysctl ' + str(excp))
-    else:
-        procfs = "/proc"
-        try:
-            with open(procfs + '/uptime') as fl1:
-                uptime = float(fl1.readline().split()[0])
-                vprint(procfs + '/uptime = ' + str(uptime))
-        except Exception as excp:
-            sys.exit('ERROR reading ' + procfs + ' /uptime '+ str(excp))
 
+    def os_linux():
+        """Get values from Linux"""
+        vprint('Linux system')
         try:
-            with open(procfs + '/stat') as fl2:
+            with open('/proc/uptime') as fl1:
+                uptime = float(fl1.readline().split()[0])
+            with open('/proc/stat') as fl2:
                 for line in fl2:
                     if line.startswith('btime'):
                         btime = int(line.split()[1])
-                vprint(procfs + '/stat btime = ' + str(btime))
+            return btime, uptime
         except Exception as excp:
-            sys.exit('ERROR reading Linux ' + procfs + '/stat'+ str(excp))
+            sys.exit('ERROR reading /proc '+ str(excp))
+
+    if os.path.isfile('/proc/uptime') and os.path.isfile('/proc/stat'):
+        btime, uptime = os_linux()
+    # elif:
+    #     other_os()
+    else:
+        btime, uptime = os_bsd()
+
     kernel = platform.platform()
+
+    vprint('uptime = ' + str(uptime))
+    vprint('btime = ' + str(btime))
+    vprint('kernel = ' + str(kernel))
 
     return btime, uptime, kernel
 
