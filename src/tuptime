@@ -37,10 +37,6 @@ def print_version(*args):
     sys.exit(0)
 
 
-def enable_verbose(*args):
-    """Enable verbose mode"""
-    global verbose
-    verbose = True
 
 
 def vprint(*args):
@@ -105,6 +101,12 @@ def rows_to_dict(db_rows):
 
 def get_arguments():
     """Get arguments from command line"""
+
+    def enable_verbose(*args):
+        """Enable verbose mode"""
+        global verbose
+        verbose = True
+
     parser = optparse.OptionParser()
     parser.add_option(
         '-c', '--ckernel',
@@ -308,6 +310,38 @@ def assure_state_db(btime, uptime, kernel, endst, db_file):
         sys.exit('ERROR creating db file: '+ str(excp))
 
 
+
+def print_list(lst):
+    """Print values as list"""
+    for elemnt in lst:
+        print(elemnt)
+
+
+
+def print_table(tbl, kernel):
+    """Print values as table"""
+    colpad = []
+    side_spaces = 3
+
+    if not kernel:  # Delete kernel if is not used
+        tbl_no_kern = []
+        for elx in tbl:
+            del elx[-1]
+            tbl_no_kern.append(elx)
+        tbl = tbl_no_kern
+
+    for i in range(len(tbl[0])):
+        colpad.append(maxwidth(tbl, i))
+
+    for row in tbl:
+        sys.stdout.write(str(row[0]).ljust(colpad[0]))
+        for i in range(1, len(row)):
+           col = str(row[i]).rjust(colpad[i] + side_spaces)
+           sys.stdout.write(str(''+  col))
+        print('')
+
+
+
 def main():
 
     arg = get_arguments()
@@ -475,30 +509,11 @@ def main():
 
         # - Print list
         if arg.lst:
-            for elemnt in lst:
-                print(elemnt)
+            print_list(lst)
 
         # - Print table
         if arg.table:
-            colpad = []
-            side_spaces = 3
-
-            if not arg.kernel:  # Delete kernel if is not used
-                tbl_no_kern = []
-                for elx in tbl:
-                    del elx[-1]
-                    tbl_no_kern.append(elx)
-                tbl = tbl_no_kern
-
-            for i in range(len(tbl[0])):
-                colpad.append(maxwidth(tbl, i))
-
-            for row in tbl:
-                sys.stdout.write(str(row[0]).ljust(colpad[0]))
-                for i in range(1, len(row)):
-                    col = str(row[i]).rjust(colpad[i] + side_spaces)
-                    sys.stdout.write(str(''+  col))
-                print('')
+            print_table(tbl, arg.kernel)
 
     else:
         # - Calculate values
