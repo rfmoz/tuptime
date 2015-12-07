@@ -90,14 +90,6 @@ def time_conv(secs):
     except Exception as excp:
         sys.exit('ERROR converting seconds: '+ str(excp))
 
-def rows_to_dict(db_rows):
-    """Create dictionary from database rows"""
-    keys_dict = ('startup', 'btime', 'uptime', 'offbtime', 'endst', 'downtime', 'kernel')
-    row_dict = []
-    for db_row_value in db_rows:
-        row_dict.append(dict(zip(keys_dict, db_row_value)))
-    return row_dict
-
 
 def get_arguments():
     """Get arguments from command line"""
@@ -353,12 +345,13 @@ def main():
 
     try:
         db_conn = sqlite3.connect(arg.db_file)
+        db_conn.row_factory = sqlite3.Row
         conn = db_conn.cursor()
     except Exception as excp:
         sys.exit('ERROR connecting db: '+ str(excp))
 
     try:  # - Reading last btime and uptime registered in db
-        conn.execute('select btime, uptime from tuptime where oid = (select max(oid) from tuptime)')
+        conn.execute('select btime, uptime from tuptime where rowid = (select max(rowid) from tuptime)')
         last_btime, last_uptime = conn.fetchone()
         vprint('Last btime from db = ', last_btime)
         vprint('Last uptime from db = ', str(last_uptime))
@@ -392,7 +385,7 @@ def main():
             # Save downtimes for previous boot
             conn.execute('update tuptime set offbtime = '+ str(offbtime_db) +
                          ', downtime = '+ str(downtime_db) +
-                         ' where oid = (select max(oid) from tuptime)')
+                         ' where rowid = (select max(rowid) from tuptime)')
             # Create entry for new boot
             conn.execute('insert into tuptime values (?,?,?,?,?,?)',
                          (str(btime),
@@ -405,7 +398,7 @@ def main():
             vprint('System wasn\'t restarted. Updating db values...')
             conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+
                          str(arg.endst) +', kernel = \''+ str(kernel) +
-                         '\' where oid = (select max(oid) from tuptime)')
+                         '\' where rowid = (select max(rowid) from tuptime)')
     except Exception as excp:
         if type(excp).__name__ == 'OperationalError':
             vprint('WARNING values not saved into db - Test file permissions')
@@ -417,16 +410,19 @@ def main():
                      'Please, execute tuptime with a privileged user.')
 
     if not arg.silent:
-        # - Get all rows and correct last for cover outdate db if the user can only read it
-        conn.execute('select oid, * from tuptime')
+        # - Get all rows for calculate print values
+        conn.execute('select rowid as startup, * from tuptime')
         db_rows = conn.fetchall()
-        db_rows[-1] = list(db_rows[-1])
-        db_rows[-1][2] = uptime
-        db_rows[-1][4] = arg.endst
-        db_rows[-1][6] = kernel
-        db_rows[-1] = tuple(db_rows[-1])
+
+        # If the user can only read db, the previous select return outdated numbers in last row
+        # because the db was not updated previously. The following snippet update that in memmory
+        db_rows = [dict(row) for row in db_rows]  # for allow item assignment
+        db_rows[-1]['uptime'] = uptime
+        db_rows[-1]['endst'] = arg.endst
+        db_rows[-1]['kernel'] = kernel
         startups = len(db_rows)
-        startups_num = db_rows[-1][0]
+        startups_num = db_rows[-1]['startup']
+
         if startups != startups_num:
             vprint('WARNING real startups are not equal to enumerate startups '
                    '- possible deleted rows in db')
@@ -464,7 +460,7 @@ def main():
             if arg.reverse:
                 db_rows = list(reversed(db_rows))
 
-        for row_dict in rows_to_dict(db_rows):
+        for row_dict in db_rows:
             # vprint('Processing row: '+ str(row_dict))
             if row_dict['endst'] == 1:
                 row_dict['endst'] = 'OK'
@@ -517,7 +513,7 @@ def main():
 
     else:
         # - Calculate values
-        row_dict = rows_to_dict(db_rows)
+        row_dict = (db_rows)
         total_uptime = 0
         bad_shdown = 0
         kernel_cnt = []
