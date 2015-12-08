@@ -128,8 +128,8 @@ def get_arguments():
         '-g', '--graceful',
         dest='endst',
         action='store_const',
-        default='0',
-        const='1',
+        default=int(0),
+        const=int(1),
         help='register a gracefully shutdown'
     )
     parser.add_option(
@@ -453,6 +453,7 @@ def print_default(db_rows, startups_num, startups, btime, uptime, kernel, arg):
 
 
 def ordering_output(db_rows, arg):
+    """Order output"""
     # In the case of multiple matches the order is: uptime > end > downtime > kernel
     if arg.uptime or arg.downtime or arg.end or arg.ckernel:
         key_lst = []
