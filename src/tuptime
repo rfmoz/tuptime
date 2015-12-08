@@ -452,6 +452,27 @@ def print_default(db_rows, startups_num, startups, btime, uptime, kernel, arg):
         print('...with kernel: \t'+ str(kernel))
 
 
+def ordering_output(db_rows, arg):
+    # In the case of multiple matches the order is: uptime > end > downtime > kernel
+    if arg.uptime or arg.downtime or arg.end or arg.ckernel:
+        key_lst = []
+        arg.reverse = not arg.reverse
+        if arg.uptime:
+            key_lst.append('uptime')
+        if arg.end:
+            key_lst.append('endst')
+        if arg.downtime:
+            key_lst.append('downtime')
+        if arg.ckernel:
+            key_lst.append('kernel')
+        db_rows = sorted(db_rows, key=lambda x: tuple(x[i] for i in key_lst), reverse=arg.reverse)
+    else:
+        if arg.reverse:
+            db_rows = list(reversed(db_rows))
+
+    return db_rows
+
+
 def main():
 
     arg = get_arguments()
@@ -459,7 +480,6 @@ def main():
     btime, uptime, kernel = get_os_values()
 
     assure_state_db(btime, uptime, kernel, arg)
-
 
     try:
         db_conn = sqlite3.connect(arg.db_file)
@@ -560,23 +580,7 @@ def main():
         tbl.append(['No.', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Downtime', 'Kernel'])
         tbl.append([''] * len(tbl[0]))
 
-        if arg.uptime or arg.downtime or arg.end or arg.ckernel:
-            # In the case of multiple matches the order is: uptime > end > downtime > kernel
-            key_lst = []
-            arg.reverse = not arg.reverse
-            if arg.uptime:
-                key_lst.append(2)
-            if arg.end:
-                key_lst.append(4)
-            if arg.downtime:
-                key_lst.append(5)
-            if arg.ckernel:
-                key_lst.append(6)
-            db_rows = sorted(db_rows, key=lambda x: tuple(x[i] for i in key_lst),
-                             reverse=arg.reverse)
-        else:
-            if arg.reverse:
-                db_rows = list(reversed(db_rows))
+        db_rows = ordering_output(db_rows, arg)
 
         for row_dict in db_rows:
             # vprint('Processing row: '+ str(row_dict))
@@ -592,14 +596,12 @@ def main():
                 row_dict['downtime'] = time_conv(row_dict['downtime'])
 
             if arg.lst:  # Fill list
-                lst.append('Startup:  ' + str(row_dict['startup']) +
-                           '  at  '+ str(row_dict['btime']))
+                lst.append('Startup:  ' + str(row_dict['startup']) + '  at  '+ str(row_dict['btime']))
                 if row_dict['startup'] == startups_num:
                     lst.append('Uptime:   ' + str(row_dict['uptime']))
                 else:
                     lst.append('Uptime:   ' + str(row_dict['uptime']))
-                    lst.append('Shutdown: ' + str(row_dict['endst']) +
-                               '  at  '+ str(row_dict['offbtime']))
+                    lst.append('Shutdown: ' + str(row_dict['endst']) + '  at  '+ str(row_dict['offbtime']))
                     lst.append('Downtime: ' + str(row_dict['downtime']))
                 if arg.kernel:
                     lst.append('Kernel:   ' + str(row_dict['kernel']))
