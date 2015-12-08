@@ -251,41 +251,38 @@ def assure_state_db(btime, uptime, kernel, arg):
 
 def time_conv(secs):
     """Convert seconds to human readable syle"""
-    try:
-        if secs == 0:
-            return '0 seconds'
-        secs = round(secs, 0)  # Rounded to 0 in human style
+    if secs == 0:
+        return '0 seconds'
+    secs = round(secs, 0)  # Rounded to 0 in human style
 
-        dtm = {'years': int(0), 'days': int(0), 'hours': int(0),
-               'minutes': int(0), 'seconds': int(0)}
-        dtm_tuple = ('years', 'days', 'hours', 'minutes', 'seconds')
-        zero_enter = True
-        human_dtm = ''
+    dtm = {'years': int(0), 'days': int(0), 'hours': int(0),
+           'minutes': int(0), 'seconds': int(0)}
+    dtm_tuple = ('years', 'days', 'hours', 'minutes', 'seconds')
+    zero_enter = True
+    human_dtm = ''
 
-        dtm['minutes'], dtm['seconds'] = divmod(secs, 60)
-        dtm['hours'], dtm['minutes'] = divmod(dtm['minutes'], 60)
-        dtm['days'], dtm['hours'] = divmod(dtm['hours'], 24)
-        dtm['years'], dtm['days'] = divmod(dtm['days'], 365)
+    dtm['minutes'], dtm['seconds'] = divmod(secs, 60)
+    dtm['hours'], dtm['minutes'] = divmod(dtm['minutes'], 60)
+    dtm['days'], dtm['hours'] = divmod(dtm['hours'], 24)
+    dtm['years'], dtm['days'] = divmod(dtm['days'], 365)
 
-        for key in dtm_tuple:  # Avoid print empty values at the beginning
-            if (dtm[key] == 0) and zero_enter:
-                continue
+    for key in dtm_tuple:  # Avoid print empty values at the beginning
+        if (dtm[key] == 0) and zero_enter:
+            continue
+        else:
+            if (int(dtm[key])) == 1:  # Not plural for 1 unit
+                human_dtm += str(int(dtm[key]))+' '+str(key[:-1]) + ', '
             else:
-                if (int(dtm[key])) == 1:  # Not plural for 1 unit
-                    human_dtm += str(int(dtm[key]))+' '+str(key[:-1]) + ', '
-                else:
-                    human_dtm += str(int(dtm[key]))+' '+str(key) + ', '
-                zero_enter = False
+                human_dtm += str(int(dtm[key]))+' '+str(key) + ', '
+            zero_enter = False
 
-        # Nice sentence end, remove comma
-        if human_dtm.find('minutes, ') or human_dtm.find('minute, '):
-            human_dtm = human_dtm.replace('minutes, ', 'minutes and ')
-            human_dtm = human_dtm.replace('minute, ', 'minute and ')
+    # Nice sentence end, remove comma
+    if human_dtm.find('minutes, ') or human_dtm.find('minute, '):
+        human_dtm = human_dtm.replace('minutes, ', 'minutes and ')
+        human_dtm = human_dtm.replace('minute, ', 'minute and ')
 
-        # Return without last comma and space chareacter
-        return str(human_dtm[:-2])
-    except Exception as excp:
-        sys.exit('ERROR converting seconds: '+ str(excp))
+    # Return without last comma and space chareacter
+    return str(human_dtm[:-2])
 
 
 def ordering_output(db_rows, arg):
@@ -509,21 +506,15 @@ def main():
 
     assure_state_db(btime, uptime, kernel, arg)
 
-    try:
-        db_conn = sqlite3.connect(arg.db_file)
-        db_conn.row_factory = sqlite3.Row
-        conn = db_conn.cursor()
-    except Exception as excp:
-        sys.exit('ERROR connecting db: '+ str(excp))
+    db_conn = sqlite3.connect(arg.db_file)
+    db_conn.row_factory = sqlite3.Row
+    conn = db_conn.cursor()
 
-    try:  # - Reading last btime and uptime registered in db
-        conn.execute('select btime, uptime from tuptime where rowid = (select max(rowid) from tuptime)')
-        last_btime, last_uptime = conn.fetchone()
-        vprint('Last btime from db = ', last_btime)
-        vprint('Last uptime from db = ', str(last_uptime))
-        lasts = last_uptime + last_btime
-    except Exception as excp:
-        sys.exit('ERROR reading from db: '+ str(excp))
+    conn.execute('select btime, uptime from tuptime where rowid = (select max(rowid) from tuptime)')
+    last_btime, last_uptime = conn.fetchone()
+    vprint('Last btime from db = ', last_btime)
+    vprint('Last uptime from db = ', str(last_uptime))
+    lasts = last_uptime + last_btime
 
     # - Test if system was resterted
     # How tuptime do it:
@@ -565,10 +556,8 @@ def main():
             conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+
                          str(arg.endst) +', kernel = \''+ str(kernel) +
                          '\' where rowid = (select max(rowid) from tuptime)')
-    except Exception as excp:
-        if type(excp).__name__ == 'OperationalError':
-            vprint('WARNING values not saved into db - Test file permissions')
-        vprint('WARNING ', str(excp))
+    except sqlite3.OperationalError:
+        vprint('WARNING values not saved into db - Test file permissions')
         if (last_btime + uptime) < btime:
             # If you see this error, maybe systemd script isn't executed at startup
             # or the db file (DEF_DB_FILE) have wrong permissions.
@@ -593,11 +582,8 @@ def main():
             vprint('WARNING real startups are not equal to enumerate startups '
                    '- possible deleted rows in db')
 
-    try:
-        db_conn.commit()
-        db_conn.close()
-    except Exception as excp:
-        sys.exit('ERROR closing db connection: '+ str(excp))
+    db_conn.commit()
+    db_conn.close()
 
     #  Print values 
     if arg.silent:
