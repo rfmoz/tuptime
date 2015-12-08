@@ -27,7 +27,7 @@ locale.setlocale(locale.LC_ALL, '')
 DEF_DATE_FORMAT = '%X %x'
 DEC = int(2)  # Decimals for percentage output
 DEC_AV = int(2)  # Decimals for average output
-verbose = False
+VERBOSE = False
 
 
 def print_version(*_):
@@ -37,62 +37,21 @@ def print_version(*_):
     sys.exit(0)
 
 
-
 def vprint(*args):
     """Print verbose information"""
-    if verbose:
+    if VERBOSE:
         for arg in args:
             sys.stdout.write(str(arg))
         print('')
 
 
-
-def time_conv(secs):
-    """Convert seconds to human readable syle"""
-    try:
-        if secs == 0:
-            return '0 seconds'
-        secs = round(secs, 0)  # Rounded to 0 in human style
-
-        dtm = {'years': int(0), 'days': int(0), 'hours': int(0),
-               'minutes': int(0), 'seconds': int(0)}
-        dtm_tuple = ('years', 'days', 'hours', 'minutes', 'seconds')
-        zero_enter = True
-        human_dtm = ''
-
-        dtm['minutes'], dtm['seconds'] = divmod(secs, 60)
-        dtm['hours'], dtm['minutes'] = divmod(dtm['minutes'], 60)
-        dtm['days'], dtm['hours'] = divmod(dtm['hours'], 24)
-        dtm['years'], dtm['days'] = divmod(dtm['days'], 365)
-
-        for key in dtm_tuple:  # Avoid print empty values at the beginning
-            if (dtm[key] == 0) and zero_enter:
-                continue
-            else:
-                if (int(dtm[key])) == 1:  # Not plural for 1 unit
-                    human_dtm += str(int(dtm[key]))+' '+str(key[:-1]) + ', '
-                else:
-                    human_dtm += str(int(dtm[key]))+' '+str(key) + ', '
-                zero_enter = False
-
-        # Nice sentence end, remove comma
-        if human_dtm.find('minutes, ') or human_dtm.find('minute, '):
-            human_dtm = human_dtm.replace('minutes, ', 'minutes and ')
-            human_dtm = human_dtm.replace('minute, ', 'minute and ')
-
-        # Return without last comma and space chareacter
-        return str(human_dtm[:-2])
-    except Exception as excp:
-        sys.exit('ERROR converting seconds: '+ str(excp))
-
-
 def get_arguments():
     """Get arguments from command line"""
 
-    def enable_verbose(*args):
+    def enable_verbose(*_):
         """Enable verbose mode"""
-        global verbose
-        verbose = True
+        global VERBOSE
+        VERBOSE = True
 
     parser = optparse.OptionParser()
     parser.add_option(
@@ -219,32 +178,26 @@ def get_os_values():
     def os_bsd():
         """Get values from BSD"""
         vprint('BSD system')
-        try:
-            for path in os.environ["PATH"].split(os.pathsep):
-                sysctl_bin = os.path.join(path, 'sysctl')
-                if os.path.isfile(sysctl_bin) and os.access(sysctl_bin, os.X_OK):
-                    break
-            sysctl_out = subprocess.check_output([sysctl_bin, 'kern.boottime'])
-            sec = sysctl_out.split()[4].replace(',', '')
-            btime = int(sec)
-            uptime = round(float((time.time() - btime)), 2)
-            return btime, uptime
-        except Exception as excp:
-            sys.exit('ERROR reading BSD sysctl ' + str(excp))
+        for path in os.environ["PATH"].split(os.pathsep):
+            sysctl_bin = os.path.join(path, 'sysctl')
+            if os.path.isfile(sysctl_bin) and os.access(sysctl_bin, os.X_OK):
+                break
+        sysctl_out = subprocess.check_output([sysctl_bin, 'kern.boottime'])
+        sec = sysctl_out.split()[4].replace(',', '')
+        btime = int(sec)
+        uptime = round(float((time.time() - btime)), 2)
+        return btime, uptime
 
     def os_linux():
         """Get values from Linux"""
         vprint('Linux system')
-        try:
-            with open('/proc/uptime') as fl1:
-                uptime = float(fl1.readline().split()[0])
-            with open('/proc/stat') as fl2:
-                for line in fl2:
-                    if line.startswith('btime'):
-                        btime = int(line.split()[1])
-            return btime, uptime
-        except Exception as excp:
-            sys.exit('ERROR reading /proc '+ str(excp))
+        with open('/proc/uptime') as fl1:
+            uptime = float(fl1.readline().split()[0])
+        with open('/proc/stat') as fl2:
+            for line in fl2:
+                if line.startswith('btime'):
+                    btime = int(line.split()[1])
+        return btime, uptime
 
     if os.path.isfile('/proc/uptime') and os.path.isfile('/proc/stat'):
         btime, uptime = os_linux()
@@ -266,57 +219,160 @@ def get_os_values():
 def assure_state_db(btime, uptime, kernel, arg):
     """Assure state of db file and related directories"""
 
+    if os.path.isdir(os.path.dirname(arg.db_file)):
+        vprint('Directory exists = ', os.path.dirname(arg.db_file))
+    else:
+        vprint('Creating path = ', os.path.dirname(arg.db_file))
+        os.makedirs(os.path.dirname(arg.db_file))
+
+    if os.path.isfile(arg.db_file):
+        vprint('DB file exists = ', arg.db_file)
+    else:
+        vprint('Creating DB file = ', arg.db_file)
+        db_conn = sqlite3.connect(arg.db_file)
+        conn = db_conn.cursor()
+        conn.execute('create table if not exists tuptime'
+                     '(btime integer,'
+                     'uptime real,'
+                     'offbtime integer,'
+                     'endst integer,'
+                     'downtime real,'
+                     'kernel text)')
+        conn.execute('insert into tuptime values (?,?,?,?,?,?)',
+                     (str(btime),
+                      str(uptime),
+                      str('-1'),
+                      str(arg.endst),
+                      str('-1'),
+                      str(kernel)))
+        db_conn.commit()
+        db_conn.close()
+
+
+def time_conv(secs):
+    """Convert seconds to human readable syle"""
     try:
-        if os.path.isdir(os.path.dirname(arg.db_file)):
-            vprint('Directory exists = ', os.path.dirname(arg.db_file))
-        else:
-            vprint('Creating path = ', os.path.dirname(arg.db_file))
-            os.makedirs(os.path.dirname(arg.db_file))
+        if secs == 0:
+            return '0 seconds'
+        secs = round(secs, 0)  # Rounded to 0 in human style
 
-        if os.path.isfile(arg.db_file):
-            vprint('DB file exists = ', arg.db_file)
-        else:
-            vprint('Creating DB file = ', arg.db_file)
-            db_conn = sqlite3.connect(arg.db_file)
-            conn = db_conn.cursor()
-            conn.execute('create table if not exists tuptime'
-                         '(btime integer,'
-                         'uptime real,'
-                         'offbtime integer,'
-                         'endst integer,'
-                         'downtime real,'
-                         'kernel text)')
-            conn.execute('insert into tuptime values (?,?,?,?,?,?)',
-                         (str(btime),
-                          str(uptime),
-                          str('-1'),
-                          str(arg.endst),
-                          str('-1'),
-                          str(kernel)))
-            db_conn.commit()
-            db_conn.close()
+        dtm = {'years': int(0), 'days': int(0), 'hours': int(0),
+               'minutes': int(0), 'seconds': int(0)}
+        dtm_tuple = ('years', 'days', 'hours', 'minutes', 'seconds')
+        zero_enter = True
+        human_dtm = ''
+
+        dtm['minutes'], dtm['seconds'] = divmod(secs, 60)
+        dtm['hours'], dtm['minutes'] = divmod(dtm['minutes'], 60)
+        dtm['days'], dtm['hours'] = divmod(dtm['hours'], 24)
+        dtm['years'], dtm['days'] = divmod(dtm['days'], 365)
+
+        for key in dtm_tuple:  # Avoid print empty values at the beginning
+            if (dtm[key] == 0) and zero_enter:
+                continue
+            else:
+                if (int(dtm[key])) == 1:  # Not plural for 1 unit
+                    human_dtm += str(int(dtm[key]))+' '+str(key[:-1]) + ', '
+                else:
+                    human_dtm += str(int(dtm[key]))+' '+str(key) + ', '
+                zero_enter = False
+
+        # Nice sentence end, remove comma
+        if human_dtm.find('minutes, ') or human_dtm.find('minute, '):
+            human_dtm = human_dtm.replace('minutes, ', 'minutes and ')
+            human_dtm = human_dtm.replace('minute, ', 'minute and ')
+
+        # Return without last comma and space chareacter
+        return str(human_dtm[:-2])
     except Exception as excp:
-        sys.exit('ERROR creating db file: '+ str(excp))
+        sys.exit('ERROR converting seconds: '+ str(excp))
 
 
+def ordering_output(db_rows, arg):
+    """Order output"""
+    # In the case of multiple matches the order is: uptime > end > downtime > kernel
+    if arg.uptime or arg.downtime or arg.end or arg.ckernel:
+        key_lst = []
+        arg.reverse = not arg.reverse
+        if arg.uptime:
+            key_lst.append('uptime')
+        if arg.end:
+            key_lst.append('endst')
+        if arg.downtime:
+            key_lst.append('downtime')
+        if arg.ckernel:
+            key_lst.append('kernel')
+        db_rows = sorted(db_rows, key=lambda x: tuple(x[i] for i in key_lst), reverse=arg.reverse)
+    else:
+        if arg.reverse:
+            db_rows = list(reversed(db_rows))
 
-def print_list(lst):
+    return db_rows
+
+
+def for_print(db_rows, arg):
+    """Prepare values for print""" 
+    remap = []
+    for row in db_rows:
+        if row['endst'] == 1:
+            row['endst'] = 'OK'
+        else:
+            row['endst'] = 'BAD'
+        if not arg.seconds:
+            row['btime'] = datetime.fromtimestamp(row['btime']).strftime(arg.date_format)
+            row['uptime'] = time_conv(row['uptime'])
+            row['offbtime'] = datetime.fromtimestamp(row['offbtime']).strftime(arg.date_format)
+            row['downtime'] = time_conv(row['downtime'])
+        remap.append(row)
+    return remap
+
+
+def print_list(db_rows, startups_num, arg):
     """Print values as list"""
+    db_rows = ordering_output(db_rows, arg)
 
-    for elemnt in lst:
-        print(elemnt)
+    for row_dict in for_print(db_rows, arg):
+        print('Startup:  ' + str(row_dict['startup']) + '  at  '+ str(row_dict['btime']))
+        if row_dict['startup'] == startups_num:
+            print('Uptime:   ' + str(row_dict['uptime']))
+        else:
+            print('Uptime:   ' + str(row_dict['uptime']))
+            print('Shutdown: ' + str(row_dict['endst']) + '  at  '+ str(row_dict['offbtime']))
+            print('Downtime: ' + str(row_dict['downtime']))
+        if arg.kernel:
+            print('Kernel:   ' + str(row_dict['kernel']))
+        print('')
 
 
-
-def print_table(tbl, arg):
+def print_table(db_rows, startups_num, arg):
     """Print values as table"""
-
     def maxwidth(table, index):
         """Get the maximum width of the given column index"""
         return max([len(str(row[index])) for row in table])
 
+    tbl = []  # Initialize table plus its header
+    tbl.append(['No.', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Downtime', 'Kernel'])
+    tbl.append([''] * len(tbl[0]))
     colpad = []
     side_spaces = 3
+
+    db_rows = ordering_output(db_rows, arg)
+
+    for row_dict in for_print(db_rows, arg):
+        if row_dict['startup'] == startups_num:
+            tbl.append([str(row_dict['startup']),
+                        str(row_dict['btime']),
+                        str(row_dict['uptime']),
+                        str(''), str(''), str(''),
+                        str(row_dict['kernel'])])
+        else:
+            tbl.append([str(row_dict['startup']),
+                        str(row_dict['btime']),
+                        str(row_dict['uptime']),
+                        str(row_dict['offbtime']),
+                        str(row_dict['endst']),
+                        str(row_dict['downtime']),
+                        str(row_dict['kernel'])])
 
     if not arg.kernel:  # Delete kernel if is not used
         tbl_no_kern = []
@@ -336,11 +392,19 @@ def print_table(tbl, arg):
         print('')
 
 
-
 def print_default(db_rows, startups_num, startups, btime, uptime, kernel, arg):
     """Print values as default output"""
+    def extract_times(db_rows, option, key):
+        """Extract max/min values for uptime/downtime"""
+        if option == 'max':
+            row = max(db_rows, key=lambda x: x[key])
+        elif option == 'min':
+            row = min(db_rows, key=lambda x: x[key])
+        if key == 'uptime':
+            return row['uptime'], row['btime'], row['kernel']
+        elif key == 'downtime':
+            return row['downtime'], row['offbtime'], row['kernel']
 
-    # - Calculate values
     total_uptime = 0
     bad_shdown = 0
     kernel_cnt = []
@@ -366,27 +430,12 @@ def print_default(db_rows, startups_num, startups, btime, uptime, kernel, arg):
     downrate = round((total_downtime * 100) / (sys_life), DEC)
     average_down = round((total_downtime / startups), DEC_AV)
 
-    larg_up_uptime_row = max(db_rows, key=lambda x: x['uptime'])
-    larg_up_uptime = larg_up_uptime_row['uptime']
-    larg_up_btime = larg_up_uptime_row['btime']
-    larg_up_kern = larg_up_uptime_row['kernel']
-
-    shrt_up_uptime_row = min(db_rows, key=lambda x: x['uptime'])
-    shrt_up_uptime = shrt_up_uptime_row['uptime']
-    shrt_up_btime = shrt_up_uptime_row['btime']
-    shrt_up_kern = shrt_up_uptime_row['kernel']
+    larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
+    shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
 
     if startups > 1:
-        larg_down_downtime_row = max(db_rows[:-1], key=lambda x: x['downtime'])
-        larg_down_downtime = larg_down_downtime_row['downtime']
-        larg_down_offbtime = larg_down_downtime_row['offbtime']
-        larg_down_kern = larg_down_downtime_row['kernel']
-
-        shrt_down_downtime_row = min(db_rows[:-1], key=lambda x: x['downtime'])
-        shrt_down_downtime = shrt_down_downtime_row['downtime']
-        shrt_down_offbtime = shrt_down_downtime_row['offbtime']
-        shrt_down_kern = shrt_down_downtime_row['kernel']
-
+        larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows[:-1], 'max', 'downtime')
+        shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows[:-1], 'min', 'downtime')
     else:
         larg_down_downtime = 0
         larg_down_offbtime = 0
@@ -450,28 +499,6 @@ def print_default(db_rows, startups_num, startups, btime, uptime, kernel, arg):
     print('Current uptime: \t' + str(uptime) + '   since   ' + str(btime))
     if arg.kernel:
         print('...with kernel: \t'+ str(kernel))
-
-
-def ordering_output(db_rows, arg):
-    """Order output"""
-    # In the case of multiple matches the order is: uptime > end > downtime > kernel
-    if arg.uptime or arg.downtime or arg.end or arg.ckernel:
-        key_lst = []
-        arg.reverse = not arg.reverse
-        if arg.uptime:
-            key_lst.append('uptime')
-        if arg.end:
-            key_lst.append('endst')
-        if arg.downtime:
-            key_lst.append('downtime')
-        if arg.ckernel:
-            key_lst.append('kernel')
-        db_rows = sorted(db_rows, key=lambda x: tuple(x[i] for i in key_lst), reverse=arg.reverse)
-    else:
-        if arg.reverse:
-            db_rows = list(reversed(db_rows))
-
-    return db_rows
 
 
 def main():
@@ -559,8 +586,8 @@ def main():
         db_rows[-1]['uptime'] = uptime
         db_rows[-1]['endst'] = arg.endst
         db_rows[-1]['kernel'] = kernel
-        startups = len(db_rows)
-        startups_num = db_rows[-1]['startup']
+        startups = len(db_rows)  # Real startups
+        startups_num = db_rows[-1]['startup']  # Startups by rowid number
 
         if startups != startups_num:
             vprint('WARNING real startups are not equal to enumerate startups '
@@ -572,68 +599,14 @@ def main():
     except Exception as excp:
         sys.exit('ERROR closing db connection: '+ str(excp))
 
+    #  Print values 
     if arg.silent:
         vprint('Only update')
-
-    elif arg.lst or arg.table:
-        lst = []  # Initialize list
-        tbl = []  # Initialize table plus its header
-        tbl.append(['No.', 'Startup Date', 'Uptime', 'Shutdown Date', 'End', 'Downtime', 'Kernel'])
-        tbl.append([''] * len(tbl[0]))
-
-        db_rows = ordering_output(db_rows, arg)
-
-        for row_dict in db_rows:
-            # vprint('Processing row: '+ str(row_dict))
-            if row_dict['endst'] == 1:
-                row_dict['endst'] = 'OK'
-            else:
-                row_dict['endst'] = 'BAD'
-
-            if not arg.seconds:  # Human readable style
-                row_dict['btime'] = datetime.fromtimestamp(row_dict['btime']).strftime(arg.date_format)
-                row_dict['uptime'] = time_conv(row_dict['uptime'])
-                row_dict['offbtime'] = datetime.fromtimestamp(row_dict['offbtime']).strftime(arg.date_format)
-                row_dict['downtime'] = time_conv(row_dict['downtime'])
-
-            if arg.lst:  # Fill list
-                lst.append('Startup:  ' + str(row_dict['startup']) + '  at  '+ str(row_dict['btime']))
-                if row_dict['startup'] == startups_num:
-                    lst.append('Uptime:   ' + str(row_dict['uptime']))
-                else:
-                    lst.append('Uptime:   ' + str(row_dict['uptime']))
-                    lst.append('Shutdown: ' + str(row_dict['endst']) + '  at  '+ str(row_dict['offbtime']))
-                    lst.append('Downtime: ' + str(row_dict['downtime']))
-                if arg.kernel:
-                    lst.append('Kernel:   ' + str(row_dict['kernel']))
-                lst.append('')
-
-            if arg.table:  # Fill table
-                if row_dict['startup'] == startups_num:
-                    tbl.append([str(row_dict['startup']),
-                                str(row_dict['btime']),
-                                str(row_dict['uptime']),
-                                str(''), str(''), str(''),
-                                str(row_dict['kernel'])])
-                else:
-                    tbl.append([str(row_dict['startup']),
-                                str(row_dict['btime']),
-                                str(row_dict['uptime']),
-                                str(row_dict['offbtime']),
-                                str(row_dict['endst']),
-                                str(row_dict['downtime']),
-                                str(row_dict['kernel'])])
-
-        # - Print list
-        if arg.lst:
-            print_list(lst)
-
-        # - Print table
-        if arg.table:
-            print_table(tbl, arg)
-
+    elif arg.lst:
+        print_list(db_rows, startups_num, arg)
+    elif arg.table:
+        print_table(db_rows, startups_num, arg)
     else:
-        # - Print default output
         print_default(db_rows, startups, startups_num, btime, uptime, kernel, arg)
 
 
