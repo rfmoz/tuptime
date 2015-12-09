@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# tuptime - Report the historical and statistical running time of the system,
-# keeping it between restarts.
+"""tuptime - Report the historical and statistical running time of the system,
+keeping it between restarts."""
 # Copyright (C) 2011-2015 - Ricardo F.
 
 # This program is free software: you can redistribute it and/or modify
@@ -17,41 +17,30 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, os, optparse, locale, platform, subprocess, time, sqlite3
+import sys, os, optparse, locale, platform, subprocess, time, logging, sqlite3
 from datetime import datetime
 
 
-DEF_DB_FILE = '/var/lib/tuptime/tuptime.db'
-DEF_SECONDS = False
+DB_FILE = '/var/lib/tuptime/tuptime.db'
+SECONDS_OUTPUT = False
 locale.setlocale(locale.LC_ALL, '')
-DEF_DATE_FORMAT = '%X %x'
+DATE_FORMAT = '%X %x'
 DEC = int(2)  # Decimals for percentage output
 DEC_AV = int(2)  # Decimals for average output
-VERBOSE = False
-
-
-def print_version(*_):
-    """Print version"""
-    version = '3.2.3-dev'
-    print('tuptime version ' + version)
-    sys.exit(0)
-
-
-def vprint(*args):
-    """Print verbose information"""
-    if VERBOSE:
-        for arg in args:
-            sys.stdout.write(str(arg))
-        print('')
+__version__ = '3.2.3-dev'
 
 
 def get_arguments():
     """Get arguments from command line"""
 
+    def print_version(*_):
+        """Print version"""
+        print('tuptime version ' + __version__)
+        sys.exit(0)
+
     def enable_verbose(*_):
         """Enable verbose mode"""
-        global VERBOSE
-        VERBOSE = True
+        logging.basicConfig(level=logging.DEBUG)
 
     parser = optparse.OptionParser()
     parser.add_option(
@@ -64,7 +53,7 @@ def get_arguments():
     parser.add_option(
         '-d', '--date',
         dest='date_format',
-        default=DEF_DATE_FORMAT,
+        default=DATE_FORMAT,
         action='store',
         help='date format output'
     )
@@ -78,7 +67,7 @@ def get_arguments():
     parser.add_option(
         '-f', '--filedb',
         dest='db_file',
-        default=DEF_DB_FILE,
+        default=DB_FILE,
         action='store',
         help='database file',
         metavar='FILE'
@@ -122,7 +111,7 @@ def get_arguments():
     parser.add_option(
         '-s', '--seconds',
         dest='seconds',
-        default=DEF_SECONDS,
+        default=SECONDS_OUTPUT,
         action='store_true',
         help='output time in seconds and epoch'
     )
@@ -177,7 +166,7 @@ def get_os_values():
 
     def os_bsd():
         """Get values from BSD"""
-        vprint('BSD system')
+        logging.info('BSD system')
         for path in os.environ["PATH"].split(os.pathsep):
             sysctl_bin = os.path.join(path, 'sysctl')
             if os.path.isfile(sysctl_bin) and os.access(sysctl_bin, os.X_OK):
@@ -190,7 +179,7 @@ def get_os_values():
 
     def os_linux():
         """Get values from Linux"""
-        vprint('Linux system')
+        logging.info('Linux system')
         with open('/proc/uptime') as fl1:
             uptime = float(fl1.readline().split()[0])
         with open('/proc/stat') as fl2:
@@ -208,9 +197,9 @@ def get_os_values():
 
     kernel = platform.platform()
 
-    vprint('uptime = ' + str(uptime))
-    vprint('btime = ' + str(btime))
-    vprint('kernel = ' + str(kernel))
+    logging.info('uptime = ' + str(uptime))
+    logging.info('btime = ' + str(btime))
+    logging.info('kernel = ' + str(kernel))
 
     return btime, uptime, kernel
 
@@ -220,15 +209,15 @@ def assure_state_db(btime, uptime, kernel, arg):
     """Assure state of db file and related directories"""
 
     if os.path.isdir(os.path.dirname(arg.db_file)):
-        vprint('Directory exists = ', os.path.dirname(arg.db_file))
+        logging.info('Directory exists = '+ str(os.path.dirname(arg.db_file)))
     else:
-        vprint('Creating path = ', os.path.dirname(arg.db_file))
+        logging.info('Creating path = '+ str(os.path.dirname(arg.db_file)))
         os.makedirs(os.path.dirname(arg.db_file))
 
     if os.path.isfile(arg.db_file):
-        vprint('DB file exists = ', arg.db_file)
+        logging.info('DB file exists = '+ str(arg.db_file))
     else:
-        vprint('Creating DB file = ', arg.db_file)
+        logging.info('Creating DB file = '+ str(arg.db_file))
         db_conn = sqlite3.connect(arg.db_file)
         conn = db_conn.cursor()
         conn.execute('create table if not exists tuptime'
@@ -251,12 +240,13 @@ def assure_state_db(btime, uptime, kernel, arg):
 
 def time_conv(secs):
     """Convert seconds to human readable syle"""
+
     if secs == 0:
         return '0 seconds'
+
     secs = round(secs, 0)  # Rounded to 0 in human style
 
-    dtm = {'years': int(0), 'days': int(0), 'hours': int(0),
-           'minutes': int(0), 'seconds': int(0)}
+    dtm = {'years': int(0), 'days': int(0), 'hours': int(0), 'minutes': int(0), 'seconds': int(0)}
     dtm_tuple = ('years', 'days', 'hours', 'minutes', 'seconds')
     zero_enter = True
     human_dtm = ''
@@ -287,6 +277,7 @@ def time_conv(secs):
 
 def ordering_output(db_rows, arg):
     """Order output"""
+
     # In the case of multiple matches the order is: uptime > end > downtime > kernel
     if arg.uptime or arg.downtime or arg.end or arg.ckernel:
         key_lst = []
@@ -308,8 +299,9 @@ def ordering_output(db_rows, arg):
 
 
 def for_print(db_rows, arg):
-    """Prepare values for print""" 
+    """Prepare values for print"""
     remap = []
+
     for row in db_rows:
         if row['endst'] == 1:
             row['endst'] = 'OK'
@@ -343,6 +335,7 @@ def print_list(db_rows, startups_num, arg):
 
 def print_table(db_rows, startups_num, arg):
     """Print values as table"""
+
     def maxwidth(table, index):
         """Get the maximum width of the given column index"""
         return max([len(str(row[index])) for row in table])
@@ -391,6 +384,7 @@ def print_table(db_rows, startups_num, arg):
 
 def print_default(db_rows, startups_num, startups, btime, uptime, kernel, arg):
     """Print values as default output"""
+
     def extract_times(db_rows, option, key):
         """Extract max/min values for uptime/downtime"""
         if option == 'max':
@@ -499,6 +493,7 @@ def print_default(db_rows, startups_num, startups, btime, uptime, kernel, arg):
 
 
 def main():
+    """main entry point, core logic and database manage"""
 
     arg = get_arguments()
 
@@ -512,8 +507,8 @@ def main():
 
     conn.execute('select btime, uptime from tuptime where rowid = (select max(rowid) from tuptime)')
     last_btime, last_uptime = conn.fetchone()
-    vprint('Last btime from db = ', last_btime)
-    vprint('Last uptime from db = ', str(last_uptime))
+    logging.info('Last btime from db = '+ str(last_btime))
+    logging.info('Last uptime from db = '+ str(last_uptime))
     lasts = last_uptime + last_btime
 
     # - Test if system was resterted
@@ -534,14 +529,13 @@ def main():
     # when the uptime is greater than the difference between btime - last_btime.
     try:
         if (last_btime + uptime) < btime:
-            vprint('System was restarted')
+            logging.info('System was restarted')
             offbtime_db = int(round(lasts, 0))
             downtime_db = round((btime - lasts), 2)
-            vprint('Recording offbtime into db = ', str(offbtime_db))
-            vprint('Recording downtime into db = ', str(downtime_db))
+            logging.info('Recording offbtime into db = '+ str(offbtime_db))
+            logging.info('Recording downtime into db = '+ str(downtime_db))
             # Save downtimes for previous boot
-            conn.execute('update tuptime set offbtime = '+ str(offbtime_db) +
-                         ', downtime = '+ str(downtime_db) +
+            conn.execute('update tuptime set offbtime = '+ str(offbtime_db) +', downtime = '+ str(downtime_db) +
                          ' where rowid = (select max(rowid) from tuptime)')
             # Create entry for new boot
             conn.execute('insert into tuptime values (?,?,?,?,?,?)',
@@ -552,17 +546,19 @@ def main():
                           str('-1'),
                           str(kernel)))
         else:
-            vprint('System wasn\'t restarted. Updating db values...')
-            conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+
-                         str(arg.endst) +', kernel = \''+ str(kernel) +
-                         '\' where rowid = (select max(rowid) from tuptime)')
+            logging.info('System wasn\'t restarted. Updating db values...')
+            conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(arg.endst) +
+                         ', kernel = \''+ str(kernel) + '\' where rowid = (select max(rowid) from tuptime)')
+
     except sqlite3.OperationalError:
-        vprint('WARNING values not saved into db - Test file permissions')
+        logging.info('Values not saved into db')
+
         if (last_btime + uptime) < btime:
             # If you see this error, maybe systemd script isn't executed at startup
-            # or the db file (DEF_DB_FILE) have wrong permissions.
-            sys.exit('ERROR After system restart, the values must be saved into db. '
-                     'Please, execute tuptime with a privileged user.')
+            # or the db file (DB_FILE) have wrong permissions.
+            logging.error('After system restart, the values must be saved into db. '
+                          'Please, execute tuptime with a privileged user.')
+            sys.exit(-1)
 
     if not arg.silent:
         # - Get all rows for calculate print values
@@ -579,22 +575,21 @@ def main():
         startups_num = db_rows[-1]['startup']  # Startups by rowid number
 
         if startups != startups_num:
-            vprint('WARNING real startups are not equal to enumerate startups '
-                   '- possible deleted rows in db')
+            logging.info('Real startups are not equal to enumerate startups '
+                         '- possible deleted rows in db')
 
     db_conn.commit()
     db_conn.close()
 
-    #  Print values 
+    #  Print values
     if arg.silent:
-        vprint('Only update')
+        logging.info('Only update')
     elif arg.lst:
         print_list(db_rows, startups_num, arg)
     elif arg.table:
         print_table(db_rows, startups_num, arg)
     else:
         print_default(db_rows, startups, startups_num, btime, uptime, kernel, arg)
-
 
 if __name__ == "__main__":
     main()
