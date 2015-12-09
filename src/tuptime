@@ -40,7 +40,7 @@ def get_arguments():
 
     def enable_verbose(*_):
         """Enable verbose mode"""
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     parser = optparse.OptionParser()
     parser.add_option(
@@ -241,13 +241,13 @@ def assure_state_db(btime, uptime, kernel, arg):
 def time_conv(secs):
     """Convert seconds to human readable syle"""
 
-    if secs == 0:
+    secs = round(secs, 0)
+
+    if secs == 0:  # Avoid process empty seconds
         return '0 seconds'
 
-    secs = round(secs, 0)  # Rounded to 0 in human style
-
+    # Dict for store values
     dtm = {'years': int(0), 'days': int(0), 'hours': int(0), 'minutes': int(0), 'seconds': int(0)}
-    dtm_tuple = ('years', 'days', 'hours', 'minutes', 'seconds')
     zero_enter = True
     human_dtm = ''
 
@@ -256,7 +256,9 @@ def time_conv(secs):
     dtm['days'], dtm['hours'] = divmod(dtm['hours'], 24)
     dtm['years'], dtm['days'] = divmod(dtm['days'], 365)
 
-    for key in dtm_tuple:  # Avoid print empty values at the beginning
+    # Construct date sentence
+    for key in ('years', 'days', 'hours', 'minutes', 'seconds'):  
+        # Avoid print empty values at the beginning
         if (dtm[key] == 0) and zero_enter:
             continue
         else:
