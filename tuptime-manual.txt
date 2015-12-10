@@ -85,7 +85,7 @@ For Linux systems:
 
       Change owner of the db file:
 
-         # chown tuptime:tuptime /var/lib/tuptime/tuptime.db
+         # chown -R tuptime:tuptime /var/lib/tuptime
 
       Copy cron file:
 
