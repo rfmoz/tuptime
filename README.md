@@ -89,7 +89,7 @@ Or this, with -l | --list option:
 	Downtime: 16 seconds
 	. . .
 
-Don't forget! For keep it updated, add it to the init system and to the cron service. (Scripts/Units/Files provided inside this repo)
+Don't forget! For keep it updated, add it to the init system, to the cron service and use 'tuptime' user for execution. (Scripts/Units/Files provided inside this repo)
 
 
 

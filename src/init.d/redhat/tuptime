@@ -18,34 +18,36 @@
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-F_BIN='tuptime'
-SERVC="/usr/bin/$F_BIN"
-lockfile="/var/lock/subsys/$F_BIN"
+USER='tuptime'
+BIN_NAME='tuptime'
+PATH_BIN="/usr/bin/$BIN_NAME"
+LOCKFILE="/var/lock/subsys/$BIN_NAME"
+USER='tuptime'
 
 
 do_start () {
         # Start service
         echo -n $"Starting tuptime: "
-	daemon $SERVC -x
+	daemon -u $USER $PATH_BIN -x
         retval=$?
          echo
-        [ $retval -eq 0 ] && touch ${lockfile}
+        [ $retval -eq 0 ] && touch ${LOCKFILE}
         return $retval
 }
 
 do_stop () {
         # Stop service
         echo -n $"Stopping tuptime: "
-	daemon $SERVC -xg
-	$SERVC -xg
+	daemon -u $USER $PATH_BIN -xg
+	$PATH_BIN -xg
         retval=$?
          echo
-	[ $RETVAL = 0 ] && rm -f ${lockfile}
+	[ $RETVAL = 0 ] && rm -f ${LOCKFILE}
 }
 
 do_status () {
         # Status service
-        $SERVC
+        $PATH_BIN
 }
 
 
@@ -66,7 +68,7 @@ case "$1" in
         exit $?
         ;;
   *)
-        echo "Usage: $F_BIN [start|stop|restart|status]" >&2
+        echo "Usage: $BIN_NAME [start|stop|restart|status]" >&2
         exit 3
         ;;
 esac
