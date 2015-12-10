@@ -53,12 +53,18 @@ adduser --quiet --system --no-create-home --group \
                 --shell '/bin/sh' \
                 --gecos 'Tuptime execution user,,,' tuptime
 
+tuptime -x
+chown -R tuptime:tuptime /var/lib/tuptime
+chmod 750 /var/lib/tuptime
+su - tuptime -c "tuptime -x"
+
 systemctl --version &> /dev/null
 if [ $? -eq 0 ]; then
 	echo "Copying systemd file..."
 	cp -a ${F_TMP1}/src/systemd/tuptime.service  /lib/systemd/system/
 	systemctl daemon-reload
 	systemctl enable tuptime.service
+	systemctl start tuptime.service
 elif [ -f /lib/lsb/init-functions ]; then
 	echo "Copying init file..."
 	cp -a ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime
