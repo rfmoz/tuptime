@@ -130,6 +130,14 @@ For FreeBSD system:
 
          # pw adduser tuptime -d /nonexistent -s /usr/sbin/nologin -c "Tuptime execution user"
 
+      Execute tuptime with a privilege user for create db path:
+
+         # tuptime
+
+      Change owner of the db file:
+
+         # chown -R tuptime:tuptime /var/lib/tuptime
+
       Add an entry to /etc/crontab
 
          */5     *       *       *       *       tuptime    /usr/local/bin/tuptime -x
