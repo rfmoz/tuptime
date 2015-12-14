@@ -176,7 +176,8 @@ def get_os_values():
         sec = sysctl_out.split()[4].replace(',', '')
         btime = int(sec)
         uptime = round(float((time.time() - btime)), 2)
-        return btime, uptime
+        ex_user = os.environ["USER"]
+        return btime, uptime, ex_user
 
     def os_linux():
         """Get values from Linux"""
@@ -187,20 +188,22 @@ def get_os_values():
             for line in fl2:
                 if line.startswith('btime'):
                     btime = int(line.split()[1])
-        return btime, uptime
+        ex_user = os.environ["USER"]
+        return btime, uptime, ex_user
 
     if os.path.isfile('/proc/uptime') and os.path.isfile('/proc/stat'):
-        btime, uptime = os_linux()
+        btime, uptime, ex_user = os_linux()
     # elif:
     #     other_os()
     else:
-        btime, uptime = os_bsd()
+        btime, uptime, ex_user = os_bsd()
 
     kernel = platform.platform()
 
     logging.info('uptime = ' + str(uptime))
     logging.info('btime = ' + str(btime))
     logging.info('kernel = ' + str(kernel))
+    logging.info('Execution user = ' + str(ex_user))
 
     return btime, uptime, kernel
 
