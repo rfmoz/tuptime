@@ -7,6 +7,7 @@
 
 name="tuptime"
 rcvar=tuptime_enable
+tuptime_user="tuptime"
 
 start_cmd="${name}_start"
 stop_cmd="${name}_stop"
@@ -16,15 +17,13 @@ export PATH=$PATH:/usr/local/bin/
 tuptime_start()
 {
 	command_args="-x"
-
-	$name $command_args
+	su ${tuptime_user} -c "$name $command_args"
 }
 
 tuptime_stop()
 {
 	command_args="-xg"
-
-	$name $command_args
+	su ${tuptime_user} -c "$name $command_args"
 }
 
 load_rc_config $name
