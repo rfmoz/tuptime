@@ -123,12 +123,12 @@ For FreeBSD system:
 
       Clone repository and copy executable file:
 
-         # cp tuptime/latest/tuptime /usr/local/bin/tuptime
+         # cp tuptime/src/tuptime /usr/local/bin/tuptime
          # chmod 755 /usr/local/bin/tuptime 
 
       Add tuptime user:
 
-         # pw adduser tuptime -d /nonexistent -s /usr/sbin/nologin -c "Tuptime execution user"
+         # pw adduser tuptime -d /nonexistent -s /bin/sh -c "Tuptime execution user"
 
       Execute tuptime with a privilege user for create db path:
 
