@@ -441,11 +441,13 @@ mode is enabled.
 | Some Toughts |
 ================
 
-Usually the installation is made with a privileged user, for that reason,
-the database file is created with restricted permissions and the unprivileged
-users can only read it. This situation is covered for print values, but 
-not for update database. In this habitual case, a privileged user need to
-execute tuptime for update values at startup and shutdown at least.
+Tuptime can be executed with 'root' user, but it's recomendable the use of an
+unprivileged user, like 'tuptime' as the installation section reflects for
+avoid security problems. In any case, if the database file is not writable by
+the user that execute tuptime, the changes are not saved. This situation is
+covered for print values, but not for update database, for that reason, a 
+user who can write in the db file must to execuete tuptime for update values
+at startup and shutdown at least.
 
 Kernel name is registered each time that tuptime update values. If ksplice is
 used to update the kernel, last kernel will have the whole time asignement
