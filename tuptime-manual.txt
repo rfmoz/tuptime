@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                             version 3.2.3-dev
+                              version 3.2.3
                                 Ricardo F.
-                             10/December/2015
+                             17/December/2015
 
 
 
