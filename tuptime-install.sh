@@ -27,10 +27,10 @@ else
                 echo "ERROR: Its needed Python version 2.7 or greater (3.X recomended), not ${pyver}"
                 echo "Please, upgrade it."; exit 1
         else
-		pymod=`python -c "import sys, os, optparse, sqlite3, locale, platform, subprocess, time, datetime, operator"`
+		pymod=`python -c "import sys, os, optparse, sqlite3, locale, platform, subprocess, time, datetime, operator, logging"`
                 if [ $? -ne 0 ]; then
                         echo "ERROR: Please, ensure that these Python modules are available in the local system:"
-                        echo "sys, os, optparse, sqlite3, locale, platform, subprocess, time, datetime, operator"
+                        echo "sys, os, optparse, sqlite3, locale, platform, subprocess, time, datetime, operator, logging"
                 fi
         fi
 fi
@@ -45,23 +45,34 @@ echo "Clonning repository..."
 git clone https://github.com/rfrail3/tuptime.git ${F_TMP1}
 
 echo "Copying files..."
-cp -a ${F_TMP1}/latest/tuptime ${D_BIN}/tuptime
+cp -a ${F_TMP1}/src/tuptime ${D_BIN}/tuptime
 chmod 755 ${D_BIN}/tuptime
+
+adduser --quiet --system --no-create-home --group \
+                --home "/var/lib/tuptime" \
+                --shell '/bin/sh' \
+                --gecos 'Tuptime execution user,,,' tuptime
+
+tuptime -x
+chown -R tuptime:tuptime /var/lib/tuptime
+chmod 750 /var/lib/tuptime
+su - tuptime -c "tuptime -x"
 
 systemctl --version &> /dev/null
 if [ $? -eq 0 ]; then
 	echo "Copying systemd file..."
-	cp -a ${F_TMP1}/latest/systemd/tuptime.service  /lib/systemd/system/
+	cp -a ${F_TMP1}/src/systemd/tuptime.service  /lib/systemd/system/
 	systemctl daemon-reload
 	systemctl enable tuptime.service
+	systemctl start tuptime.service
 elif [ -f /lib/lsb/init-functions ]; then
 	echo "Copying init file..."
-	cp -a ${F_TMP1}/latest/init.d/tuptime.init.d-debian7 /etc/init.d/tuptime
+	cp -a ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime
 	chmod 755 /etc/init.d/tuptime
 	update-rc.d tuptime defaults
 elif [ -f /etc/rc.d/init.d/functions ]; then
 	echo "Copying init file..."
-	cp -a ${F_TMP1}/latest/init.d/tuptime.init.d-redhat6 /etc/init.d/tuptime
+	cp -a ${F_TMP1}/src/init.d/redhat/tuptime /etc/init.d/tuptime
 	chmod 755 /etc/init.d/tuptime
 	chkconfig --add tuptime
 	chkconfig tuptime on
@@ -72,7 +83,7 @@ else
 fi
 
 echo "Copying cron file..."
-cp -a ${F_TMP1}/latest/cron.d/tuptime /etc/cron.d/tuptime
+cp -a ${F_TMP1}/src/cron.d/tuptime /etc/cron.d/tuptime
 
 echo "Enjoy!"
 

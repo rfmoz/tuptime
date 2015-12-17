@@ -25,11 +25,9 @@ case "$1" in
             adduser --quiet --system --no-create-home --group \
                 --home "/var/lib/tuptime" \
                 --shell '/bin/sh' \
-                --gecos 'Tuptime execution user,,,' \
-                tuptime
+                --gecos 'Tuptime execution user,,,' tuptime
         fi
-        chown tuptime:tuptime /var/lib/tuptime
-        chmod 750 /var/lib/tuptime
+
 	su - tuptime -c "tuptime -x"
     ;;
 

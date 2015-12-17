@@ -20,8 +20,8 @@
 # Required-Start:    $local_fs $time $remote_fs
 # Required-Stop:     $local_fs $time $remote_fs
 # Should-Start:
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
+# Default-Start:     1 2 3 4 5
+# Default-Stop:      0 6
 # Short-Description: Start tuptime at boot time
 # Description:       Update tuptime.
 ### END INIT INFO
@@ -30,27 +30,28 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 . /lib/init/vars.sh
 . /lib/lsb/init-functions
 
-NAME='tuptime'
-DAEMON="/usr/bin/$NAME"
+USER='tuptime'
+BIN_NAME='tuptime'
+PATH_BIN="/usr/bin/$BIN_NAME"
 
 
 do_start () {
         # Start service
-        log_action_begin_msg "Starting $NAME"
+        log_action_begin_msg "Starting $BIN_NAME"
         log_end_msg 0
-        $DAEMON -x > /dev/null
+        su - $USER -c "$PATH_BIN -x" > /dev/null
 }
 
 do_stop () {
         # Stop service
-        log_action_begin_msg "Stopping $NAME"
+        log_action_begin_msg "Stopping $BIN_NAME"
         log_end_msg 0
-        $DAEMON -xg > /dev/null
+        su - $USER -c "$PATH_BIN -xg" > /dev/null
 }
 
 do_status () {
 	# Status service
-	$DAEMON
+	su - $USER -c "$PATH_BIN"
 }
 
 
@@ -59,7 +60,7 @@ case "$1" in
         do_start
         ;;
   restart|force-reload)
-        log_action_begin_msg "Restarting $NAME"
+        log_action_begin_msg "Restarting $BIN_NAME"
         log_end_msg 0
         do_stop
         do_start
@@ -72,7 +73,7 @@ case "$1" in
         exit $?
         ;;
   *)
-        echo "Usage: $NAME [start|stop|restart|status]" >&2
+        echo "Usage: $BIN_NAME [start|stop|restart|status]" >&2
         exit 3
         ;;
 esac
