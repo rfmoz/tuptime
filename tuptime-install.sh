@@ -22,7 +22,7 @@ if [ $? -ne 0 ]; then
         echo "ERROR: Python not available"
         echo "Please, install version 2.7 or greater (3.X recomended)"; exit 1
 else
-        pynum=`echo ${pyver} | tr -d '.''' | grep -Eo  '[0-9]*' | cut -c 1-2`
+        pynum=`echo ${pyver} | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2`
         if [ $pynum -lt 27 ] ; then
                 echo "ERROR: Its needed Python version 2.7 or greater (3.X recomended), not ${pyver}"
                 echo "Please, upgrade it."; exit 1
