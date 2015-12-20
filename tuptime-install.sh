@@ -2,14 +2,21 @@
 
 #
 # Tuptime installation linux script
-# v.1.5
+# v.1.6
 #
 
+# Destination dir for executable file
+D_BIN='/usr/bin'
+
+
+# Test if is a linux system
 if [ "$(expr substr $(uname -s) 1 5)" != "Linux" ]; then
 	echo "Sorry, only for Linux systems"
 	exit 1
 fi
 
+
+# Test if git is installed
 git --version &> /dev/null
 if [ $? -ne 0 ]; then
 	echo "ERROR: \"git\" command not available"
@@ -17,16 +24,19 @@ if [ $? -ne 0 ]; then
 fi
 
 
+# Test if python is installed
 pyver=`python --version 2>&1 /dev/null`
 if [ $? -ne 0 ]; then
         echo "ERROR: Python not available"
         echo "Please, install version 2.7 or greater (3.X recomended)"; exit 1
 else
+	# Test if version 27 or avobe of python is installed
         pynum=`echo ${pyver} | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2`
         if [ $pynum -lt 27 ] ; then
                 echo "ERROR: Its needed Python version 2.7 or greater (3.X recomended), not ${pyver}"
                 echo "Please, upgrade it."; exit 1
         else
+		# Test if all modules needed are available
 		pymod=`python -c "import sys, os, optparse, sqlite3, locale, platform, subprocess, time, datetime, operator, logging"`
                 if [ $? -ne 0 ]; then
                         echo "ERROR: Please, ensure that these Python modules are available in the local system:"
@@ -35,8 +45,9 @@ else
         fi
 fi
 
+
+# Temporary dir for clone repo into it
 F_TMP1=`mktemp -d`
-D_BIN='/usr/bin'
 
 echo "Tuptime installation script"
 echo ""
@@ -48,14 +59,20 @@ echo "Copying files..."
 cp -a ${F_TMP1}/src/tuptime ${D_BIN}/tuptime
 chmod 755 ${D_BIN}/tuptime
 
+echo "Creating tuptime user..."
 adduser --quiet --system --no-create-home --group \
                 --home "/var/lib/tuptime" \
                 --shell '/bin/sh' \
                 --gecos 'Tuptime execution user,,,' tuptime
 
+echo "Creating tuptime db"
 tuptime -x
+
+echo "Setting tuptime db ownership"
 chown -R tuptime:tuptime /var/lib/tuptime
 chmod 750 /var/lib/tuptime
+
+echo "Executing tuptime with tuptime user for testing"
 su - tuptime -c "tuptime -x"
 
 systemctl --version &> /dev/null
@@ -66,12 +83,12 @@ if [ $? -eq 0 ]; then
 	systemctl enable tuptime.service
 	systemctl start tuptime.service
 elif [ -f /lib/lsb/init-functions ]; then
-	echo "Copying init file..."
+	echo "Copying init debian file..."
 	cp -a ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime
 	chmod 755 /etc/init.d/tuptime
 	update-rc.d tuptime defaults
 elif [ -f /etc/rc.d/init.d/functions ]; then
-	echo "Copying init file..."
+	echo "Copying init redhat file..."
 	cp -a ${F_TMP1}/src/init.d/redhat/tuptime /etc/init.d/tuptime
 	chmod 755 /etc/init.d/tuptime
 	chkconfig --add tuptime
