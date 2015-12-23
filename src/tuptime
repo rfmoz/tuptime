@@ -27,7 +27,7 @@ locale.setlocale(locale.LC_ALL, '')
 DATE_FORMAT = '%X %x'
 DEC = int(2)  # Decimals for percentage output
 DEC_AV = int(2)  # Decimals for average output
-__version__ = '3.2.4'
+__version__ = '3.2.5-dev'
 
 
 def get_arguments():
