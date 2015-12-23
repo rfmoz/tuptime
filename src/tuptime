@@ -27,7 +27,7 @@ locale.setlocale(locale.LC_ALL, '')
 DATE_FORMAT = '%X %x'
 DEC = int(2)  # Decimals for percentage output
 DEC_AV = int(2)  # Decimals for average output
-__version__ = '3.2.3'
+__version__ = '3.2.4'
 
 
 def get_arguments():
@@ -176,7 +176,7 @@ def get_os_values():
         sec = sysctl_out.split()[4].replace(',', '')
         btime = int(sec)
         uptime = round(float((time.time() - btime)), 2)
-        ex_user = os.environ["USER"]
+        ex_user = os.getuid()
         return btime, uptime, ex_user
 
     def os_linux():
@@ -188,7 +188,7 @@ def get_os_values():
             for line in fl2:
                 if line.startswith('btime'):
                     btime = int(line.split()[1])
-        ex_user = os.environ["USER"]
+        ex_user = os.getuid()
         return btime, uptime, ex_user
 
     if os.path.isfile('/proc/uptime') and os.path.isfile('/proc/stat'):
