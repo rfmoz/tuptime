@@ -9,11 +9,12 @@ Tuptime is a tool for report the historical and statistical running time of the 
 In a Linux, FreeBSD or OSX system...
 
 Clone the repo:
+
 	git clone https://github.com/rfrail3/tuptime.git
 
 Copy the "tuptime" file located under "latest/" directory to "/usr/bin/" and make it executable:
 
-	cp tuptime/latest/tuptime /usr/bin/tuptime
+	cp tuptime/src/tuptime /usr/bin/tuptime
 	chmod ugo+x /usr/bin/tuptime
 
 Assure that the system pass the prerequisites:
