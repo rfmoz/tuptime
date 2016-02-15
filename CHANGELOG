@@ -2,6 +2,7 @@ tuptime (3.2.3) unstable; urgency=low
 
   * Refactoring code
   * Change execution user from root to tuptime
+  * Equivalence between start/stop runlevels in systemd and init.
 
  -- Ricardo F. <rfraile@rfraile.eu>  Sat, 12 Dec 2015 22:40:00 +0100
 
