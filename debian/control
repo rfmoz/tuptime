@@ -1,7 +1,7 @@
 Source: tuptime
 Section: utils
 Priority: optional
-Maintainer: Antoine Beaupré <anarcat@debian.org>
+Maintainer: Ricardo Fraile <rfraile@rfraile.eu>
 Build-Depends: debhelper (>=9)
              , dh-systemd (>= 1.5)
 Standards-Version: 3.9.6

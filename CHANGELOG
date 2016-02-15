@@ -1,1 +1,162 @@
-debian/changelog
+tuptime (3.2.3) unstable; urgency=low
+
+  * Refactoring code
+  * Change execution user from root to tuptime
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Sat, 12 Dec 2015 22:40:00 +0100
+
+tuptime (3.2.2) unstable; urgency=low
+
+  * Adding compatibility with OS X (Darwin)
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Sat, 28 Nov 2015 09:40:00 +0100
+
+tuptime (3.2.01) stable; urgency=low
+
+  * Detect database modification
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Mon, 12 Oct 2015 11:00:00 -0400
+
+tuptime (3.2.00) stable; urgency=low
+
+  * Print singular names if is the case
+  * Fix round and decimals values
+  * Clean and order code
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Mon, 05 Oct 2015 11:00:00 -0400
+
+tuptime (3.1.00) stable; urgency=low
+
+  * Register used kernels
+  * Adding kernel option
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Mon, 28 Sep 2015 11:00:00 -0400
+
+tuptime (3.0.00) stable; urgency=low
+
+  * Change printed output format
+  * Adding max/min uptime/downtime reports
+  * Adding table format output
+  * Rename enumerate option to list and change output format
+  * Adding sorting options
+  * Change database schema
+  * Clean and order code
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Fri, 25 Sep 2015 11:00:00 -0400
+
+tuptime (2.6.10) stable; urgency=low
+
+  * Compatibility between python2.7 and python3.X
+  * Removing unused modules
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Mon, 10 Aug 2015 11:00:00 -0400
+
+tuptime (2.5.20) stable; urgency=low
+
+  * Setting data type for ok/bad shutdown in db creation
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Sat, 08 Aug 2015 11:00:00 -0400
+
+tuptime (2.5.12) stable; urgency=low
+
+  * Setting max decimals in the output
+  * Fix data type for the ok/bad shutdown registry in db wich cause incorrect
+    counter output
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Fri, 07 Aug 2015 11:00:00 -0400
+
+tuptime (2.5.00) stable; urgency=low
+
+  * Fix false shutdown count and correct locale date format
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Tue, 04 Aug 2015 11:00:00 -0400
+
+tuptime (2.4.26) stable; urgency=low
+
+  * Fix from other point of view false shutdown bug
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Tue, 04 Aug 2015 10:00:00 -0400
+
+tuptime (2.4.10) stable; urgency=low
+
+  * Fix false wrong shutdown bug when some kernels rarely report +1 or -1 
+    second inside /proc/stat btime variable
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Sun, 26 Jul 2015 10:00:00 -0400
+
+tuptime (2.4.00) stable; urgency=low
+
+  * Adding downtimes reports
+  * Adding enumerate option
+  * Fix bad shutdowns count
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Mon, 20 Jul 2015 10:00:00 -0400
+
+tuptime (2.2.00) stable; urgency=low
+
+  * Completely rewritten in python
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Wed, 06 May 2015 10:00:00 -0400
+
+tuptime (1.6.2) stable; urgency=low
+
+  * New init script for debian 7 wheezy
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Thu, 14 May 2013 10:00:00 -0400
+
+tuptime (1.6.0) stable; urgency=low
+
+  * Remove usage of syslog for more quick output.
+  * Change output.
+  * Print rate in output.
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Thu, 17 Jan 2012 10:00:00 -0400
+
+tuptime (1.5.0) stable; urgency=low
+
+  * Print estimated uptime between starts.
+  * Print actual uptime for the system.
+  * Fix and improve code, remove repetitive lines and minnor bugs.
+  * Check if the variable in the conf file is a number.
+  * Start using Scalar::Util module.
+  * Print system uptime date.
+  * Fix bug in first update
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Mon, 10 Oct 2011 10:00:00 -0400
+
+tuptime (1.4.0) stable; urgency=low
+
+  * Print time more accurate.
+  * Cron line change to 5 minutes.
+  * Print time values in live time without update.
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Sat, 06 Aug 2011 10:00:00 -0400
+
+tuptime (1.3.0) stable; urgency=low
+
+  * Jump blank lines in conf file.
+  * Adding #REPLACEAT feature.
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Mon, 20 Jun 2011 10:00:00 -0400
+
+tuptime (1.2.0) stable; urgency=low
+
+  * Change speak option to verbose.
+  * Fix lost information in files when update.
+  * Minnor corrections in text strings.
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Mon, 13 Jun 2011 10:00:00 -0400
+
+tuptime (1.1.0) stable; urgency=low
+
+  * Any user can print the times, not only root.
+  * Minnor changes to speak option.
+  * Minnor corrections.
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Fri, 10 Jun 2011 10:00:00 -0400
+
+tuptime (1.0.0) stable; urgency=low
+
+  * First release.
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Wed, 23 Mar 2011 10:02:18 -0400
