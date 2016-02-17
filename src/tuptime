@@ -111,9 +111,9 @@ def get_arguments():
     parser.add_option(
         '-s', '--seconds',
         dest='seconds',
-        default=None,
+        default=SECONDS_OUTPUT,
         action='store_true',
-        help='''output time in seconds since epoch'''
+        help='output time in seconds and epoch'
     )
     parser.add_option(
         '-S', '--since',
@@ -122,7 +122,7 @@ def get_arguments():
         action='store',
         nargs=1,
         type=int,
-        help='''output cumulated uptime after this timestamp, implies -s'''
+        help='output cumulated uptime after the given timestamp, implies -s'
       )
     parser.add_option(
         '-t', '--table',
