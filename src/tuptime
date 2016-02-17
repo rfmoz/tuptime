@@ -613,7 +613,7 @@ def main():
     #  Print values
     if arg.silent:
         logging.info('Only update')
-    elif arg.since:
+    elif arg.since is not None:
         print_since(db_rows, int(arg.since))
     elif arg.lst:
         print_list(db_rows, startups_num, arg)
