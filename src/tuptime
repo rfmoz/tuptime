@@ -122,7 +122,7 @@ def get_arguments():
         action='store',
         nargs=1,
         type=int,
-        help='output cumulated uptime after the given timestamp, implies -s'
+        help='output cumulated uptime after the given timestamp'
       )
     parser.add_option(
         '-t', '--table',
@@ -322,7 +322,7 @@ def for_print(db_rows, arg):
             row['endst'] = 'OK'
         else:
             row['endst'] = 'BAD'
-        if arg.seconds is None:
+        if not arg.seconds:
             row['btime'] = datetime.fromtimestamp(row['btime']).strftime(arg.date_format)
             row['uptime'] = time_conv(row['uptime'])
             row['offbtime'] = datetime.fromtimestamp(row['offbtime']).strftime(arg.date_format)
@@ -347,14 +347,17 @@ def print_list(db_rows, startups_num, arg):
             print('Kernel:   ' + str(row_dict['kernel']))
         print('')
 
-def print_since(db_rows, seconds):
+def print_since(db_rows, seconds, human):
     """Print uptime since the given timestamp"""
 
     first  = int(db_rows[0]['btime']) # the last boot before seconds
     offset = max(0, seconds - first)  # if it is after seconds, ignore
     upsum  = sum([int(row['uptime']) for row in db_rows]) - offset
 
-    print str(upsum)
+    if human:
+        print time_conv(upsum)
+    else:
+        print upsum
 
 
 def print_table(db_rows, startups_num, arg):
@@ -460,7 +463,7 @@ def print_default(db_rows, startups_num, startups, btime, uptime, kernel, arg):
         shrt_down_offbtime = 0
         shrt_down_kern = None
 
-    if arg.seconds is None:  # - Human readable style
+    if not arg.seconds:  # - Human readable style
         first_btime = datetime.fromtimestamp(first_btime).strftime(arg.date_format)
         larg_up_uptime = time_conv(larg_up_uptime)
         larg_up_btime = datetime.fromtimestamp(larg_up_btime).strftime(arg.date_format)
@@ -614,7 +617,7 @@ def main():
     if arg.silent:
         logging.info('Only update')
     elif arg.since is not None:
-        print_since(db_rows, int(arg.since))
+        print_since(db_rows, int(arg.since), not arg.seconds)
     elif arg.lst:
         print_list(db_rows, startups_num, arg)
     elif arg.table:
