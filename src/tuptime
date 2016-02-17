@@ -111,10 +111,19 @@ def get_arguments():
     parser.add_option(
         '-s', '--seconds',
         dest='seconds',
-        default=SECONDS_OUTPUT,
+        default=None,
         action='store_true',
-        help='output time in seconds and epoch'
+        help='''output time in seconds since epoch'''
     )
+    parser.add_option(
+        '-S', '--since',
+        dest='since',
+        default=None,
+        action='store',
+        nargs=1,
+        type=int,
+        help='''output cumulated uptime after this timestamp, implies -s'''
+      )
     parser.add_option(
         '-t', '--table',
         dest='table',
@@ -261,7 +270,7 @@ def time_conv(secs):
     dtm['years'], dtm['days'] = divmod(dtm['days'], 365)
 
     # Construct date sentence
-    for key in ('years', 'days', 'hours', 'minutes', 'seconds'):  
+    for key in ('years', 'days', 'hours', 'minutes', 'seconds'):
         # Avoid print empty values at the beginning
         if (dtm[key] == 0) and zero_enter:
             continue
@@ -313,7 +322,7 @@ def for_print(db_rows, arg):
             row['endst'] = 'OK'
         else:
             row['endst'] = 'BAD'
-        if not arg.seconds:
+        if arg.seconds is None:
             row['btime'] = datetime.fromtimestamp(row['btime']).strftime(arg.date_format)
             row['uptime'] = time_conv(row['uptime'])
             row['offbtime'] = datetime.fromtimestamp(row['offbtime']).strftime(arg.date_format)
@@ -337,6 +346,15 @@ def print_list(db_rows, startups_num, arg):
         if arg.kernel:
             print('Kernel:   ' + str(row_dict['kernel']))
         print('')
+
+def print_since(db_rows, seconds):
+    """Print uptime since the given timestamp"""
+
+    first  = int(db_rows[0]['btime']) # the last boot before seconds
+    offset = max(0, seconds - first)  # if it is after seconds, ignore
+    upsum  = sum([int(row['uptime']) for row in db_rows]) - offset
+
+    print str(upsum)
 
 
 def print_table(db_rows, startups_num, arg):
@@ -421,6 +439,7 @@ def print_default(db_rows, startups_num, startups, btime, uptime, kernel, arg):
 
     if startups == 1:
         total_downtime = 0
+
     else:
         total_downtime = round((sys_life - total_uptime), 2)
 
@@ -441,7 +460,7 @@ def print_default(db_rows, startups_num, startups, btime, uptime, kernel, arg):
         shrt_down_offbtime = 0
         shrt_down_kern = None
 
-    if not arg.seconds:  # - Human readable style
+    if arg.seconds is None:  # - Human readable style
         first_btime = datetime.fromtimestamp(first_btime).strftime(arg.date_format)
         larg_up_uptime = time_conv(larg_up_uptime)
         larg_up_btime = datetime.fromtimestamp(larg_up_btime).strftime(arg.date_format)
@@ -567,8 +586,12 @@ def main():
             sys.exit(-1)
 
     if not arg.silent:
+        where = ""
+        if arg.since is not None:
+            isec = int(arg.since)
+            where = " where endst > %i or endst == 0" % isec
         # - Get all rows for calculate print values
-        conn.execute('select rowid as startup, * from tuptime')
+        conn.execute('select rowid as startup, * from tuptime'+where)
         db_rows = conn.fetchall()
 
         # If the user can only read db, the previous select return outdated numbers in last row
@@ -590,6 +613,8 @@ def main():
     #  Print values
     if arg.silent:
         logging.info('Only update')
+    elif arg.since:
+        print_since(db_rows, int(arg.since))
     elif arg.lst:
         print_list(db_rows, startups_num, arg)
     elif arg.table:
