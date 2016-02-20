@@ -133,7 +133,7 @@ def get_arguments():
     parser.add_option(
         '-U', '--until',
         dest='until',
-        default=None,
+        default=0,
         action='store',
         type=int,
         nargs=1,
@@ -503,7 +503,7 @@ def print_default(db_rows, startups_num, startups, btime, uptime, kernel, arg):
         print('...with kernel: \t'+ str(shrt_up_kern))
     print('Average uptime: \t' + str(average_up))
     print('')
-    if startups == 1:
+    if db_rows[-1]['downtime'] == -1:
         print('Largest downtime:\t'+ str(larg_down_downtime))
         if arg.kernel:
             print('...with kernel: \t'+ str(larg_down_kern))
@@ -602,16 +602,16 @@ def main():
         startups = len(db_rows)  # Real startups
         startups_num = db_rows[-1]['startup']  # Startups by rowid number
 
-        if arg.since > 0 or arg.until is not None:
+        if arg.since > 0 or arg.until > 0:
             if startups_num < arg.since:
                 logging.warn('Since value greather than max register number. '
                               'Resetting to last: ' + str(startups_num))
                 arg.since = startups_num
-            if arg.until is not None and int(arg.since) > int(arg.until):
+            if arg.until > 0 and int(arg.since) > int(arg.until):
                 logging.warn('Since value greather than until. '
                              'Resetting to last: '+ str(arg.since))
                 arg.until = arg.since
-            if arg.until is not None:
+            if arg.until > 0:
                 and_until = ' and startup <= '+ str(arg.until)
             else:
                 and_until = ''
@@ -626,9 +626,12 @@ def main():
                              '- possible deleted rows in db')
         db_rows = [dict(row) for row in db_rows]  # for allow item assignment
 
-        if arg.until >= startups_num:  # Update if is last row from last uptime
+        print (arg.until)
+        print (startups_num)
+        if db_rows[-1]['startup'] == startups_num:
             # If the user can only read db, the previous select return outdated numbers in last row
             # because the db was not updated previously. The following snippet update that in memmory
+            print ('asdfa')
             db_rows[-1]['uptime'] = uptime
             db_rows[-1]['endst'] = arg.endst
             db_rows[-1]['kernel'] = kernel
@@ -636,8 +639,8 @@ def main():
     db_conn.commit()
     db_conn.close()
 
-    #for row in db_rows:
-    #    print(row)
+    for row in db_rows:
+        print(row)
     #  Print values
     if arg.silent:
         logging.info('Only update')
