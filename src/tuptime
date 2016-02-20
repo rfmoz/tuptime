@@ -387,7 +387,7 @@ def print_table(db_rows, startups_num, arg):
         print('')
 
 
-def print_default(db_rows, startups_num, startups, btime, uptime, arg):
+def print_default(db_rows, startups_num, startups, arg):
     """Print values as default output"""
 
     def extract_times(db_rows, option, key):
@@ -411,6 +411,8 @@ def print_default(db_rows, startups_num, startups, btime, uptime, arg):
             bad_shdown += 1
         kernel_cnt.append(row['kernel'])
 
+    btime = db_rows[-1]['btime']
+    uptime = db_rows[-1]['uptime']
     kernel_cnt = len(set(kernel_cnt))
     first_btime = int(db_rows[0]['btime'])
     ok_shdown = startups - bad_shdown - 1
@@ -594,7 +596,7 @@ def main():
     elif arg.table:
         print_table(db_rows, startups_num, arg)
     else:
-        print_default(db_rows, startups_num, startups, btime, uptime, arg)
+        print_default(db_rows, startups_num, startups, arg)
 
 if __name__ == "__main__":
     main()
