@@ -115,29 +115,11 @@ def get_arguments():
         help='output time in seconds and epoch'
     )
     parser.add_option(
-        '-S', '--since',
-        dest='since',
-        default=0,
-        action='store',
-        nargs=1,
-        type=int,
-        help='restric entries since this register number'
-    )
-    parser.add_option(
         '-t', '--table',
         dest='table',
         default=False,
         action='store_true',
         help='enumerate system life as table'
-    )
-    parser.add_option(
-        '-U', '--until',
-        dest='until',
-        default=0,
-        action='store',
-        type=int,
-        nargs=1,
-        help='restrict entries until this register number'
     )
     parser.add_option(
         '-u', '--uptime',
@@ -431,22 +413,15 @@ def print_default(db_rows, startups_num, startups, btime, uptime, arg):
 
     kernel_cnt = len(set(kernel_cnt))
     first_btime = int(db_rows[0]['btime'])
-    if btime == db_rows[-1]['btime']:  # If btime is equal to last registered, is a running system
-        sys_life = round(((btime + uptime) - first_btime), 2)  # Calculate with current uptime
-        ok_shdown = startups - bad_shdown - 1
-        if startups == 1:
-            total_downtime = 0
-        else:
-            total_downtime = round((sys_life - total_uptime), 2)
-    else:  # if not, calculate with rows values, surely is a since/until report
-        sys_life = db_rows[-1]['offbtime'] - db_rows[0]['btime'] + db_rows[-1]['downtime']
-        if sys_life == 0:  # If only have one line, add uptime directly
-            sys_life = round(db_rows[0]['uptime'], 2)
-        ok_shdown = startups - bad_shdown
-        total_downtime = round((sys_life - total_uptime), 2)
+    ok_shdown = startups - bad_shdown - 1
+    sys_life = round(((btime + uptime) - first_btime), 2)
     average_up = round((total_uptime / startups), DEC_AV)
     uprate = round((total_uptime * 100) / (sys_life), DEC)
 
+    if startups == 1:
+        total_downtime = 0
+    else:
+        total_downtime = round((sys_life - total_uptime), 2)
 
     downrate = round((total_downtime * 100) / (sys_life), DEC)
     average_down = round((total_downtime / startups), DEC_AV)
@@ -454,13 +429,9 @@ def print_default(db_rows, startups_num, startups, btime, uptime, arg):
     larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
     shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
 
-    if startups > 1 or btime != db_rows[-1]['btime']:
-        if btime == db_rows[-1]['btime']:
-            larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows[:-1], 'max', 'downtime')
-            shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows[:-1], 'min', 'downtime')
-        else:
-            larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows, 'max', 'downtime')
-            shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows, 'min', 'downtime')
+    if startups > 1:
+        larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows[:-1], 'max', 'downtime')
+        shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows[:-1], 'min', 'downtime')
     else:
         larg_down_downtime = 0
         larg_down_offbtime = 0
@@ -503,7 +474,7 @@ def print_default(db_rows, startups_num, startups, btime, uptime, arg):
         print('...with kernel: \t'+ str(shrt_up_kern))
     print('Average uptime: \t' + str(average_up))
     print('')
-    if db_rows[-1]['downtime'] == -1:
+    if startups == 1:
         print('Largest downtime:\t'+ str(larg_down_downtime))
         if arg.kernel:
             print('...with kernel: \t'+ str(larg_down_kern))
@@ -599,45 +570,22 @@ def main():
         conn.execute('select rowid as startup, * from tuptime')
         db_rows = conn.fetchall()
 
+        # If the user can only read db, the previous select return outdated numbers in last row
+        # because the db was not updated previously. The following snippet update that in memmory
+        db_rows = [dict(row) for row in db_rows]  # for allow item assignment
+        db_rows[-1]['uptime'] = uptime
+        db_rows[-1]['endst'] = arg.endst
+        db_rows[-1]['kernel'] = kernel
         startups = len(db_rows)  # Real startups
         startups_num = db_rows[-1]['startup']  # Startups by rowid number
 
-        if arg.since > 0 or arg.until > 0:
-            if startups_num < arg.since:
-                logging.warn('Since value greather than max register number. '
-                              'Resetting to last: ' + str(startups_num))
-                arg.since = startups_num
-            if arg.until > 0 and int(arg.since) > int(arg.until):
-                logging.warn('Since value greather than until. '
-                             'Resetting to last: '+ str(arg.since))
-                arg.until = arg.since
-            if arg.until > 0:
-                and_until = ' and startup <= '+ str(arg.until)
-            else:
-                and_until = ''
-            where = ' where startup >= '+ str(arg.since) + and_until 
-            # - Get all rows for calculate print values
-            conn.execute('select rowid as startup, * from tuptime'+ where)
-            db_rows = conn.fetchall()
-            startups = len(db_rows)
-        else:
-            if startups != startups_num:
-                logging.info('Real startups are not equal to enumerate startups '
-                             '- possible deleted rows in db')
-        db_rows = [dict(row) for row in db_rows]  # for allow item assignment
-
-        if db_rows[-1]['startup'] == startups_num:
-            # If the user can only read db, the previous select return outdated numbers in last row
-            # because the db was not updated previously. The following snippet update that in memmory
-            db_rows[-1]['uptime'] = uptime
-            db_rows[-1]['endst'] = arg.endst
-            db_rows[-1]['kernel'] = kernel
+        if startups != startups_num:
+            logging.info('Real startups are not equal to enumerate startups '
+                         '- possible deleted rows in db')
 
     db_conn.commit()
     db_conn.close()
 
-    #for row in db_rows:
-    #    print(row)
     #  Print values
     if arg.silent:
         logging.info('Only update')
