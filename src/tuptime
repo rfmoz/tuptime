@@ -174,6 +174,15 @@ def get_arguments():
         nargs=1,
         help='xx'
     )
+    parser.add_option(
+        '-Z', '--zz',
+        dest='zz',
+        default=0,
+        action='store',
+        type=int,
+        nargs=1,
+        help='zz'
+    )
     arg, _ = parser.parse_args()
 
     # - Check combination of operator requirements
@@ -469,8 +478,8 @@ def print_default(db_rows, startups_num, startups, uptime, until_now, arg):
     shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
 
     if startups > 1:
-        larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows[:-1], 'max', 'downtime')
-        shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows[:-1], 'min', 'downtime')
+        larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows, 'max', 'downtime')
+        shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows, 'min', 'downtime')
     else:
         if not until_now:
             larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows, 'max', 'downtime')
@@ -665,7 +674,7 @@ def main():
         db_rows_since = list()
 
         if arg.xx < db_rows[0]['btime']:
-            logging.warn('Timestamp lower than first register available '
+            logging.warn('Timestamp since lower than first register available '
                          'Resetting to: ' + str(db_rows[0]['btime']))
             arg.xx = db_rows[0]['btime']
         
@@ -696,6 +705,45 @@ def main():
             db_rows = db_rows_since
             startups = len(db_rows)  # Real startups
 
+    if arg.zz:
+        db_rows_until = list()
+        until_offset = None
+
+        for row in db_rows:
+            # If btime is greather than arg
+            if row['offbtime'] <= arg.zz and row['offbtime'] > 0:
+                db_rows_until.append(row)
+                take_next_line = True
+            else:
+                if take_next_line == True:
+                    next_row = row
+                    take_next_line = False
+
+
+        if db_rows_until[-1]['offbtime'] == arg.zz:
+            print('si')
+            until_offset = 0   
+        else:
+            until_offset = round(arg.zz - db_rows_until[-1]['offbtime'], 2) 
+            db_rows_until.append(next_row)
+
+        
+        if until_offset < db_rows_until[-1]['uptime']:
+            db_rows_until[-1]['uptime'] = until_offset
+            db_rows_until[-1]['downtime'] = -1
+            db_rows_until[-1]['offbtime'] = -1
+        else:
+            print('si')
+            db_rows_until[-1]['downtime'] = round(until_offset - db_rows_until[-1]['uptime'], 2)
+            db_rows_until[-1]['offbtime'] = -1
+            db_rows_since.insert(0, pre_row)
+        print until_offset
+
+
+        db_rows = db_rows_until
+        startups = len(db_rows)  # Real startups
+
+ 
     #    print('')
         for row in db_rows:
             print row
