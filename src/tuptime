@@ -94,6 +94,13 @@ def get_arguments():
         help='enumerate system life as list'
     )
     parser.add_option(
+        '-n', '--no-update',
+        dest='update',
+        default=True,
+        action='store_false',
+        help='avoid update values'
+    )
+    parser.add_option(
         '-o', '--offtime',
         dest='downtime',
         default=False,
@@ -559,38 +566,39 @@ def main():
     # line works as expected. A uptime record can be lost if tuptime is executed,
     # at first time after boot,
     # when the uptime is greater than the difference between btime - last_btime.
-    try:
-        if (last_btime + uptime) < btime:
-            logging.info('System was restarted')
-            offbtime_db = int(round(lasts, 0))
-            downtime_db = round((btime - lasts), 2)
-            logging.info('Recording offbtime into db = '+ str(offbtime_db))
-            logging.info('Recording downtime into db = '+ str(downtime_db))
-            # Save downtimes for previous boot
-            conn.execute('update tuptime set offbtime = '+ str(offbtime_db) +', downtime = '+ str(downtime_db) +
-                         ' where rowid = (select max(rowid) from tuptime)')
-            # Create entry for new boot
-            conn.execute('insert into tuptime values (?,?,?,?,?,?)',
-                         (str(btime),
-                          str(uptime),
-                          str('-1'),
-                          str(arg.endst),
-                          str('0'),
-                          str(kernel)))
-        else:
-            logging.info('System wasn\'t restarted. Updating db values...')
-            conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(arg.endst) +
-                         ', kernel = \''+ str(kernel) + '\' where rowid = (select max(rowid) from tuptime)')
+    if arg.update:
+        try:
+            if (last_btime + uptime) < btime:
+                logging.info('System was restarted')
+                offbtime_db = int(round(lasts, 0))
+                downtime_db = round((btime - lasts), 2)
+                logging.info('Recording offbtime into db = '+ str(offbtime_db))
+                logging.info('Recording downtime into db = '+ str(downtime_db))
+                # Save downtimes for previous boot
+                conn.execute('update tuptime set offbtime = '+ str(offbtime_db) +', downtime = '+ str(downtime_db) +
+                             ' where rowid = (select max(rowid) from tuptime)')
+                # Create entry for new boot
+                conn.execute('insert into tuptime values (?,?,?,?,?,?)',
+                             (str(btime),
+                              str(uptime),
+                              str('-1'),
+                              str(arg.endst),
+                              str('0'),
+                              str(kernel)))
+            else:
+                logging.info('System wasn\'t restarted. Updating db values...')
+                conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(arg.endst) +
+                             ', kernel = \''+ str(kernel) + '\' where rowid = (select max(rowid) from tuptime)')
 
-    except sqlite3.OperationalError:
-        logging.info('Values not saved into db')
+        except sqlite3.OperationalError:
+            logging.info('Values not saved into db')
 
-        if (last_btime + uptime) < btime:
-            # If you see this error, maybe systemd script isn't executed at startup
-            # or the db file (DB_FILE) have wrong permissions.
-            logging.error('After system restart, the values must be saved into db. '
-                          'Please, execute tuptime with a privileged user.')
-            sys.exit(-1)
+            if (last_btime + uptime) < btime:
+                # If you see this error, maybe systemd script isn't executed at startup
+                # or the db file (DB_FILE) have wrong permissions.
+                logging.error('After system restart, the values must be saved into db. '
+                              'Please, execute tuptime with a privileged user.')
+                sys.exit(-1)
 
     if not arg.silent:
         # - Get all rows for calculate print values
@@ -631,19 +639,17 @@ def main():
         if db_rows[-1]['startup'] == startups_num:
             # If the user can only read db, the previous select return outdated numbers in last row
             # because the db was not updated previously. The following snippet update that in memmory
-            db_rows[-1]['uptime'] = uptime
-            db_rows[-1]['endst'] = arg.endst
-            db_rows[-1]['kernel'] = kernel
-            db_rows[-1]['downtime'] = 0
+            if arg.update:
+                db_rows[-1]['uptime'] = uptime
+                db_rows[-1]['endst'] = arg.endst
+                db_rows[-1]['kernel'] = kernel
+                db_rows[-1]['downtime'] = 0
             until_now = True
         else:
             until_now = False
 
     db_conn.commit()
     db_conn.close()
-
-    #for row in db_rows:
-    #    print row
 
     #  Print values
     if arg.silent:
