@@ -468,16 +468,16 @@ def print_default(db_rows, startups_num, startups, uptime, until_now, arg):
     larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
     shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
 
-    if startups > 1:
-        larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows, 'max', 'downtime')
-        shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows, 'min', 'downtime')
-    else:
+    if db_rows[-1]['offbtime'] < 0:
         larg_down_downtime = 0
         larg_down_offbtime = 0
         larg_down_kern = None
         shrt_down_downtime = 0
         shrt_down_offbtime = 0
         shrt_down_kern = None
+    else:
+        larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows, 'max', 'downtime')
+        shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows, 'min', 'downtime')
 
     if arg.seconds is None:  # - Human readable style
         first_btime = datetime.fromtimestamp(first_btime).strftime(arg.date_format)
