@@ -165,24 +165,6 @@ def get_arguments():
         action='store_true',
         help='update values into db without output'
     )
-    parser.add_option(
-        '-X', '--xx',
-        dest='xx',
-        default=0,
-        action='store',
-        type=int,
-        nargs=1,
-        help='xx'
-    )
-    parser.add_option(
-        '-Z', '--zz',
-        dest='zz',
-        default=0,
-        action='store',
-        type=int,
-        nargs=1,
-        help='zz'
-    )
     arg, _ = parser.parse_args()
 
     # - Check combination of operator requirements
@@ -271,7 +253,7 @@ def assure_state_db(btime, uptime, kernel, arg):
                       str(uptime),
                       str('-1'),
                       str(arg.endst),
-                      str('0'),
+                      str('-1'),
                       str(kernel)))
         db_conn.commit()
         db_conn.close()
@@ -351,18 +333,8 @@ def for_print(db_rows, arg):
         if arg.seconds is None:
             row['btime'] = datetime.fromtimestamp(row['btime']).strftime(arg.date_format)
             row['uptime'] = time_conv(row['uptime'])
-            if row['offbtime'] >= 0:
-                row['offbtime'] = datetime.fromtimestamp(row['offbtime']).strftime(arg.date_format)
-                row['downtime'] = time_conv(row['downtime'])
-            else:
-                row['offbtime'] = ''
-                row['endst'] = ''
-                row['downtime'] = ''
-        else:
-            if row['offbtime'] < 0:
-                row['offbtime'] = ''
-                row['endst'] = ''
-                row['downtime'] = ''
+            row['offbtime'] = datetime.fromtimestamp(row['offbtime']).strftime(arg.date_format)
+            row['downtime'] = time_conv(row['downtime'])
         remap.append(row)
     return remap
 
@@ -373,7 +345,7 @@ def print_list(db_rows, startups_num, arg):
 
     for row_dict in for_print(db_rows, arg):
         print('Startup:  ' + str(row_dict['startup']) + '  at  '+ str(row_dict['btime']))
-        if row_dict['offbtime'] == '':
+        if row_dict['startup'] == startups_num:
             print('Uptime:   ' + str(row_dict['uptime']))
         else:
             print('Uptime:   ' + str(row_dict['uptime']))
@@ -400,13 +372,20 @@ def print_table(db_rows, startups_num, arg):
     db_rows = ordering_output(db_rows, arg)
 
     for row_dict in for_print(db_rows, arg):
-        tbl.append([str(row_dict['startup']),
-                    str(row_dict['btime']),
-                    str(row_dict['uptime']),
-                    str(row_dict['offbtime']),
-                    str(row_dict['endst']),
-                    str(row_dict['downtime']),
-                    str(row_dict['kernel'])])
+        if row_dict['startup'] == startups_num:
+            tbl.append([str(row_dict['startup']),
+                        str(row_dict['btime']),
+                        str(row_dict['uptime']),
+                        str(''), str(''), str(''),
+                        str(row_dict['kernel'])])
+        else:
+            tbl.append([str(row_dict['startup']),
+                        str(row_dict['btime']),
+                        str(row_dict['uptime']),
+                        str(row_dict['offbtime']),
+                        str(row_dict['endst']),
+                        str(row_dict['downtime']),
+                        str(row_dict['kernel'])])
 
     if not arg.kernel:  # Delete kernel if is not used
         tbl_no_kern = []
@@ -431,10 +410,6 @@ def print_default(db_rows, startups_num, startups, uptime, until_now, arg):
 
     def extract_times(db_rows, option, key):
         """Extract max/min values for uptime/downtime"""
-        if key == 'downtime' and db_rows[-1]['offbtime'] < 0:
-            db_rows.remove(db_rows[-1])
-        if key == 'uptime' and db_rows[0]['btime'] < 0:
-            db_rows.remove(db_rows[0])
         if option == 'max':
             row = max(db_rows, key=lambda x: x[key])
         elif option == 'min':
@@ -461,10 +436,7 @@ def print_default(db_rows, startups_num, startups, uptime, until_now, arg):
     btime = db_rows[-1]['btime']
     downtime = db_rows[-1]['downtime']
     kernel_cnt = len(set(kernel_cnt))
-    if arg.xx:
-        first_btime = arg.xx
-    else:
-        first_btime = int(db_rows[0]['btime'])
+    first_btime = int(db_rows[0]['btime'])
     sys_life = round(((btime + db_rows[-1]['uptime'] + downtime) - first_btime), 2)
     average_up = round((total_uptime / startups), DEC_AV)
     uprate = round((total_uptime * 100) / (sys_life), DEC)
@@ -481,8 +453,8 @@ def print_default(db_rows, startups_num, startups, uptime, until_now, arg):
     shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
 
     if startups > 1:
-        larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows, 'max', 'downtime')
-        shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows, 'min', 'downtime')
+        larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows[:-1], 'max', 'downtime')
+        shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows[:-1], 'min', 'downtime')
     else:
         if not until_now:
             larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows, 'max', 'downtime')
@@ -599,12 +571,12 @@ def main():
                          ' where rowid = (select max(rowid) from tuptime)')
             # Create entry for new boot
             conn.execute('insert into tuptime values (?,?,?,?,?,?)',
-                         (str(btime),  # btime
-                          str(uptime),  # uptime
-                          str('-1'),  # offbtime
-                          str(arg.endst),  # endst
-                          str('0'),  # downtime
-                          str(kernel)))  # kernel
+                         (str(btime),
+                          str(uptime),
+                          str('-1'),
+                          str(arg.endst),
+                          str('0'),
+                          str(kernel)))
         else:
             logging.info('System wasn\'t restarted. Updating db values...')
             conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(arg.endst) +
@@ -670,87 +642,8 @@ def main():
     db_conn.commit()
     db_conn.close()
 
-    if arg.xx:
-
-        tsince = arg.xx
-        pre_row = None
-        since_offset = None
-        db_rows_since = list()
-
-        if arg.xx < db_rows[0]['btime']:
-            logging.warn('Timestamp since lower than first register available '
-                         'Resetting to: ' + str(db_rows[0]['btime']))
-            tsince = db_rows[0]['btime']
-        
-        for idx, row in enumerate(db_rows):
-            if idx > 0:  # Starting from the second row
-                idx_pre = idx - 1  # Getting index for previous row
-                if row['btime'] >= tsince:
-                    if row['btime'] == tsince:
-                         since_offset = 0
-                    if since_offset is None:
-                        since_offset = round(row['btime'] - tsince, 2)
-                        # If previous btime is equal to tsince, add directly
-                        if db_rows[idx_pre]['btime'] == tsince:
-                            db_rows_since.insert(0, db_rows[idx_pre])
-                            continue
-                        if since_offset < int(db_rows[idx_pre]['downtime']):
-                            db_rows[idx_pre]['downtime'] = since_offset
-                            db_rows[idx_pre]['uptime'] = 0
-                            db_rows[idx_pre]['btime'] = 0
-                            db_rows[idx_pre]['offbtime'] = 0
-                            db_rows_since.insert(0, db_rows[idx_pre])
-                        else:
-                            db_rows[idx_pre]['uptime'] = round(since_offset - db_rows[idx_pre]['downtime'], 2)
-                            db_rows[idx_pre]['btime'] = 0
-                            db_rows_since.insert(0, db_rows[idx_pre])
-                if db_rows[idx] == db_rows[-1]:
-                    print 'si'
-                    db_rows_since.append(row)
-        db_rows = db_rows_since
-        startups = len(db_rows)  # Real startups
-
-    if arg.zz:
-        db_rows_until = list()
-        until_offset = None
-
-        if arg.zz > (db_rows[-1]['btime'] + db_rows[-1]['uptime']):
-            logging.warn('Timestamp until grether than currently timestamp '
-                         'Resetting to: ' + str(round(db_rows[-1]['btime'] + db_rows[-1]['uptime'], 2)))
-            arg.zz = (db_rows[-1]['btime'] + db_rows[-1]['uptime'])
-
-        if arg.zz < (db_rows[0]['btime'] + db_rows[0]['uptime']):
-           logging.warn('Timestamp until lewer than first timestamp available. '
-                         'Resetting to: ' + str(round(db_rows[0]['btime'] + db_rows[0]['uptime'], 2))) 
-           arg.zz = (db_rows[0]['btime'] + db_rows[0]['uptime'])
-
-        for row in db_rows:
-            # If btime is greath
-            if until_offset is None:
-                if row['btime'] + row['uptime'] < arg.zz:
-                    print ('zz is greather than btime + uptime')
-                    if row['offbtime'] + row['downtime'] < arg.zz:
-                        print ('zz is greather than offbtime + downtime')
-                    else:
-                        until_offset = round(row['offbtime'] + row['downtime'] - arg.zz, 2)
-                        print ('Offset down: '+ str(until_offset)) 
-                        row['downtime'] = until_offset
-                else:
-                    until_offset = round(arg.zz - row['btime'], 2)
-                    print ('Offset up: '+ str(until_offset)) 
-                    row['uptime'] = until_offset
-                    row['offbtime'] = -1
-                    row['downtime'] = -1
-                db_rows_until.append(row)
-
-        db_rows = db_rows_until
-        startups = len(db_rows)  # Real startups
-
-
- 
-    #    print('')
-#        for row in db_rows:
-#            print row
+    #for row in db_rows:
+    #    print row
 
     #  Print values
     if arg.silent:
