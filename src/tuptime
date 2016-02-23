@@ -172,6 +172,22 @@ def get_arguments():
         action='store_true',
         help='update values into db without output'
     )
+    parser.add_option(
+        '-X', '--xx',
+        dest='xx',
+        default=None,
+        action='store',
+        type=int,
+        nargs=1,
+    )
+    parser.add_option(
+        '-Z', '--zz',
+        dest='zz',
+        default=None,
+        action='store',
+        type=int,
+        nargs=1,
+    )
     arg, _ = parser.parse_args()
 
     # - Check combination of operator requirements
@@ -635,6 +651,37 @@ def main():
             if startups != startups_num:
                 logging.info('Real startups are not equal to enumerate startups '
                              '- possible deleted rows in db')
+
+        if arg.xx:
+            aa = None
+            for row in db_rows[:]:
+                if aa == None:
+                    if arg.xx >= row['btime'] and arg.xx < row['btime'] + int(row['uptime']):
+                        print row
+                        aa = True
+                    else:
+                        if arg.xx >= row['offbtime'] and arg.xx < row['offbtime'] + int(row['downtime']):
+                            print row
+                            aa = True
+                        else:
+                            db_rows.remove(row)
+                else:
+                    print row
+        if arg.zz:
+            aa = None
+            for row in db_rows[:]:
+                if aa == None:
+                    if arg.zz >= row['btime'] and arg.zz < row['btime'] + int(row['uptime']):
+                        print row
+                        aa = True
+                    else:
+                        if arg.zz >= row['offbtime'] and arg.zz < row['offbtime'] + int(row['downtime']):
+                            print row
+                            aa = True
+                        else:
+                            print row
+                else:
+                    print None
 
         db_rows = [dict(row) for row in db_rows]  # for allow item assignment
 
