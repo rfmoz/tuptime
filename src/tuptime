@@ -173,16 +173,16 @@ def get_arguments():
         help='update values into db without output'
     )
     parser.add_option(
-        '-X', '--xx',
-        dest='xx',
+        '--tsince',
+        dest='ts',
         default=None,
         action='store',
         type=int,
         nargs=1,
     )
     parser.add_option(
-        '-Z', '--zz',
-        dest='zz',
+        '--tuntil',
+        dest='tu',
         default=None,
         action='store',
         type=int,
@@ -652,38 +652,79 @@ def main():
                 logging.info('Real startups are not equal to enumerate startups '
                              '- possible deleted rows in db')
 
-        if arg.xx:
-            aa = None
-            for row in db_rows[:]:
-                if aa == None:
-                    if arg.xx >= row['btime'] and arg.xx < row['btime'] + int(row['uptime']):
-                        print row
-                        aa = True
-                    else:
-                        if arg.xx >= row['offbtime'] and arg.xx < row['offbtime'] + int(row['downtime']):
-                            print row
-                            aa = True
-                        else:
-                            db_rows.remove(row)
-                else:
-                    print row
-        if arg.zz:
-            aa = None
-            for row in db_rows[:]:
-                if aa == None:
-                    if arg.zz >= row['btime'] and arg.zz < row['btime'] + int(row['uptime']):
-                        print row
-                        aa = True
-                    else:
-                        if arg.zz >= row['offbtime'] and arg.zz < row['offbtime'] + int(row['downtime']):
-                            print row
-                            aa = True
-                        else:
-                            print row
-                else:
-                    print None
-
         db_rows = [dict(row) for row in db_rows]  # for allow item assignment
+
+        if arg.ts:
+
+            if arg.ts <= db_rows[0]['btime']:
+                logging.warn('Since timestamp lower than first btime. '
+                             'Not applying.')
+            else:
+
+                if arg.ts > db_rows[-1]['btime']:
+                    logging.warn('Since timestamp greather than last btime. '
+                                 'Equaling to it: ' + str(db_rows[-1]['btime']))
+                    arg.ts =  db_rows[-1]['btime']
+
+                offset = None
+                for row in db_rows[:]:
+                    if offset == None:
+                        if arg.ts > row['btime'] and arg.ts < row['btime'] + row['uptime']:
+                            offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
+                            db_rows[0]['btime'] = '0'
+                            db_rows[0]['uptime'] = offset
+                        elif arg.ts == row['btime']:
+                            offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
+                            db_rows[0]['uptime'] = offset
+                        else:
+                            if arg.ts > row['offbtime'] and arg.ts < row['offbtime'] + row['downtime']:
+                                offset = round(row['offbtime'] + row['downtime'] - arg.ts, 2)
+                                db_rows[0]['btime'] = '-1'
+                                db_rows[0]['uptime'] = '0'
+                                db_rows[0]['offbtime'] = '0'
+                                db_rows[0]['downtime'] = offset
+                            elif arg.ts == row['offbtime']:
+                                offset = round(row['offbtime'] + row['downtime'] - arg.ts, 2)
+                                db_rows[0]['btime'] = '-1'
+                                db_rows[0]['uptime'] = '0'
+                            else:
+                                db_rows.remove(row)
+    
+        if arg.tu:
+
+            if arg.tu < db_rows[0]['btime']:
+                logging.warn('Until timestamp lower than first btime. '
+                             'Equaling to it: ' + str(db_rows[0]['btime']))
+                arg.tu =  db_rows[0]['btime']
+            
+            if arg.tu >= (db_rows[-1]['btime'] + db_rows[-1]['uptime']):
+                logging.warn('Until timestamp greather than currently timestamp. '
+                             'Not applying.')
+            else:
+
+                offset = None
+                for ind, row in enumerate(db_rows[:]):
+                    if offset == None:
+                        if arg.tu > row['btime'] and arg.tu < row['btime'] + int(round(row['uptime'], 0)):
+                            offset = arg.tu - row['btime']
+                            db_rows[ind]['uptime'] = offset
+                            db_rows[ind]['offbtime'] = '-1'
+                            db_rows[ind]['downtime'] = '0'
+                        elif arg.tu == row['btime']:
+                            offset = arg.tu - row['btime']
+                            db_rows[ind]['uptime'] = 0
+                            db_rows[ind]['offbtime'] = '-1'
+                            db_rows[ind]['downtime'] = '0'
+                        else:
+                            if arg.tu > row['offbtime'] and arg.tu < row['offbtime'] + int(round(row['downtime'], 0)):
+                               offset = arg.tu - row['offbtime']
+                               db_rows[ind]['downtime'] = offset
+                            elif arg.tu == row['offbtime']:
+                               offset = arg.tu - row['offbtime']
+                               db_rows[ind]['downtime'] = offset
+                    else:
+                        db_rows.remove(row)
+
 
         # If last row in db_rows is really the last register in db
         if db_rows[-1]['offbtime'] < 0:
