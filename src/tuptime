@@ -452,14 +452,17 @@ def print_table(db_rows, arg):
         print('')
 
 
-def print_default(db_rows, startups_num, startups, uptime, until_now, arg):
+def print_default(db_rows, uptime, until_now, arg):
     """Print values as default output"""
 
     def extract_times(db_rows, option, key):
         """Extract max/min values for uptime/downtime"""
 
-        if key == 'downtime' and db_rows[-1]['offbtime'] < 0:
+        if key == 'downtime' and int(db_rows[-1]['offbtime']) <= 0:
             db_rows.remove(db_rows[-1])
+
+        if key == 'uptime' and int(db_rows[0]['btime']) <= 0:
+            db_rows.remove(db_rows[0])
 
         if option == 'max':
             row = max(db_rows, key=lambda x: x[key])
@@ -475,8 +478,15 @@ def print_default(db_rows, startups_num, startups, uptime, until_now, arg):
     ok_shdown = 0
     kernel_cnt = []
 
+    startups = len(db_rows)
+
+    if int(db_rows[0]['btime']) >= 0:
+        first_btime = int(db_rows[0]['btime'])
+    else:
+        first_btime = int(db_rows[1]['btime'])
+
     for row in db_rows:
-        total_uptime += row['uptime']
+        total_uptime += int(row['uptime'])
         if row['offbtime'] > 0:
             if row['endst'] == 0:
                 bad_shdown += 1
@@ -487,10 +497,6 @@ def print_default(db_rows, startups_num, startups, uptime, until_now, arg):
     btime = db_rows[-1]['btime']
     downtime = db_rows[-1]['downtime']
     kernel_cnt = len(set(kernel_cnt))
-    if int(db_rows[0]['btime']):
-        first_btime = int(db_rows[0]['btime'])
-    else:
-        first_btime = int(db_rows[1]['btime'])
     sys_life = round(((btime + db_rows[-1]['uptime'] + downtime) - first_btime), 2)
     average_up = round((total_uptime / startups), DEC_AV)
     uprate = round((total_uptime * 100) / (sys_life), DEC)
@@ -506,7 +512,7 @@ def print_default(db_rows, startups_num, startups, uptime, until_now, arg):
     larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
     shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
 
-    if db_rows[-1]['offbtime'] < 0:
+    if startups == 1 and int(db_rows[-1]['offbtime']) <= 0 and int(db_rows[-1]['downtime']) <= 0:
         larg_down_downtime = 0
         larg_down_offbtime = 0
         larg_down_kern = None
@@ -726,10 +732,6 @@ def main():
             if arg.tu >= (db_rows[-1]['btime'] + db_rows[-1]['uptime']):
                 logging.warn('Until timestamp greather than currently timestamp. '
                              'Not applying.')
-            if arg.tu >= arg.ts:
-                logging.warn('Until timestamp greather than since timestamp. '
-                             'Equaling')
-                arg.tu = arg.ts
 
             else:
 
@@ -781,6 +783,6 @@ def main():
     elif arg.table:
         print_table(db_rows, arg)
     else:
-        print_default(db_rows, startups_num, startups, uptime, until_now, arg)
+        print_default(db_rows, uptime, until_now, arg)
 if __name__ == "__main__":
     main()
