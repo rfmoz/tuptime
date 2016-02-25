@@ -458,20 +458,29 @@ def print_default(db_rows, uptime, until_now, arg):
     def extract_times(db_rows, option, key):
         """Extract max/min values for uptime/downtime"""
 
-        if key == 'downtime' and int(db_rows[-1]['offbtime']) <= 0:
-            db_rows.remove(db_rows[-1])
+        db = db_rows[:]
 
-        if key == 'uptime' and int(db_rows[0]['btime']) <= 0:
-            db_rows.remove(db_rows[0])
+        # Clean times without a offbtime/btime register (partial times)
+        if key == 'downtime':
+            for row in db:
+                if int(row['offbtime']) <= 0:
+                    db.remove(row)
+        if key == 'uptime':
+            for row in db:
+                if int(row['btime']) <= 0:
+                    db.remove(row)
 
-        if option == 'max':
-            row = max(db_rows, key=lambda x: x[key])
-        elif option == 'min':
-            row = min(db_rows, key=lambda x: x[key])
+        # Extract max/min values with complete row
+        if option == 'max' and len(db) > 0:
+            row = max(db, key=lambda x: int(x[key]))
+        elif option == 'min' and len(db) > 0:
+            row = min(db, key=lambda x: int(x[key]))
+
         if key == 'uptime':
             return int(row['uptime']), row['btime'], row['kernel']
         elif key == 'downtime':
             return int(row['downtime']), row['offbtime'], row['kernel']
+
 
     total_uptime = 0
     bad_shdown = 0
@@ -480,10 +489,11 @@ def print_default(db_rows, uptime, until_now, arg):
 
     startups = len(db_rows)
 
-    if int(db_rows[0]['btime']) >= 0:
-        first_btime = int(db_rows[0]['btime'])
+    # 
+    if int(db_rows[0]['btime']) > 0:
+        first_btime = db_rows[0]['btime']
     else:
-        first_btime = int(db_rows[1]['btime'])
+        first_btime = arg.ts
 
     for row in db_rows:
         total_uptime += int(row['uptime'])
@@ -499,42 +509,51 @@ def print_default(db_rows, uptime, until_now, arg):
     kernel_cnt = len(set(kernel_cnt))
     sys_life = round(((btime + db_rows[-1]['uptime'] + downtime) - first_btime), 2)
     average_up = round((total_uptime / startups), DEC_AV)
-    uprate = round((total_uptime * 100) / (sys_life), DEC)
+
+    if total_uptime > 0:
+        uprate = round((total_uptime * 100) / (sys_life), DEC)
+    else:
+        uprate = 0
 
     if startups == 1 and until_now:
         total_downtime = 0
     else:
         total_downtime = round((sys_life - total_uptime), 2)
 
-    downrate = round((total_downtime * 100) / (sys_life), DEC)
+    if total_uptime > 0:
+        downrate = round((total_downtime * 100) / (sys_life), DEC)
+    else:
+        downrate = 0
+
     average_down = round((total_downtime / startups), DEC_AV)
 
     larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
     shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
-
-    if startups == 1 and int(db_rows[-1]['offbtime']) <= 0 and int(db_rows[-1]['downtime']) <= 0:
-        larg_down_downtime = 0
-        larg_down_offbtime = 0
-        larg_down_kern = None
-        shrt_down_downtime = 0
-        shrt_down_offbtime = 0
-        shrt_down_kern = None
-    else:
-        larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows, 'max', 'downtime')
-        shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows, 'min', 'downtime')
+    larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows, 'max', 'downtime')
+    shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows, 'min', 'downtime')
 
     if arg.seconds is None:  # - Human readable style
         first_btime = datetime.fromtimestamp(first_btime).strftime(arg.date_format)
-        larg_up_uptime = time_conv(larg_up_uptime)
-        larg_up_btime = datetime.fromtimestamp(larg_up_btime).strftime(arg.date_format)
-        average_up = time_conv(average_up)
-        shrt_up_uptime = time_conv(shrt_up_uptime)
-        shrt_up_btime = datetime.fromtimestamp(shrt_up_btime).strftime(arg.date_format)
-        larg_down_downtime = time_conv(larg_down_downtime)
-        larg_down_offbtime = datetime.fromtimestamp(larg_down_offbtime).strftime(arg.date_format)
-        average_down = time_conv(average_down)
-        shrt_down_downtime = time_conv(shrt_down_downtime)
-        shrt_down_offbtime = datetime.fromtimestamp(shrt_down_offbtime).strftime(arg.date_format)
+        if int(larg_up_uptime) > 0:
+            larg_up_uptime = time_conv(larg_up_uptime)
+        if int(larg_up_btime) > 0:
+            larg_up_btime = datetime.fromtimestamp(larg_up_btime).strftime(arg.date_format)
+        if int(average_up) > 0:
+            average_up = time_conv(average_up)
+        if int(shrt_up_uptime) > 0:
+            shrt_up_uptime = time_conv(shrt_up_uptime)
+        if int(shrt_up_btime) > 0:
+            shrt_up_btime = datetime.fromtimestamp(shrt_up_btime).strftime(arg.date_format)
+        if int(larg_down_downtime) > 0:
+            larg_down_downtime = time_conv(larg_down_downtime)
+        if int(larg_down_offbtime) > 0:
+            larg_down_offbtime = datetime.fromtimestamp(larg_down_offbtime).strftime(arg.date_format)
+        if int(average_down) > 0:
+            average_down = time_conv(average_down)
+        if int(shrt_down_downtime) > 0:
+            shrt_down_downtime = time_conv(shrt_down_downtime)
+        if int(shrt_down_offbtime) > 0:
+            shrt_down_offbtime = datetime.fromtimestamp(shrt_down_offbtime).strftime(arg.date_format)
         uptime = time_conv(uptime)
         btime = datetime.fromtimestamp(btime).strftime(arg.date_format)
         total_uptime = time_conv(total_uptime)
@@ -557,13 +576,14 @@ def print_default(db_rows, uptime, until_now, arg):
         print('...with kernel: \t'+ str(shrt_up_kern))
     print('Average uptime: \t' + str(average_up))
     print('')
-    if startups == 1 and until_now:
+    if larg_down_offbtime <= 0:
         print('Largest downtime:\t'+ str(larg_down_downtime))
         if arg.kernel:
             print('...with kernel: \t'+ str(larg_down_kern))
         print('Shortest downtime:\t'+ str(shrt_down_downtime))
         if arg.kernel:
             print('...with kernel: \t'+ str(shrt_down_kern))
+        print('Average downtime: \t' + str(average_down))
     else:
         print('Largest downtime:\t'+ str(larg_down_downtime) +
               '   from   ' + str(larg_down_offbtime))
@@ -573,7 +593,7 @@ def print_default(db_rows, uptime, until_now, arg):
               '   from   ' + str(shrt_down_offbtime))
         if arg.kernel:
             print('...with kernel: \t'+ str(shrt_down_kern))
-    print('Average downtime: \t' + str(average_down))
+        print('Average downtime: \t' + str(average_down))
     print('')
     print('Current uptime: \t' + str(uptime) + '   since   ' + str(btime))
     if arg.kernel:
@@ -661,7 +681,7 @@ def main():
 
             if arg.since :
                 if arg.since > startups_num:
-                    logging.warn('Reset "since" value to max register allowed: ' + str(startups_num))
+                    logging.warn('Reset "since" to max register allowed: ' + str(startups_num))
                     arg.since = startups_num
 
                 for row in db_rows[:]:
@@ -672,6 +692,10 @@ def main():
                 if arg.until < arg.since:
                     logging.warn('Until can not be higher than since. Resseting: ' + str(arg.since))
                     arg.until = arg.since
+
+                if arg.until > startups_num:
+                    logging.warn('Reset "until" to max register allowed: ' + str(startups_num))
+                    arg.until = startups_num
 
                 for row in db_rows[:]:
                     if arg.until < row['startup']:
@@ -686,13 +710,25 @@ def main():
 
         db_rows = [dict(row) for row in db_rows]  # for allow item assignment
 
+        # If last row in db_rows is really the last register in db
+        if db_rows[-1]['startup'] == startups_num:
+            # If the user can only read db, the previous select return outdated numbers in last row
+            # because the db was not updated previously. The following snippet update that in memmory
+            if arg.update:
+                db_rows[-1]['uptime'] = uptime
+                db_rows[-1]['endst'] = arg.endst
+                db_rows[-1]['kernel'] = kernel
+                db_rows[-1]['downtime'] = 0
+            until_now = True
+        else:
+            until_now = False
+
         if arg.ts:
 
             if arg.ts <= db_rows[0]['btime']:
-                logging.warn('Since timestamp lower than first btime. '
-                             'Not applying.')
-            else:
+                logging.warn('Since timestamp lower or equal than first btime. Not applying.')
 
+            else:
                 if arg.ts > db_rows[-1]['btime']:
                     logging.warn('Since timestamp greather than last btime. '
                                  'Equaling to it: ' + str(db_rows[-1]['btime']))
@@ -741,13 +777,13 @@ def main():
                         if arg.tu > row['btime'] and arg.tu < round(row['btime'] + row['uptime'], 0):
                             offset = arg.tu - row['btime']
                             db_rows[ind]['uptime'] = offset
-                            db_rows[ind]['offbtime'] = '-1'
-                            db_rows[ind]['downtime'] = '0'
+                            db_rows[ind]['offbtime'] = -1
+                            db_rows[ind]['downtime'] = 0
                         elif arg.tu == row['btime']:
                             offset = arg.tu - row['btime']
                             db_rows[ind]['uptime'] = 0
-                            db_rows[ind]['offbtime'] = '-1'
-                            db_rows[ind]['downtime'] = '0'
+                            db_rows[ind]['offbtime'] = -1
+                            db_rows[ind]['downtime'] = 0
                         else:
                             if arg.tu > row['offbtime'] and arg.tu < round(row['offbtime'] + row['downtime'], 0):
                                offset = arg.tu - row['offbtime']
@@ -757,20 +793,6 @@ def main():
                                db_rows[ind]['downtime'] = offset
                     else:
                         db_rows.remove(row)
-
-
-        # If last row in db_rows is really the last register in db
-        if db_rows[-1]['offbtime'] < 0:
-            # If the user can only read db, the previous select return outdated numbers in last row
-            # because the db was not updated previously. The following snippet update that in memmory
-            if arg.update:
-                db_rows[-1]['uptime'] = uptime
-                db_rows[-1]['endst'] = arg.endst
-                db_rows[-1]['kernel'] = kernel
-                db_rows[-1]['downtime'] = 0
-            until_now = True
-        else:
-            until_now = False
 
     db_conn.commit()
     db_conn.close()
