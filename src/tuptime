@@ -477,9 +477,9 @@ def print_default(db_rows, uptime, arg):
             row = min(db, key=lambda x: int(x[key]))
 
         if key == 'uptime':
-            return int(row['uptime']), row['btime'], row['kernel']
+            return int(round(row['uptime'], 0)), row['btime'], row['kernel']
         elif key == 'downtime':
-            return int(row['downtime']), row['offbtime'], row['kernel']
+            return int(round(row['downtime'], 0)), row['offbtime'], row['kernel']
 
 
     total_uptime = 0
