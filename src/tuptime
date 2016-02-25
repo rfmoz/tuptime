@@ -489,7 +489,6 @@ def print_default(db_rows, uptime, until_now, arg):
 
     startups = len(db_rows)
 
-    # 
     if int(db_rows[0]['btime']) > 0:
         first_btime = db_rows[0]['btime']
     else:
@@ -534,25 +533,19 @@ def print_default(db_rows, uptime, until_now, arg):
 
     if arg.seconds is None:  # - Human readable style
         first_btime = datetime.fromtimestamp(first_btime).strftime(arg.date_format)
-        if int(larg_up_uptime) > 0:
-            larg_up_uptime = time_conv(larg_up_uptime)
-        if int(larg_up_btime) > 0:
+        larg_up_uptime = time_conv(larg_up_uptime)
+        if larg_up_btime > 0:
             larg_up_btime = datetime.fromtimestamp(larg_up_btime).strftime(arg.date_format)
-        if int(average_up) > 0:
-            average_up = time_conv(average_up)
-        if int(shrt_up_uptime) > 0:
-            shrt_up_uptime = time_conv(shrt_up_uptime)
-        if int(shrt_up_btime) > 0:
-            shrt_up_btime = datetime.fromtimestamp(shrt_up_btime).strftime(arg.date_format)
-        if int(larg_down_downtime) > 0:
-            larg_down_downtime = time_conv(larg_down_downtime)
-        if int(larg_down_offbtime) > 0:
+        average_up = time_conv(average_up)
+        shrt_up_uptime = time_conv(shrt_up_uptime)
+        if shrt_up_btime > 0:
+           shrt_up_btime = datetime.fromtimestamp(shrt_up_btime).strftime(arg.date_format)
+        larg_down_downtime = time_conv(larg_down_downtime)
+        if larg_down_offbtime > 0:
             larg_down_offbtime = datetime.fromtimestamp(larg_down_offbtime).strftime(arg.date_format)
-        if int(average_down) > 0:
-            average_down = time_conv(average_down)
-        if int(shrt_down_downtime) > 0:
-            shrt_down_downtime = time_conv(shrt_down_downtime)
-        if int(shrt_down_offbtime) > 0:
+        average_down = time_conv(average_down)
+        shrt_down_downtime = time_conv(shrt_down_downtime)
+        if shrt_down_offbtime > 0:
             shrt_down_offbtime = datetime.fromtimestamp(shrt_down_offbtime).strftime(arg.date_format)
         uptime = time_conv(uptime)
         btime = datetime.fromtimestamp(btime).strftime(arg.date_format)
