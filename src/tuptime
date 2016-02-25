@@ -452,7 +452,7 @@ def print_table(db_rows, arg):
         print('')
 
 
-def print_default(db_rows, uptime, until_now, arg):
+def print_default(db_rows, uptime, arg):
     """Print values as default output"""
 
     def extract_times(db_rows, option, key):
@@ -506,25 +506,22 @@ def print_default(db_rows, uptime, until_now, arg):
     btime = db_rows[-1]['btime']
     downtime = db_rows[-1]['downtime']
     kernel_cnt = len(set(kernel_cnt))
-    sys_life = round(((btime + db_rows[-1]['uptime'] + downtime) - first_btime), 2)
-    average_up = round((total_uptime / startups), DEC_AV)
+    sys_life = int(round(((btime + db_rows[-1]['uptime'] + downtime) - first_btime), 2))
+    average_up = int(round((total_uptime / startups), DEC_AV))
 
     if total_uptime > 0:
-        uprate = round((total_uptime * 100) / (sys_life), DEC)
+        uprate = round((total_uptime * 100) / sys_life, DEC)
     else:
         uprate = 0
 
-    if startups == 1 and until_now:
-        total_downtime = 0
-    else:
-        total_downtime = round((sys_life - total_uptime), 2)
+    total_downtime = int((sys_life - total_uptime))
 
-    if total_uptime > 0:
+    if total_downtime > 0:
         downrate = round((total_downtime * 100) / (sys_life), DEC)
     else:
         downrate = 0
 
-    average_down = round((total_downtime / startups), DEC_AV)
+    average_down = int(round((total_downtime / startups), DEC_AV))
 
     larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
     shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
@@ -667,6 +664,9 @@ def main():
         conn.execute('select rowid as startup, * from tuptime')
         db_rows = conn.fetchall()
 
+        db_conn.commit()
+        db_conn.close()
+
         startups_num = db_rows[-1]['startup']  # Startups by rowid number
         startups = len(db_rows)  # Real startups
 
@@ -712,51 +712,47 @@ def main():
                 db_rows[-1]['endst'] = arg.endst
                 db_rows[-1]['kernel'] = kernel
                 db_rows[-1]['downtime'] = 0
-            until_now = True
-        else:
-            until_now = False
 
         if arg.ts:
 
             if arg.ts <= db_rows[0]['btime']:
-                logging.warn('Since timestamp lower or equal than first btime. Not applying.')
+                logging.warn('Since timestamp "tsince" lower or equal than first btime. Not applying.')
 
             else:
                 if arg.ts > db_rows[-1]['btime']:
-                    logging.warn('Since timestamp greather than last btime. '
+                    logging.warn('Since timestamp "tsince" can\'t be greather than last btime. '
                                  'Equaling to it: ' + str(db_rows[-1]['btime']))
                     arg.ts =  db_rows[-1]['btime']
 
                 offset = None
                 for row in db_rows[:]:
                     if offset == None:
-                        if arg.ts > row['btime'] and arg.ts < round(row['btime'] + row['uptime'], 0):
+                        if arg.ts == row['btime']:
+                            offset = True
+                        elif arg.ts > row['btime'] and arg.ts < int(round(row['btime'] + row['uptime'], 0)):
                             offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
-                            db_rows[0]['btime'] = '0'
-                            db_rows[0]['uptime'] = offset
-                        elif arg.ts == row['btime']:
-                            offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
+                            db_rows[0]['btime'] = 0
                             db_rows[0]['uptime'] = offset
                         else:
-                            if arg.ts > row['offbtime'] and arg.ts < round(row['offbtime'] + row['downtime'], 0):
-                                offset = round(row['offbtime'] + row['downtime'] - arg.ts, 2)
-                                db_rows[0]['btime'] = '-1'
-                                db_rows[0]['uptime'] = '0'
-                                db_rows[0]['offbtime'] = '0'
-                                db_rows[0]['downtime'] = offset
-                            elif arg.ts == row['offbtime']:
+                            if arg.ts == row['offbtime']:
                                 offset = True
-                                db_rows[0]['btime'] = '-1'
+                                db_rows[0]['btime'] = -1
                                 db_rows[0]['uptime'] = 0
+                            elif arg.ts > row['offbtime'] and arg.ts < int(round(row['offbtime'] + row['downtime'], 0)):
+                                offset = round(row['offbtime'] + row['downtime'] - arg.ts, 2)
+                                db_rows[0]['btime'] = -1
+                                db_rows[0]['uptime'] = 0
+                                db_rows[0]['offbtime'] = 0
+                                db_rows[0]['downtime'] = offset
                             else:
                                 db_rows.remove(row)
     
         if arg.tu:
 
             if arg.tu < db_rows[0]['btime']:
-                logging.warn('Until timestamp lower than first btime. '
+                logging.warn('Until timestamp "tuntil" lower than first btime. '
                              'Equaling to it: ' + str(db_rows[0]['btime']))
-                arg.tu =  db_rows[0]['btime']
+                arg.tu = db_rows[0]['btime']
             
             if arg.tu >= (db_rows[-1]['btime'] + db_rows[-1]['uptime']):
                 logging.warn('Until timestamp greather than currently timestamp. '
@@ -767,28 +763,31 @@ def main():
                 offset = None
                 for ind, row in enumerate(db_rows[:]):
                     if offset == None:
-                        if arg.tu > row['btime'] and arg.tu < round(row['btime'] + row['uptime'], 0):
-                            offset = arg.tu - row['btime']
-                            db_rows[ind]['uptime'] = offset
-                            db_rows[ind]['offbtime'] = -1
-                            db_rows[ind]['downtime'] = 0
-                        elif arg.tu == row['btime']:
-                            offset = arg.tu - row['btime']
+                        if arg.tu == row['btime']:
+                            offset = True
                             db_rows[ind]['uptime'] = 0
                             db_rows[ind]['offbtime'] = -1
                             db_rows[ind]['downtime'] = 0
+                            db_rows[ind]['kernel'] = ''
+                        elif arg.tu > row['btime'] and arg.tu < int(round(row['btime'] + row['uptime'], 0)):
+                            _offset_int = arg.tu - row['btime']
+                            _butime = float(row['btime'] + row['uptime'])
+                            offset = round((round(_butime, 2) + offset_int) - round(_butime, 0), 2)
+                            db_rows[ind]['uptime'] = offset
+                            db_rows[ind]['offbtime'] = -1
+                            db_rows[ind]['downtime'] = 0
+                            db_rows[ind]['kernel'] = ''
                         else:
-                            if arg.tu > row['offbtime'] and arg.tu < round(row['offbtime'] + row['downtime'], 0):
-                               offset = arg.tu - row['offbtime']
-                               db_rows[ind]['downtime'] = offset
-                            elif arg.tu == row['offbtime']:
-                               offset = arg.tu - row['offbtime']
+                            if arg.tu == row['offbtime']:
+                               offset = True
+                               db_rows[ind]['downtime'] = 0
+                            elif arg.tu > row['offbtime'] and arg.tu < int(round(row['offbtime'] + row['downtime'], 0)):
+                               offset_int = arg.tu - row['offbtime']
+                               _odtime = float(row['offbtime'] + row['downtime'])
+                               offset = round((round(_odtime, 2) + offset_int) - round(_odtime, 0), 2)
                                db_rows[ind]['downtime'] = offset
                     else:
                         db_rows.remove(row)
-
-    db_conn.commit()
-    db_conn.close()
 
     #  Print values
     if arg.silent:
@@ -798,6 +797,6 @@ def main():
     elif arg.table:
         print_table(db_rows, arg)
     else:
-        print_default(db_rows, uptime, until_now, arg)
+        print_default(db_rows, uptime, arg)
 if __name__ == "__main__":
     main()
