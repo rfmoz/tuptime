@@ -106,6 +106,7 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 - Its written for avoid false startups registers, actually there are some issues with uptimed related to that. Sometimes happend on virtualized enviroments, servers with high load or when ntp are running. That was one of the points for start with this project.
 
+- It can report the whole life of the system or only a part of that life, closing the range between startups/shutdowns or timestamps.
 
 
 ### More information
