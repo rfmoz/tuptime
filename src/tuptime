@@ -24,8 +24,6 @@ from datetime import datetime
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 locale.setlocale(locale.LC_ALL, '')
 DATE_FORMAT = '%X %x'
-DEC = int(2)  # Decimals for percentage output
-DEC_AV = int(2)  # Decimals for average output
 __version__ = '3.2.5-dev'
 
 
@@ -321,6 +319,137 @@ def time_conv(secs):
     return str(human_dtm[:-2])
 
 
+def since_opt(db_rows, arg, startups_num):
+    """Get rows since a given row startup number registered"""
+
+    if arg.since > startups_num:  # Sanity check
+        logging.warn('Option "since" can not be higher than last startup register. '
+                     'Reset to: ' + str(startups_num))
+        arg.since = startups_num
+
+    # Remove row if the startup is lower
+    for row in db_rows[:]:
+        if arg.since > row['startup']:
+           db_rows.remove(row)
+
+    return db_rows, arg
+
+
+def until_opt(db_rows, arg, startups_num):
+    """Get rows until a given row startup number registered"""
+
+    if arg.until < arg.since:  # Sanity check
+        logging.warn('Option "until" can not be higher than since. '
+                     'Reset to: ' + str(arg.since))
+        arg.until = arg.since
+
+    if arg.until > startups_num:  # Sanity check
+        logging.warn('Option "until" can not be higher than last startup date. '
+                     'Reset to: ' + str(startups_num))
+        arg.until = startups_num
+
+    # Remove row if the startup is lower
+    for row in db_rows[:]:
+        if arg.until < row['startup']:
+            db_rows.remove(row)
+
+    return db_rows, arg
+
+
+def tsince_opt(db_rows, arg):
+    """Split and report rows since a given timestamp"""
+
+    if arg.ts <= db_rows[0]['btime']:  # Sanity check
+        logging.warn('Option "tsince" lower or equal than first startup date. Not applying.')
+
+    else:
+        if arg.ts > db_rows[-1]['btime']:  # Sanity check
+            logging.warn('Option "tsince" can not be higher than last startup date. '
+                         'Reset to: ' + str(db_rows[-1]['btime']))
+            arg.ts =  db_rows[-1]['btime']
+
+        # Look for a match along all rows and get the offset
+        offset = None
+        for row in db_rows[:]:
+            # Run this for until (FIX for a better implementation)
+            if offset == None:
+                # If is equal to a btime, finish
+                if arg.ts == row['btime']:
+                    offset = True
+                # If is between btime and offtime
+                # (offbtime is calculated directly with round 0 for avoid problem with uptime decimals)
+                elif arg.ts > row['btime'] and arg.ts < int(round(row['btime'] + row['uptime'], 0)):
+                    offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
+                    db_rows[0]['btime'] = 0
+                    db_rows[0]['uptime'] = offset
+                else:
+                    # If is equal to a offbtime, finish
+                    if arg.ts == row['offbtime']:
+                        offset = True
+                        db_rows[0]['btime'] = -1
+                        db_rows[0]['uptime'] = 0
+                    # If is between offbtime and next btime
+                    # (next btime is calculated directly with round 0 for avoid problem with uptime decimals)
+                    elif arg.ts > row['offbtime'] and arg.ts < int(round(row['offbtime'] + row['downtime'], 0)):
+                        offset = round(row['offbtime'] + row['downtime'] - arg.ts, 2)
+                        db_rows[0]['btime'] = -1
+                        db_rows[0]['uptime'] = 0
+                        db_rows[0]['offbtime'] = 0
+                        db_rows[0]['downtime'] = offset
+                    # If nothing match, remove
+                    else:
+                        db_rows.remove(row)
+    return db_rows, arg
+    
+
+def tuntil_opt(db_rows, arg):
+    """Split and report rows until a given timestamp"""
+    if arg.tu < db_rows[0]['btime']:
+        logging.warn('Until timestamp "tuntil" lower than first btime. '
+                     'Equaling to it: ' + str(db_rows[0]['btime']))
+        arg.tu = db_rows[0]['btime']
+            
+    if arg.tu >= (db_rows[-1]['btime'] + db_rows[-1]['uptime']):
+        logging.warn('Until timestamp higher than currently timestamp. '
+                     'Not applying.')
+
+    elif db_rows[0]['btime'] <= 0 and (db_rows[0]['offbtime'] + db_rows[0]['downtime'] > arg.tu):
+        logging.warn('Until timestamp "tuntil" can not be applied. '
+                     'Startup date is needed in the matching row.')
+    else:
+
+        offset = None
+        for ind, row in enumerate(db_rows[:]):
+            if offset == None:
+                if arg.tu == row['btime']:
+                    offset = True
+                    db_rows[ind]['uptime'] = 0
+                    db_rows[ind]['offbtime'] = -1
+                    db_rows[ind]['downtime'] = 0
+                    db_rows[ind]['kernel'] = ''
+                elif arg.tu > row['btime'] and arg.tu < int(round(row['btime'] + row['uptime'], 0)):
+                    _offset_int = arg.tu - row['btime']
+                    _butime = float(row['btime'] + row['uptime'])
+                    offset = round((round(_butime, 2) + _offset_int) - round(_butime, 0), 2)
+                    db_rows[ind]['uptime'] = offset
+                    db_rows[ind]['offbtime'] = -1
+                    db_rows[ind]['downtime'] = 0
+                    db_rows[ind]['kernel'] = ''
+                else:
+                    if arg.tu == row['offbtime']:
+                       offset = True
+                       db_rows[ind]['downtime'] = 0
+                    elif arg.tu > row['offbtime'] and arg.tu < int(round(row['offbtime'] + row['downtime'], 0)):
+                       offset_int = arg.tu - row['offbtime']
+                       _odtime = float(row['offbtime'] + row['downtime'])
+                       offset = round((round(_odtime, 2) + offset_int) - round(_odtime, 0), 2)
+                       db_rows[ind]['downtime'] = offset
+            else:
+                db_rows.remove(row)
+
+    return db_rows, arg
+
+
 def ordering_output(db_rows, arg):
     """Order output"""
 
@@ -350,10 +479,10 @@ def for_print(db_rows, arg):
 
     for row in db_rows:
 
-        if int(row['btime']) < 0:
+        if row['btime'] < 0:
             row['btime'] = ''
             row['uptime'] = ''
-        elif int(row['btime']) == 0:
+        elif row['btime'] == 0:
             row['btime'] = ''
             if arg.seconds is None:
                 row['uptime'] = time_conv(row['uptime'])
@@ -362,11 +491,12 @@ def for_print(db_rows, arg):
                 row['btime'] = datetime.fromtimestamp(row['btime']).strftime(arg.date_format)
                 row['uptime'] = time_conv(row['uptime'])
 
-        if int(row['offbtime']) < 0:
+        if row['offbtime'] < 0:
             row['offbtime'] = ''
             row['endst'] = ''
             row['downtime'] = ''
-        elif int(row['offbtime']) == 0:
+            row['kernel'] = ''
+        elif row['offbtime'] == 0:
             row['offbtime'] = ''
             row['endst'] = ''
             if arg.seconds is None:
@@ -376,7 +506,6 @@ def for_print(db_rows, arg):
                 row['endst'] = 'OK'
             elif row['endst'] == 0:
                 row['endst'] = 'BAD'
-
             if arg.seconds is None:
                 row['offbtime'] = datetime.fromtimestamp(row['offbtime']).strftime(arg.date_format)
                 row['downtime'] = time_conv(row['downtime'])
@@ -495,7 +624,7 @@ def print_default(db_rows, uptime, arg):
         first_btime = arg.ts
 
     for row in db_rows:
-        total_uptime += int(row['uptime'])
+        total_uptime += int(round(row['uptime'], 0))
         if row['offbtime'] > 0:
             if row['endst'] == 0:
                 bad_shdown += 1
@@ -506,22 +635,22 @@ def print_default(db_rows, uptime, arg):
     btime = db_rows[-1]['btime']
     downtime = db_rows[-1]['downtime']
     kernel_cnt = len(set(kernel_cnt))
-    sys_life = int(round(((btime + db_rows[-1]['uptime'] + downtime) - first_btime), 2))
-    average_up = int(round((total_uptime / startups), DEC_AV))
+    sys_life = int(round(((btime + db_rows[-1]['uptime'] + downtime) - first_btime), 0))
+    average_up = int(round((total_uptime / startups), 0))
 
     if total_uptime > 0:
-        uprate = round((total_uptime * 100) / sys_life, DEC)
+        uprate = round((total_uptime * 100) / sys_life, 0)
     else:
         uprate = 0
 
     total_downtime = int((sys_life - total_uptime))
 
     if total_downtime > 0:
-        downrate = round((total_downtime * 100) / (sys_life), DEC)
+        downrate = round((total_downtime * 100) / (sys_life), 0)
     else:
         downrate = 0
 
-    average_down = int(round((total_downtime / startups), DEC_AV))
+    average_down = int(round((total_downtime / startups), 0))
 
     larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
     shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
@@ -624,7 +753,7 @@ def main():
     # init/systemd script and cron
     # line works as expected. A uptime record can be lost if tuptime is executed,
     # at first time after boot,
-    # when the uptime is greater than the difference between btime - last_btime.
+    # when the uptime is higher than the difference between btime - last_btime.
     if arg.update:
         try:
             if (last_btime + uptime) < btime:
@@ -668,43 +797,21 @@ def main():
         db_conn.close()
 
         startups_num = db_rows[-1]['startup']  # Startups by rowid number
-        startups = len(db_rows)  # Real startups
 
-        if arg.since or arg.until:
+        if len(db_rows) != startups_num:
+            logging.info('Real startups are not equal to enumerate startups '
+                         '- possible deleted rows in db')
 
-            if arg.since :
-                if arg.since > startups_num:
-                    logging.warn('Reset "since" to max register allowed: ' + str(startups_num))
-                    arg.since = startups_num
+        if arg.since:  # Parse since option
+            db_rows, arg = since_opt(db_rows, arg, startups_num)
 
-                for row in db_rows[:]:
-                    if arg.since > row['startup']:
-                        db_rows.remove(row)
-
-            if arg.until :
-                if arg.until < arg.since:
-                    logging.warn('Until can not be higher than since. Resseting: ' + str(arg.since))
-                    arg.until = arg.since
-
-                if arg.until > startups_num:
-                    logging.warn('Reset "until" to max register allowed: ' + str(startups_num))
-                    arg.until = startups_num
-
-                for row in db_rows[:]:
-                    if arg.until < row['startup']:
-                        db_rows.remove(row)
-
-            startups = len(db_rows)  # Real startups
-
-        else:
-            if startups != startups_num:
-                logging.info('Real startups are not equal to enumerate startups '
-                             '- possible deleted rows in db')
+        if arg.until:  # Parse until option
+            db_rows, arg = until_opt(db_rows, arg, startups_num)
 
         db_rows = [dict(row) for row in db_rows]  # for allow item assignment
 
-        # If last row in db_rows is really the last register in db
-        if db_rows[-1]['startup'] == startups_num:
+        # If last row in db_rows is really the last register in db and update is needed
+        if db_rows[-1]['startup'] == startups_num and arg.update is True:
             # If the user can only read db, the previous select return outdated numbers in last row
             # because the db was not updated previously. The following snippet update that in memmory
             if arg.update:
@@ -713,81 +820,11 @@ def main():
                 db_rows[-1]['kernel'] = kernel
                 db_rows[-1]['downtime'] = 0
 
-        if arg.ts:
+        if arg.ts:  # Parse tsince option
+            db_rows, arg = tsince_opt(db_rows, arg)
 
-            if arg.ts <= db_rows[0]['btime']:
-                logging.warn('Since timestamp "tsince" lower or equal than first btime. Not applying.')
-
-            else:
-                if arg.ts > db_rows[-1]['btime']:
-                    logging.warn('Since timestamp "tsince" can\'t be greather than last btime. '
-                                 'Equaling to it: ' + str(db_rows[-1]['btime']))
-                    arg.ts =  db_rows[-1]['btime']
-
-                offset = None
-                for row in db_rows[:]:
-                    if offset == None:
-                        if arg.ts == row['btime']:
-                            offset = True
-                        elif arg.ts > row['btime'] and arg.ts < int(round(row['btime'] + row['uptime'], 0)):
-                            offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
-                            db_rows[0]['btime'] = 0
-                            db_rows[0]['uptime'] = offset
-                        else:
-                            if arg.ts == row['offbtime']:
-                                offset = True
-                                db_rows[0]['btime'] = -1
-                                db_rows[0]['uptime'] = 0
-                            elif arg.ts > row['offbtime'] and arg.ts < int(round(row['offbtime'] + row['downtime'], 0)):
-                                offset = round(row['offbtime'] + row['downtime'] - arg.ts, 2)
-                                db_rows[0]['btime'] = -1
-                                db_rows[0]['uptime'] = 0
-                                db_rows[0]['offbtime'] = 0
-                                db_rows[0]['downtime'] = offset
-                            else:
-                                db_rows.remove(row)
-    
-        if arg.tu:
-
-            if arg.tu < db_rows[0]['btime']:
-                logging.warn('Until timestamp "tuntil" lower than first btime. '
-                             'Equaling to it: ' + str(db_rows[0]['btime']))
-                arg.tu = db_rows[0]['btime']
-            
-            if arg.tu >= (db_rows[-1]['btime'] + db_rows[-1]['uptime']):
-                logging.warn('Until timestamp greather than currently timestamp. '
-                             'Not applying.')
-
-            else:
-
-                offset = None
-                for ind, row in enumerate(db_rows[:]):
-                    if offset == None:
-                        if arg.tu == row['btime']:
-                            offset = True
-                            db_rows[ind]['uptime'] = 0
-                            db_rows[ind]['offbtime'] = -1
-                            db_rows[ind]['downtime'] = 0
-                            db_rows[ind]['kernel'] = ''
-                        elif arg.tu > row['btime'] and arg.tu < int(round(row['btime'] + row['uptime'], 0)):
-                            _offset_int = arg.tu - row['btime']
-                            _butime = float(row['btime'] + row['uptime'])
-                            offset = round((round(_butime, 2) + offset_int) - round(_butime, 0), 2)
-                            db_rows[ind]['uptime'] = offset
-                            db_rows[ind]['offbtime'] = -1
-                            db_rows[ind]['downtime'] = 0
-                            db_rows[ind]['kernel'] = ''
-                        else:
-                            if arg.tu == row['offbtime']:
-                               offset = True
-                               db_rows[ind]['downtime'] = 0
-                            elif arg.tu > row['offbtime'] and arg.tu < int(round(row['offbtime'] + row['downtime'], 0)):
-                               offset_int = arg.tu - row['offbtime']
-                               _odtime = float(row['offbtime'] + row['downtime'])
-                               offset = round((round(_odtime, 2) + offset_int) - round(_odtime, 0), 2)
-                               db_rows[ind]['downtime'] = offset
-                    else:
-                        db_rows.remove(row)
+        if arg.tu:  # Parse tuntil option
+            db_rows, arg = tuntil_opt(db_rows, arg)
 
     #  Print values
     if arg.silent:
@@ -798,5 +835,6 @@ def main():
         print_table(db_rows, arg)
     else:
         print_default(db_rows, uptime, arg)
+
 if __name__ == "__main__":
     main()
