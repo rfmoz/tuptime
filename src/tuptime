@@ -796,7 +796,7 @@ def main():
     # line works as expected. A uptime record can be lost if tuptime is executed,
     # at first time after boot,
     # when the uptime is higher than the difference between btime - last_btime.
-    if arg.update:
+    if arg.update is True:
         try:
             if (last_btime + uptime) < btime:
                 logging.info('System was restarted')
@@ -856,11 +856,10 @@ def main():
         if db_rows[-1]['startup'] == startups_num and arg.update is True:
             # If the user can only read db, the previous select return outdated numbers in last row
             # because the db was not updated previously. The following snippet update that in memmory
-            if arg.update:
-                db_rows[-1]['uptime'] = uptime
-                db_rows[-1]['endst'] = arg.endst
-                db_rows[-1]['kernel'] = kernel
-                db_rows[-1]['downtime'] = 0
+            db_rows[-1]['uptime'] = uptime
+            db_rows[-1]['endst'] = arg.endst
+            db_rows[-1]['kernel'] = kernel
+            db_rows[-1]['downtime'] = 0
 
         if arg.ts:  # Parse tsince option
             db_rows, arg = tsince_opt(db_rows, arg)
