@@ -835,9 +835,6 @@ def main():
         conn.execute('select rowid as startup, * from tuptime')
         db_rows = conn.fetchall()
 
-        db_conn.commit()
-        db_conn.close()
-
         startups_num = db_rows[-1]['startup']  # Startups by rowid number
 
         if len(db_rows) != startups_num:
@@ -866,6 +863,10 @@ def main():
 
         if arg.tu:  # Parse tuntil option
             db_rows, arg = tuntil_opt(db_rows, arg)
+
+    db_conn.commit()
+    db_conn.close()
+
 
     #  Print values
     if arg.silent:
