@@ -375,12 +375,10 @@ def tsince_opt(db_rows, arg):
     if arg.ts <= db_rows[0]['btime']:  # Sanity check
         logging.warning('Option "tsince" lower or equal than first startup date. Not applying.')
 
-    else:
-        if arg.ts > db_rows[-1]['btime']:  # Sanity check
-            logging.warning('Option "tsince" can not be higher than last startup date. '
-                            'Reset to: ' + str(db_rows[-1]['btime']))
-            arg.ts = db_rows[-1]['btime']
+    elif arg.ts >= (db_rows[-1]['btime'] + db_rows[-1]['uptime'] - 1):  # Sanity check
+        logging.warning('Option "tsince" higher than currently timestamp. Not applying.')
 
+    else:
         # Look for a match along all rows and get the offset
         offset = None
         for row in db_rows[:]:
@@ -674,10 +672,14 @@ def print_default(db_rows, uptime, arg):
         total_uptime += int(round(row['uptime'], 0))
         kernel_cnt.append(row['kernel'])
 
-    btime = db_rows[-1]['btime']
+    if db_rows[-1]['btime'] > 0:
+         btime = db_rows[-1]['btime']
+    else:
+         btime = arg.ts
+
     downtime = db_rows[-1]['downtime']
     kernel_cnt = len(set(kernel_cnt))
-    sys_life = int(round(((btime + db_rows[-1]['uptime'] + downtime) - first_btime), 0))
+    sys_life = int(round(btime + db_rows[-1]['uptime'] + downtime - first_btime, 0))
     average_up = int(round((total_uptime / startups), 0))
 
     if total_uptime > 0:
