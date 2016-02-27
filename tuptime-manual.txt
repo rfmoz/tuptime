@@ -361,8 +361,7 @@ These are the command line options, no configuration file is used:
 
 
 --tsince <TIMESTAMP>
-  Restrict report since the given timestamp. It can't be lower than first 
-  startup date and can't be higher than last startup date.
+  Restrict report since the given timestamp.
   Options (-S) and (-U) have precedence over this one.
 
   Examples:
@@ -370,8 +369,7 @@ These are the command line options, no configuration file is used:
 
 
 --tuntil <TIMESTAMP>
-  Restrict report until the given timestamp. It can't be lower than first 
-  startup date and can't be higher than currently startup date.
+  Restrict report until the given timestamp.
   Options (-S) and (-U) have precedence over this one.
 
   Examples:

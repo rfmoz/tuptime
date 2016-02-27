@@ -373,10 +373,12 @@ def tsince_opt(db_rows, arg):
     '''
 
     if arg.ts <= db_rows[0]['btime']:  # Sanity check
-        logging.warning('Option "tsince" lower or equal than first startup date. Not applying.')
+        logging.warning('Option "tsince" lower or equal than first startup date: '
+                        + str(db_rows[0]['btime']) + ' - Not applying.')
 
     elif arg.ts >= (db_rows[-1]['btime'] + db_rows[-1]['uptime'] - 1):  # Sanity check
-        logging.warning('Option "tsince" higher than currently timestamp. Not applying.')
+        logging.warning('Option "tsince" need to be lower than last timestamp: '
+                        + str(db_rows[-1]['btime'] + db_rows[-1]['uptime'] - 1) +' - Not applying.')
 
     else:
         # Look for a match along all rows and get the offset
@@ -424,18 +426,25 @@ def tuntil_opt(db_rows, arg):
         Same as tsince_opt
     '''
 
-    if arg.tu >= (db_rows[-1]['btime'] + db_rows[-1]['uptime']):  # Sanity check
-        logging.warning('Option "tuntil" higher than currently timestamp. Not applying.')
-
-    elif db_rows[0]['btime'] <= 0 and (db_rows[0]['offbtime'] + db_rows[0]['downtime'] > arg.tu):  # Sanity check
+    if db_rows[-1]['btime'] <= 0:  # Sanity check
         logging.warning('Option "tuntil" can not be applied. '
                         'A startup date is needed in the matching row.')
+
+    elif arg.tu >= (db_rows[-1]['btime'] + db_rows[-1]['uptime']):  # Sanity check
+        logging.warning('Option "tuntil" higher than currently timestamp: '
+                        + str(db_rows[-1]['btime'] + db_rows[-1]['uptime']) + ' - Not applying.')
+
     else:
 
         if arg.tu < db_rows[0]['btime']:  # Sanity check
             logging.warning('Option "tuntil" lower than first startup date. '
                             'Reset to: ' + str(db_rows[0]['btime']))
             arg.tu = db_rows[0]['btime']
+
+        if db_rows[0]['btime'] <= 0 and db_rows[0]['offbtime'] > arg.tu:  # Sanity check
+            logging.warning('Option "tuntil" lower than shutdown date in a matching row '
+                            'without startup date. Reset to: '+ str(db_rows[0]['offbtime']))
+            arg.tu = db_rows[0]['offbtime']
 
         # Look for a match along all rows and get the offset
         offset = None
@@ -644,6 +653,11 @@ def print_default(db_rows, uptime, arg):
             row = max(dbr, key=lambda x: int(x[key]))
         elif option == 'min' and len(dbr) > 0:
             row = min(dbr, key=lambda x: int(x[key]))
+        else:
+            row = {}
+            row['btime'] = 0
+            row['uptime'] = 0
+            row['kernel'] = ''
 
         if key == 'uptime':
             return int(round(row['uptime'], 0)), row['btime'], row['kernel']
@@ -673,9 +687,9 @@ def print_default(db_rows, uptime, arg):
         kernel_cnt.append(row['kernel'])
 
     if db_rows[-1]['btime'] > 0:
-         btime = db_rows[-1]['btime']
+        btime = db_rows[-1]['btime']
     else:
-         btime = arg.ts
+        btime = arg.ts
 
     downtime = db_rows[-1]['downtime']
     kernel_cnt = len(set(kernel_cnt))
