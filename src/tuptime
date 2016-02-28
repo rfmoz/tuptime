@@ -24,6 +24,8 @@ from datetime import datetime
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 locale.setlocale(locale.LC_ALL, '')
 DATE_FORMAT = '%X %x'
+DEC = int(2)  # Decimals for seconds
+DECP = int(2)  # Decimals for percentages
 __version__ = '3.3.0-dev'
 
 
@@ -543,9 +545,11 @@ def for_print(db_rows, arg):
 
         elif row['btime'] == 0:
             row['btime'] = ''
+            row['uptime'] = round(row['uptime'], DEC)
             if arg.seconds is None:
                 row['uptime'] = time_conv(row['uptime'])
         else:
+            row['uptime'] = round(row['uptime'], DEC)
             if arg.seconds is None:
                 row['btime'] = datetime.fromtimestamp(row['btime']).strftime(arg.date_format)
                 row['uptime'] = time_conv(row['uptime'])
@@ -564,9 +568,11 @@ def for_print(db_rows, arg):
 
             if row['offbtime'] == 0:
                 row['offbtime'] = ''
+                row['downtime'] = round(row['downtime'], DEC)
                 if arg.seconds is None:
                     row['downtime'] = time_conv(row['downtime'])
             else:
+                row['downtime'] = round(row['downtime'], DEC)
                 if arg.seconds is None:
                     row['offbtime'] = datetime.fromtimestamp(row['offbtime']).strftime(arg.date_format)
                     row['downtime'] = time_conv(row['downtime'])
@@ -653,11 +659,11 @@ def print_default(db_rows, uptime, arg):
         # Clean times without a offbtime/btime register (partial times)
         if key == 'downtime':
             for row in dbr:
-                if int(row['offbtime']) <= 0:
+                if row['offbtime'] <= 0:
                     dbr.remove(row)
         if key == 'uptime':
             for row in dbr:
-                if int(row['btime']) <= 0:
+                if row['btime'] <= 0:
                     dbr.remove(row)
 
         # Extract max/min values with complete row
@@ -668,15 +674,15 @@ def print_default(db_rows, uptime, arg):
         else:
             row = {}
             row['btime'] = 0
-            row['uptime'] = 0
+            row['uptime'] = round(0, DEC)
             row['offbtime'] = 0
-            row['downtime'] = 0
+            row['downtime'] = round(0, DEC)
             row['kernel'] = ''
 
         if key == 'uptime':
-            return int(round(row['uptime'], 0)), row['btime'], row['kernel']
+            return round(row['uptime'], DEC), row['btime'], row['kernel']
         elif key == 'downtime':
-            return int(round(row['downtime'], 0)), row['offbtime'], row['kernel']
+            return round(row['downtime'], DEC), row['offbtime'], row['kernel']
 
 
     total_uptime = 0
@@ -697,7 +703,7 @@ def print_default(db_rows, uptime, arg):
                 bad_shdown += 1
             if row['endst'] == 1:
                 ok_shdown += 1
-        total_uptime += int(round(row['uptime'], 0))
+        total_uptime += round(row['uptime'], DEC)
         kernel_cnt.append(row['kernel'])
 
     if db_rows[-1]['btime'] > 0:
@@ -707,22 +713,23 @@ def print_default(db_rows, uptime, arg):
 
     downtime = db_rows[-1]['downtime']
     kernel_cnt = len(set(kernel_cnt))
-    sys_life = int(round(btime + db_rows[-1]['uptime'] + downtime - first_btime, 0))
-    average_up = int(round((total_uptime / startups), 0))
+    sys_life = round(btime + db_rows[-1]['uptime'] + downtime - first_btime, DEC)
+    average_up = round((total_uptime / startups), DEC)
 
     if total_uptime > 0:
-        uprate = round((total_uptime * 100) / sys_life, 0)
+        uprate = round((total_uptime * 100) / sys_life, DECP)
     else:
-        uprate = 0
+        uprate = round(0, DEC)
 
-    total_downtime = int((sys_life - total_uptime))
+    total_downtime = (sys_life - total_uptime)
 
     if total_downtime > 0:
-        downrate = round((total_downtime * 100) / (sys_life), 0)
+        downrate = round((total_downtime * 100) / (sys_life), DECP)
     else:
-        downrate = 0
+        downrate = round(0, DEC)
 
-    average_down = int(round((total_downtime / startups), 0))
+    average_down = round((total_downtime / startups), DEC)
+    uptime = round(uptime, DEC)
 
     larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
     shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
