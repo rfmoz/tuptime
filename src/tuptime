@@ -331,8 +331,8 @@ def since_opt(db_rows, arg, startups_num):
     if arg.since < 0:  # For negative values
         arg.since = len(db_rows) + arg.since + 1
         if arg.since < 0:
-           logging.warning('Invalid "since" value. Reset to first.')
-           arg.since = 0
+            logging.warning('Invalid "since" value. Reset to first.')
+            arg.since = 0
 
     if arg.since > startups_num:  # Sanity check
         logging.warning('Option "since" can not be higher than last startup register. '
@@ -353,8 +353,8 @@ def until_opt(db_rows, arg, startups_num):
     if arg.until < 0:  # For negative values
         arg.until = len(db_rows) + arg.until
         if arg.until < 0:
-           logging.warning('Invalid "until" value. Reset to last. ')
-           arg.until = len(db_rows)
+            logging.warning('Invalid "until" value. Reset to last. ')
+            arg.until = len(db_rows)
 
     if arg.until < arg.since:  # Sanity check
         logging.warning('Option "until" can not be higher than "since". '
@@ -674,9 +674,9 @@ def print_default(db_rows, uptime, arg):
         else:
             row = {}
             row['btime'] = 0
-            row['uptime'] = round(0, DEC)
+            row['uptime'] = 0
             row['offbtime'] = 0
-            row['downtime'] = round(0, DEC)
+            row['downtime'] = 0
             row['kernel'] = ''
 
         if key == 'uptime':
