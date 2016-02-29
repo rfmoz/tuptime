@@ -329,7 +329,7 @@ def since_opt(db_rows, arg, startups_num):
     """Get rows since a given row startup number registered"""
 
     if arg.since < 0:  # For negative values
-        arg.since = len(db_rows) + arg.since + 1
+        arg.since = len(db_rows) + arg.since + 2
         if arg.since < 0:
             logging.warning('Invalid "since" value. Reset to first.')
             arg.since = 0
@@ -351,7 +351,7 @@ def until_opt(db_rows, arg, startups_num):
     """Get rows until a given row startup number registered"""
 
     if arg.until < 0:  # For negative values
-        arg.until = len(db_rows) + arg.until
+        arg.until = len(db_rows) + arg.until + 2
         if arg.until < 0:
             logging.warning('Invalid "until" value. Reset to last. ')
             arg.until = len(db_rows)
@@ -387,12 +387,12 @@ def tsince_opt(db_rows, arg):
     '''
 
     if arg.ts <= db_rows[0]['btime']:  # Sanity check
-        logging.warning('Option "tsince" lower or equal than first startup date: '
+        logging.warning('Option "tsince" lower or equal than first startup timestamp: '
                         + str(db_rows[0]['btime']) + ' - Not applying.')
 
-    elif arg.ts >= (db_rows[-1]['btime'] + db_rows[-1]['uptime'] - 1):  # Sanity check
-        logging.warning('Option "tsince" need to be lower than last timestamp: '
-                        + str(db_rows[-1]['btime'] + db_rows[-1]['uptime'] - 1) +' - Not applying.')
+    elif arg.ts >= int(round((db_rows[-1]['btime'] + db_rows[-1]['uptime'] + db_rows[-1]['downtime']), 0)):  # Sanity check
+        logging.warning('Option "tsince" higher or equal than last startup timestamp + uptime + downtime timestamp: '
+                        + str(int(round((db_rows[-1]['btime'] + db_rows[-1]['uptime'] + db_rows[-1]['downtime']), 0))) +' - Not applying.')
 
     else:
         # Look for a match along all rows and get the offset
@@ -440,24 +440,20 @@ def tuntil_opt(db_rows, arg):
         Same as tsince_opt
     '''
 
-    if db_rows[-1]['btime'] <= 0:  # Sanity check
-        logging.warning('Option "tuntil" can not be applied. '
-                        'A startup date is needed in the matching row.')
-
-    elif arg.tu >= (db_rows[-1]['btime'] + db_rows[-1]['uptime']):  # Sanity check
-        logging.warning('Option "tuntil" higher than currently timestamp: '
-                        + str(db_rows[-1]['btime'] + db_rows[-1]['uptime']) + ' - Not applying.')
+    if arg.tu >= int(round(db_rows[-1]['btime'] + db_rows[-1]['uptime'] + db_rows[-1]['downtime'], 0)):  # Sanity check
+        logging.warning('Option "tuntil" higher or equal than last startup timestamp + uptime + downtime timestamp timestamp: '
+                        + str(int(round(db_rows[-1]['btime'] + db_rows[-1]['uptime'] + db_rows[-1]['downtime'], 0))) + ' - Not applying.')
 
     else:
 
         if arg.tu < db_rows[0]['btime']:  # Sanity check
-            logging.warning('Option "tuntil" lower than first startup date. '
+            logging.warning('Option "tuntil" lower than first startup timestamp. '
                             'Reset to: ' + str(db_rows[0]['btime']))
             arg.tu = db_rows[0]['btime']
 
         if db_rows[0]['btime'] <= 0 and db_rows[0]['offbtime'] > arg.tu:  # Sanity check
-            logging.warning('Option "tuntil" lower than shutdown date in a matching row '
-                            'without startup date. Reset to: '+ str(db_rows[0]['offbtime']))
+            logging.warning('Option "tuntil" lower than shutdown timestamp in a matching row '
+                            'without startup timestamp. Reset to: '+ str(db_rows[0]['offbtime']))
             arg.tu = db_rows[0]['offbtime']
 
         # Look for a match along all rows and get the offset
@@ -478,10 +474,7 @@ def tuntil_opt(db_rows, arg):
                 # If is between btime and offbtime
                 # (offbtime is calculated directly with round 0 for avoid problem with uptime decimals)
                 elif arg.tu > row['btime'] and arg.tu < int(round(row['btime'] + row['uptime'], 0)):
-                    # This hack is for avoid loosing decimals
-                    _offset_int = arg.tu - row['btime']
-                    _butime = float(row['btime'] + row['uptime'])
-                    offset = round((round(_butime, 2) + _offset_int) - round(_butime, 0), 2)
+                    offset = arg.tu - row['btime']
                     db_rows[ind]['uptime'] = offset
                     db_rows[ind]['offbtime'] = -1
                     db_rows[ind]['downtime'] = 0
@@ -495,10 +488,7 @@ def tuntil_opt(db_rows, arg):
                     # If is between offbtime and nextbtime
                     # (next btime is calculated directly with round 0 for avoid problem with uptime decimals)
                     elif arg.tu > row['offbtime'] and arg.tu < int(round(row['offbtime'] + row['downtime'], 0)):
-                        # This hack is for avoid loosing decimals
-                        offset_int = arg.tu - row['offbtime']
-                        _odtime = float(row['offbtime'] + row['downtime'])
-                        offset = round((round(_odtime, 2) + offset_int) - round(_odtime, 0), 2)
+                        offset = arg.tu - row['offbtime']
                         db_rows[ind]['downtime'] = offset
 
             # If offset is set, remove rows
@@ -711,24 +701,30 @@ def print_default(db_rows, uptime, arg):
     else:
         btime = arg.ts
 
-    downtime = db_rows[-1]['downtime']
+    if db_rows[-1]['downtime'] > 0:
+        downtime = db_rows[-1]['downtime']
+    else:
+        downtime = 0
+
     kernel_cnt = len(set(kernel_cnt))
     sys_life = round(btime + db_rows[-1]['uptime'] + downtime - first_btime, DEC)
-    average_up = round((total_uptime / startups), DEC)
 
     if total_uptime > 0:
         uprate = round((total_uptime * 100) / sys_life, DECP)
+        average_up = round((total_uptime / startups), DEC)
     else:
         uprate = round(0, DEC)
+        average_up = round(0, DEC)
 
     total_downtime = (sys_life - total_uptime)
 
     if total_downtime > 0:
         downrate = round((total_downtime * 100) / (sys_life), DECP)
+        average_down = round((total_downtime / startups), DEC)
     else:
         downrate = round(0, DEC)
+        average_down = round(0, DEC)
 
-    average_down = round((total_downtime / startups), DEC)
     uptime = round(uptime, DEC)
 
     larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
