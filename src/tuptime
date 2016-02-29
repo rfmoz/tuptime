@@ -397,7 +397,7 @@ def tsince_opt(db_rows, arg):
         logging.warning('Option "tsince" lower or equal than first startup timestamp: '
                         + str(db_rows[0]['btime']) + ' - Not applying.')
 
-    elif arg.ts >= last_tstamp:  # Sanity check
+    elif arg.ts > last_tstamp:  # Sanity check
         logging.warning('Option "tsince" higher or equal than last tsince available: '
                         + str(last_tstamp) +' - Not applying.')
 
@@ -450,6 +450,10 @@ def tuntil_opt(db_rows, arg):
     # Last timestamp available
     last_tstamp = int(round((db_rows[-1]['btime'] + db_rows[-1]['uptime'] + db_rows[-1]['downtime']), 0))
 
+    if arg.tu < arg.ts:
+        logging.warning('Option "tuntil" lower than "tsince". Reset to: ' + str(arg.ts))
+        arg.tu = arg.ts
+
     if arg.tu >= last_tstamp:  # Sanity check
         logging.warning('Option "tuntil" higher or equal than last timestamp available: '
                         + str(last_tstamp) + ' - Not applying.')
@@ -459,10 +463,6 @@ def tuntil_opt(db_rows, arg):
                         + str(db_rows[0]['btime']) + ' - Not applying.')
 
     else:
-
-        if arg.tu < arg.ts:
-            logging.warning('Option "tuntil" lower than "tsince". Reset to: ' + str(arg.ts))
-            arg.tu = arg.ts
 
         # Look for a match along all rows and get the offset
         offset = None
