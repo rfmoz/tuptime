@@ -256,6 +256,10 @@ def get_os_values():
 def assure_state_db(btime, uptime, kernel, arg):
     """Assure state of db file and related directories"""
 
+    if arg.db_file != DB_FILE:
+        if not arg.db_file.startswith('/') and not arg.db_file.startswith('./'):
+            arg.db_file = './' + arg.db_file
+
     if os.path.isdir(os.path.dirname(arg.db_file)):
         logging.info('Directory exists = '+ str(os.path.dirname(arg.db_file)))
     else:
@@ -386,13 +390,16 @@ def tsince_opt(db_rows, arg):
         - offbtime ==  0 indicate an empty offbtime only
     '''
 
+    # Last timestamp available
+    last_tstamp = int(round((db_rows[-1]['btime'] + db_rows[-1]['uptime'] + db_rows[-1]['downtime']), 0))
+
     if arg.ts <= db_rows[0]['btime']:  # Sanity check
         logging.warning('Option "tsince" lower or equal than first startup timestamp: '
                         + str(db_rows[0]['btime']) + ' - Not applying.')
 
-    elif arg.ts >= int(round((db_rows[-1]['btime'] + db_rows[-1]['uptime'] + db_rows[-1]['downtime']), 0)):  # Sanity check
-        logging.warning('Option "tsince" higher or equal than last startup timestamp + uptime + downtime timestamp: '
-                        + str(int(round((db_rows[-1]['btime'] + db_rows[-1]['uptime'] + db_rows[-1]['downtime']), 0))) +' - Not applying.')
+    elif arg.ts >= last_tstamp:  # Sanity check
+        logging.warning('Option "tsince" higher or equal than last startup timestamp + uptime + downtime: '
+                        + str(last_tstamp) +' - Not applying.')
 
     else:
         # Look for a match along all rows and get the offset
@@ -440,16 +447,18 @@ def tuntil_opt(db_rows, arg):
         Same as tsince_opt
     '''
 
-    if arg.tu >= int(round(db_rows[-1]['btime'] + db_rows[-1]['uptime'] + db_rows[-1]['downtime'], 0)):  # Sanity check
-        logging.warning('Option "tuntil" higher or equal than last startup timestamp + uptime + downtime timestamp timestamp: '
-                        + str(int(round(db_rows[-1]['btime'] + db_rows[-1]['uptime'] + db_rows[-1]['downtime'], 0))) + ' - Not applying.')
+    # Last timestamp available
+    last_tstamp = int(round((db_rows[-1]['btime'] + db_rows[-1]['uptime'] + db_rows[-1]['downtime']), 0))
+
+    if arg.tu < db_rows[0]['btime']:  # Sanity check
+        logging.warning('Option "tuntil" lower than first startup timestamp. '
+                        + str(db_rows[0]['btime']) + ' - Not applying.')
+
+    elif arg.tu >= last_tstamp:  # Sanity check
+        logging.warning('Option "tuntil" higher or equal than last startup timestamp + uptime + downtime: '
+                        + str(last_tstamp) + ' - Not applying.')
 
     else:
-
-        if arg.tu < db_rows[0]['btime']:  # Sanity check
-            logging.warning('Option "tuntil" lower than first startup timestamp. '
-                            'Reset to: ' + str(db_rows[0]['btime']))
-            arg.tu = db_rows[0]['btime']
 
         if db_rows[0]['btime'] <= 0 and db_rows[0]['offbtime'] > arg.tu:  # Sanity check
             logging.warning('Option "tuntil" lower than shutdown timestamp in a matching row '
@@ -902,7 +911,6 @@ def main():
 
     db_conn.commit()
     db_conn.close()
-
 
     #  Print values
     if arg.silent:
