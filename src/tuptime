@@ -333,7 +333,7 @@ def since_opt(db_rows, arg, startups_num):
     """Get rows since a given row startup number registered"""
 
     if arg.since < 0:  # For negative values
-        arg.since = len(db_rows) + arg.since + 2
+        arg.since = len(db_rows) + arg.since + 1
         if arg.since < 0:
             logging.warning('Invalid "since" value. Reset to first.')
             arg.since = 0
@@ -355,7 +355,7 @@ def until_opt(db_rows, arg, startups_num):
     """Get rows until a given row startup number registered"""
 
     if arg.until < 0:  # For negative values
-        arg.until = len(db_rows) + arg.until + 2
+        arg.until = len(db_rows) + arg.until + 1
         if arg.until < 0:
             logging.warning('Invalid "until" value. Reset to last. ')
             arg.until = len(db_rows)
@@ -390,16 +390,9 @@ def tsince_opt(db_rows, arg):
         - offbtime ==  0 indicate an empty offbtime only
     '''
 
-    # Last timestamp available
-    last_tstamp = int(round((db_rows[-1]['btime'] + db_rows[-1]['uptime'] + db_rows[-1]['downtime']), 0))
-
     if arg.ts <= db_rows[0]['btime']:  # Sanity check
         logging.warning('Option "tsince" lower or equal than first startup timestamp: '
                         + str(db_rows[0]['btime']) + ' - Not applying.')
-
-    elif arg.ts >= last_tstamp:  # Sanity check
-        logging.warning('Option "tsince" higher or equal than last startup timestamp + uptime + downtime: '
-                        + str(last_tstamp) +' - Not applying.')
 
     else:
         # Look for a match along all rows and get the offset
@@ -447,23 +440,14 @@ def tuntil_opt(db_rows, arg):
         Same as tsince_opt
     '''
 
-    # Last timestamp available
-    last_tstamp = int(round((db_rows[-1]['btime'] + db_rows[-1]['uptime'] + db_rows[-1]['downtime']), 0))
+    if arg.tu < arg.ts:
+        logging.warning('Option "tuntil" lower than "tsince". Reset to: ' + str(arg.ts))
 
     if arg.tu < db_rows[0]['btime']:  # Sanity check
         logging.warning('Option "tuntil" lower than first startup timestamp. '
                         + str(db_rows[0]['btime']) + ' - Not applying.')
 
-    elif arg.tu >= last_tstamp:  # Sanity check
-        logging.warning('Option "tuntil" higher or equal than last startup timestamp + uptime + downtime: '
-                        + str(last_tstamp) + ' - Not applying.')
-
     else:
-
-        if db_rows[0]['btime'] <= 0 and db_rows[0]['offbtime'] > arg.tu:  # Sanity check
-            logging.warning('Option "tuntil" lower than shutdown timestamp in a matching row '
-                            'without startup timestamp. Reset to: '+ str(db_rows[0]['offbtime']))
-            arg.tu = db_rows[0]['offbtime']
 
         # Look for a match along all rows and get the offset
         offset = None
@@ -903,14 +887,18 @@ def main():
             db_rows[-1]['kernel'] = kernel
             db_rows[-1]['downtime'] = 0
 
-        if arg.ts:  # Parse tsince option
-            db_rows, arg = tsince_opt(db_rows, arg)
-
         if arg.tu:  # Parse tuntil option
             db_rows, arg = tuntil_opt(db_rows, arg)
 
+        if arg.ts:  # Parse tsince option
+            db_rows, arg = tsince_opt(db_rows, arg)
+
     db_conn.commit()
     db_conn.close()
+
+    # Report 0 if matches produce an empty db
+    if len(db_rows) == 0:
+        db_rows = [{'kernel': '', 'uptime': 0, 'endst': -1, 'offbtime': -1, 'startup': 0, 'btime': -1, 'downtime': 0}]
 
     #  Print values
     if arg.silent:
