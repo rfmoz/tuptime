@@ -393,7 +393,7 @@ def tsince_opt(db_rows, arg):
     if arg.ts <= db_rows[0]['btime']:  # Sanity check
         logging.info('Option "tsince" lower or equal than first startup timestamp: '
                         + str(db_rows[0]['btime']) + ' - Not applying.')
-        arg.ts = db_rows[0]['btime']
+#        arg.ts = db_rows[0]['btime']
 
     else:
         # Look for a match along all rows and get the offset
@@ -638,7 +638,7 @@ def print_table(db_rows, arg):
         print('')
 
 
-def print_default(db_rows, uptime, arg):
+def print_default(db_rows, cuptime, cbtime, arg):
     """Print values as default output"""
 
     def extract_times(db_rows, option, key):
@@ -694,6 +694,12 @@ def print_default(db_rows, uptime, arg):
         else:
             first_btime = arg.ts
 
+    # Get since timestamp
+    if arg.ts is None:
+        since = first_btime
+    else: 
+        since = arg.ts
+
     for row in db_rows:
         if row['offbtime'] >= 0:  # Avoid check endst > 0 because updated last register is 0 or -1
             if row['endst'] == 0:
@@ -718,7 +724,13 @@ def print_default(db_rows, uptime, arg):
         downtime = 0
 
     kernel_cnt = len(set(kernel_cnt))
-    sys_life = round(btime + db_rows[-1]['uptime'] + downtime - first_btime, DEC)
+    total_tstamp = round(btime + db_rows[-1]['uptime'] + downtime, DEC)
+    sys_life = round(total_tstamp - first_btime, DEC)
+
+    if arg.tu is None:
+        until = total_tstamp
+    else:
+        until = arg.tu
 
     if total_uptime > 0:
         uprate = round((total_uptime * 100) / sys_life, DECP)
@@ -736,7 +748,7 @@ def print_default(db_rows, uptime, arg):
         downrate = round(0, DEC)
         average_down = round(0, DEC)
 
-    uptime = round(uptime, DEC)
+    cuptime = round(cuptime, DEC)
 
     larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
     shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
@@ -744,7 +756,10 @@ def print_default(db_rows, uptime, arg):
     shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows, 'min', 'downtime')
 
     if arg.seconds is None:  # - Human readable style
-        first_btime = datetime.fromtimestamp(first_btime).strftime(arg.date_format)
+        if until > 0:
+            until = datetime.fromtimestamp(until).strftime(arg.date_format)
+        if since > 0:
+            since = datetime.fromtimestamp(since).strftime(arg.date_format)
         larg_up_uptime = time_conv(larg_up_uptime)
         if larg_up_btime > 0:
             larg_up_btime = datetime.fromtimestamp(larg_up_btime).strftime(arg.date_format)
@@ -759,13 +774,13 @@ def print_default(db_rows, uptime, arg):
         shrt_down_downtime = time_conv(shrt_down_downtime)
         if shrt_down_offbtime > 0:
             shrt_down_offbtime = datetime.fromtimestamp(shrt_down_offbtime).strftime(arg.date_format)
-        uptime = time_conv(uptime)
-        btime = datetime.fromtimestamp(btime).strftime(arg.date_format)
+        cuptime = time_conv(cuptime)
+        cbtime = datetime.fromtimestamp(cbtime).strftime(arg.date_format)
         total_uptime = time_conv(total_uptime)
         total_downtime = time_conv(total_downtime)
         sys_life = time_conv(sys_life)
 
-    print('System startups:\t' + str(startups) + '   since   ' + str(first_btime))
+    print('System startups:\t' + str(startups) + '   since   ' + str(since) + '   until   ' + str(until))
     print('System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad')
     print('System uptime: \t\t' + str(uprate) + ' %   -   ' + str(total_uptime))
     print('System downtime: \t' + str(downrate) + ' %   -   ' + str(total_downtime))
@@ -803,7 +818,7 @@ def print_default(db_rows, uptime, arg):
             print('...with kernel: \t'+ str(shrt_down_kern))
     print('Average downtime: \t' + str(average_down))
     print('')
-    print('Current uptime: \t' + str(uptime) + '   since   ' + str(btime))
+    print('Current uptime: \t' + str(cuptime) + '   since   ' + str(cbtime))
     if arg.kernel:
         print('...with kernel: \t'+ str(db_rows[-1]['kernel']))
 
@@ -922,7 +937,7 @@ def main():
     elif arg.table:
         print_table(db_rows, arg)
     else:
-        print_default(db_rows, uptime, arg)
+        print_default(db_rows, uptime, btime, arg)
 
 if __name__ == "__main__":
     main()
