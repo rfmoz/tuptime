@@ -393,7 +393,6 @@ def tsince_opt(db_rows, arg):
     if arg.ts <= db_rows[0]['btime']:  # Sanity check
         logging.info('Option "tsince" lower or equal than first startup timestamp: '
                         + str(db_rows[0]['btime']) + ' - Not applying.')
-#        arg.ts = db_rows[0]['btime']
 
     else:
         # Look for a match along all rows and get the offset
@@ -680,6 +679,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
     ok_shdown = 0
     kernel_cnt = []
 
+    # Get startups count
     if db_rows[0]['startup'] == 0:
         startups = 0
     else:
@@ -695,11 +695,12 @@ def print_default(db_rows, cuptime, cbtime, arg):
             first_btime = arg.ts
 
     # Get since timestamp
-    if arg.ts is None:
+    if arg.ts is None or arg.ts == 0:
         since = first_btime
     else: 
         since = arg.ts
 
+    # Parse rows getting end status and the sum of total_uptime and kernel list
     for row in db_rows:
         if row['offbtime'] >= 0:  # Avoid check endst > 0 because updated last register is 0 or -1
             if row['endst'] == 0:
@@ -718,20 +719,28 @@ def print_default(db_rows, cuptime, cbtime, arg):
         else:
             btime = arg.ts
 
+    # Get last downtime
     if db_rows[-1]['downtime'] > 0:
         downtime = db_rows[-1]['downtime']
     else:
         downtime = 0
 
+    # Get kernel count
     kernel_cnt = len(set(kernel_cnt))
+
+    # Get max timestamp
     total_tstamp = round(btime + db_rows[-1]['uptime'] + downtime, DEC)
+
+    # Get system life
     sys_life = round(total_tstamp - first_btime, DEC)
 
-    if arg.tu is None:
+    # Get until timestamp
+    if arg.tu is None or arg.tu == 0:
         until = total_tstamp
     else:
         until = arg.tu
 
+    # Get uprate and average uptime
     if total_uptime > 0:
         uprate = round((total_uptime * 100) / sys_life, DECP)
         average_up = round((total_uptime / startups), DEC)
@@ -741,6 +750,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
 
     total_downtime = (sys_life - total_uptime)
 
+    # Get downrate and average downtime
     if total_downtime > 0:
         downrate = round((total_downtime * 100) / (sys_life), DECP)
         average_down = round((total_downtime / startups), DEC)
