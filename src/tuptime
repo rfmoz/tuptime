@@ -50,6 +50,13 @@ def get_arguments():
         help='classify / order by kernel'
     )
     parser.add_option(
+        '--csv',
+        dest='csv',
+        action='store_true',
+        default=False,
+        help='csv output'
+    )
+    parser.add_option(
         '-d', '--date',
         dest='date_format',
         default=DATE_FORMAT,
@@ -576,23 +583,41 @@ def print_list(db_rows, arg):
 
     for row_dict in for_print(db_rows, arg):
 
-        if row_dict['btime']:
-            print('Startup:  ' + str(row_dict['startup']) + '  at  '+ str(row_dict['btime']))
+        if arg.csv is False:
+            if row_dict['btime']:
+                print('Startup:  ' + str(row_dict['startup']) + '  at  '+ str(row_dict['btime']))
+            else:
+                print('Startup:  ' + str(row_dict['startup']))
+
+            if row_dict['uptime']:
+                print('Uptime:   ' + str(row_dict['uptime']))
+
+            if row_dict['offbtime']:
+                print('Shutdown: ' + str(row_dict['endst']) + '  at  '+ str(row_dict['offbtime']))
+
+            if row_dict['downtime']:
+                print('Downtime: ' + str(row_dict['downtime']))
+
+            if arg.kernel:
+               print('Kernel:   ' + str(row_dict['kernel']))
+            print('')
         else:
-            print('Startup:  ' + str(row_dict['startup']))
+            if row_dict['btime']:
+                print('"Startup","' + str(row_dict['startup']) + '","at","'+ str(row_dict['btime']) +'"')
+            else:
+                print('"Startup","' + str(row_dict['startup']) +'"')
 
-        if row_dict['uptime']:
-            print('Uptime:   ' + str(row_dict['uptime']))
+            if row_dict['uptime']:
+                print('"Uptime","' + str(row_dict['uptime']) +'"')
 
-        if row_dict['offbtime']:
-            print('Shutdown: ' + str(row_dict['endst']) + '  at  '+ str(row_dict['offbtime']))
+            if row_dict['offbtime']:
+                print('"Shutdown","' + str(row_dict['endst']) + '","at","'+ str(row_dict['offbtime']) +'"')
 
-        if row_dict['downtime']:
-            print('Downtime: ' + str(row_dict['downtime']))
+            if row_dict['downtime']:
+                print('"Downtime","' + str(row_dict['downtime']) +'"')
 
-        if arg.kernel:
-            print('Kernel:   ' + str(row_dict['kernel']))
-        print('')
+            if arg.kernel:
+               print('"Kernel","' + str(row_dict['kernel']) +'"')
 
 
 def print_table(db_rows, arg):
@@ -626,15 +651,25 @@ def print_table(db_rows, arg):
             tbl_no_kern.append(elx)
         tbl = tbl_no_kern
 
-    for i in range(len(tbl[0])):
-        colpad.append(maxwidth(tbl, i))
+    if arg.csv is False:
 
-    for row in tbl:
-        sys.stdout.write(str(row[0]).ljust(colpad[0]))
-        for i in range(1, len(row)):
-            col = str(row[i]).rjust(colpad[i] + side_spaces)
-            sys.stdout.write(str(''+  col))
-        print('')
+        for i in range(len(tbl[0])):
+            colpad.append(maxwidth(tbl, i))
+
+        for row in tbl:
+            sys.stdout.write(str(row[0]).ljust(colpad[0]))
+            for i in range(1, len(row)):
+                col = str(row[i]).rjust(colpad[i] + side_spaces)
+                sys.stdout.write(str(''+  col))
+            print('')
+    else:
+
+        for row in tbl:
+            for key, value in enumerate(row):
+                sys.stdout.write('"'+value+'"')
+                if (key + 1) != len(row):
+                    sys.stdout.write(',')
+            print ("")
 
 
 def print_default(db_rows, cuptime, cbtime, arg):
@@ -726,7 +761,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
         downtime = 0
 
     # Get kernel count
-    kernel_cnt = len(set(kernel_cnt))
+    kernel_cnt = len(set(filter(None, kernel_cnt)))
 
     # Get max timestamp
     total_tstamp = round(btime + db_rows[-1]['uptime'] + downtime, DEC)
@@ -790,47 +825,87 @@ def print_default(db_rows, cuptime, cbtime, arg):
         total_downtime = time_conv(total_downtime)
         sys_life = time_conv(sys_life)
 
-    print('System startups:\t' + str(startups) + '   since   ' + str(since) + '   until   ' + str(until))
-    print('System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad')
-    print('System uptime: \t\t' + str(uprate) + ' %   -   ' + str(total_uptime))
-    print('System downtime: \t' + str(downrate) + ' %   -   ' + str(total_downtime))
-    print('System life: \t\t' + str(sys_life))
-    if arg.kernel:
-        print('System kernels: \t' + str(kernel_cnt))
-    print('')
-    if larg_up_btime <= 0:
-        print('Largest uptime:\t\t'+ str(larg_up_uptime))
-    else:
-        print('Largest uptime:\t\t'+ str(larg_up_uptime) + '   from   ' + str(larg_up_btime))
-    if arg.kernel:
-        print('...with kernel: \t'+ str(larg_up_kern))
-    if shrt_up_btime <= 0:
-        print('Shortest uptime:\t'+ str(shrt_up_uptime))
-    else:
-        print('Shortest uptime:\t'+ str(shrt_up_uptime) + '   from   ' + str(shrt_up_btime))
-    if arg.kernel:
-        print('...with kernel: \t'+ str(shrt_up_kern))
-    print('Average uptime: \t' + str(average_up))
-    print('')
-    if larg_down_offbtime <= 0:
-        print('Largest downtime:\t'+ str(larg_down_downtime))
-    else:
-        print('Largest downtime:\t'+ str(larg_down_downtime) +
-              '   from   ' + str(larg_down_offbtime))
-    if arg.kernel:
-        print('...with kernel: \t'+ str(larg_down_kern))
-    if shrt_down_offbtime <= 0:
-        print('Shortest downtime:\t'+ str(shrt_down_downtime))
-    else:
-        print('Shortest downtime:\t'+ str(shrt_down_downtime) +
-              '   from   ' + str(shrt_down_offbtime))
+    if arg.csv is False:
+        print('System startups:\t' + str(startups) + '   since   ' + str(since) + '   until   ' + str(until))
+        print('System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad')
+        print('System uptime: \t\t' + str(uprate) + ' %   -   ' + str(total_uptime))
+        print('System downtime: \t' + str(downrate) + ' %   -   ' + str(total_downtime))
+        print('System life: \t\t' + str(sys_life))
         if arg.kernel:
-            print('...with kernel: \t'+ str(shrt_down_kern))
-    print('Average downtime: \t' + str(average_down))
-    print('')
-    print('Current uptime: \t' + str(cuptime) + '   since   ' + str(cbtime))
-    if arg.kernel:
-        print('...with kernel: \t'+ str(db_rows[-1]['kernel']))
+            print('System kernels: \t' + str(kernel_cnt))
+        print('')
+        if larg_up_btime <= 0:
+            print('Largest uptime:\t\t'+ str(larg_up_uptime))
+        else:
+            print('Largest uptime:\t\t'+ str(larg_up_uptime) + '   from   ' + str(larg_up_btime))
+        if arg.kernel:
+            print('...with kernel: \t'+ str(larg_up_kern))
+        if shrt_up_btime <= 0:
+            print('Shortest uptime:\t'+ str(shrt_up_uptime))
+        else:
+            print('Shortest uptime:\t'+ str(shrt_up_uptime) + '   from   ' + str(shrt_up_btime))
+        if arg.kernel:
+            print('...with kernel: \t'+ str(shrt_up_kern))
+        print('Average uptime: \t' + str(average_up))
+        print('')
+        if larg_down_offbtime <= 0:
+            print('Largest downtime:\t'+ str(larg_down_downtime))
+        else:
+            print('Largest downtime:\t'+ str(larg_down_downtime) +
+                  '   from   ' + str(larg_down_offbtime))
+        if arg.kernel:
+            print('...with kernel: \t'+ str(larg_down_kern))
+        if shrt_down_offbtime <= 0:
+            print('Shortest downtime:\t'+ str(shrt_down_downtime))
+        else:
+            print('Shortest downtime:\t'+ str(shrt_down_downtime) +
+                  '   from   ' + str(shrt_down_offbtime))
+            if arg.kernel:
+                print('...with kernel: \t'+ str(shrt_down_kern))
+        print('Average downtime: \t' + str(average_down))
+        print('')
+        print('Current uptime: \t' + str(cuptime) + '   since   ' + str(cbtime))
+        if arg.kernel:
+            print('...with kernel: \t'+ str(db_rows[-1]['kernel']))
+    else:
+        print('"System startups","' + str(startups) + '","since","' + str(since) + '","until","' + str(until) + '"')
+        print('"System shutdowns","' + str(ok_shdown) + '","ok","' + str(bad_shdown) + '","bad"')
+        print('"System uptime","' + str(uprate) + ' %","' + str(total_uptime) + '"')
+        print('"System downtime","' + str(downrate) + ' %","' + str(total_downtime) + '"')
+        print('"System life","' + str(sys_life) + '"')
+        if arg.kernel:
+            print('"System kernels","' + str(kernel_cnt) + '"')
+        if larg_up_btime <= 0:
+            print('"Largest uptime","'+ str(larg_up_uptime) + '"')
+        else:
+            print('"Largest uptime","'+ str(larg_up_uptime) + '","from","' + str(larg_up_btime) + '"')
+        if arg.kernel:
+            print('"...with kernel","'+ str(larg_up_kern) + '"')
+        if shrt_up_btime <= 0:
+            print('"Shortest uptime","'+ str(shrt_up_uptime) + '"')
+        else:
+            print('"Shortest uptime","'+ str(shrt_up_uptime) + '","from","' + str(shrt_up_btime) + '"')
+        if arg.kernel:
+            print('"...with kernel","'+ str(shrt_up_kern) + '"')
+        print('"Average uptime","' + str(average_up) + '"')
+        if larg_down_offbtime <= 0:
+            print('"Largest downtime","'+ str(larg_down_downtime) + '"')
+        else:
+            print('"Largest downtime","'+ str(larg_down_downtime) +
+                  '","from","' + str(larg_down_offbtime) + '"')
+        if arg.kernel:
+            print('"...with kernel","'+ str(larg_down_kern) + '"')
+        if shrt_down_offbtime <= 0:
+            print('"Shortest downtime","'+ str(shrt_down_downtime) + '"')
+        else:
+            print('"Shortest downtime","'+ str(shrt_down_downtime) +
+                  '","from","' + str(shrt_down_offbtime) + '"')
+            if arg.kernel:
+                print('"...with kernel","'+ str(shrt_down_kern) + '"')
+        print('"Average downtime","' + str(average_down) + '"')
+        print('"Current uptime","' + str(cuptime) + '","since","' + str(cbtime) + '"')
+        if arg.kernel:
+            print('"...with kernel","'+ str(db_rows[-1]['kernel']) + '"')
 
 
 def main():
