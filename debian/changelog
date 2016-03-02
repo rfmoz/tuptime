@@ -1,8 +1,8 @@
-tuptime (3.2.3-1) unstable; urgency=low
+tuptime (3.3.0-1) unstable; urgency=low
 
   * Ship new debian package
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Mon, 15 Feb 2016 14:25:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Wed, 02 Feb 2016 15:25:00 +0100
 
 tuptime (3.2.3) unstable; urgency=low
 
