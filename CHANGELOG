@@ -6,9 +6,10 @@ tuptime (3.3.0) unstable; urgency=low
   * Adding --tsince option
   * Adding --tuntil option
   * Adding -n --noup option
+  * Adding --csv option
   * Fixing some inconsistences with seconds reports due rounded decimals
 
- -- Ricardo F. <rfraile@rfraile.eu>  Fri, 26 Feb 2015 16:51:00 +0100
+ -- Ricardo F. <rfraile@rfraile.eu>  Wed, 02 Feb 2015 10:51:00 +0100
 
 tuptime (3.2.3) unstable; urgency=low
 

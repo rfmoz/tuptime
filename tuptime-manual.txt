@@ -3,7 +3,7 @@
                          ----------------------
                              version 3.3.0-dev
                                 Ricardo F.
-                             27/February/2016
+                              02/March/2016
 
 
 
@@ -24,6 +24,7 @@ Indeed, it can:
   - Print formatted table or list with most of the previous values
   - Register used kernels
   - Narrow reports since and/or until a given startup or timestamp
+  - Reports in csv
 
 
 
@@ -165,6 +166,7 @@ These are the command line options, no configuration file is used:
 
   -h, --help            show this help message and exit
   -c, --ckernel         classify / order by kernel
+  --csv                 csv output
   -d DATE_FORMAT, --date=DATE_FORMAT
                         date format output
   -e, --end             order by end state
@@ -207,6 +209,14 @@ These are the command line options, no configuration file is used:
          tuptime -ckt
          tuptime -t --ckernel
          tuptime -l --ckernel
+
+
+--csv
+  Report in csv format.
+
+  Examples:
+         tuptime --csv
+         tuptime --csv -t
 
 
 -d <DATE_FORMAT>, --date=<DATE_FORMAT>
@@ -438,8 +448,7 @@ be lost. Be sure that the cron entry is installed as expected.
 ==================
 
 System startups:	
- Total number of system startups from a since date. If since is defined with
- --tsince and not match with a startup, the argument value is used.
+ Total number of system startups from a since to until date.
 
 System shutdowns:
   Total number of shutdowns done correctly or incorrectly.

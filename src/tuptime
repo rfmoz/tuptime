@@ -665,6 +665,10 @@ def print_table(db_rows, arg):
     else:
 
         for row in tbl:
+
+            if row == ['', '', '', '', '', '']:
+                continue
+
             for key, value in enumerate(row):
                 sys.stdout.write('"'+value+'"')
                 if (key + 1) != len(row):
