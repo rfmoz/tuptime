@@ -340,7 +340,7 @@ def since_opt(db_rows, arg, startups_num):
     """Get rows since a given row startup number registered"""
 
     if arg.since < 0:  # For negative values
-        arg.since = len(db_rows) + arg.since + 1
+        arg.since = db_rows[-1]['startup'] + arg.since + 1
         if arg.since < 0:
             logging.warning('Invalid "since" value. Reset to first.')
             arg.since = 0
@@ -362,10 +362,10 @@ def until_opt(db_rows, arg, startups_num):
     """Get rows until a given row startup number registered"""
 
     if arg.until < 0:  # For negative values
-        arg.until = len(db_rows) + arg.until + 1
+        arg.until = db_rows[-1]['startup'] + arg.until + 1
         if arg.until < 0:
             logging.warning('Invalid "until" value. Reset to last. ')
-            arg.until = len(db_rows)
+            arg.until = db_rows[-1]['startup']
 
     if arg.until < arg.since:  # Sanity check
         logging.warning('Option "until" can not be higher than "since". '
