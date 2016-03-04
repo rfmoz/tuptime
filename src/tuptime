@@ -397,7 +397,10 @@ def tsince_opt(db_rows, arg):
         - offbtime ==  0 indicate an empty offbtime only
     '''
 
-    if arg.ts <= db_rows[0]['btime']:  # Sanity check
+    if arg.ts < 0:  # Sanity check
+        logging.warn('Option "tsince" lower than 0 - Not applying.')
+
+    elif arg.ts <= db_rows[0]['btime']:  # Sanity check
         logging.info('Option "tsince" lower or equal than first startup timestamp: '
                         + str(db_rows[0]['btime']) + ' - Not applying.')
 
@@ -450,52 +453,56 @@ def tuntil_opt(db_rows, arg):
     Conventions:
         Same as tsince_opt
     '''
+    if arg.tu < 0:  # Sanity check
+        logging.warn('Option "tuntil" lower than 0 - Not applying.')
 
-    if arg.tu < arg.ts:
-        logging.warning('Option "tuntil" lower than "tsince". Reset to: ' + str(arg.ts))
-        arg.tu = arg.ts
+    else:
 
-    # Look for a match along all rows and get the offset
-    offset = None
-    for ind, row in enumerate(db_rows[:]):
+        if arg.tu < arg.ts:
+            logging.warning('Option "tuntil" lower than "tsince". Reset to: ' + str(arg.ts))
+            arg.tu = arg.ts
 
-        # Stop when offset is set
-        if offset is None:
+        # Look for a match along all rows and get the offset
+        offset = None
+        for ind, row in enumerate(db_rows[:]):
 
-            # If is equal a btime, finish
-            if arg.tu == row['btime']:
-                offset = 0
-                db_rows[ind]['uptime'] = 0
-                db_rows[ind]['offbtime'] = -1
-                db_rows[ind]['downtime'] = 0
-                db_rows[ind]['endst'] = -1
-                db_rows[ind]['kernel'] = ''
-            # If is between btime and offbtime
-            # (offbtime is calculated directly with round 0 for avoid problem with uptime decimals)
-            elif arg.tu > row['btime'] and arg.tu < int(round(row['btime'] + row['uptime'], 0)):
-                offset = arg.tu - row['btime']
-                db_rows[ind]['uptime'] = offset
-                db_rows[ind]['offbtime'] = -1
-                db_rows[ind]['downtime'] = 0
-                db_rows[ind]['endst'] = -1
-                db_rows[ind]['kernel'] = ''
-            else:
-                # If is equal a offbtime, finish
-                if arg.tu == row['offbtime']:
+            # Stop when offset is set
+            if offset is None:
+
+                # If is equal a btime, finish
+                if arg.tu == row['btime']:
                     offset = 0
+                    db_rows[ind]['uptime'] = 0
+                    db_rows[ind]['offbtime'] = -1
                     db_rows[ind]['downtime'] = 0
-                # If is between offbtime and nextbtime
-                # (next btime is calculated directly with round 0 for avoid problem with uptime decimals)
-                elif arg.tu > row['offbtime'] and arg.tu < int(round(row['offbtime'] + row['downtime'], 0)):
-                    offset = arg.tu - row['offbtime']
-                    db_rows[ind]['downtime'] = offset
+                    db_rows[ind]['endst'] = -1
+                    db_rows[ind]['kernel'] = ''
+                # If is between btime and offbtime
+                # (offbtime is calculated directly with round 0 for avoid problem with uptime decimals)
+                elif arg.tu > row['btime'] and arg.tu < int(round(row['btime'] + row['uptime'], 0)):
+                    offset = arg.tu - row['btime']
+                    db_rows[ind]['uptime'] = offset
+                    db_rows[ind]['offbtime'] = -1
+                    db_rows[ind]['downtime'] = 0
+                    db_rows[ind]['endst'] = -1
+                    db_rows[ind]['kernel'] = ''
+                else:
+                    # If is equal a offbtime, finish
+                    if arg.tu == row['offbtime']:
+                        offset = 0
+                        db_rows[ind]['downtime'] = 0
+                    # If is between offbtime and nextbtime
+                    # (next btime is calculated directly with round 0 for avoid problem with uptime decimals)
+                    elif arg.tu > row['offbtime'] and arg.tu < int(round(row['offbtime'] + row['downtime'], 0)):
+                        offset = arg.tu - row['offbtime']
+                        db_rows[ind]['downtime'] = offset
 
-                elif arg.tu < row['btime']:
-                    db_rows.remove(row)
+                    elif arg.tu < row['btime']:
+                        db_rows.remove(row)
 
-        # If offset is set, remove rows
-        else:
-            db_rows.remove(row)
+            # If offset is set, remove rows
+            else:
+                db_rows.remove(row)
 
     # Report 0 if matches produce an empty db
     if len(db_rows) == 0:
