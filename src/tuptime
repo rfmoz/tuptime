@@ -851,6 +851,8 @@ def print_default(db_rows, cuptime, cbtime, arg):
             print('System startups:\t' + str(startups) + '   since   ' + str(min_tstamp))
         elif min_tstamp <= 0:
             print('System startups:\t' + str(startups) + '   until   ' + str(max_tstamp))
+        elif max_tstamp <= 0 and min_tstamp <= 0:
+            print('System startups:\t' + str(startups))
         else:
             print('System startups:\t' + str(startups) + '   since   ' + str(min_tstamp) + '   until   ' + str(max_tstamp))
         print('System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad')
@@ -898,6 +900,8 @@ def print_default(db_rows, cuptime, cbtime, arg):
             print('"System startups","' + str(startups) + '","since","' + str(min_tstamp) + '"')
         elif min_tstamp <= 0:
             print('"System startups","' + str(startups) + '","until","' + str(max_tstamp) + '"')
+        elif max_tstamp <= 0 and min_tstamp <= 0:
+            print('"System startups","' + str(startups) + '"')
         else:
             print('"System startups","' + str(startups) + '","since","' + str(min_tstamp) + '","until","' + str(max_tstamp) + '"')
         print('"System shutdowns","' + str(ok_shdown) + '","ok","' + str(bad_shdown) + '","bad"')
