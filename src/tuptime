@@ -403,7 +403,7 @@ def tsince_opt(db_rows, arg):
 
     elif arg.ts <= db_rows[0]['btime']:  # Sanity check
         logging.info('Option "tsince" lower or equal than first startup timestamp: '
-                        + str(db_rows[0]['btime']) + ' - Not applying.')
+                     + str(db_rows[0]['btime']) + ' - Not applying.')
 
     else:
         # Look for a match along all rows and get the offset
@@ -607,7 +607,7 @@ def print_list(db_rows, arg):
                 print('Downtime: ' + str(row_dict['downtime']))
 
             if arg.kernel:
-               print('Kernel:   ' + str(row_dict['kernel']))
+                print('Kernel:   ' + str(row_dict['kernel']))
             print('')
         else:
             if row_dict['btime']:
@@ -625,7 +625,7 @@ def print_list(db_rows, arg):
                 print('"Downtime","' + str(row_dict['downtime']) +'"')
 
             if arg.kernel:
-               print('"Kernel","' + str(row_dict['kernel']) +'"')
+                print('"Kernel","' + str(row_dict['kernel']) +'"')
 
 
 def print_table(db_rows, arg):
@@ -681,7 +681,7 @@ def print_table(db_rows, arg):
                 sys.stdout.write('"'+value+'"')
                 if (key + 1) != len(row):
                     sys.stdout.write(',')
-            print ("")
+            print("")
 
 
 def print_default(db_rows, cuptime, cbtime, arg):
@@ -727,94 +727,38 @@ def print_default(db_rows, cuptime, cbtime, arg):
             return round(row['downtime'], DEC), row['offbtime'], row['kernel']
 
 
-    def ext_first_last(db_rows):
-        """Extract first and last btime and offbtime values"""
-
-        # Get first btime and offbtime:
-        #   Positive number indicate a real date, if not, 0
-        if db_rows[0]['btime'] > 0:
-            first_btime = db_rows[0]['btime']
-        else:
-            first_btime = 0
-
-        if db_rows[0]['offbtime'] > 0:
-            first_offbtime = db_rows[0]['offbtime']
-        else:
-            first_offbtime = 0
-
-        # Get last btime and offbtime:
-        #   Positive number indicate a real date, if not, 0
-        if db_rows[-1]['btime'] > 0:
-            last_btime = db_rows[-1]['btime']
-        else:
-            last_btime = 0
-
-        if db_rows[-1]['offbtime'] > 0:
-            last_offbtime = db_rows[-1]['offbtime']
-        else:
-            last_offbtime = 0
-
-        return first_btime, first_offbtime, last_btime, last_offbtime
-
-
-    def ext_max_min(db_rows, last_btime, last_offbtime):
+    def extract_max_min_tst(db_rows, arg):
         """Extract max and min timestamps values available"""
 
+        last_btime = db_rows[-1]['btime']
+        last_offbtime = db_rows[-1]['offbtime']
+        first_btime = db_rows[0]['btime']
+        first_offbtime = db_rows[0]['offbtime']
+
         # Get max timestamp available
-        #   Use the timestamp from last_btime if it is available or fall into last_offbtime
         if last_btime > 0:
             max_tstamp = last_btime + db_rows[-1]['uptime'] + db_rows[-1]['downtime']
-        else: 
+        elif last_offbtime > 0:
             max_tstamp = last_offbtime + db_rows[-1]['downtime']
+        else:
+            if arg.tu is None:
+                max_tstamp = 0
+            else:
+                max_tstamp = arg.tu
 
         # Get min timestamp available
         if first_btime > 0:
             min_tstamp = first_btime
-        else:
+        elif first_offbtime > 0:
             min_tstamp = first_offbtime - db_rows[0]['uptime']
             # note that without offbtime, produce a negative result
+        else:
+            if arg.ts is None:
+                min_tstamp = 0
+            else:
+                min_tstamp = arg.ts
 
         return max_tstamp, min_tstamp
-
-
-    def ext_since_until(min_tstamp, max_tstamp, arg):
-        """Extract since and until values"""
-
-        # Get since timestamp (first reference date):
-        if arg.ts is None or arg.ts == 0:
-            since = min_tstamp
-        else: 
-            since = arg.ts
-
-        # Get until timestamp
-        if arg.tu is None or arg.tu == 0:
-            until = max_tstamp
-        else:
-            until = arg.tu
-
-        return since, until
-
-
-    def ext_up_down(total_uptime, total_downtime, sys_life, startups, DECP, DEC):
-        '''Extract up/down average and rates'''
-
-        # Get uprate and average uptime
-        if total_uptime > 0:
-            uprate = round((total_uptime * 100) / sys_life, DECP)
-            average_up = round((total_uptime / startups), DEC)
-        else:
-            uprate = round(0, DEC)
-            average_up = round(0, DEC)
-
-        # Get downrate and average downtime
-        if total_downtime > 0 and startups > 0:
-            downrate = round((total_downtime * 100) / sys_life, DECP)
-            average_down = round((total_downtime / startups), DEC)
-        else:
-            downrate = round(0, DEC)
-            average_down = round(0, DEC)
-
-        return uprate, average_up, downrate, average_down
 
 
     # Initialize empty variables
@@ -828,7 +772,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
     for row in db_rows:
 
         # Count endst if offbtime is valid (not 0 or -1)
-        if row['offbtime'] >= 0: 
+        if row['offbtime'] >= 0:
             if row['endst'] == 0:
                 bad_shdown += 1
             if row['endst'] == 1:
@@ -842,29 +786,37 @@ def print_default(db_rows, cuptime, cbtime, arg):
         kernel_cnt.append(row['kernel'])
 
     # Get startups count:
-    #   Each row is an startup, but avoid count them if 
+    #   Each row is an startup, but avoid count them if
     #   startup register indicate empty values
     if db_rows[0]['startup'] == 0:
         startups = 0
     else:
         startups = len(db_rows)
 
-    first_btime, first_offbtime, last_btime, last_offbtime = ext_first_last(db_rows)
-
-    max_tstamp, min_tstamp = ext_max_min(db_rows, last_btime, last_offbtime)
-
-    since, until = ext_since_until(min_tstamp, max_tstamp, arg)
-
-    sys_life = round(max_tstamp - min_tstamp, DEC)
-
-    uprate, average_up, downrate, average_down = \
-    ext_up_down(total_uptime, total_downtime, sys_life, startups, DECP, DEC)
-
     # Get kernel count:
     #   Remove duplicate and empty elements
     kernel_cnt = len(set(filter(None, kernel_cnt)))
 
+    # Get system life
+    sys_life = round(total_uptime + total_downtime, DEC)
+
+    # Current uptime with right decimals
     cuptime = round(cuptime, DEC)
+
+    # Get max/min timestamp
+    max_tstamp, min_tstamp = extract_max_min_tst(db_rows, arg)
+
+    # Get uprate and average uptime
+    if sys_life > 0:
+        uprate = round((total_uptime * 100) / sys_life, DECP)
+        average_up = round((total_uptime / startups), DEC)
+        downrate = round((total_downtime * 100) / sys_life, DECP)
+        average_down = round((total_downtime / startups), DEC)
+    else:
+        uprate = round(0, DEC)
+        average_up = round(0, DEC)
+        downrate = round(0, DEC)
+        average_down = round(0, DEC)
 
     larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
     shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
@@ -872,8 +824,8 @@ def print_default(db_rows, cuptime, cbtime, arg):
     shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows, 'min', 'downtime')
 
     if arg.seconds is None:  # - Human readable style
-        until = datetime.fromtimestamp(until).strftime(arg.date_format)
-        since = datetime.fromtimestamp(since).strftime(arg.date_format)
+        max_tstamp = datetime.fromtimestamp(max_tstamp).strftime(arg.date_format)
+        min_tstamp = datetime.fromtimestamp(min_tstamp).strftime(arg.date_format)
         larg_up_uptime = time_conv(larg_up_uptime)
         if larg_up_btime > 0:
             larg_up_btime = datetime.fromtimestamp(larg_up_btime).strftime(arg.date_format)
@@ -895,7 +847,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
         sys_life = time_conv(sys_life)
 
     if arg.csv is False:
-        print('System startups:\t' + str(startups) + '   since   ' + str(since) + '   until   ' + str(until))
+        print('System startups:\t' + str(startups) + '   since   ' + str(min_tstamp) + '   until   ' + str(max_tstamp))
         print('System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad')
         print('System uptime: \t\t' + str(uprate) + ' %   -   ' + str(total_uptime))
         print('System downtime: \t' + str(downrate) + ' %   -   ' + str(total_downtime))
@@ -937,7 +889,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
         if arg.kernel:
             print('...with kernel: \t'+ str(db_rows[-1]['kernel']))
     else:
-        print('"System startups","' + str(startups) + '","since","' + str(since) + '","until","' + str(until) + '"')
+        print('"System startups","' + str(startups) + '","since","' + str(min_tstamp) + '","until","' + str(max_tstamp) + '"')
         print('"System shutdowns","' + str(ok_shdown) + '","ok","' + str(bad_shdown) + '","bad"')
         print('"System uptime","' + str(uprate) + ' %","' + str(total_uptime) + '"')
         print('"System downtime","' + str(downrate) + ' %","' + str(total_downtime) + '"')
