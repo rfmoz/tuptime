@@ -391,6 +391,7 @@ def tsince_opt(db_rows, arg):
     '''
     Conventions:
         - Each row keep their startup number
+        - startup == 0 indicate any result, empty values
         - btime == -1 indicate that both btime and uptime are empty
         - btime == 0 indicate an empty btime only
         - offbtime == -1 indicate that offbtime, downtime, endst and kernel are empty
@@ -689,9 +690,12 @@ def print_default(db_rows, cuptime, cbtime, arg):
     def extract_times(db_rows, option, key):
         """Extract max/min values for uptime/downtime"""
 
+        # Work with a copy for start always with the same dict, even if some
+        # rows are deleted in each case
         dbr = db_rows[:]
 
-        # Clean times without a offbtime/btime register (partial times)
+        # Times without a offbtime/btime are incomplete (partial times)
+        # and are removed for avoid report them
         if key == 'downtime':
             for row in dbr:
                 if row['offbtime'] <= 0:
@@ -701,12 +705,14 @@ def print_default(db_rows, cuptime, cbtime, arg):
                 if row['btime'] <= 0:
                     dbr.remove(row)
 
-        # Extract max/min values with complete row
+        # Extract max/min values from the complete time rows only if
+        # the dict keep 1 row or more
         if option == 'max' and len(dbr) > 0:
             row = max(dbr, key=lambda x: int(x[key]))
         elif option == 'min' and len(dbr) > 0:
             row = min(dbr, key=lambda x: int(x[key]))
         else:
+            # If the dict is empty, report 0 values.
             row = {}
             row['btime'] = 0
             row['uptime'] = 0
@@ -714,71 +720,101 @@ def print_default(db_rows, cuptime, cbtime, arg):
             row['downtime'] = 0
             row['kernel'] = ''
 
+        # Report based on the key requested
         if key == 'uptime':
             return round(row['uptime'], DEC), row['btime'], row['kernel']
         elif key == 'downtime':
             return round(row['downtime'], DEC), row['offbtime'], row['kernel']
 
 
+    # Initialize empty variables
     total_uptime = 0
+    total_downtime = 0
     bad_shdown = 0
     ok_shdown = 0
     kernel_cnt = []
 
-    # Get startups count
+    # Get startups count:
+    #   Each row is an startup, but avoid count them if 
+    #   startup register indicate empty values
     if db_rows[0]['startup'] == 0:
         startups = 0
     else:
         startups = len(db_rows)
 
-    # Get first btime
+    # Get first btime:
+    #   Positive number indicate a real date, if not, 0
     if db_rows[0]['btime'] > 0:
         first_btime = db_rows[0]['btime']
     else:
-        if arg.ts is None:
-            first_btime = 0
-        else:
-            first_btime = arg.ts
+        first_btime = 0
 
-    # Get since timestamp
+    # Get since timestamp (first reference date):
+    #   Assign first_btime if it is empty
     if arg.ts is None or arg.ts == 0:
         since = first_btime
     else: 
         since = arg.ts
 
-    # Parse rows getting end status and the sum of total_uptime and kernel list
+    # Parse rows getting counters
     for row in db_rows:
-        if row['offbtime'] >= 0:  # Avoid check endst > 0 because updated last register is 0 or -1
+
+        # Count endst if offbtime is valid (not 0 or -1)
+        if row['offbtime'] >= 0: 
             if row['endst'] == 0:
                 bad_shdown += 1
             if row['endst'] == 1:
                 ok_shdown += 1
-        total_uptime += round(row['uptime'], DEC)
+
+        # Count totals
+        total_uptime += row['uptime']
+        total_downtime += row['downtime']
+
+        # List with kernel names
         kernel_cnt.append(row['kernel'])
 
-    # Get last btime
-    if db_rows[-1]['btime'] > 0:
-        btime = db_rows[-1]['btime']
-    else:
-        if arg.ts is None:
-            btime = 0
-        else:
-            btime = arg.ts
-
     # Get last downtime
+    #   Positive number indicate a real date, if not, 0
     if db_rows[-1]['downtime'] > 0:
         downtime = db_rows[-1]['downtime']
     else:
         downtime = 0
 
-    # Get kernel count
+    # Get last btime:
+    #   Positive number indicate a real date, if not, 0
+    if db_rows[-1]['btime'] > 0:
+        last_btime = db_rows[-1]['btime']
+        # Get max timestamp
+        total_tstamp = round(last_btime + db_rows[-1]['uptime'] + downtime, DEC)
+        # ./tuptime  --tsince 1457274191 --tuntil 1457274192
+    else:
+        last_btime = 0
+        total_tstamp = round(downtime, DEC)
+
+    # Get until timestamp (last reference date):
+    #   Assign last_btime if it is empty
+    if arg.tu is None or arg.tu == 0:
+        until = last_btime
+    else: 
+        until = arg.tu
+
+
+    # Get kernel count:
+    #   Remove duplicate and empty elements
     kernel_cnt = len(set(filter(None, kernel_cnt)))
 
     # Get max timestamp
-    total_tstamp = round(btime + db_rows[-1]['uptime'] + downtime, DEC)
+     #if last_btime > 0:
+     #   total_tstamp = round(last_btime + db_rows[-1]['uptime'] + downtime, DEC)
+    #else:
+    #    total_tstamp = 0
 
     # Get system life
-    sys_life = round(total_tstamp - first_btime, DEC)
+    if first_btime > 0:
+        sys_life = round(total_tstamp - first_btime, DEC)
+    else:
+        #sys_life = round(total_tstamp - since, DEC)
+        sys_life = round(until - since, DEC)
 
     # Get until timestamp
     if arg.tu is None or arg.tu == 0:
@@ -794,10 +830,10 @@ def print_default(db_rows, cuptime, cbtime, arg):
         uprate = round(0, DEC)
         average_up = round(0, DEC)
 
-    total_downtime = (sys_life - total_uptime)
+    #total_downtime = (sys_life - total_uptime)
 
     # Get downrate and average downtime
-    if total_downtime > 0:
+    if total_downtime > 0 and startups > 0:
         downrate = round((total_downtime * 100) / (sys_life), DECP)
         average_down = round((total_downtime / startups), DEC)
     else:
@@ -814,8 +850,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
     if arg.seconds is None:  # - Human readable style
         if until > 0:
             until = datetime.fromtimestamp(until).strftime(arg.date_format)
-        if since > 0:
-            since = datetime.fromtimestamp(since).strftime(arg.date_format)
+        since = datetime.fromtimestamp(since).strftime(arg.date_format)
         larg_up_uptime = time_conv(larg_up_uptime)
         if larg_up_btime > 0:
             larg_up_btime = datetime.fromtimestamp(larg_up_btime).strftime(arg.date_format)
