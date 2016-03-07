@@ -385,8 +385,8 @@ def until_opt(db_rows, arg, startups_num):
     return db_rows, arg
 
 
-def tsince_opt(db_rows, arg):
-    """Split and report rows since a given timestamp"""
+def tuntil_opt(db_rows, arg):
+    """Split and report rows until a given timestamp"""
 
     '''
     Conventions:
@@ -397,63 +397,7 @@ def tsince_opt(db_rows, arg):
         - offbtime == -1 indicate that offbtime, downtime, endst and kernel are empty
         - offbtime ==  0 indicate an empty offbtime only
     '''
-
-    if arg.ts < 0:  # Sanity check
-        logging.warning('Option "tsince" lower than 0 - Not applying.')
-
-    elif arg.ts <= db_rows[0]['btime']:  # Sanity check
-        logging.warning('Option "tsince" lower or equal than first startup timestamp: '
-                        + str(db_rows[0]['btime']) + ' - Not applying.')
-
-    else:
-        # Look for a match along all rows and get the offset
-        offset = None
-        for row in db_rows[:]:
-
-            # Stop when offset is set
-            if offset is None:
-
-                # If is equal to a btime, finish
-                if arg.ts == row['btime']:
-                    offset = 0
-                # If is between btime and offtime
-                # (offbtime is calculated directly with round 0 for avoid problem with uptime decimals)
-                elif arg.ts > row['btime'] and arg.ts < int(round(row['btime'] + row['uptime'], 0)):
-                    offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
-                    db_rows[0]['btime'] = 0
-                    db_rows[0]['uptime'] = offset
-                else:
-                    # If is equal to a offbtime, finish
-                    if arg.ts == row['offbtime']:
-                        offset = 0
-                        db_rows[0]['btime'] = -1
-                        db_rows[0]['uptime'] = 0
-                    # If is between offbtime and next btime
-                    # (next btime is calculated directly with round 0 for avoid problem with uptime decimals)
-                    elif arg.ts > row['offbtime'] and arg.ts < int(round(row['offbtime'] + row['downtime'], 0)):
-                        offset = round(row['offbtime'] + row['downtime'] - arg.ts, 2)
-                        db_rows[0]['btime'] = -1
-                        db_rows[0]['uptime'] = 0
-                        db_rows[0]['offbtime'] = 0
-                        db_rows[0]['downtime'] = offset
-                    # If nothing match, remove
-                    else:
-                        db_rows.remove(row)
-
-    # Report 0 if matches produce an empty db
-    if len(db_rows) == 0:
-        db_rows = [{'kernel': '', 'uptime': 0, 'endst': -1, 'offbtime': -1, 'startup': 0, 'btime': -1, 'downtime': 0}]
-
-    return db_rows, arg
-
-
-def tuntil_opt(db_rows, arg):
-    """Split and report rows until a given timestamp"""
-
-    '''
-    Conventions:
-        Same as tsince_opt
-    '''
+    
     if arg.tu < 0:  # Sanity check
         logging.warning('Option "tuntil" lower than 0 - Not applying.')
 
@@ -504,6 +448,63 @@ def tuntil_opt(db_rows, arg):
             # If offset is set, remove rows
             else:
                 db_rows.remove(row)
+
+    # Report 0 if matches produce an empty db
+    if len(db_rows) == 0:
+        db_rows = [{'kernel': '', 'uptime': 0, 'endst': -1, 'offbtime': -1, 'startup': 0, 'btime': -1, 'downtime': 0}]
+
+    return db_rows, arg
+
+
+def tsince_opt(db_rows, arg):
+    """Split and report rows since a given timestamp"""
+
+    '''
+    Conventions:
+        Same as tuntil_opt
+    '''
+
+    if arg.ts < 0:  # Sanity check
+        logging.warning('Option "tsince" lower than 0 - Not applying.')
+
+    elif arg.ts <= db_rows[0]['btime']:  # Sanity check
+        logging.info('Option "tsince" lower or equal than first startup timestamp: '
+                        + str(db_rows[0]['btime']) + ' - Not applying.')
+
+    else:
+        # Look for a match along all rows and get the offset
+        offset = None
+        for row in db_rows[:]:
+
+            # Stop when offset is set
+            if offset is None:
+
+                # If is equal to a btime, finish
+                if arg.ts == row['btime']:
+                    offset = 0
+                # If is between btime and offtime
+                # (offbtime is calculated directly with round 0 for avoid problem with uptime decimals)
+                elif arg.ts > row['btime'] and arg.ts < int(round(row['btime'] + row['uptime'], 0)):
+                    offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
+                    db_rows[0]['btime'] = 0
+                    db_rows[0]['uptime'] = offset
+                else:
+                    # If is equal to a offbtime, finish
+                    if arg.ts == row['offbtime']:
+                        offset = 0
+                        db_rows[0]['btime'] = -1
+                        db_rows[0]['uptime'] = 0
+                    # If is between offbtime and next btime
+                    # (next btime is calculated directly with round 0 for avoid problem with uptime decimals)
+                    elif arg.ts > row['offbtime'] and arg.ts < int(round(row['offbtime'] + row['downtime'], 0)):
+                        offset = round(row['offbtime'] + row['downtime'] - arg.ts, 2)
+                        db_rows[0]['btime'] = -1
+                        db_rows[0]['uptime'] = 0
+                        db_rows[0]['offbtime'] = 0
+                        db_rows[0]['downtime'] = offset
+                    # If nothing match, remove
+                    else:
+                        db_rows.remove(row)
 
     # Report 0 if matches produce an empty db
     if len(db_rows) == 0:
