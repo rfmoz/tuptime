@@ -3,7 +3,7 @@
                          ----------------------
                              version 3.3.0-dev
                                 Ricardo F.
-                              02/March/2016
+                              08/March/2016
 
 
 
@@ -448,7 +448,8 @@ be lost. Be sure that the cron entry is installed as expected.
 ==================
 
 System startups:	
- Total number of system startups from a since to until date.
+ Total number of system startups from a since date. Until is joined if
+ is used in a narrow range.
 
 System shutdowns:
   Total number of shutdowns done correctly or incorrectly.

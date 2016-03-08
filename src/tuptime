@@ -263,16 +263,19 @@ def get_os_values():
 def assure_state_db(btime, uptime, kernel, arg):
     """Assure state of db file and related directories"""
 
+    # Caught a file located in the same directory
     if arg.db_file != DB_FILE:
         if not arg.db_file.startswith('/') and not arg.db_file.startswith('./'):
             arg.db_file = './' + arg.db_file
 
+    # Test path
     if os.path.isdir(os.path.dirname(arg.db_file)):
         logging.info('Directory exists = '+ str(os.path.dirname(arg.db_file)))
     else:
         logging.info('Creating path = '+ str(os.path.dirname(arg.db_file)))
         os.makedirs(os.path.dirname(arg.db_file))
 
+    # Test and create db with the initial values
     if os.path.isfile(arg.db_file):
         logging.info('DB file exists = '+ str(arg.db_file))
     else:
@@ -310,6 +313,7 @@ def time_conv(secs):
     zero_enter = True
     human_dtm = ''
 
+    # Calculate values
     dtm['minutes'], dtm['seconds'] = divmod(secs, 60)
     dtm['hours'], dtm['minutes'] = divmod(dtm['minutes'], 60)
     dtm['days'], dtm['hours'] = divmod(dtm['hours'], 24)
@@ -403,7 +407,7 @@ def tuntil_opt(db_rows, arg):
 
     else:
 
-        if arg.tu < arg.ts:
+        if arg.tu < arg.ts:  # Sanity check
             logging.warning('Option "tuntil" lower than "tsince". Reset to: ' + str(arg.ts))
             arg.tu = arg.ts
 
@@ -414,7 +418,7 @@ def tuntil_opt(db_rows, arg):
             # Stop when offset is set
             if offset is None:
 
-                # If is equal a btime, finish
+                # If is equal to btime, finish
                 if arg.tu == row['btime']:
                     offset = 0
                     db_rows[ind]['uptime'] = 0
@@ -432,7 +436,7 @@ def tuntil_opt(db_rows, arg):
                     db_rows[ind]['endst'] = -1
                     db_rows[ind]['kernel'] = ''
                 else:
-                    # If is equal a offbtime, finish
+                    # If is equal to offbtime, finish
                     if arg.tu == row['offbtime']:
                         offset = 0
                         db_rows[ind]['downtime'] = 0
@@ -479,7 +483,7 @@ def tsince_opt(db_rows, arg):
             # Stop when offset is set
             if offset is None:
 
-                # If is equal to a btime, finish
+                # If is equal to btime, finish
                 if arg.ts == row['btime']:
                     offset = 0
                 # If is between btime and offtime
@@ -489,7 +493,7 @@ def tsince_opt(db_rows, arg):
                     db_rows[0]['btime'] = 0
                     db_rows[0]['uptime'] = offset
                 else:
-                    # If is equal to a offbtime, finish
+                    # If is equal to offbtime, finish
                     if arg.ts == row['offbtime']:
                         offset = 0
                         db_rows[0]['btime'] = -1
@@ -644,6 +648,7 @@ def print_table(db_rows, arg):
 
     db_rows = ordering_output(db_rows, arg)
 
+    # Construct table for print
     for row_dict in for_print(db_rows, arg):
         tbl.append([str(row_dict['startup']),
                     str(row_dict['btime']),
@@ -755,7 +760,16 @@ def print_default(db_rows, cuptime, cbtime, arg):
             min_tstamp = first_offbtime - db_rows[0]['uptime']
             # note that without offbtime, produce a negative result
         else:
-            min_tstamp = 0
+            # If range is under any timestamp, use max_tstamp date if is possible
+            # for avoid fall into 0
+            if max_tstamp > 0:
+                min_tstamp = max_tstamp
+            else:
+                min_tstamp = 0
+
+        # If range is over any timestamp, use min_tstamp if is possible for avoid fall into 0
+        if max_tstamp == 0:
+            max_tstamp = min_tstamp
 
         return max_tstamp, min_tstamp
 
@@ -805,7 +819,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
     # Get max/min timestamp
     max_tstamp, min_tstamp = extract_max_min_tst(db_rows, arg)
 
-    # Get uprate and average uptime
+    # Get rates and average uptime / downtime
     if sys_life > 0:
         uprate = round((total_uptime * 100) / sys_life, DECP)
         average_up = round((total_uptime / startups), DEC)
@@ -823,10 +837,8 @@ def print_default(db_rows, cuptime, cbtime, arg):
     shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows, 'min', 'downtime')
 
     if arg.seconds is None:  # - Human readable style
-        if max_tstamp > 0:
-            max_tstamp = datetime.fromtimestamp(max_tstamp).strftime(arg.date_format)
-        if min_tstamp > 0:
-            min_tstamp = datetime.fromtimestamp(min_tstamp).strftime(arg.date_format)
+        max_tstamp = datetime.fromtimestamp(max_tstamp).strftime(arg.date_format)
+        min_tstamp = datetime.fromtimestamp(min_tstamp).strftime(arg.date_format)
         larg_up_uptime = time_conv(larg_up_uptime)
         if larg_up_btime > 0:
             larg_up_btime = datetime.fromtimestamp(larg_up_btime).strftime(arg.date_format)
@@ -848,14 +860,10 @@ def print_default(db_rows, cuptime, cbtime, arg):
         sys_life = time_conv(sys_life)
 
     if arg.csv is False:
-        if max_tstamp <= 0:
-            print('System startups:\t' + str(startups) + '   since   ' + str(min_tstamp))
-        elif min_tstamp <= 0:
-            print('System startups:\t' + str(startups) + '   until   ' + str(max_tstamp))
-        elif max_tstamp <= 0 and min_tstamp <= 0:
-            print('System startups:\t' + str(startups))
-        else:
+        if arg.tu or arg.until:
             print('System startups:\t' + str(startups) + '   since   ' + str(min_tstamp) + '   until   ' + str(max_tstamp))
+        else:
+            print('System startups:\t' + str(startups) + '   since   ' + str(min_tstamp))
         print('System shutdowns:\t' + str(ok_shdown) + ' ok   -   ' + str(bad_shdown) + ' bad')
         print('System uptime: \t\t' + str(uprate) + ' %   -   ' + str(total_uptime))
         print('System downtime: \t' + str(downrate) + ' %   -   ' + str(total_downtime))
@@ -897,14 +905,10 @@ def print_default(db_rows, cuptime, cbtime, arg):
         if arg.kernel:
             print('...with kernel: \t'+ str(db_rows[-1]['kernel']))
     else:
-        if max_tstamp <= 0:
-            print('"System startups","' + str(startups) + '","since","' + str(min_tstamp) + '"')
-        elif min_tstamp <= 0:
-            print('"System startups","' + str(startups) + '","until","' + str(max_tstamp) + '"')
-        elif max_tstamp <= 0 and min_tstamp <= 0:
-            print('"System startups","' + str(startups) + '"')
-        else:
+        if arg.tu or arg.until:
             print('"System startups","' + str(startups) + '","since","' + str(min_tstamp) + '","until","' + str(max_tstamp) + '"')
+        else:
+            print('"System startups","' + str(startups) + '","since","' + str(min_tstamp) + '"')
         print('"System shutdowns","' + str(ok_shdown) + '","ok","' + str(bad_shdown) + '","bad"')
         print('"System uptime","' + str(uprate) + ' %","' + str(total_uptime) + '"')
         print('"System downtime","' + str(downrate) + ' %","' + str(total_downtime) + '"')
