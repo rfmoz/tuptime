@@ -1028,22 +1028,22 @@ def main():
             logging.info('Real startups are not equal to enumerate startups '
                          '- possible deleted rows in db')
 
-        if arg.since:  # Parse since option
-            db_rows, arg = since_opt(db_rows, arg, startups_num)
-
-        if arg.until:  # Parse until option
-            db_rows, arg = until_opt(db_rows, arg, startups_num)
-
         db_rows = [dict(row) for row in db_rows]  # for allow item assignment
 
         # If last row in db_rows is really the last register in db and update is needed
-        if db_rows[-1]['startup'] == startups_num and arg.update is True:
+        if arg.update is True:
             # If the user can only read db, the previous select return outdated numbers in last row
             # because the db was not updated previously. The following snippet update that in memmory
             db_rows[-1]['uptime'] = uptime
             db_rows[-1]['endst'] = arg.endst
             db_rows[-1]['kernel'] = kernel
             db_rows[-1]['downtime'] = 0
+
+        if arg.since:  # Parse since option
+            db_rows, arg = since_opt(db_rows, arg, startups_num)
+
+        if arg.until:  # Parse until option
+            db_rows, arg = until_opt(db_rows, arg, startups_num)
 
         if arg.tu:  # Parse tuntil option
             db_rows, arg = tuntil_opt(db_rows, arg)
