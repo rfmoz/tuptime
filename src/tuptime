@@ -965,7 +965,7 @@ def main():
     last_btime, last_uptime = conn.fetchone()
     logging.info('Last btime from db = '+ str(last_btime))
     logging.info('Last uptime from db = '+ str(last_uptime))
-    lasts = last_uptime + last_btime
+    lasts = last_btime + last_uptime
 
     # - Test if system was resterted
     # How tuptime do it:
@@ -1004,8 +1004,14 @@ def main():
                               str(kernel)))
             else:
                 logging.info('System wasn\'t restarted. Updating db values...')
-                conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(arg.endst) +
-                             ', kernel = \''+ str(kernel) + '\' where rowid = (select max(rowid) from tuptime)')
+                if last_btime == btime:
+                    conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(arg.endst) +
+                                 ', kernel = \''+ str(kernel) + '\' where rowid = (select max(rowid) from tuptime)')
+                else:
+                    logging.info('System btime drift since last run. Updating...')
+                    conn.execute('update tuptime set btime = '+ str(btime) +', uptime = '+ str(uptime) +
+                                 ', endst = '+ str(arg.endst) + ', kernel = \''+ str(kernel) + 
+                                 '\' where rowid = (select max(rowid) from tuptime)')
 
         except sqlite3.OperationalError:
             logging.info('Values not saved into db')
@@ -1030,6 +1036,7 @@ def main():
 
         db_rows = [dict(row) for row in db_rows]  # for allow item assignment
 
+                
         # If last row in db_rows is really the last register in db and update is needed
         if arg.update is True:
             # If the user can only read db, the previous select return outdated numbers in last row
@@ -1038,6 +1045,9 @@ def main():
             db_rows[-1]['endst'] = arg.endst
             db_rows[-1]['kernel'] = kernel
             db_rows[-1]['downtime'] = 0
+            if last_btime != btime:  # Update btime too if is not the same
+                db_rows[-1]['btime'] = btime
+
 
         if arg.since:  # Parse since option
             db_rows, arg = since_opt(db_rows, arg, startups_num)
@@ -1050,6 +1060,15 @@ def main():
 
         if arg.ts:  # Parse tsince option
             db_rows, arg = tsince_opt(db_rows, arg)
+
+        # Check for time drifts
+        #    In a system without any time drift, shutdown date + downtime is equal to
+        #    the next startup date. Test along all rows for inconsistencies
+        for key,row in enumerate(db_rows[:-1], 1):  # Key one step forward
+            if row['offbtime'] > 0 and db_rows[key]['btime'] > 0:
+                if db_rows[key]['btime'] != int(round(row['offbtime'] + row['downtime'], 0)):
+                    logging.info('Possible time drift between startup "'+ str(row['startup']) + 
+                                 '" and "' + str(db_rows[key]['startup']) + '"')
 
     db_conn.commit()
     db_conn.close()
