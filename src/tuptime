@@ -26,6 +26,7 @@ locale.setlocale(locale.LC_ALL, '')
 DATE_FORMAT = '%X %x'
 DEC = int(2)  # Decimals for seconds
 DECP = int(2)  # Decimals for percentages
+VERBOSE = False
 __version__ = '3.3.0-dev'
 
 
@@ -39,6 +40,8 @@ def get_arguments():
 
     def enable_verbose(*_):
         """Enable verbose mode"""
+        global VERBOSE
+        VERBOSE = True
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     parser = optparse.OptionParser()
@@ -343,7 +346,7 @@ def time_conv(secs):
 def since_opt(db_rows, arg, startups_num):
     """Get rows since a given row startup number registered"""
 
-    if arg.since < 0:  # For negative values
+    if arg.since < 0:  # Negative value start from bottom
         arg.since = db_rows[-1]['startup'] + arg.since + 1
         if arg.since < 0:
             logging.warning('Invalid "since" value. Reset to first.')
@@ -365,7 +368,7 @@ def since_opt(db_rows, arg, startups_num):
 def until_opt(db_rows, arg, startups_num):
     """Get rows until a given row startup number registered"""
 
-    if arg.until < 0:  # For negative values
+    if arg.until < 0:  # Negative value start from bottom
         arg.until = db_rows[-1]['startup'] + arg.until + 1
         if arg.until < 0:
             logging.warning('Invalid "until" value. Reset to last. ')
@@ -389,7 +392,7 @@ def until_opt(db_rows, arg, startups_num):
     return db_rows, arg
 
 
-def tuntil_opt(db_rows, arg):
+def tuntil_opt(db_rows, btime, uptime, arg):
     """Split and report rows until a given timestamp"""
 
     '''
@@ -407,7 +410,7 @@ def tuntil_opt(db_rows, arg):
 
     else:
 
-        if arg.tu < arg.ts:  # Sanity check
+        if arg.ts and arg.tu < arg.ts:  # Sanity check
             logging.warning('Option "tuntil" lower than "tsince". Reset to: ' + str(arg.ts))
             arg.tu = arg.ts
 
@@ -460,7 +463,7 @@ def tuntil_opt(db_rows, arg):
     return db_rows, arg
 
 
-def tsince_opt(db_rows, arg):
+def tsince_opt(db_rows, btime, uptime, arg):
     """Split and report rows since a given timestamp"""
 
     '''
@@ -473,7 +476,7 @@ def tsince_opt(db_rows, arg):
 
     elif arg.ts <= db_rows[0]['btime']:  # Sanity check
         logging.info('Option "tsince" lower or equal than first startup timestamp: '
-                        + str(db_rows[0]['btime']) + ' - Not applying.')
+                     + str(db_rows[0]['btime']) + ' - Not applying.')
 
     else:
         # Look for a match along all rows and get the offset
@@ -871,13 +874,13 @@ def print_default(db_rows, cuptime, cbtime, arg):
         if arg.kernel:
             print('System kernels: \t' + str(kernel_cnt))
         print('')
-        if larg_up_btime <= 0:
+        if isinstance( larg_up_btime, int ) and larg_up_btime <= 0:
             print('Largest uptime:\t\t'+ str(larg_up_uptime))
         else:
             print('Largest uptime:\t\t'+ str(larg_up_uptime) + '   from   ' + str(larg_up_btime))
         if arg.kernel:
             print('...with kernel: \t'+ str(larg_up_kern))
-        if shrt_up_btime <= 0:
+        if isinstance( shrt_up_btime, int ) and shrt_up_btime <= 0:
             print('Shortest uptime:\t'+ str(shrt_up_uptime))
         else:
             print('Shortest uptime:\t'+ str(shrt_up_uptime) + '   from   ' + str(shrt_up_btime))
@@ -885,14 +888,14 @@ def print_default(db_rows, cuptime, cbtime, arg):
             print('...with kernel: \t'+ str(shrt_up_kern))
         print('Average uptime: \t' + str(average_up))
         print('')
-        if larg_down_offbtime <= 0:
+        if isinstance( larg_down_offbtime, int ) and larg_down_offbtime <= 0:
             print('Largest downtime:\t'+ str(larg_down_downtime))
         else:
             print('Largest downtime:\t'+ str(larg_down_downtime) +
                   '   from   ' + str(larg_down_offbtime))
         if arg.kernel:
             print('...with kernel: \t'+ str(larg_down_kern))
-        if shrt_down_offbtime <= 0:
+        if isinstance( shrt_down_offbtime, int ) and shrt_down_offbtime <= 0:
             print('Shortest downtime:\t'+ str(shrt_down_downtime))
         else:
             print('Shortest downtime:\t'+ str(shrt_down_downtime) +
@@ -1010,7 +1013,7 @@ def main():
                 else:
                     logging.info('System btime drift since last run. Updating...')
                     conn.execute('update tuptime set btime = '+ str(btime) +', uptime = '+ str(uptime) +
-                                 ', endst = '+ str(arg.endst) + ', kernel = \''+ str(kernel) + 
+                                 ', endst = '+ str(arg.endst) + ', kernel = \''+ str(kernel) +
                                  '\' where rowid = (select max(rowid) from tuptime)')
 
         except sqlite3.OperationalError:
@@ -1030,12 +1033,11 @@ def main():
 
         startups_num = db_rows[-1]['startup']  # Startups by rowid number
 
-        if len(db_rows) != startups_num:  # Real startups are not equal to enumerate startups
-            logging.info('Deleted rows in db')
+        if len(db_rows) != startups_num and VERBOSE is True:  # Real startups are not equal to enumerate startups
+            logging.info('Possible deleted rows in db')
 
         db_rows = [dict(row) for row in db_rows]  # for allow item assignment
 
-                
         # If last row in db_rows is really the last register in db and update is needed
         if arg.update is True:
             # If the user can only read db, the previous select return outdated numbers in last row
@@ -1054,20 +1056,29 @@ def main():
         if arg.until:  # Parse until option
             db_rows, arg = until_opt(db_rows, arg, startups_num)
 
+        if arg.tu and arg.tu < 0:  # Negative value decrease actual timestamp
+           arg.tu = btime + uptime + arg.tu
+
+        if arg.ts and arg.ts < 0:  # Negative value decrease actual timestamp
+           arg.ts = btime + uptime + arg.ts
+
         if arg.tu:  # Parse tuntil option
-            db_rows, arg = tuntil_opt(db_rows, arg)
+            db_rows, arg = tuntil_opt(db_rows, btime, uptime, arg)
 
         if arg.ts:  # Parse tsince option
-            db_rows, arg = tsince_opt(db_rows, arg)
+            db_rows, arg = tsince_opt(db_rows, btime, uptime, arg)
 
         # Check for time drifts
         #    In a system without any time drift, shutdown date + downtime is equal to
         #    the next startup date. Test along all rows for inconsistencies
-        for key,row in enumerate(db_rows[:-1], 1):  # Key one step forward
-            if row['offbtime'] > 0 and db_rows[key]['btime'] > 0:
-                if db_rows[key]['btime'] != int(round(row['offbtime'] + row['downtime'], 0)):
-                    logging.info('Time drift between startup "'+ str(row['startup']) + 
-                                 '" and "' + str(db_rows[key]['startup']) + '"')
+        if VERBOSE is True:
+            drift_rows = []
+            for key, row in enumerate(db_rows[:-1], 1):  # Key one step forward
+                if row['offbtime'] > 0 and db_rows[key]['btime'] > 0:
+                    if db_rows[key]['btime'] != int(round(row['offbtime'] + row['downtime'], 0)):
+                        drift_rows.append([row['startup'], db_rows[key]['startup']])
+            if len(drift_rows) > 0:
+                logging.info('Time drift between rows: '+ str(drift_rows)[1:-1])
 
     db_conn.commit()
     db_conn.close()

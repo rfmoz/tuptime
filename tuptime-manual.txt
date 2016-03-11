@@ -359,6 +359,7 @@ These are the command line options, no configuration file is used:
   Examples:
           tuptime -S 34
           tuptime --since 22
+          tuptime -s -1
 
   
 -t, --table
@@ -376,6 +377,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime --tsince 1454998872
+         tuptime --tsince -1000
 
 
 --tuntil <TIMESTAMP>
@@ -384,6 +386,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime --tuntil 1454999619
+         tuptime --tuntil -1000
 
 
 -u, --uptime
@@ -404,6 +407,7 @@ These are the command line options, no configuration file is used:
   Examples:
           tuptime -U 45
           tuptime --since 11
+          tuptime -S -10
 
 
 -v, --verbose
@@ -480,6 +484,28 @@ Current uptime:
 
 
 
+=========================
+| Common info  messages |
+=========================
+
+If verbose argument is used (-v), some info messages are printed:
+
+INFO:Values not saved into db
+  Indicate that the user that execute tuptime don't have permission for write
+  in the database file and therefore, the values are not saved.
+  
+INFO:Time drift between rows: [x, x], [y, y]
+  Indicate that the startup date (btime) of a row was updated after startup and
+  don't match with the previous shutdown date + downtime (offbtime + downtime).
+  This is a common problem when the system start with a incorrect date and the
+  NTP service is running and adjust the clock.
+
+INFO:Possible deleted rows in db
+  Indicate that some rows was deleted in the db and the "No." of startups not
+  match with the number of table rows.
+
+
+
 =============================================
 | DB format changes from 2.x to 3.x version |
 =============================================
@@ -550,7 +576,3 @@ at startup and shutdown at least.
 Kernel name is registered each time that tuptime update values. If ksplice is
 used to update the kernel, last kernel will have the whole time asignement
 since the last system start.
-
-Table output can be processed with awk, for example:
-
-   # tuptime -t | awk -F'[[:space:]][[:space:]][[:space:]]*' '{print $1}'
