@@ -484,28 +484,6 @@ Current uptime:
 
 
 
-=========================
-| Common info  messages |
-=========================
-
-If verbose argument is used (-v), some info messages are printed:
-
-INFO:Values not saved into db
-  Indicate that the user that execute tuptime don't have permission for write
-  in the database file and therefore, the values are not saved.
-  
-INFO:Time drift between rows: [x, x], [y, y]
-  Indicate that the startup date (btime) of a row was updated after startup and
-  don't match with the previous shutdown date + downtime (offbtime + downtime).
-  This is a common problem when the system start with a incorrect date and the
-  NTP service is running and adjust the clock.
-
-INFO:Possible deleted rows in db
-  Indicate that some rows was deleted in the db and the "No." of startups not
-  match with the number of table rows.
-
-
-
 =============================================
 | DB format changes from 2.x to 3.x version |
 =============================================

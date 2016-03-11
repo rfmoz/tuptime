@@ -26,7 +26,6 @@ locale.setlocale(locale.LC_ALL, '')
 DATE_FORMAT = '%X %x'
 DEC = int(2)  # Decimals for seconds
 DECP = int(2)  # Decimals for percentages
-VERBOSE = False
 __version__ = '3.3.0-dev'
 
 
@@ -40,8 +39,6 @@ def get_arguments():
 
     def enable_verbose(*_):
         """Enable verbose mode"""
-        global VERBOSE
-        VERBOSE = True
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     parser = optparse.OptionParser()
@@ -1007,14 +1004,8 @@ def main():
                               str(kernel)))
             else:
                 logging.info('System wasn\'t restarted. Updating db values...')
-                if last_btime == btime:
-                    conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(arg.endst) +
-                                 ', kernel = \''+ str(kernel) + '\' where rowid = (select max(rowid) from tuptime)')
-                else:
-                    logging.info('System btime drift since last run. Updating...')
-                    conn.execute('update tuptime set btime = '+ str(btime) +', uptime = '+ str(uptime) +
-                                 ', endst = '+ str(arg.endst) + ', kernel = \''+ str(kernel) +
-                                 '\' where rowid = (select max(rowid) from tuptime)')
+                conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(arg.endst) +
+                             ', kernel = \''+ str(kernel) + '\' where rowid = (select max(rowid) from tuptime)')
 
         except sqlite3.OperationalError:
             logging.info('Values not saved into db')
@@ -1033,7 +1024,7 @@ def main():
 
         startups_num = db_rows[-1]['startup']  # Startups by rowid number
 
-        if len(db_rows) != startups_num and VERBOSE is True:  # Real startups are not equal to enumerate startups
+        if len(db_rows) != startups_num:  # Real startups are not equal to enumerate startups
             logging.info('Possible deleted rows in db')
 
         db_rows = [dict(row) for row in db_rows]  # for allow item assignment
@@ -1046,8 +1037,6 @@ def main():
             db_rows[-1]['endst'] = arg.endst
             db_rows[-1]['kernel'] = kernel
             db_rows[-1]['downtime'] = 0
-            if last_btime != btime:  # Update btime too if is not the same
-                db_rows[-1]['btime'] = btime
 
 
         if arg.since:  # Parse since option
@@ -1067,18 +1056,6 @@ def main():
 
         if arg.ts:  # Parse tsince option
             db_rows, arg = tsince_opt(db_rows, btime, uptime, arg)
-
-        # Check for time drifts
-        #    In a system without any time drift, shutdown date + downtime is equal to
-        #    the next startup date. Test along all rows for inconsistencies
-        if VERBOSE is True:
-            drift_rows = []
-            for key, row in enumerate(db_rows[:-1], 1):  # Key one step forward
-                if row['offbtime'] > 0 and db_rows[key]['btime'] > 0:
-                    if db_rows[key]['btime'] != int(round(row['offbtime'] + row['downtime'], 0)):
-                        drift_rows.append([row['startup'], db_rows[key]['startup']])
-            if len(drift_rows) > 0:
-                logging.info('Time drift between rows: '+ str(drift_rows)[1:-1])
 
     db_conn.commit()
     db_conn.close()
