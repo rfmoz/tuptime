@@ -874,13 +874,13 @@ def print_default(db_rows, cuptime, cbtime, arg):
         if arg.kernel:
             print('System kernels: \t' + str(kernel_cnt))
         print('')
-        if isinstance( larg_up_btime, int ) and larg_up_btime <= 0:
+        if isinstance(larg_up_btime, int) and larg_up_btime <= 0:
             print('Largest uptime:\t\t'+ str(larg_up_uptime))
         else:
             print('Largest uptime:\t\t'+ str(larg_up_uptime) + '   from   ' + str(larg_up_btime))
         if arg.kernel:
             print('...with kernel: \t'+ str(larg_up_kern))
-        if isinstance( shrt_up_btime, int ) and shrt_up_btime <= 0:
+        if isinstance(shrt_up_btime, int) and shrt_up_btime <= 0:
             print('Shortest uptime:\t'+ str(shrt_up_uptime))
         else:
             print('Shortest uptime:\t'+ str(shrt_up_uptime) + '   from   ' + str(shrt_up_btime))
@@ -888,14 +888,14 @@ def print_default(db_rows, cuptime, cbtime, arg):
             print('...with kernel: \t'+ str(shrt_up_kern))
         print('Average uptime: \t' + str(average_up))
         print('')
-        if isinstance( larg_down_offbtime, int ) and larg_down_offbtime <= 0:
+        if isinstance(larg_down_offbtime, int) and larg_down_offbtime <= 0:
             print('Largest downtime:\t'+ str(larg_down_downtime))
         else:
             print('Largest downtime:\t'+ str(larg_down_downtime) +
                   '   from   ' + str(larg_down_offbtime))
         if arg.kernel:
             print('...with kernel: \t'+ str(larg_down_kern))
-        if isinstance( shrt_down_offbtime, int ) and shrt_down_offbtime <= 0:
+        if isinstance(shrt_down_offbtime, int) and shrt_down_offbtime <= 0:
             print('Shortest downtime:\t'+ str(shrt_down_downtime))
         else:
             print('Shortest downtime:\t'+ str(shrt_down_downtime) +
@@ -918,27 +918,27 @@ def print_default(db_rows, cuptime, cbtime, arg):
         print('"System life","' + str(sys_life) + '"')
         if arg.kernel:
             print('"System kernels","' + str(kernel_cnt) + '"')
-        if larg_up_btime <= 0:
+        if isinstance(larg_up_btime, int) and larg_up_btime <= 0:
             print('"Largest uptime","'+ str(larg_up_uptime) + '"')
         else:
             print('"Largest uptime","'+ str(larg_up_uptime) + '","from","' + str(larg_up_btime) + '"')
         if arg.kernel:
             print('"...with kernel","'+ str(larg_up_kern) + '"')
-        if shrt_up_btime <= 0:
+        if isinstance(shrt_up_btime, int) and shrt_up_btime <= 0:
             print('"Shortest uptime","'+ str(shrt_up_uptime) + '"')
         else:
             print('"Shortest uptime","'+ str(shrt_up_uptime) + '","from","' + str(shrt_up_btime) + '"')
         if arg.kernel:
             print('"...with kernel","'+ str(shrt_up_kern) + '"')
         print('"Average uptime","' + str(average_up) + '"')
-        if larg_down_offbtime <= 0:
+        if isinstance(larg_down_offbtime, int) and larg_down_offbtime <= 0:
             print('"Largest downtime","'+ str(larg_down_downtime) + '"')
         else:
             print('"Largest downtime","'+ str(larg_down_downtime) +
                   '","from","' + str(larg_down_offbtime) + '"')
         if arg.kernel:
             print('"...with kernel","'+ str(larg_down_kern) + '"')
-        if shrt_down_offbtime <= 0:
+        if isinstance(shrt_down_offbtime, int) and shrt_down_offbtime <= 0:
             print('"Shortest downtime","'+ str(shrt_down_downtime) + '"')
         else:
             print('"Shortest downtime","'+ str(shrt_down_downtime) +
@@ -1057,10 +1057,10 @@ def main():
             db_rows, arg = until_opt(db_rows, arg, startups_num)
 
         if arg.tu and arg.tu < 0:  # Negative value decrease actual timestamp
-           arg.tu = btime + uptime + arg.tu
+            arg.tu = btime + uptime + arg.tu
 
         if arg.ts and arg.ts < 0:  # Negative value decrease actual timestamp
-           arg.ts = btime + uptime + arg.ts
+            arg.ts = btime + uptime + arg.ts
 
         if arg.tu:  # Parse tuntil option
             db_rows, arg = tuntil_opt(db_rows, btime, uptime, arg)
