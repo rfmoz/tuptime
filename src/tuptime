@@ -1030,9 +1030,8 @@ def main():
 
         startups_num = db_rows[-1]['startup']  # Startups by rowid number
 
-        if len(db_rows) != startups_num:
-            logging.info('Real startups are not equal to enumerate startups '
-                         '- possible deleted rows in db')
+        if len(db_rows) != startups_num:  # Real startups are not equal to enumerate startups
+            logging.info('Deleted rows in db')
 
         db_rows = [dict(row) for row in db_rows]  # for allow item assignment
 
@@ -1067,7 +1066,7 @@ def main():
         for key,row in enumerate(db_rows[:-1], 1):  # Key one step forward
             if row['offbtime'] > 0 and db_rows[key]['btime'] > 0:
                 if db_rows[key]['btime'] != int(round(row['offbtime'] + row['downtime'], 0)):
-                    logging.info('Possible time drift between startup "'+ str(row['startup']) + 
+                    logging.info('Time drift between startup "'+ str(row['startup']) + 
                                  '" and "' + str(db_rows[key]['startup']) + '"')
 
     db_conn.commit()
