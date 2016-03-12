@@ -304,22 +304,21 @@ def assure_state_db(btime, uptime, kernel, arg):
 def control_drift(last_btime, btime, uptime):
     """Control time drift due inconsistencies with system clock"""
 
+    offset = 0
+
     # If previous btime don't match in a runing system (not restarted)
     if last_btime != btime:
-        if last_btime > btime:
-            offset = last_btime - btime
-        else:
-            offset = btime - last_btime
-        logging.info('Time drift: ' + str(offset))
+        offset = btime - last_btime
+        logging.info('Time drift in btime: ' + str(offset))
 
         # Skip to a future run if offset is greather than uptime
         if uptime > offset:
-            uptime = uptime - offset
+            uptime = uptime + offset
             logging.info('Drifted uptime: ' + str(uptime))
         else:
             logging.info('Drift is greather than uptime. Skipping')
 
-    return uptime
+    return uptime, offset
 
 
 
@@ -974,6 +973,8 @@ def print_default(db_rows, cuptime, cbtime, arg):
 def main():
     """main entry point, core logic and database manage"""
 
+    offset = 0  # Store time drift
+
     arg = get_arguments()
 
     btime, uptime, kernel = get_os_values()
@@ -1029,7 +1030,7 @@ def main():
                               str(kernel)))
             else:
                 # Adjust time drift. Check only when system wasn't restarted
-                uptime = control_drift(last_btime, btime, uptime)
+                uptime, offset = control_drift(last_btime, btime, uptime)
 
                 logging.info('System wasn\'t restarted. Updating db values...')
                 conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(arg.endst) +
@@ -1074,10 +1075,10 @@ def main():
             db_rows, arg = until_opt(db_rows, arg, startups_num)
 
         if arg.tu and arg.tu < 0:  # Negative value decrease actual timestamp
-            arg.tu = btime + uptime + arg.tu
+            arg.tu = btime + uptime + arg.tu - offset
 
         if arg.ts and arg.ts < 0:  # Negative value decrease actual timestamp
-            arg.ts = btime + uptime + arg.ts
+            arg.ts = btime + uptime + arg.ts - offset
 
         if arg.tu:  # Parse tuntil option
             db_rows, arg = tuntil_opt(db_rows, btime, uptime, arg)
