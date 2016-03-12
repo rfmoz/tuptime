@@ -300,6 +300,29 @@ def assure_state_db(btime, uptime, kernel, arg):
         db_conn.close()
 
 
+
+def control_drift(last_btime, btime, uptime):
+    """Control time drift due inconsistencies with system clock"""
+
+    # If previous btime don't match in a runing system (not restarted)
+    if last_btime != btime:
+        if last_btime > btime:
+            offset = last_btime - btime
+        else:
+            offset = btime - last_btime
+        logging.info('Time drift: ' + str(offset))
+
+        # Skip to a future run if offset is greather than uptime
+        if uptime > offset:
+            uptime = uptime - offset
+            logging.info('Drifted uptime: ' + str(uptime))
+        else:
+            logging.info('Drift is greather than uptime. Skipping')
+
+    return uptime
+
+
+
 def time_conv(secs):
     """Convert seconds to human readable syle"""
 
@@ -972,17 +995,19 @@ def main():
     #    Checking if last_btime saved into db plus uptime is lower than actual btime
     #
     # In some particular cases the btime value from /proc/stat may change.
-    # Testing only last_btime vs actual btime can produce a false endst register.
-    # Usually happend on virtualized enviroments, servers with high load or when ntp are running.
+    # Testing only last_btime vs actual btime can produce a false startup register.
+    # This issue usually happend on virtualized enviroments, servers with high load, 
+    # high disk I/O or when ntp are running.
     # Related to kernel system clock frequency, computation of jiffies / HZ and the problem
     # of lost ticks.
-    # More info in Debian bug 119971 and rfc1589
+    # More info:
+    #    https://tools.ietf.org/html/rfc1589
+    #    https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=119971
+    #    http://unix.stackexchange.com/questions/118631/how-can-i-measure-and-prevent-clock-drift
     #
-    # For avoid problems with extreme corner cases, please be sure that the
-    # init/systemd script and cron
-    # line works as expected. A uptime record can be lost if tuptime is executed,
-    # at first time after boot,
-    # when the uptime is higher than the difference between btime - last_btime.
+    # For avoid problems with extreme corner cases, please be sure that the init/systemd script
+    # and cron line works as expected. A uptime record can be lost if tuptime is executed, at first
+    # time after boot, when the uptime is higher than the difference between btime - last_btime.
     if arg.update is True:
         try:
             if (last_btime + uptime) < btime:
@@ -1003,6 +1028,9 @@ def main():
                               str('0'),
                               str(kernel)))
             else:
+                # Adjust time drift. Check only when system wasn't restarted
+                uptime = control_drift(last_btime, btime, uptime)
+
                 logging.info('System wasn\'t restarted. Updating db values...')
                 conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(arg.endst) +
                              ', kernel = \''+ str(kernel) + '\' where rowid = (select max(rowid) from tuptime)')
