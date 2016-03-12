@@ -315,10 +315,12 @@ def control_drift(last_btime, btime, uptime):
         if uptime > offset:
             uptime = uptime + offset
             logging.info('Drifted uptime: ' + str(uptime))
+            btime = btime - offset
+            logging.info('Drifted btime: ' + str(btime))
         else:
             logging.info('Drift is greather than uptime. Skipping')
 
-    return uptime, offset
+    return uptime, btime, offset
 
 
 
@@ -411,7 +413,7 @@ def until_opt(db_rows, arg, startups_num):
     return db_rows, arg
 
 
-def tuntil_opt(db_rows, btime, uptime, arg):
+def tuntil_opt(db_rows, arg):
     """Split and report rows until a given timestamp"""
 
     '''
@@ -482,7 +484,7 @@ def tuntil_opt(db_rows, btime, uptime, arg):
     return db_rows, arg
 
 
-def tsince_opt(db_rows, btime, uptime, arg):
+def tsince_opt(db_rows, arg):
     """Split and report rows since a given timestamp"""
 
     '''
@@ -1030,7 +1032,7 @@ def main():
                               str(kernel)))
             else:
                 # Adjust time drift. Check only when system wasn't restarted
-                uptime, offset = control_drift(last_btime, btime, uptime)
+                uptime, btime, offset = control_drift(last_btime, btime, uptime)
 
                 logging.info('System wasn\'t restarted. Updating db values...')
                 conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(arg.endst) +
@@ -1075,16 +1077,16 @@ def main():
             db_rows, arg = until_opt(db_rows, arg, startups_num)
 
         if arg.tu and arg.tu < 0:  # Negative value decrease actual timestamp
-            arg.tu = btime + uptime + arg.tu - offset
+            arg.tu = btime + uptime + arg.tu
 
         if arg.ts and arg.ts < 0:  # Negative value decrease actual timestamp
-            arg.ts = btime + uptime + arg.ts - offset
+            arg.ts = btime + uptime + arg.ts
 
         if arg.tu:  # Parse tuntil option
-            db_rows, arg = tuntil_opt(db_rows, btime, uptime, arg)
+            db_rows, arg = tuntil_opt(db_rows, arg)
 
         if arg.ts:  # Parse tsince option
-            db_rows, arg = tsince_opt(db_rows, btime, uptime, arg)
+            db_rows, arg = tsince_opt(db_rows, arg)
 
     db_conn.commit()
     db_conn.close()
