@@ -803,6 +803,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
     total_downtime = 0
     bad_shdown = 0
     ok_shdown = 0
+    shutdowns = 0
     kernel_cnt = []
 
     # Parse rows getting counters
@@ -814,6 +815,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
                 bad_shdown += 1
             if row['endst'] == 1:
                 ok_shdown += 1
+            shutdowns += 1
 
         # Count totals
         total_uptime += row['uptime']
@@ -848,7 +850,10 @@ def print_default(db_rows, cuptime, cbtime, arg):
         uprate = round((total_uptime * 100) / sys_life, DECP)
         average_up = round((total_uptime / startups), DEC)
         downrate = round((total_downtime * 100) / sys_life, DECP)
-        average_down = round((total_downtime / startups), DEC)
+        if shutdowns > 0:
+            average_down = round((total_downtime / shutdowns), DEC)
+        else:
+            average_down = 0
     else:
         uprate = round(0, DEC)
         average_up = round(0, DEC)
