@@ -848,16 +848,19 @@ def print_default(db_rows, cuptime, cbtime, arg):
     # Get rates and average uptime / downtime
     if sys_life > 0:
         uprate = round((total_uptime * 100) / sys_life, DECP)
-        average_up = round((total_uptime / startups), DEC)
         downrate = round((total_downtime * 100) / sys_life, DECP)
-        if shutdowns > 0:
-            average_down = round((total_downtime / shutdowns), DEC)
-        else:
-            average_down = 0
     else:
         uprate = round(0, DEC)
-        average_up = round(0, DEC)
         downrate = round(0, DEC)
+
+    if startups > 0:
+        average_up = round((total_uptime / startups), DEC)
+    else:
+        average_up = round(0, DEC)
+
+    if shutdowns > 0:
+        average_down = round((total_downtime / shutdowns), DEC)
+    else:
         average_down = round(0, DEC)
 
     larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
