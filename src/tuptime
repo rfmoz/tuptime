@@ -396,12 +396,12 @@ def until_opt(db_rows, arg, startups_num):
             arg.until = db_rows[-1]['startup']
 
     if arg.until < arg.since:  # Sanity check
-        logging.warning('Option "until" can not be higher than "since". '
+        logging.warning('Option "until" can not be lower than "since". '
                         'Reset to: ' + str(arg.since))
         arg.until = arg.since
 
     if arg.until > startups_num:  # Sanity check
-        logging.warning('Option "until" can not be higher than last startup date. '
+        logging.warning('Option "until" can not be higher than last startup register. '
                         'Reset to: ' + str(startups_num))
         arg.until = startups_num
 
@@ -1069,7 +1069,7 @@ def main():
 
         db_rows = [dict(row) for row in db_rows]  # for allow item assignment
 
-        # If last row in db_rows is really the last register in db and update is needed
+        # If last row in db_rows is really the last register in db an update is needed
         if arg.update is True:
             # If the user can only read db, the previous select return outdated numbers in last row
             # because the db was not updated previously. The following snippet update that in memmory
