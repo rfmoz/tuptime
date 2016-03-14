@@ -432,7 +432,7 @@ def tuntil_opt(db_rows, arg):
     else:
 
         if arg.ts and arg.tu < arg.ts:  # Sanity check
-            logging.warning('Option "tuntil" lower than "tsince". Reset to: ' + str(arg.ts))
+            logging.info('Option "tuntil" lower than "tsince". Reset to: ' + str(arg.ts))
             arg.tu = arg.ts
 
         # Look for a match along all rows and get the offset
@@ -744,9 +744,9 @@ def print_default(db_rows, cuptime, cbtime, arg):
         else:
             # If the dict is empty, report 0 values.
             row = {}
-            row['btime'] = 0
+            row['btime'] = -1
             row['uptime'] = 0
-            row['offbtime'] = 0
+            row['offbtime'] = -1
             row['downtime'] = 0
             row['kernel'] = ''
 
