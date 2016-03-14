@@ -1,8 +1,9 @@
-tuptime (3.3.0-1) unstable; urgency=low
+tuptime (3.3.0-0.1) unstable; urgency=low
 
-  * Ship new debian package
+  * Non-maintainer upload.
+  * Release new version.
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Wed, 02 Feb 2016 15:25:00 +0100
+ -- Ricardo F. <rfraile@rfraile.eu>  Mon, 14 Mar 2016 22:40:00 +0100
 
 tuptime (3.2.3) unstable; urgency=low
 
