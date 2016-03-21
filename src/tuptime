@@ -308,15 +308,18 @@ def control_drift(last_btime, btime, uptime):
 
     # If previous btime don't match in a runing system (not restarted)
     if last_btime != btime:
-        offset = btime - last_btime
+        offset = btime - last_btime  # Calculate time offset
         logging.info('Time drift in btime: ' + str(offset))
 
-        # Skip to a future run if offset is greather than uptime
-        if uptime > offset:
+        # Apply offset to uptime and btime
+        if uptime > offset:  # Only if offset is lower than uptime
+            logging.info('System last timestamp: '+ str(btime + uptime))
             uptime = uptime + offset
             logging.info('Drifted uptime: ' + str(uptime))
             btime = btime - offset
             logging.info('Drifted btime: ' + str(btime))
+            logging.info('Tuptime last timestamp after drift: '+ str(btime + uptime))
+            # Tuptime timestamp must be equal to system timestamp after drift values
         else:
             logging.info('Drift is greather than uptime. Skipping')
 
