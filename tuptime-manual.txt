@@ -554,3 +554,9 @@ at startup and shutdown at least.
 Kernel name is registered each time that tuptime update values. If ksplice is
 used to update the kernel, last kernel will have the whole time asignement
 since the last system start.
+
+Tuptime take into account, for avoid false startup registers, minnor time 
+drifts produced normally in systems virtualized, with high load, with high 
+disk I/O or when ntp is running. Please, avoid any hard reset of time, done 
+with the deprecated 'ntpdate' or the new equivalent 'ntpd -q', this is a
+common situation in desktops after daylight saving time changes (DST).
