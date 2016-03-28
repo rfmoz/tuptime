@@ -557,5 +557,6 @@ since the last system start.
 
 As usual, if the system have configured a time zone with daylight saving time
 (DST), for avoid problems when the time change, the real time clock (RTC) 
-should have set to universal time coordinated (UTC), not local time. 
+should have set to universal time coordinated (UTC), not local time. Check it
+with 'timedatectl' command.
 http://tldp.org/HOWTO/Clock-2.html
