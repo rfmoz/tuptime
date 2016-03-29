@@ -60,10 +60,8 @@ cp -a ${F_TMP1}/src/tuptime ${D_BIN}/tuptime
 chmod 755 ${D_BIN}/tuptime
 
 echo "Creating tuptime user..."
-adduser --quiet --system --no-create-home --group \
-                --home "/var/lib/tuptime" \
-                --shell '/bin/sh' \
-                --gecos 'Tuptime execution user,,,' tuptime
+useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
+        --shell '/bin/sh' --comment 'Tuptime execution user,,,' tuptime
 
 echo "Creating tuptime db"
 tuptime -x
