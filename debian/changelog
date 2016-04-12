@@ -1,8 +1,10 @@
 tuptime (3.3.0-1) unstable; urgency=medium
 
-  * Make non-native release
+  [Antoine Beaupré]
+  * Complete switch to non-native package
+  * Fix build with git-buildpackage
 
- -- Antoine Beaupré <anarcat@debian.org>  Tue, 12 Apr 2016 08:59:27 -0400
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Tue, 12 Apr 2016 08:59:27 -0400
 
 tuptime (3.3.0) unstable; urgency=low
 
