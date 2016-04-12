@@ -1,9 +1,8 @@
-tuptime (3.3.0-0.1) unstable; urgency=low
+tuptime (3.3.0) unstable; urgency=low
 
-  * Non-maintainer upload.
   * Release new version.
 
- -- Ricardo F. <rfraile@rfraile.eu>  Mon, 14 Mar 2016 22:40:00 +0100
+ -- Antoine Beaupré <anarcat@debian.org>  Mon, 11 Apr 2016 09:59:43 -0500
 
 tuptime (3.2.3) unstable; urgency=low
 
