@@ -1,10 +1,10 @@
-.TH TUPTIME 23 November 2015 "3.2.4" "Linux Manual"
+.TH TUPTIME 1 "March 2016" "3.3.0" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical running time of the system, keeping it between restarts.
 
 .SH SYNOPSIS
-tuptime [\-h | \-\-help] [\-c | \-\-ckernel] [{\-d | \-\-date}=<date\ format] [\-e | \-\-end] [{\-f | \-\-filedb}=<database\ file]  [\-g | \-\-graceful] [\-k | \-\-kernel] [\-l | \-\-list] [\-o | \-\-offtime] [\-r | \-\-reverse] [\-s | \-\-seconds] [\-t | \-\-table] [\-u | \-\-uptime] [\-v | \-\-verbose]  [\-V | \-\-version] [\-x | \-\-silent]
+tuptime [\-h | \-\-help] [\-c | \-\-ckernel] [\-\-csv] [{\-d | \-\-date}=<date\ format] [\-e | \-\-end] [{\-f | \-\-filedb}=<database\ file]  [\-g | \-\-graceful] [\-k | \-\-kernel] [\-l | \-\-list] [\-n | \-\-noup]  [\-o | \-\-offtime] [\-r | \-\-reverse] [\-s | \-\-seconds] [\-S | \-\-since] [\-t | \-\-table] [\-\-tsince] [\-\-tuntil] [\-U | \-\-until] [\-u | \-\-uptime] [\-v | \-\-verbose]  [\-V | \-\-version] [\-x | \-\-silent]
 
 .SH DESCRIPTION
 Tuptime is a tool for report the historical and statistical running time of 
@@ -18,6 +18,8 @@ the system, keeping it between restarts. Indeed, it can:
   - Current uptime
   - Print formatted table or list with most of the previous values
   - Register used kernels
+  - Narrow reports since and/or until a given startup or timestamp
+  - Reports in csv
 
 .SH OPTIONS
 .SS FIELDS
@@ -26,6 +28,9 @@ the system, keeping it between restarts. Indeed, it can:
 .PP
 .B \-c | \-\-ckernel
 \- Classify / order by kernel
+.PP
+.B \-\-csv
+\- Output in csv format
 .PP
 .B \-d | \-\-date
 \- Date format
@@ -45,6 +50,9 @@ the system, keeping it between restarts. Indeed, it can:
 .B \-l | \-\-list
 \- Enumerate system life as list
 .PP
+.B \-n | \-\-noup
+\- Avoid update values
+.PP
 .B \-o | \-\-offtime
 \- Order by offtime / downtime
 .PP
@@ -54,8 +62,20 @@ the system, keeping it between restarts. Indeed, it can:
 .B \-s | \-\-seconds
 \- Output time in seconds and epoch
 .PP
+.B \-S | \-\-since
+\- Restric since this register number
+.PP
 .B \-t | \-\-table
 \- Enumerate system life as table
+.PP
+.B \-\-tsince
+\- Restrict since this timestamp
+.PP
+.B \-\-tuntil
+\- Restrict until this timestamp
+.PP
+.B \-U | \-\-until
+\- Restrict until this register number
 .PP
 .B \-u | \-\-uptime
 \- Order by uptime
@@ -81,7 +101,7 @@ Ricardo F. <rfraile@rfraile.eu>
 .PP
 .SH "COPYRIGHT"
 .IX Header "COPYRIGHT"
-Copyright (C) 2015 by Ricardo F. All Rights Reserved.
+Copyright (C) 2016 by Ricardo F. All Rights Reserved.
 This product is distributed in the hope that it will be useful, but
 WITHOUT any warranty; without even the implied warranty of 
 MERCHANTABILITY or FITNESS for a particular purpose.
