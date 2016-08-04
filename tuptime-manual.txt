@@ -440,7 +440,7 @@ These are the command line options, no configuration file is used:
 | Schedule execution |
 ======================
 
-It's importat to have a schedule execution. If the init or systemd scripts
+It's important to have a schedule execution. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
 shutdown, but if the system fails, hangs or whatever, the uptime time will
 be lost. Be sure that the cron entry is installed as expected.
@@ -533,26 +533,26 @@ key that uniquely identifies the row within its table in sqlite.
 For reset all the values, simply detele the database file.
 
 Is it possible to query and modify it directly. But if a complete row is
-deleted and the db is not recreate completely (vacuum), rowid keep the real
+deleted and the database is not recreate completely (vacuum), rowid keep the real
 information about startup number. Tuptime will advert about it if the verbose
 mode is enabled.
 
 
 
 ================
-| Some Toughts |
+| Some Thoughts |
 ================
 
-Tuptime can be executed with 'root' user, but it's recomendable the use of an
+Tuptime can be executed with 'root' user, but it's recommendable the use of an
 unprivileged user, like 'tuptime' as the installation section reflects for
 avoid security problems. In any case, if the database file is not writable by
 the user that execute tuptime, the changes are not saved. This situation is
 covered for print values, but not for update database, for that reason, a 
-user who can write in the db file must to execuete tuptime for update values
+user who can write in the database file must to execute tuptime for update values
 at startup and shutdown at least.
 
 Kernel name is registered each time that tuptime update values. If ksplice is
-used to update the kernel, last kernel will have the whole time asignement
+used to update the kernel, last kernel will have the whole time assignment
 since the last system start.
 
 As usual, if the system have configured a time zone with daylight saving time
