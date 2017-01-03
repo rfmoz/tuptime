@@ -615,6 +615,13 @@ def for_print(db_rows, arg):
                     row['offbtime'] = datetime.fromtimestamp(row['offbtime']).strftime(arg.date_format)
                     row['downtime'] = time_conv(row['downtime'])
 
+        if arg.seconds is not None:  # Fixed number of decimals always
+            if row['uptime'] != '':
+                row['uptime'] = ('{0:.'+str(DEC)+'f}').format(round(row['uptime'], DEC))
+
+            if row['downtime'] != '':
+                row['downtime'] = ('{0:.'+str(DEC)+'f}').format(round(row['downtime'], DEC))
+
         remap.append(row)
     return remap
 
@@ -855,18 +862,18 @@ def print_default(db_rows, cuptime, cbtime, arg):
         uprate = round((total_uptime * 100) / sys_life, DECP)
         downrate = round((total_downtime * 100) / sys_life, DECP)
     else:
-        uprate = round(0, DEC)
-        downrate = round(0, DEC)
+        uprate = 0
+        downrate = 0
 
     if startups > 0:
         average_up = round((total_uptime / startups), DEC)
     else:
-        average_up = round(0, DEC)
+        average_up = round(0.0, DEC)
 
     if shutdowns > 0:
         average_down = round((total_downtime / shutdowns), DEC)
     else:
-        average_down = round(0, DEC)
+        average_down = round(0.0, DEC)
 
     larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
     shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')

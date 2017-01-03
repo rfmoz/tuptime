@@ -1,6 +1,7 @@
 tuptime (3.3.1) unstable; urgency=low
 
   * Fix print kernel in list and table outputs in partial registers
+  * Consistent decimals output when seconds are used in table and list
 
  -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 3 Jan 2017 09:23:00 +0100
 
