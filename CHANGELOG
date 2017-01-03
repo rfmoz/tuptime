@@ -1,3 +1,10 @@
+tuptime (3.3.1) unstable; urgency=low
+
+  * Fix print kernel in list and table outputs in partial registers
+  * Adding systemd .timer as alternative to cron schedule
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Sun, 3 Jan 2017 09:23:00 +0100
+
 tuptime (3.3.0) unstable; urgency=low
 
   * Refactoring code
@@ -10,7 +17,7 @@ tuptime (3.3.0) unstable; urgency=low
   * Fix inconsistencies with seconds reports due rounded decimals
   * Fix inconsistencies when system clock drift
 
- -- Ricardo F. <rfraile@rfraile.eu>  Sat, 12 Mar 2015 10:51:00 +0100
+ -- Ricardo F. <rfraile@rfraile.eu>  Sat, 12 Mar 2016 10:51:00 +0100
 
 tuptime (3.2.3) unstable; urgency=low
 

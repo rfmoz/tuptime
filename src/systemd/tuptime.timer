@@ -1,0 +1,9 @@
+[Unit]
+Description=Tuptime service timer
+
+[Timer]
+OnBootSec=1min
+OnActiveSec=5min
+
+[Install]
+WantedBy=timers.target

@@ -1,3 +1,9 @@
+tuptime (3.3.1) unstable; urgency=low
+
+  * Fix print kernel in list and table outputs in partial registers
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 3 Jan 2017 09:23:00 +0100
+
 tuptime (3.3.0-2) unstable; urgency=medium
 
   * Remove creation of /var/lib/tuptime from debian/dirs and fall only in

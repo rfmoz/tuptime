@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 3.3.0
+                              version 3.3.1
                                 Ricardo F.
-                              28/March/2016
+                              03/January/2017
 
 
 
@@ -89,30 +89,32 @@ For Linux systems:
 
          # chown -R tuptime:tuptime /var/lib/tuptime
 
-      Copy cron file:
-
-         # cp tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
-         # chmod 644 /etc/cron.d/tuptime
-
-      If is a system with systemd, copy service file and enable it:
+      If is a system with systemd, copy service and timer file and enable both:
 	
          # cp tuptime/src/systemd/tuptime.service /lib/systemd/system/
          # chmod 644 /lib/systemd/system/tuptime.service
          # systemctl enable tuptime.service
+         # cp tuptime/src/systemd/tuptime.timer /lib/systemd/system/
+         # chmod 644 /lib/systemd/system/tuptime.timer
+         # systemctl enable tuptime.timer
 
-      If have upstart system, copy the file:
+      If have upstart system, copy the file and the cron execution:
 
          # cp tuptime/src/init.d/redhat/tuptime /etc/init.d/tuptime
 	 # chmod 755 /etc/init.d/tuptime
 	 # chkconfig --add tuptime
 	 # chkconfig tuptime on
+         # cp tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
+         # chmod 644 /etc/cron.d/tuptime
 
-      If have init system, copy the file:
+      If have init system, copy the file and the cron execution:
 
          # cp tuptime/src/init.d/debian/tuptime /etc/init.d/tuptime
          # chmod 755 /etc/init.d/tuptime
          # update-rc.d tuptime defaults
 	 # /etc/init.d/tuptime start
+         # cp tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
+         # chmod 644 /etc/cron.d/tuptime
 
 
 For FreeBSD system:
@@ -443,7 +445,8 @@ These are the command line options, no configuration file is used:
 It's important to have a schedule execution. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
 shutdown, but if the system fails, hangs or whatever, the uptime time will
-be lost. Be sure that the cron entry is installed as expected.
+be lost. Be sure that the cron entry or systemd timer are installed as
+expected.
 
 
 

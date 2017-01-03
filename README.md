@@ -90,7 +90,7 @@ Or this, with -l | --list option:
 	Downtime: 16 seconds
 	. . .
 
-Don't forget! For keep it updated, add it to the init system, to the cron service and use 'tuptime' user for execution. (Scripts/Units/Files provided inside this repo)
+Don't forget! For keep it updated, add it to the init system, to the cron service and use 'tuptime' user for execution. (All scripts, units and related files are provided inside this repo)
 
 
 
@@ -100,7 +100,7 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 - Is written in Python using common modules and as few as I can, easy to see whats inside it, modify if it is neccesary or port it to embedded devices.
 
-- It register the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it have the option for output the registers in seconds and epoch (-s), easy to pipe it to other commands.
+- It register the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it have the option for output the registers in seconds and epoch (-s) or/and in csv format, easy to pipe it to other commands.
 
 - Its main purpose is only one thing, tracking all of the system startups/shutdowns and present that information to the user with the more understandable way. Don't have mail alerts when a milestones are reached or the limitation of keep the last n records.
 

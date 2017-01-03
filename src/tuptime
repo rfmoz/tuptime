@@ -3,7 +3,7 @@
 
 """tuptime - Report the historical and statistical running time of the system,
 keeping it between restarts."""
-# Copyright (C) 2011-2016 - Ricardo F.
+# Copyright (C) 2011-2017 - Ricardo F.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ locale.setlocale(locale.LC_ALL, '')
 DATE_FORMAT = '%X %x'
 DEC = int(2)  # Decimals for seconds
 DECP = int(2)  # Decimals for percentages
-__version__ = '3.3.0'
+__version__ = '3.3.1'
 
 
 def get_arguments():
@@ -425,7 +425,7 @@ def tuntil_opt(db_rows, arg):
         - startup == 0 indicate any result, empty values
         - btime == -1 indicate that both btime and uptime are empty
         - btime == 0 indicate an empty btime only
-        - offbtime == -1 indicate that offbtime, downtime, endst and kernel are empty
+        - offbtime == -1 indicate that offbtime, downtime and endst are empty
         - offbtime ==  0 indicate an empty offbtime only
     '''
     
@@ -452,7 +452,6 @@ def tuntil_opt(db_rows, arg):
                     db_rows[ind]['offbtime'] = -1
                     db_rows[ind]['downtime'] = 0
                     db_rows[ind]['endst'] = -1
-                    db_rows[ind]['kernel'] = ''
                 # If is between btime and offbtime
                 # (offbtime is calculated directly with round 0 for avoid problem with uptime decimals)
                 elif arg.tu > row['btime'] and arg.tu < int(round(row['btime'] + row['uptime'], 0)):
@@ -461,7 +460,6 @@ def tuntil_opt(db_rows, arg):
                     db_rows[ind]['offbtime'] = -1
                     db_rows[ind]['downtime'] = 0
                     db_rows[ind]['endst'] = -1
-                    db_rows[ind]['kernel'] = ''
                 else:
                     # If is equal to offbtime, finish
                     if arg.tu == row['offbtime']:
@@ -570,6 +568,11 @@ def ordering_output(db_rows, arg):
 def for_print(db_rows, arg):
     """Prepare values for print"""
 
+    '''
+    Conventions:
+        Same as tuntil_opt and tsince_opt
+    '''
+
     remap = []  # For store procesed list
 
     # Following the conventions defined in tsince_opt and tuntil_opt...
@@ -594,7 +597,6 @@ def for_print(db_rows, arg):
             row['offbtime'] = ''
             row['endst'] = ''
             row['downtime'] = ''
-            row['kernel'] = ''
 
         else:
             if row['endst'] == 1:
