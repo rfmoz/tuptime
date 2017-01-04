@@ -764,9 +764,9 @@ def print_default(db_rows, cuptime, cbtime, arg):
 
         # Report based on the key requested
         if key == 'uptime':
-            return round(row['uptime'], DEC), row['btime'], row['kernel']
+            return float(round(row['uptime'], DEC)), row['btime'], row['kernel']
         elif key == 'downtime':
-            return round(row['downtime'], DEC), row['offbtime'], row['kernel']
+            return float(round(row['downtime'], DEC)), row['offbtime'], row['kernel']
 
 
     def extract_max_min_tst(db_rows, arg):
@@ -811,8 +811,8 @@ def print_default(db_rows, cuptime, cbtime, arg):
 
 
     # Initialize empty variables
-    total_uptime = 0
-    total_downtime = 0
+    total_uptime = 0.0
+    total_downtime = 0.0
     bad_shdown = 0
     ok_shdown = 0
     shutdowns = 0
@@ -862,18 +862,18 @@ def print_default(db_rows, cuptime, cbtime, arg):
         uprate = round((total_uptime * 100) / sys_life, DECP)
         downrate = round((total_downtime * 100) / sys_life, DECP)
     else:
-        uprate = 0
-        downrate = 0
+        uprate = 0.0
+        downrate = 0.0
 
     if startups > 0:
         average_up = round((total_uptime / startups), DEC)
     else:
-        average_up = round(0.0, DEC)
+        average_up = 0.0
 
     if shutdowns > 0:
         average_down = round((total_downtime / shutdowns), DEC)
     else:
-        average_down = round(0.0, DEC)
+        average_down = 0.0
 
     larg_up_uptime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
     shrt_up_uptime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
