@@ -880,6 +880,9 @@ def print_default(db_rows, cuptime, cbtime, arg):
     larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows, 'max', 'downtime')
     shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows, 'min', 'downtime')
 
+    total_uptime = round(total_uptime, DEC)
+    total_downtime = round(total_downtime, DEC)
+
     if arg.seconds is None:  # - Human readable style
         max_tstamp = datetime.fromtimestamp(max_tstamp).strftime(arg.date_format)
         min_tstamp = datetime.fromtimestamp(min_tstamp).strftime(arg.date_format)
