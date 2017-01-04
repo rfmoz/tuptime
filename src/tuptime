@@ -886,22 +886,40 @@ def print_default(db_rows, cuptime, cbtime, arg):
         larg_up_uptime = time_conv(larg_up_uptime)
         if larg_up_btime > 0:
             larg_up_btime = datetime.fromtimestamp(larg_up_btime).strftime(arg.date_format)
+        else:
+            larg_up_btime = str('')
         average_up = time_conv(average_up)
         shrt_up_uptime = time_conv(shrt_up_uptime)
         if shrt_up_btime > 0:
             shrt_up_btime = datetime.fromtimestamp(shrt_up_btime).strftime(arg.date_format)
+        else:
+            shrt_up_btime = str('')
         larg_down_downtime = time_conv(larg_down_downtime)
         if larg_down_offbtime > 0:
             larg_down_offbtime = datetime.fromtimestamp(larg_down_offbtime).strftime(arg.date_format)
+        else:
+            larg_down_offbtime = str('')
         average_down = time_conv(average_down)
         shrt_down_downtime = time_conv(shrt_down_downtime)
         if shrt_down_offbtime > 0:
             shrt_down_offbtime = datetime.fromtimestamp(shrt_down_offbtime).strftime(arg.date_format)
+        else:
+            shrt_down_offbtime = str('')
         cuptime = time_conv(cuptime)
         cbtime = datetime.fromtimestamp(cbtime).strftime(arg.date_format)
         total_uptime = time_conv(total_uptime)
         total_downtime = time_conv(total_downtime)
         sys_life = time_conv(sys_life)
+    else:
+        # Avoid print nonexistent times
+        if larg_up_btime <= 0:
+            larg_up_btime = str('')
+        if shrt_up_btime <= 0:
+            shrt_up_btime = str('')
+        if larg_down_offbtime <= 0:
+            larg_down_offbtime = str('')
+        if shrt_down_offbtime <= 0:
+            shrt_down_offbtime = str('')
 
     if arg.csv is False:
         if arg.tu or arg.until:
@@ -915,13 +933,13 @@ def print_default(db_rows, cuptime, cbtime, arg):
         if arg.kernel:
             print('System kernels: \t' + str(kernel_cnt))
         print('')
-        if isinstance(larg_up_btime, int) and larg_up_btime <= 0:
+        if isinstance(larg_up_btime, str):
             print('Largest uptime:\t\t'+ str(larg_up_uptime))
         else:
             print('Largest uptime:\t\t'+ str(larg_up_uptime) + '   from   ' + str(larg_up_btime))
         if arg.kernel:
             print('...with kernel: \t'+ str(larg_up_kern))
-        if isinstance(shrt_up_btime, int) and shrt_up_btime <= 0:
+        if isinstance(shrt_up_btime, str):
             print('Shortest uptime:\t'+ str(shrt_up_uptime))
         else:
             print('Shortest uptime:\t'+ str(shrt_up_uptime) + '   from   ' + str(shrt_up_btime))
@@ -929,14 +947,14 @@ def print_default(db_rows, cuptime, cbtime, arg):
             print('...with kernel: \t'+ str(shrt_up_kern))
         print('Average uptime: \t' + str(average_up))
         print('')
-        if isinstance(larg_down_offbtime, int) and larg_down_offbtime <= 0:
+        if isinstance(larg_down_offbtime, str):
             print('Largest downtime:\t'+ str(larg_down_downtime))
         else:
             print('Largest downtime:\t'+ str(larg_down_downtime) +
                   '   from   ' + str(larg_down_offbtime))
         if arg.kernel:
             print('...with kernel: \t'+ str(larg_down_kern))
-        if isinstance(shrt_down_offbtime, int) and shrt_down_offbtime <= 0:
+        if isinstance(shrt_down_offbtime, str):
             print('Shortest downtime:\t'+ str(shrt_down_downtime))
         else:
             print('Shortest downtime:\t'+ str(shrt_down_downtime) +
@@ -959,27 +977,27 @@ def print_default(db_rows, cuptime, cbtime, arg):
         print('"System life","' + str(sys_life) + '"')
         if arg.kernel:
             print('"System kernels","' + str(kernel_cnt) + '"')
-        if isinstance(larg_up_btime, int) and larg_up_btime <= 0:
+        if isinstance(larg_up_btime, str):
             print('"Largest uptime","'+ str(larg_up_uptime) + '"')
         else:
             print('"Largest uptime","'+ str(larg_up_uptime) + '","from","' + str(larg_up_btime) + '"')
         if arg.kernel:
             print('"...with kernel","'+ str(larg_up_kern) + '"')
-        if isinstance(shrt_up_btime, int) and shrt_up_btime <= 0:
+        if isinstance(shrt_up_btime, str):
             print('"Shortest uptime","'+ str(shrt_up_uptime) + '"')
         else:
             print('"Shortest uptime","'+ str(shrt_up_uptime) + '","from","' + str(shrt_up_btime) + '"')
         if arg.kernel:
             print('"...with kernel","'+ str(shrt_up_kern) + '"')
         print('"Average uptime","' + str(average_up) + '"')
-        if isinstance(larg_down_offbtime, int) and larg_down_offbtime <= 0:
+        if isinstance(larg_down_offbtime, str):
             print('"Largest downtime","'+ str(larg_down_downtime) + '"')
         else:
             print('"Largest downtime","'+ str(larg_down_downtime) +
                   '","from","' + str(larg_down_offbtime) + '"')
         if arg.kernel:
             print('"...with kernel","'+ str(larg_down_kern) + '"')
-        if isinstance(shrt_down_offbtime, int) and shrt_down_offbtime <= 0:
+        if isinstance(shrt_down_offbtime, str):
             print('"Shortest downtime","'+ str(shrt_down_downtime) + '"')
         else:
             print('"Shortest downtime","'+ str(shrt_down_downtime) +
