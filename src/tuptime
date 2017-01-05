@@ -728,15 +728,14 @@ def print_default(db_rows, cuptime, cbtime, arg):
         # rows are deleted in each case
         dbr = db_rows[:]
 
-        # Times without a offbtime/btime are incomplete (partial times)
-        # and are removed for avoid report them
+        # Remove empty startup and downtime dates for avoid report them
         if key == 'downtime':
             for row in dbr:
-                if row['offbtime'] <= 0:
+                if row['offbtime'] < 0:
                     dbr.remove(row)
         if key == 'uptime':
             for row in dbr:
-                if row['btime'] <= 0:
+                if row['btime'] < 0: 
                     dbr.remove(row)
 
         # Extract max/min values from the complete time rows only if

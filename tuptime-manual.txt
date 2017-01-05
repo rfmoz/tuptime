@@ -475,12 +475,11 @@ Largest uptime:
 Shortest uptime:
 Largest downtime:
 Shortest downtime:
-  Time counter and date with the large/short uptime complete register. Narrow
-  ranges can produce incomplete registers and are excluded.
+  Time counter and date with the large/short uptime register. 
 
 Average uptime:
 Average downtime: 
-  Time counter with the average time. Narrow ranges are included.
+  Time counter with the average time.
 
 Current uptime:
   Actual time counter and date. Always is update, even if no update is used.
