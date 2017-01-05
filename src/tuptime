@@ -880,40 +880,22 @@ def print_default(db_rows, cuptime, cbtime, arg):
         larg_up_uptime = time_conv(larg_up_uptime)
         if larg_up_btime > 0:
             larg_up_btime = datetime.fromtimestamp(larg_up_btime).strftime(arg.date_format)
-        else:
-            larg_up_btime = None
         average_up = time_conv(average_up)
         shrt_up_uptime = time_conv(shrt_up_uptime)
         if shrt_up_btime > 0:
             shrt_up_btime = datetime.fromtimestamp(shrt_up_btime).strftime(arg.date_format)
-        else:
-            shrt_up_btime = None
         larg_down_downtime = time_conv(larg_down_downtime)
         if larg_down_offbtime > 0:
             larg_down_offbtime = datetime.fromtimestamp(larg_down_offbtime).strftime(arg.date_format)
-        else:
-            larg_down_offbtime = None
         average_down = time_conv(average_down)
         shrt_down_downtime = time_conv(shrt_down_downtime)
         if shrt_down_offbtime > 0:
             shrt_down_offbtime = datetime.fromtimestamp(shrt_down_offbtime).strftime(arg.date_format)
-        else:
-            shrt_down_offbtime = None
         cuptime = time_conv(cuptime)
         cbtime = datetime.fromtimestamp(cbtime).strftime(arg.date_format)
         total_uptime = time_conv(total_uptime)
         total_downtime = time_conv(total_downtime)
         sys_life = time_conv(sys_life)
-    else:
-        # Avoid print nonexistent times
-        if larg_up_btime < 0:
-            larg_up_btime = None
-        if shrt_up_btime < 0:
-            shrt_up_btime = None
-        if larg_down_offbtime < 0:
-            larg_down_offbtime = None
-        if shrt_down_offbtime < 0:
-            shrt_down_offbtime = None
 
     if arg.csv is False:  # Define content/spaces between values
         sp0 = ''
