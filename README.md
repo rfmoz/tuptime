@@ -96,13 +96,13 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 ### What offer tuptime different than other alternatives like uptimed and downtimed
 
-- It doesn't run as a daemon, at least, it only need execution when the init manager startup and shutdown the system. For avoid problems with behaviours that can produce a switch off without a proper shutdown, like power failures, a cron job is shipped with the project for update the registers each n minutes. As a system administrator, you can easily choose the best number for your particular system requirements.
+- It doesn't run as a daemon, at least, it only need execution when the init manager startup and shutdown the system. For avoid problems with behaviours that can produce a switch off without a proper shutdown, like power failures, a cron job and a .timer unit are shipped with the project for update the registers each n minutes. As a system administrator, you can easily choose the best number for your particular system requirements.
 
-- Is written in Python using common modules and as few as I can, easy to see whats inside it, modify if it is neccesary or port it to embedded devices.
+- Is written in Python using common modules and as few as I can, easy to see whats inside it, modify if it is neccesary or use  it in embedded devices.
 
 - It register the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it have the option for output the registers in seconds and epoch (-s) or/and in csv format, easy to pipe it to other commands.
 
-- Its main purpose is only one thing, tracking all of the system startups/shutdowns and present that information to the user with the more understandable way. Don't have mail alerts when a milestones are reached or the limitation of keep the last n records.
+- Its main purpose is tracking all the system startups/shutdowns and present that information to the user in the more understandable way. Don't have mail alerts when a milestones are reached or the limitation of keep the last n records.
 
 - Its written for avoid false startups registers, actually there are some issues with other alternatives related to that. This is an issue that sometimes happens on virtualized enviroments, servers with high load or when ntp are running.
 

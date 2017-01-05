@@ -445,7 +445,7 @@ These are the command line options, no configuration file is used:
 It's important to have a schedule execution. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
 shutdown, but if the system fails, hangs or whatever, the uptime time will
-be lost. Be sure that the cron entry or systemd timer are installed as
+be lost. Be sure that the cron entry or systemd .timer unit are installed as
 expected.
 
 

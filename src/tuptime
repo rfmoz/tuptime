@@ -259,7 +259,6 @@ def get_os_values():
     return btime, uptime, kernel
 
 
-
 def assure_state_db(btime, uptime, kernel, arg):
     """Assure state of db file and related directories"""
 
@@ -300,7 +299,6 @@ def assure_state_db(btime, uptime, kernel, arg):
         db_conn.close()
 
 
-
 def control_drift(last_btime, btime, uptime):
     """Control time drift due inconsistencies with system clock"""
 
@@ -324,7 +322,6 @@ def control_drift(last_btime, btime, uptime):
             logging.info('Drift is greather than uptime. Skipping')
 
     return uptime, btime, offset
-
 
 
 def time_conv(secs):
@@ -661,7 +658,6 @@ def print_list(db_rows, arg):
             print('')
 
 
-
 def print_table(db_rows, arg):
     """Print values as table"""
 
@@ -920,60 +916,60 @@ def print_default(db_rows, cuptime, cbtime, arg):
     if arg.csv is False:  # Define content/spaces between values
         sp0 = ''
         sp1 = ':\t'
-        sp2 = '   '
-        sp3 = ': \t\t'
-        sp4 = ': \t'
-        sp5 = ' '
+        sp2 = ': \t'
+        sp3 = ': \t\t'        
+        sp4 = ' '
+        sp5 = '   '
         sp6 = '   -   '
     else:
         sp0 = '"'
         sp1 = sp2 = sp3 = sp4 = sp5 = sp6 = '","'
 
     if arg.tu or arg.until:
-        print(sp0 + 'System startups' + sp1 + str(startups) + sp2 + 'since' + sp2 + str(min_tstamp) + sp2 + 'until' + sp2 + str(max_tstamp) + sp0)
+        print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp5 + 'until' + sp5 + str(max_tstamp) + sp0)
     else:
-        print(sp0 + 'System startups' + sp1 + str(startups) + sp2 + 'since' + sp2 + str(min_tstamp) + sp0)
-    print(sp0 + 'System shutdowns' + sp1 + str(ok_shdown) + sp5 + 'ok' + sp6 + str(bad_shdown) +  sp5 + 'bad' + sp0)
+        print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp0)
+    print(sp0 + 'System shutdowns' + sp1 + str(ok_shdown) + sp4 + 'ok' + sp6 + str(bad_shdown) +  sp4 + 'bad' + sp0)
     print(sp0 + 'System uptime' + sp3 + str(uprate) + ' %' + sp6 + str(total_uptime) + sp0)
-    print(sp0 + 'System downtime' + sp4 + str(downrate) + ' %' + sp6 + str(total_downtime) + sp0)
+    print(sp0 + 'System downtime' + sp2 + str(downrate) + ' %' + sp6 + str(total_downtime) + sp0)
     print(sp0 + 'System life' + sp3 + str(sys_life) + sp0)
     if arg.kernel:
-        print(sp0 + 'System kernels' + sp4 + str(kernel_cnt) + sp0)
+        print(sp0 + 'System kernels' + sp2 + str(kernel_cnt) + sp0)
     if arg.csv is False:
         print('')
     if isinstance(larg_up_btime, str):
-        print(sp0 + 'Largest uptime' + sp4 + str(larg_up_uptime) + sp0)
+        print(sp0 + 'Largest uptime' + sp2 + str(larg_up_uptime) + sp0)
     else:
-        print(sp0 + 'Largest uptime' + sp4 + str(larg_up_uptime) + sp2 + 'from' + sp2 + str(larg_up_btime) + sp0)
+        print(sp0 + 'Largest uptime' + sp2 + str(larg_up_uptime) + sp5 + 'from' + sp5 + str(larg_up_btime) + sp0)
     if arg.kernel:
-        print(sp0 + '...with kernel' + sp4 + str(larg_up_kern) + sp0)
+        print(sp0 + '...with kernel' + sp2 + str(larg_up_kern) + sp0)
     if isinstance(shrt_up_btime, str):
         print(sp0 + 'Shortest uptime' + sp1 + str(shrt_up_uptime) + sp0)
     else:
-        print(sp0 + 'Shortest uptime' + sp1 + str(shrt_up_uptime) + sp2 + 'from' + sp2 + str(shrt_up_btime) + sp0)
+        print(sp0 + 'Shortest uptime' + sp1 + str(shrt_up_uptime) + sp5 + 'from' + sp5 + str(shrt_up_btime) + sp0)
     if arg.kernel:
         print(sp0 + '...with kernel' + sp1 + str(shrt_up_kern) + sp0)
-    print(sp0 + 'Average uptime' + sp4 + str(average_up) + sp0)
+    print(sp0 + 'Average uptime' + sp2 + str(average_up) + sp0)
     if arg.csv is False:
         print('')
     if isinstance(larg_down_offbtime, str):
         print(sp0 + 'Largest downtime'+ sp1 + str(larg_down_downtime) + sp0)
     else:
-        print(sp0 + 'Largest downtime'+ sp1 + str(larg_down_downtime) + sp2 + 'from' + sp2 + str(larg_down_offbtime) + sp0)
+        print(sp0 + 'Largest downtime'+ sp1 + str(larg_down_downtime) + sp5 + 'from' + sp5 + str(larg_down_offbtime) + sp0)
     if arg.kernel:
-        print(sp0 + '...with kernel' + sp4 + str(larg_down_kern) + sp0)
+        print(sp0 + '...with kernel' + sp2 + str(larg_down_kern) + sp0)
     if isinstance(shrt_down_offbtime, str):
         print(sp0 + 'Shortest downtime'+ sp1 + str(shrt_down_downtime) + sp0)
     else:
-        print(sp0 + 'Shortest downtime'+ sp1 + str(shrt_down_downtime) + sp2 + 'from' + sp2 + str(shrt_down_offbtime) + sp0)
+        print(sp0 + 'Shortest downtime'+ sp1 + str(shrt_down_downtime) + sp5 + 'from' + sp5 + str(shrt_down_offbtime) + sp0)
         if arg.kernel:
-            print(sp0 + '...with kernel' + sp4 + str(shrt_down_kern) + sp0)
-    print(sp0 + 'Average downtime' + sp4 + str(average_down) + sp0)
+            print(sp0 + '...with kernel' + sp2 + str(shrt_down_kern) + sp0)
+    print(sp0 + 'Average downtime' + sp2 + str(average_down) + sp0)
     if arg.csv is False:
         print('')
-    print(sp0 + 'Current uptime' + sp4 + str(cuptime) + sp2 + 'since' + sp2  + str(cbtime) + sp0)
+    print(sp0 + 'Current uptime' + sp2 + str(cuptime) + sp5 + 'since' + sp5  + str(cbtime) + sp0)
     if arg.kernel:
-        print(sp0 + '...with kernel' + sp4 + str(db_rows[-1]['kernel']) + sp0)
+        print(sp0 + '...with kernel' + sp2 + str(db_rows[-1]['kernel']) + sp0)
 
 
 def main():
@@ -1073,7 +1069,6 @@ def main():
             db_rows[-1]['endst'] = arg.endst
             db_rows[-1]['kernel'] = kernel
             db_rows[-1]['downtime'] = 0
-
 
         if arg.since:  # Parse since option
             db_rows, arg = since_opt(db_rows, arg, startups_num)
