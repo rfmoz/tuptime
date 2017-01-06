@@ -209,7 +209,7 @@ def get_arguments():
         if not arg.table and not arg.lst:
             parser.error('used operators must be combined with [-t|--table]  or [-l|--list]')
 
-    logging.info('Arguments: '+ str(arg))
+    logging.info('Arguments: ' + str(arg))
     return arg
 
 
@@ -269,16 +269,16 @@ def assure_state_db(btime, uptime, kernel, arg):
 
     # Test path
     if os.path.isdir(os.path.dirname(arg.db_file)):
-        logging.info('Directory exists = '+ str(os.path.dirname(arg.db_file)))
+        logging.info('Directory exists = ' + str(os.path.dirname(arg.db_file)))
     else:
-        logging.info('Creating path = '+ str(os.path.dirname(arg.db_file)))
+        logging.info('Creating path = ' + str(os.path.dirname(arg.db_file)))
         os.makedirs(os.path.dirname(arg.db_file))
 
     # Test and create db with the initial values
     if os.path.isfile(arg.db_file):
-        logging.info('DB file exists = '+ str(arg.db_file))
+        logging.info('DB file exists = ' + str(arg.db_file))
     else:
-        logging.info('Creating DB file = '+ str(arg.db_file))
+        logging.info('Creating DB file = ' + str(arg.db_file))
         db_conn = sqlite3.connect(arg.db_file)
         conn = db_conn.cursor()
         conn.execute('create table if not exists tuptime'
@@ -311,12 +311,12 @@ def control_drift(last_btime, btime, uptime):
 
         # Apply offset to uptime and btime
         if uptime > offset:  # Only if offset is lower than uptime
-            logging.info('System last timestamp: '+ str(btime + uptime))
+            logging.info('System last timestamp: ' + str(btime + uptime))
             uptime = uptime + offset
             logging.info('Drifted uptime: ' + str(uptime))
             btime = btime - offset
             logging.info('Drifted btime: ' + str(btime))
-            logging.info('Tuptime last timestamp after drift: '+ str(btime + uptime))
+            logging.info('Tuptime last timestamp after drift: ' + str(btime + uptime))
             # Tuptime timestamp must be equal to system timestamp after drift values
         else:
             logging.info('Drift is greather than uptime. Skipping')
@@ -350,9 +350,9 @@ def time_conv(secs):
             continue
         else:
             if (int(dtm[key])) == 1:  # Not plural for 1 unit
-                human_dtm += str(int(dtm[key]))+' '+str(key[:-1]) + ', '
+                human_dtm += str(int(dtm[key])) + ' ' + str(key[:-1]) + ', '
             else:
-                human_dtm += str(int(dtm[key]))+' '+str(key) + ', '
+                human_dtm += str(int(dtm[key])) + ' ' + str(key) + ', '
             zero_enter = False
 
     # Nice sentence end, remove comma
@@ -425,7 +425,7 @@ def tuntil_opt(db_rows, arg):
         - offbtime == -1 indicate that offbtime, downtime and endst are empty
         - offbtime ==  0 indicate an empty offbtime only
     '''
-    
+
     if arg.tu < 0:  # Sanity check
         logging.warning('Option "tuntil" lower than 0 - Not applying.')
 
@@ -614,10 +614,10 @@ def for_print(db_rows, arg):
 
         if arg.seconds is not None:  # Fixed number of decimals always
             if row['uptime'] != '':
-                row['uptime'] = ('{0:.'+str(DEC)+'f}').format(round(row['uptime'], DEC))
+                row['uptime'] = ('{0:.' + str(DEC) + 'f}').format(round(row['uptime'], DEC))
 
             if row['downtime'] != '':
-                row['downtime'] = ('{0:.'+str(DEC)+'f}').format(round(row['downtime'], DEC))
+                row['downtime'] = ('{0:.' + str(DEC) + 'f}').format(round(row['downtime'], DEC))
 
         remap.append(row)
     return remap
@@ -633,9 +633,9 @@ def print_list(db_rows, arg):
             sp0 = ''
             sp1 = '  '
             sp2 = ': '
-            sp3 = ':  '            
+            sp3 = ':  '
             sp4 = ':   '
-            
+
         else:
             sp0 = '"'
             sp4 = sp3 = sp2 = sp1 = '","'
@@ -702,7 +702,7 @@ def print_table(db_rows, arg):
             sys.stdout.write(str(row[0]).ljust(colpad[0]))
             for i in range(1, len(row)):
                 col = str(row[i]).rjust(colpad[i] + side_spaces)
-                sys.stdout.write(str(''+  col))
+                sys.stdout.write(str('' + col))
             print('')
     else:
 
@@ -712,7 +712,7 @@ def print_table(db_rows, arg):
                 continue
 
             for key, value in enumerate(row):
-                sys.stdout.write('"'+value+'"')
+                sys.stdout.write('"' + value + '"')
                 if (key + 1) != len(row):
                     sys.stdout.write(',')
             print("")
@@ -735,7 +735,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
                     dbr.remove(row)
         if key == 'uptime':
             for row in dbr:
-                if row['btime'] < 0: 
+                if row['btime'] < 0:
                     dbr.remove(row)
 
         # Extract max/min values from the complete time rows only if
@@ -758,7 +758,6 @@ def print_default(db_rows, cuptime, cbtime, arg):
             return float(round(row['uptime'], DEC)), row['btime'], row['kernel']
         elif key == 'downtime':
             return float(round(row['downtime'], DEC)), row['offbtime'], row['kernel']
-
 
     def extract_max_min_tst(db_rows, arg):
         """Extract max and min timestamps values available"""
@@ -799,7 +798,6 @@ def print_default(db_rows, cuptime, cbtime, arg):
             max_tstamp = min_tstamp
 
         return max_tstamp, min_tstamp
-
 
     # Initialize empty variables
     total_uptime = 0.0
@@ -901,7 +899,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
         sp0 = ''
         sp1 = ':\t'
         sp2 = ': \t'
-        sp3 = ': \t\t'        
+        sp3 = ': \t\t'
         sp4 = ' '
         sp5 = '   '
         sp6 = '   -   '
@@ -913,7 +911,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp5 + 'until' + sp5 + str(max_tstamp) + sp0)
     else:
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp0)
-    print(sp0 + 'System shutdowns' + sp1 + str(ok_shdown) + sp4 + 'ok' + sp6 + str(bad_shdown) +  sp4 + 'bad' + sp0)
+    print(sp0 + 'System shutdowns' + sp1 + str(ok_shdown) + sp4 + 'ok' + sp6 + str(bad_shdown) + sp4 + 'bad' + sp0)
     print(sp0 + 'System uptime' + sp3 + str(uprate) + ' %' + sp6 + str(total_uptime) + sp0)
     print(sp0 + 'System downtime' + sp2 + str(downrate) + ' %' + sp6 + str(total_downtime) + sp0)
     print(sp0 + 'System life' + sp3 + str(sys_life) + sp0)
@@ -937,21 +935,21 @@ def print_default(db_rows, cuptime, cbtime, arg):
     if arg.csv is False:
         print('')
     if isinstance(larg_down_offbtime, str) or larg_down_offbtime > 0:
-        print(sp0 + 'Largest downtime'+ sp1 + str(larg_down_downtime) + sp5 + 'from' + sp5 + str(larg_down_offbtime) + sp0)
+        print(sp0 + 'Largest downtime' + sp1 + str(larg_down_downtime) + sp5 + 'from' + sp5 + str(larg_down_offbtime) + sp0)
     else:
-        print(sp0 + 'Largest downtime'+ sp1 + str(larg_down_downtime) + sp0)
+        print(sp0 + 'Largest downtime' + sp1 + str(larg_down_downtime) + sp0)
     if arg.kernel:
         print(sp0 + '...with kernel' + sp2 + str(larg_down_kern) + sp0)
     if isinstance(shrt_down_offbtime, str) or shrt_down_offbtime > 0:
-        print(sp0 + 'Shortest downtime'+ sp1 + str(shrt_down_downtime) + sp5 + 'from' + sp5 + str(shrt_down_offbtime) + sp0)
+        print(sp0 + 'Shortest downtime' + sp1 + str(shrt_down_downtime) + sp5 + 'from' + sp5 + str(shrt_down_offbtime) + sp0)
     else:
-        print(sp0 + 'Shortest downtime'+ sp1 + str(shrt_down_downtime) + sp0)
+        print(sp0 + 'Shortest downtime' + sp1 + str(shrt_down_downtime) + sp0)
     if arg.kernel:
         print(sp0 + '...with kernel' + sp2 + str(shrt_down_kern) + sp0)
     print(sp0 + 'Average downtime' + sp2 + str(average_down) + sp0)
     if arg.csv is False:
         print('')
-    print(sp0 + 'Current uptime' + sp2 + str(cuptime) + sp5 + 'since' + sp5  + str(cbtime) + sp0)
+    print(sp0 + 'Current uptime' + sp2 + str(cuptime) + sp5 + 'since' + sp5 + str(cbtime) + sp0)
     if arg.kernel:
         print(sp0 + '...with kernel' + sp2 + str(db_rows[-1]['kernel']) + sp0)
 
@@ -974,8 +972,8 @@ def main():
 
     conn.execute('select btime, uptime from tuptime where rowid = (select max(rowid) from tuptime)')
     last_btime, last_uptime = conn.fetchone()
-    logging.info('Last btime from db = '+ str(last_btime))
-    logging.info('Last uptime from db = '+ str(last_uptime))
+    logging.info('Last btime from db = ' + str(last_btime))
+    logging.info('Last uptime from db = ' + str(last_uptime))
     lasts = last_btime + last_uptime
 
     # - Test if system was resterted
@@ -984,7 +982,7 @@ def main():
     #
     # In some particular cases the btime value from /proc/stat may change.
     # Testing only last_btime vs actual btime can produce a false startup register.
-    # This issue usually happend on virtualized enviroments, servers with high load, 
+    # This issue usually happend on virtualized enviroments, servers with high load,
     # high disk I/O or when ntp are running.
     # Related to kernel system clock frequency, computation of jiffies / HZ and the problem
     # of lost ticks.
@@ -1002,10 +1000,10 @@ def main():
                 logging.info('System was restarted')
                 offbtime_db = int(round(lasts, 0))
                 downtime_db = round((btime - lasts), 2)
-                logging.info('Recording offbtime into db = '+ str(offbtime_db))
-                logging.info('Recording downtime into db = '+ str(downtime_db))
+                logging.info('Recording offbtime into db = ' + str(offbtime_db))
+                logging.info('Recording downtime into db = ' + str(downtime_db))
                 # Save downtimes for previous boot
-                conn.execute('update tuptime set offbtime = '+ str(offbtime_db) +', downtime = '+ str(downtime_db) +
+                conn.execute('update tuptime set offbtime = ' + str(offbtime_db) + ', downtime = ' + str(downtime_db) +
                              ' where rowid = (select max(rowid) from tuptime)')
                 # Create entry for new boot
                 conn.execute('insert into tuptime values (?,?,?,?,?,?)',
@@ -1020,8 +1018,8 @@ def main():
                 uptime, btoffset, offset = control_drift(last_btime, btime, uptime)
 
                 logging.info('System wasn\'t restarted. Updating db values...')
-                conn.execute('update tuptime set uptime = '+ str(uptime) +', endst = '+ str(arg.endst) +
-                             ', kernel = \''+ str(kernel) + '\' where rowid = (select max(rowid) from tuptime)')
+                conn.execute('update tuptime set uptime = ' + str(uptime) + ', endst = ' + str(arg.endst) +
+                             ', kernel = \'' + str(kernel) + '\' where rowid = (select max(rowid) from tuptime)')
 
         except sqlite3.OperationalError:
             logging.info('Values not saved into db')
