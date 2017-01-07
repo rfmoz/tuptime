@@ -3,7 +3,7 @@
                          ----------------------
                               version 3.3.1
                                 Ricardo F.
-                              03/January/2017
+                              07/January/2017
 
 
 
@@ -468,21 +468,22 @@ System downtime:
   Percentage of downtime and time counter.
 
 System life:
-  Time counter since first startup date until last. Arguments --tsince or
-  --tuntil can delimit a narrow range.
+  Time counter since first startup date until last.
 
 Largest uptime:
 Shortest uptime:
 Largest downtime:
 Shortest downtime:
-  Time counter and date with the large/short uptime register. 
+  Time counter and date with the largest/shortest uptime register. 
 
 Average uptime:
 Average downtime: 
   Time counter with the average time.
 
 Current uptime:
-  Actual time counter and date. Always is update, even if no update is used.
+  Actual time counter and date. Always is update.
+
+
 
 
 
