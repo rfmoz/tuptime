@@ -40,7 +40,7 @@ Operating system:
 Software:
    - Python 2.7 or Python 3.X (Latest recomended)
    - Python modules (most included in python core by default):
-       sys, os, optparse, sqlite3, datetime, locale, platform, subprocess, logging, time
+       sys, os, optparse, sqlite3, datetime, locale, platform, logging, time
 
 If a distro is used, all is met with:
     - In Linux:  'python' package >= 2.7
@@ -121,7 +121,13 @@ For FreeBSD system:
 
    + Using FreeBSD ports
 
-     Located at /usr/ports/sysutils/tuptime
+      Located at /usr/ports/sysutils/tuptime
+
+      Add the suggested cron entry
+
+      Enable it in rc:
+
+         # echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
    + Manual install
 
