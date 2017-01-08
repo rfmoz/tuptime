@@ -17,7 +17,7 @@ keeping it between restarts."""
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, os, optparse, locale, platform, time, logging, sqlite3
+import sys, os, optparse, locale, platform, logging, sqlite3
 from datetime import datetime
 
 
@@ -218,6 +218,9 @@ def get_os_values():
 
     def os_bsd():
         """Get values from BSD"""
+
+        import time
+
         logging.info('BSD system')
         for path in os.environ["PATH"].split(os.pathsep):
             sysctl_bin = os.path.join(path, 'sysctl')
@@ -232,6 +235,7 @@ def get_os_values():
 
     def os_linux():
         """Get values from Linux"""
+
         logging.info('Linux system')
         with open('/proc/uptime') as fl1:
             uptime = float(fl1.readline().split()[0])
