@@ -37,10 +37,10 @@ else
                 echo "Please, upgrade it."; exit 1
         else
 		# Test if all modules needed are available
-		pymod=`python -c "import sys, os, optparse, sqlite3, locale, platform, subprocess, time, datetime, operator, logging"`
+		pymod=`python -c "import sys, os, optparse, sqlite3, locale, platform, time, datetime, logging"`
                 if [ $? -ne 0 ]; then
                         echo "ERROR: Please, ensure that these Python modules are available in the local system:"
-                        echo "sys, os, optparse, sqlite3, locale, platform, subprocess, time, datetime, operator, logging"
+                        echo "sys, os, optparse, sqlite3, locale, platform, time, datetime, logging"
                 fi
         fi
 fi
