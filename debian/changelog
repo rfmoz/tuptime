@@ -1,3 +1,9 @@
+tuptime (3.3.0-3) unstable; urgency=medium
+
+  * Adding dependency of lsb-base in debian package
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 15 Jan 2017 19:09:27 -0200
+
 tuptime (3.3.0-2) unstable; urgency=medium
 
   * Remove creation of /var/lib/tuptime from debian/dirs and fall only in
