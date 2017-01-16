@@ -1,3 +1,11 @@
+tuptime (3.3.1) unstable; urgency=medium
+
+  * Adding dependency of lsb-base in debian package
+  * Change to native debian package
+  * Fix typo in doc
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Mon, 16 Jan 2017 19:48:27 -0200
+
 tuptime (3.3.0) unstable; urgency=low
 
   * Refactoring code
