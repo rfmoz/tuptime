@@ -1,8 +1,16 @@
-tuptime (3.3.1) unstable; urgency=low
+tuptime (3.3.2) unstable; urgency=low
 
-  * Adding 3.3.1 update
+  * Todo
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 7 Jan 2017 09:23:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 21 Jan 2017 19:43:00 +0100
+
+tuptime (3.3.1) unstable; urgency=medium
+
+  * Adding dependency of lsb-base in debian package
+  * Change to native debian package
+  * Fix typo in doc
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Mon, 16 Jan 2017 19:48:27 -0200
 
 tuptime (3.3.0-2) unstable; urgency=medium
 
