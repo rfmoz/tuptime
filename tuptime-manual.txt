@@ -465,7 +465,8 @@ System startups:
  is used in a narrow range.
 
 System shutdowns:
-  Total number of shutdowns done correctly or incorrectly.
+  Total number of shutdowns done correctly or incorrectly. The separator 
+  points to the state of last shutdown when it is available (<-) ok, (->) bad.
 
 System uptime:
   Percentage of uptime and time counter.

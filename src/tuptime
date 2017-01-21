@@ -838,11 +838,16 @@ def print_default(db_rows, cuptime, cbtime, arg):
     else:
         startups = len(db_rows)
 
-    # Get state of previous shutdown, only if last time is current:
+    # Get state of previous shutdown:
     if len(db_rows) > 1:
-        if db_rows[-1]['offbtime'] == -1 and  db_rows[-1]['btime'] == cbtime:
+        if db_rows[-1]['offbtime'] != -1:  # Get from last row if it have one
+            prev_shdown = db_rows[-1]['endst']
+        else:
             prev_shdown = db_rows[-2]['endst']
-
+    else:
+        if db_rows[-1]['offbtime'] != -1:
+            prev_shdown = db_rows[-1]['endst']
+    
     # Get kernel count:
     #   Remove duplicate and empty elements
     kernel_cnt = len(set(filter(None, kernel_cnt)))
