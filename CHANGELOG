@@ -6,7 +6,6 @@ tuptime (3.3.2) unstable; urgency=low
     registers in narrow ranges
   * Avoid import subprocess module
   * Report in default output the state of last shutdown
-  * Always report in default output until date
   * Adding systemd .timer as alternative to cron schedule
 
  -- Ricardo F. <rfraile@rfraile.eu>  Sat, 21 Jan 2017 19:46:00 +0100

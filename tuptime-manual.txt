@@ -461,7 +461,8 @@ expected.
 ==================
 
 System startups:	
- Total number of system startups from since to until date.
+ Total number of system startups from since to until date. Until is joined if
+ is used in a narrow range.
 
 System shutdowns:
   Total number of shutdowns done correctly or incorrectly. The separator 

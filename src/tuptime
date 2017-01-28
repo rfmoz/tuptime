@@ -929,7 +929,10 @@ def print_default(db_rows, cuptime, cbtime, arg):
     else:
        sp6 = '-'
 
-    print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp5 + 'until' + sp5 + str(max_tstamp) + sp0)
+    if arg.tu or arg.until:
+        print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp5 + 'until' + sp5 + str(max_tstamp) + sp0)
+    else:
+        print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp0)
     print(sp0 + 'System shutdowns' + sp1 + str(ok_shdown) + sp4 + 'ok' + sp5 + sp6 + sp5 + str(bad_shdown) + sp4 + 'bad' + sp0)
     print(sp0 + 'System uptime' + sp3 + str(uprate) + ' %' + sp5 + '-' + sp5 + str(total_uptime) + sp0)
     print(sp0 + 'System downtime' + sp2 + str(downrate) + ' %' + sp5 + '-' + sp5 + str(total_downtime) + sp0)
