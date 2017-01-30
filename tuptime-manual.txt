@@ -565,6 +565,11 @@ Kernel name is registered each time that tuptime update values. If ksplice is
 used to update the kernel, last kernel will have the whole time assignment
 since the last system start.
 
+When tuptime update the db registers, writting them into the file, it usually
+remains a time in the file system cache of the operating system before be
+flushing into disc. If things go wrong, like a kernel panic, maybe the last 
+updates already written into the file can be lost.
+
 As usual, if the system have configured a time zone with daylight saving time
 (DST), for avoid problems when the time change, the real time clock (RTC) 
 should have set to universal time coordinated (UTC), not local time. Check it
