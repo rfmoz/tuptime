@@ -549,9 +549,9 @@ mode is enabled.
 
 
 
-================
+=================
 | Some Thoughts |
-================
+=================
 
 Tuptime can be executed with 'root' user, but it's recommendable the use of an
 unprivileged user, like 'tuptime' as the installation section reflects for
