@@ -1,3 +1,10 @@
+tuptime (3.4.0) unstable; urgency=low
+
+  * Unify order arguments under -o
+  * Adding --drift option
+
+ -- Ricardo F. <rfraile@rfraile.eu>  Fri, 5 May 2017 00:08:00 +0100
+
 tuptime (3.3.2) unstable; urgency=low
 
   * Fix print kernel in list and table outputs in partial registers

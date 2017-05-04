@@ -1,10 +1,10 @@
-.TH TUPTIME 1 "January 2017" "3.3.2" "Linux Manual"
+.TH TUPTIME 1 "May 2017" "3.4.0" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical running time of the system, keeping it between restarts.
 
 .SH SYNOPSIS
-tuptime [\-h | \-\-help] [\-c | \-\-ckernel] [\-\-csv] [{\-d | \-\-date}=<date\ format] [\-e | \-\-end] [{\-f | \-\-filedb}=<database\ file]  [\-g | \-\-graceful] [\-k | \-\-kernel] [\-l | \-\-list] [\-n | \-\-noup]  [\-o | \-\-offtime] [\-r | \-\-reverse] [\-s | \-\-seconds] [\-S | \-\-since] [\-t | \-\-table] [\-\-tsince] [\-\-tuntil] [\-U | \-\-until] [\-u | \-\-uptime] [\-v | \-\-verbose]  [\-V | \-\-version] [\-x | \-\-silent]
+tuptime [\-h | \-\-help] [\-c | \-\-csv] [{\-d | \-\-date}=<date\ format] [\-\-drift] [{\-f | \-\-filedb}=<database\ file]  [\-g | \-\-graceful] [\-k | \-\-kernel] [\-l | \-\-list] [\-n | \-\-noup]  [{\-o | \-\-order}={e|d|k|u}] [\-r | \-\-reverse] [\-s | \-\-seconds] [\-S | \-\-since] [\-t | \-\-table] [\-\-tsince] [\-\-tuntil] [\-U | \-\-until] [\-v | \-\-verbose]  [\-V | \-\-version] [\-x | \-\-silent]
 
 .SH DESCRIPTION
 Tuptime is a tool for report the historical and statistical running time of 
@@ -17,6 +17,7 @@ the system, keeping it between restarts. Indeed, it can:
   - Largest, shortest and average uptime and downtime
   - Current uptime
   - Print formatted table or list with most of the previous values
+  - Report system drifting time
   - Register used kernels
   - Narrow reports since and/or until a given startup or timestamp
   - Reports in csv
@@ -26,17 +27,14 @@ the system, keeping it between restarts. Indeed, it can:
 .B \-h | \-\-help
 \- Show this help message and exit
 .PP
-.B \-c | \-\-ckernel
-\- Classify / order by kernel
-.PP
-.B \-\-csv
+.B \-c | \-\-csv
 \- Output in csv format
 .PP
 .B \-d | \-\-date
 \- Date format
 .PP
-.B \-e | \-\-end
-\- Order by end state
+.B \-\-drift
+\- Print drift time
 .PP
 .B \-f | \-\-file
 \- Database file
@@ -53,8 +51,8 @@ the system, keeping it between restarts. Indeed, it can:
 .B \-n | \-\-noup
 \- Avoid update values
 .PP
-.B \-o | \-\-offtime
-\- Order by offtime / downtime
+.B \-o | \-\-order
+\- Order enumerate by [<e|d|k|u>]
 .PP
 .B \-r | \-\-reverse
 \- Reverse order
@@ -76,9 +74,6 @@ the system, keeping it between restarts. Indeed, it can:
 .PP
 .B \-U | \-\-until
 \- Restrict until this register number
-.PP
-.B \-u | \-\-uptime
-\- Order by uptime
 .PP
 .B \-v | \-\-verbose
 \- Verbose output

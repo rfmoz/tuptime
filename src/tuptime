@@ -26,7 +26,7 @@ locale.setlocale(locale.LC_ALL, '')
 DATE_FORMAT = '%X %x'
 DEC = int(2)  # Decimals for seconds
 DECP = int(2)  # Decimals for percentages
-__version__ = '3.3.2'
+__version__ = '3.4.0'
 
 
 def get_arguments():
@@ -43,14 +43,7 @@ def get_arguments():
 
     parser = optparse.OptionParser()
     parser.add_option(
-        '-c', '--ckernel',
-        dest='ckernel',
-        action='store_true',
-        default=False,
-        help='classify / order by kernel'
-    )
-    parser.add_option(
-        '--csv',
+        '-c', '--csv',
         dest='csv',
         action='store_true',
         default=False,
@@ -64,11 +57,11 @@ def get_arguments():
         help='date format output'
     )
     parser.add_option(
-        '-e', '--end',
-        dest='end',
+        '--drift',
+        dest='drift',
         default=False,
         action='store_true',
-        help='order by end state'
+        help='print drift time'
     )
     parser.add_option(
         '-f', '--filedb',
@@ -108,11 +101,13 @@ def get_arguments():
         help='avoid update values'
     )
     parser.add_option(
-        '-o', '--offtime',
-        dest='downtime',
+        '-o', '--order',
+        dest='order',
+        metavar='TYPE',
         default=False,
-        action='store_true',
-        help='order by offtime / downtime'
+        action='store',
+        type="string",
+        help='order enumerate by [<e|d|k|u>]'
     )
     parser.add_option(
         '-r', '--reverse',
@@ -174,13 +169,6 @@ def get_arguments():
         help='restrict until this register number'
     )
     parser.add_option(
-        '-u', '--uptime',
-        dest='uptime',
-        default=False,
-        action='store_true',
-        help='order by uptime'
-    )
-    parser.add_option(
         '-v', '--verbose',
         action='callback',
         callback=enable_verbose,
@@ -201,13 +189,19 @@ def get_arguments():
     )
     arg, _ = parser.parse_args()
 
+    # - Check order arguments
+    if arg.order and (arg.order not in ('e', 'd', 'k', 'u')):
+        parser.error('order argument must be followed by a type: "e", "d", "k" or "u"')
+
+
     # - Check combination of operator requirements
-    if arg.reverse or arg.uptime or arg.end or arg.downtime or arg.ckernel:
-        if arg.ckernel:
+    if arg.reverse or arg.order:
+        if arg.order == 'k':
             if not arg.kernel:
-                parser.error('used operator must be combined with [-k|--kernel]')
+                logging.info('Auto enable kernel option. Order by kernel used.')
+                arg.kernel = True
         if not arg.table and not arg.lst:
-            parser.error('used operators must be combined with [-t|--table]  or [-l|--list]')
+            parser.error('used operators must be combined with [-t|--table] or [-l|--list]')
 
     logging.info('Arguments: ' + str(arg))
     return arg
@@ -324,6 +318,8 @@ def control_drift(last_btime, btime, uptime):
             # Tuptime timestamp must be equal to system timestamp after drift values
         else:
             logging.info('Drift is greather than uptime. Skipping')
+    else:
+        logging.info('Time drift not detected')
 
     return uptime, btime, offset
 
@@ -547,16 +543,16 @@ def ordering_output(db_rows, arg):
     """Order output"""
 
     # In the case of multiple matches the order is: uptime > end > downtime > kernel
-    if arg.uptime or arg.downtime or arg.end or arg.ckernel:
+    if arg.order and (arg.order in ('e', 'd', 'k', 'u')):
         key_lst = []
         arg.reverse = not arg.reverse
-        if arg.uptime:
+        if arg.order == 'u':
             key_lst.append('uptime')
-        if arg.end:
+        if arg.order == 'e':
             key_lst.append('endst')
-        if arg.downtime:
+        if arg.order == 'd':
             key_lst.append('downtime')
-        if arg.ckernel:
+        if arg.order == 'k':
             key_lst.append('kernel')
         db_rows = sorted(db_rows, key=lambda x: tuple(x[i] for i in key_lst), reverse=arg.reverse)
     else:
@@ -722,7 +718,7 @@ def print_table(db_rows, arg):
             print("")
 
 
-def print_default(db_rows, cuptime, cbtime, arg):
+def print_default(db_rows, cuptime, cbtime, doffset, arg):
     """Print values as default output"""
 
     def extract_times(db_rows, option, key):
@@ -909,6 +905,12 @@ def print_default(db_rows, cuptime, cbtime, arg):
         total_uptime = time_conv(total_uptime)
         total_downtime = time_conv(total_downtime)
         sys_life = time_conv(sys_life)
+        if arg.drift:
+            if doffset >= 0:
+                doffset = time_conv(abs(doffset))
+            else:
+                doffset = '-' + time_conv(abs(doffset))
+
 
     if arg.csv is False:  # Define content/spaces between values
         sp0 = ''
@@ -923,11 +925,11 @@ def print_default(db_rows, cuptime, cbtime, arg):
 
     # Mark how was previous shutdown
     if prev_shdown == 1:
-       sp6 = '<-'
+        sp6 = '<-'
     elif prev_shdown == 0:
-       sp6 = '->'
+        sp6 = '->'
     else:
-       sp6 = '-'
+        sp6 = '-'
 
     if arg.tu or arg.until:
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp5 + 'until' + sp5 + str(max_tstamp) + sp0)
@@ -971,6 +973,8 @@ def print_default(db_rows, cuptime, cbtime, arg):
     print(sp0 + 'Average downtime' + sp2 + str(average_down) + sp0)
     if arg.csv is False:
         print('')
+    if arg.drift:
+        print(sp0 + 'Drifted time' + sp3 + str(doffset) + sp0)
     print(sp0 + 'Current uptime' + sp2 + str(cuptime) + sp5 + 'since' + sp5 + str(cbtime) + sp0)
     if arg.kernel:
         print(sp0 + '...with kernel' + sp2 + str(db_rows[-1]['kernel']) + sp0)
@@ -1103,7 +1107,7 @@ def main():
     elif arg.table:
         print_table(db_rows, arg)
     else:
-        print_default(db_rows, uptime, btoffset, arg)
+        print_default(db_rows, uptime, btoffset, offset, arg)
 
 if __name__ == "__main__":
     main()

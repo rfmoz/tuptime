@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 3.3.2
+                              version 3.4.0
                                 Ricardo F.
-                              21/January/2017
+                                5/May/2017
 
 
 
@@ -22,6 +22,7 @@ Indeed, it can:
   - Largest, shortest and average uptime and downtime
   - Current uptime
   - Print formatted table or list with most of the previous values
+  - Report system drifting time
   - Register used kernels
   - Narrow reports since and/or until a given startup or timestamp
   - Reports in csv
@@ -173,18 +174,18 @@ For OSX system:
 These are the command line options, no configuration file is used:
 
   -h, --help            show this help message and exit
-  -c, --ckernel         classify / order by kernel
-  --csv                 csv output
+  -c, --csv             csv output
   -d DATE_FORMAT, --date=DATE_FORMAT
                         date format output
-  -e, --end             order by end state
+  --drift               print drift time
   -f FILE, --filedb=FILE
                         database file
   -g, --graceful        register a gracefully shutdown
   -k, --kernel          print kernel information
   -l, --list            enumerate system life as list
   -n, --noup            avoid update values
-  -o, --offtime         order by offtime / downtime
+  -o TYPE, --order=TYPE
+                        order enumerate by [<e|d|k|u>]
   -r, --reverse         reverse order
   -s, --seconds         output time in seconds and epoch
   -S SINCE, --since=SINCE
@@ -194,7 +195,6 @@ These are the command line options, no configuration file is used:
   --tuntil=TIMESTAMP    restrict until this timestamp
   -U UNTIL, --until=UNTIL
                         restrict until this register number
-  -u, --uptime          order by uptime
   -v, --verbose         verbose output
   -V, --version         show version
   -x, --silent          update values into db without output
@@ -208,18 +208,7 @@ These are the command line options, no configuration file is used:
          tuptime --help
 
 
--c, --ckernel
-  Order table or list by kernel name. Therefore, only works in conjunction 
-  with (-k) and (-t) or (-l) options.
-
-  Examples:
-         tuptime -ckl
-         tuptime -ckt
-         tuptime -t --ckernel
-         tuptime -l --ckernel
-
-
---csv
+-c, --csv
   Report in csv format.
 
   Examples:
@@ -269,15 +258,12 @@ These are the command line options, no configuration file is used:
          tuptime -d '%H:%M:%S   %d-%b-%Y'  # Spanish style
 
 
--e, --end
-  Order table or list by end status at power off. Therefore, only works 
-  in conjunction with (-t) or (-l) options.
+--drift
+  Add drift time report to the default output.
 
   Examples:
-         tuptime -te
-         tuptime -le
-         tuptime -t --end
-         tuptime -l --end
+         tuptime --drift
+         tuptime -s --drift
 
 
 -f <FILE>, --filedb=<FILE>
@@ -329,15 +315,19 @@ These are the command line options, no configuration file is used:
          tuptime --noup
 
 
--o, --offtime
-  Order table or list by offtime / downtime. Therefore, only works in conjunction with 
-  (-t) or (-l) options.
+-o [<e|d|k|u>], --order=[<e|d|k|u>]
+  Order enumerate output from table or list by:
+    <e>  end status
+    <d>  downtime
+    <k>  kernel
+    <u>  uptime
+  Therefore, only works in conjunction with (-t) or (-l) options.
 
   Examples:
-         tuptime -to
-         tuptime -lo
-         tuptime -t --offtime
-         tuptime -l --offtime
+         tuptime -t -o e
+         tuptime -l -o k
+         tuptime -t --order u
+         tuptime -l --order d
 
 
 -r, --reverse
@@ -395,17 +385,6 @@ These are the command line options, no configuration file is used:
   Examples:
          tuptime --tuntil 1454999619
          tuptime --tuntil -1000
-
-
--u, --uptime
-  Order table or list by uptime. Therefore, only works in conjunction with 
-  (-t) or (-l) options.
-
-  Examples:
-         tuptime -tu
-         tuptime -lu
-         tuptime -t --uptime
-         tuptime -l --uptime
 
 
 -U <UNTIL>, --until <UNTIL>
@@ -568,6 +547,14 @@ since the last system start.
 Note the filesystem cache on which the files resides for a while before being 
 flushing into disk. If things go wrong, like a kernel panic, maybe the last 
 updates of the db already written into the file can be lots.
+
+The startup date (btime) is written into db when tuptime detect a new boot, it
+never changes after that. If the system suffers time drift, the current startup
+date (btime) reported in /proc/stat may change because it is calculated on the
+fly. Tuptime always use the register stored in db and compensate the current
+uptime value with the time drifted. The startup date is similar to the reported
+by "who -b" command. If you have a problem related to this, start checking the
+hardware clock and how the system clock is synchronized when it is running.
 
 As usual, if the system have configured a time zone with daylight saving time
 (DST), for avoid problems when the time change, the real time clock (RTC) 
