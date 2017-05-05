@@ -297,10 +297,8 @@ def assure_state_db(btime, uptime, kernel, arg):
         db_conn.close()
 
 
-def control_drift(last_btime, btime, uptime):
+def control_drift(last_btime, btime, uptime, offset):
     """Control time drift due inconsistencies with system clock"""
-
-    offset = 0
 
     # If previous btime don't match in a runing system (not restarted)
     if last_btime != btime:
@@ -974,7 +972,7 @@ def print_default(db_rows, cuptime, cbtime, doffset, arg):
     if arg.csv is False:
         print('')
     if arg.drift:
-        print(sp0 + 'Drifted time' + sp3 + str(doffset) + sp0)
+        print(sp0 + 'Current drift' + sp3 + str(doffset) + sp0)
     print(sp0 + 'Current uptime' + sp2 + str(cuptime) + sp5 + 'since' + sp5 + str(cbtime) + sp0)
     if arg.kernel:
         print(sp0 + '...with kernel' + sp2 + str(db_rows[-1]['kernel']) + sp0)
@@ -1041,7 +1039,7 @@ def main():
                               str(kernel)))
             else:
                 # Adjust time drift. Check only when system wasn't restarted
-                uptime, btoffset, offset = control_drift(last_btime, btime, uptime)
+                uptime, btoffset, offset = control_drift(last_btime, btime, uptime, offset)
 
                 logging.info('System wasn\'t restarted. Updating db values...')
                 conn.execute('update tuptime set uptime = ' + str(uptime) + ', endst = ' + str(arg.endst) +
