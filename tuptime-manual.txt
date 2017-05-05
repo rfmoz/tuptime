@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 3.4.0
+                              version 3.3.3
                                 Ricardo F.
-                                5/May/2017
+                                6/May/2017
 
 
 
@@ -22,7 +22,6 @@ Indeed, it can:
   - Largest, shortest and average uptime and downtime
   - Current uptime
   - Print formatted table or list with most of the previous values
-  - Report system drifting time
   - Register used kernels
   - Narrow reports since and/or until a given startup or timestamp
   - Reports in csv
@@ -177,7 +176,6 @@ These are the command line options, no configuration file is used:
   -c, --csv             csv output
   -d DATE_FORMAT, --date=DATE_FORMAT
                         date format output
-  --drift               print drift time
   -f FILE, --filedb=FILE
                         database file
   -g, --graceful        register a gracefully shutdown
@@ -256,14 +254,6 @@ These are the command line options, no configuration file is used:
          tuptime -d '%X %x'  # (Default)
          tuptime -d '%H:%M:%S   %m-%d-%Y'  # British style
          tuptime -d '%H:%M:%S   %d-%b-%Y'  # Spanish style
-
-
---drift
-  Add drift time report to the default output.
-
-  Examples:
-         tuptime --drift
-         tuptime -s --drift
 
 
 -f <FILE>, --filedb=<FILE>
@@ -553,8 +543,8 @@ never changes after that. If the system suffers time drift, the current startup
 date (btime) reported in /proc/stat may change because it is calculated on the
 fly. Tuptime always use the register stored in db and compensate the current
 uptime value with the time drifted. The startup date is similar to the reported
-by "who -b" command. If you have a problem related to this, start checking the
-hardware clock and how the system clock is synchronized when it is running.
+by "who -b" command. If you have a related problem, start checking the hardware
+clock and how the system clock is synchronized when it is running.
 
 As usual, if the system have configured a time zone with daylight saving time
 (DST), for avoid problems when the time change, the real time clock (RTC) 

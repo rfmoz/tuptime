@@ -1,10 +1,10 @@
-.TH TUPTIME 1 "May 2017" "3.4.0" "Linux Manual"
+.TH TUPTIME 1 "May 2017" "3.3.3" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical running time of the system, keeping it between restarts.
 
 .SH SYNOPSIS
-tuptime [\-h | \-\-help] [\-c | \-\-csv] [{\-d | \-\-date}=<date\ format] [\-\-drift] [{\-f | \-\-filedb}=<database\ file]  [\-g | \-\-graceful] [\-k | \-\-kernel] [\-l | \-\-list] [\-n | \-\-noup]  [{\-o | \-\-order}={e|d|k|u}] [\-r | \-\-reverse] [\-s | \-\-seconds] [\-S | \-\-since] [\-t | \-\-table] [\-\-tsince] [\-\-tuntil] [\-U | \-\-until] [\-v | \-\-verbose]  [\-V | \-\-version] [\-x | \-\-silent]
+tuptime [\-h | \-\-help] [\-c | \-\-csv] [{\-d | \-\-date}=<date\ format] [{\-f | \-\-filedb}=<database\ file]  [\-g | \-\-graceful] [\-k | \-\-kernel] [\-l | \-\-list] [\-n | \-\-noup]  [{\-o | \-\-order}={e|d|k|u}] [\-r | \-\-reverse] [\-s | \-\-seconds] [\-S | \-\-since] [\-t | \-\-table] [\-\-tsince] [\-\-tuntil] [\-U | \-\-until] [\-v | \-\-verbose]  [\-V | \-\-version] [\-x | \-\-silent]
 
 .SH DESCRIPTION
 Tuptime is a tool for report the historical and statistical running time of 
@@ -17,7 +17,6 @@ the system, keeping it between restarts. Indeed, it can:
   - Largest, shortest and average uptime and downtime
   - Current uptime
   - Print formatted table or list with most of the previous values
-  - Report system drifting time
   - Register used kernels
   - Narrow reports since and/or until a given startup or timestamp
   - Reports in csv
@@ -32,9 +31,6 @@ the system, keeping it between restarts. Indeed, it can:
 .PP
 .B \-d | \-\-date
 \- Date format
-.PP
-.B \-\-drift
-\- Print drift time
 .PP
 .B \-f | \-\-file
 \- Database file
@@ -52,7 +48,7 @@ the system, keeping it between restarts. Indeed, it can:
 \- Avoid update values
 .PP
 .B \-o | \-\-order
-\- Order enumerate by [<e|d|k|u>]
+\- Order enumerate by [<e|d|k|u>] e = end status | d = downtime | k = kernel | u = uptime
 .PP
 .B \-r | \-\-reverse
 \- Reverse order

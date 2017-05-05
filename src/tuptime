@@ -26,7 +26,7 @@ locale.setlocale(locale.LC_ALL, '')
 DATE_FORMAT = '%X %x'
 DEC = int(2)  # Decimals for seconds
 DECP = int(2)  # Decimals for percentages
-__version__ = '3.4.0'
+__version__ = '3.3.3'
 
 
 def get_arguments():
@@ -55,13 +55,6 @@ def get_arguments():
         default=DATE_FORMAT,
         action='store',
         help='date format output'
-    )
-    parser.add_option(
-        '--drift',
-        dest='drift',
-        default=False,
-        action='store_true',
-        help='print drift time'
     )
     parser.add_option(
         '-f', '--filedb',
@@ -303,21 +296,22 @@ def control_drift(last_btime, btime, uptime, offset):
     # If previous btime don't match in a runing system (not restarted)
     if last_btime != btime:
         offset = btime - last_btime  # Calculate time offset
-        logging.info('Time drift in btime: ' + str(offset))
+        logging.info('Drift over btime = ' + str(offset))
+        logging.info('Correcting drift...')
 
         # Apply offset to uptime and btime
         if uptime > offset:  # Only if offset is lower than uptime
-            logging.info('System last timestamp: ' + str(btime + uptime))
+            logging.info('System last timestamp = ' + str(btime + uptime))
             uptime = uptime + offset
-            logging.info('Drifted uptime: ' + str(uptime))
+            logging.info('Fixed uptime = ' + str(uptime))
             btime = btime - offset
-            logging.info('Drifted btime: ' + str(btime))
-            logging.info('Tuptime last timestamp after drift: ' + str(btime + uptime))
-            # Tuptime timestamp must be equal to system timestamp after drift values
+            logging.info('Fixed btime = ' + str(btime))
+            logging.info('Fixed timestamp = ' + str(btime + uptime))
+            # Fixed timestamp must be equal to system timestamp after drift values
         else:
             logging.info('Drift is greather than uptime. Skipping')
     else:
-        logging.info('Time drift not detected')
+        logging.info('Drift over btime = ' + str(offset))
 
     return uptime, btime, offset
 
@@ -716,7 +710,7 @@ def print_table(db_rows, arg):
             print("")
 
 
-def print_default(db_rows, cuptime, cbtime, doffset, arg):
+def print_default(db_rows, cuptime, cbtime, arg):
     """Print values as default output"""
 
     def extract_times(db_rows, option, key):
@@ -903,11 +897,6 @@ def print_default(db_rows, cuptime, cbtime, doffset, arg):
         total_uptime = time_conv(total_uptime)
         total_downtime = time_conv(total_downtime)
         sys_life = time_conv(sys_life)
-        if arg.drift:
-            if doffset >= 0:
-                doffset = time_conv(abs(doffset))
-            else:
-                doffset = '-' + time_conv(abs(doffset))
 
 
     if arg.csv is False:  # Define content/spaces between values
@@ -971,8 +960,6 @@ def print_default(db_rows, cuptime, cbtime, doffset, arg):
     print(sp0 + 'Average downtime' + sp2 + str(average_down) + sp0)
     if arg.csv is False:
         print('')
-    if arg.drift:
-        print(sp0 + 'Current drift' + sp3 + str(doffset) + sp0)
     print(sp0 + 'Current uptime' + sp2 + str(cuptime) + sp5 + 'since' + sp5 + str(cbtime) + sp0)
     if arg.kernel:
         print(sp0 + '...with kernel' + sp2 + str(db_rows[-1]['kernel']) + sp0)
@@ -1105,7 +1092,7 @@ def main():
     elif arg.table:
         print_table(db_rows, arg)
     else:
-        print_default(db_rows, uptime, btoffset, offset, arg)
+        print_default(db_rows, uptime, btoffset, arg)
 
 if __name__ == "__main__":
     main()
