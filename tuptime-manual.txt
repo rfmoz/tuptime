@@ -538,13 +538,11 @@ Note the filesystem cache on which the files resides for a while before being
 flushing into disk. If things go wrong, like a kernel panic, maybe the last 
 updates of the db already written into the file can be lots.
 
-The startup date (btime) is written into db when tuptime detect a new boot, it
-never changes after that. If the system suffers time drift, the current startup
-date (btime) reported in /proc/stat may change because it is calculated on the
-fly. Tuptime always use the register stored in db and compensate the current
-uptime value with the time drifted. The startup date is similar to the reported
-by "who -b" command. If you have a related problem, start checking the hardware
-clock and how the system clock is synchronized when it is running.
+The startup date (btime) is written into db when tuptime detect a new boot and
+that never changes after that. On some systems the btime value reported in
+/proc/stat may change, rarely 1 second up/down, and extreme rarely more. Tuptime
+always use the register stored in db and compensate the current uptime value
+with the btime time drift.
 
 As usual, if the system have configured a time zone with daylight saving time
 (DST), for avoid problems when the time change, the real time clock (RTC) 
