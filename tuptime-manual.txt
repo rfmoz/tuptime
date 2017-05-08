@@ -540,7 +540,7 @@ updates of the db already written into the file can be lots.
 
 The startup date (btime) is written into db when tuptime detect a new boot and
 that never changes after that. On some systems the btime value reported in
-/proc/stat may change, rarely 1 second up/down, and extreme rarely more. Tuptime
+/proc/stat may change, usually if the hardware clock is out of sync. Tuptime
 always use the register stored in db and compensate the current uptime value
 with the btime time drift.
 
