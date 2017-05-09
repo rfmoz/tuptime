@@ -290,20 +290,26 @@ def assure_state_db(btime, uptime, kernel, arg):
         db_conn.close()
 
 
-def control_drift(last_btime, btime, uptime, offset):
+def control_drift(last_btime, btime, uptime):
     """Control time drift due inconsistencies with system clock"""
 
-    # If previous btime don't match in a runing system (not restarted)
+    offset = 0  # Initialize for store time drift
+
+    # If previous btime don't match in a running system (not restarted)
     if last_btime != btime:
         offset = btime - last_btime  # Calculate time offset
-        logging.info('Drift over btime = ' + str(offset))
         logging.info('Correcting drift...')
+        logging.info('Drift over btime = ' + str(offset))
 
         # Apply offset to uptime and btime
         if uptime > offset:  # Only if offset is lower than uptime
-            logging.info('System last timestamp = ' + str(btime + uptime))
+            logging.info('System timestamp = ' + str(btime + uptime))
             uptime = uptime + offset
             logging.info('Fixed uptime = ' + str(uptime))
+            if uptime < 0:
+                logging.info('Drift decrease uptime under 0. Impossible')
+                uptime = 0
+                logging.info('Fixed uptime = ' + str(uptime))
             btime = btime - offset
             logging.info('Fixed btime = ' + str(btime))
             logging.info('Fixed timestamp = ' + str(btime + uptime))
@@ -313,7 +319,7 @@ def control_drift(last_btime, btime, uptime, offset):
     else:
         logging.info('Drift over btime = ' + str(offset))
 
-    return uptime, btime, offset
+    return uptime, btime
 
 
 def time_conv(secs):
@@ -972,7 +978,6 @@ def main():
 
     btime, uptime, kernel = get_os_values()
 
-    offset = 0  # Initialize for store time drift
     btoffset = btime  # Initialize for store btime drifted
 
     assure_state_db(btime, uptime, kernel, arg)
@@ -1026,7 +1031,7 @@ def main():
                               str(kernel)))
             else:
                 # Adjust time drift. Check only when system wasn't restarted
-                uptime, btoffset, offset = control_drift(last_btime, btime, uptime, offset)
+                uptime, btoffset = control_drift(last_btime, btime, uptime)
 
                 logging.info('System wasn\'t restarted. Updating db values...')
                 conn.execute('update tuptime set uptime = ' + str(uptime) + ', endst = ' + str(arg.endst) +

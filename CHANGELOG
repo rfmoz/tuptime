@@ -1,7 +1,7 @@
 tuptime (3.3.3) unstable; urgency=low
 
   * Unify order arguments under -o
-  * Consistent verbose drift output
+  * Improve behaviour when time drift
 
  -- Ricardo F. <rfraile@rfraile.eu>  Sat, 6 May 2017 00:08:00 +0100
 

@@ -457,7 +457,7 @@ Average downtime:
   Time counter with the average time.
 
 Current uptime:
-  Actual time counter and date. Always is update.
+  Actual time counter and date since registered boot date.
 
 
 
@@ -542,7 +542,7 @@ The startup date (btime) is written into db when tuptime detect a new boot and
 that never changes after that. On some systems the btime value reported in
 /proc/stat may change, usually if the hardware clock is out of sync. Tuptime
 always use the register stored in db and compensate the current uptime value
-with the btime time drift.
+with the btime time drift if it is possible.
 
 As usual, if the system have configured a time zone with daylight saving time
 (DST), for avoid problems when the time change, the real time clock (RTC) 
