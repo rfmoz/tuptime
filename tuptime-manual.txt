@@ -518,6 +518,29 @@ mode is enabled.
 
 
 
+============================
+| About sync date and time |
+============================
+
+Large jumps over the date and time in a system can cause probles.
+
+Take care of the harware clock, or how the operating system initializes their clock
+at startup. Tuptime register the date reported by the system at first execution
+after boot (usually from init system) and use it to calculate the previous shutdown
+time and the current uptime value.
+
+If the system starts with a incorrect date and time and some extenal time sync is
+used, like ntpd or timesyncd, a few time after boot the startup date reported by the
+system may change. A slightly drif is compensate over the uptime value, but a very
+hight drift can cause inconsisten registers and output, for example, Raspberry PI
+don't have any clock and initializes from 1 January 1970.
+
+For avoid that problem, the use of "ntp-wait" and/or "time-sync.target" are recomended
+in the init and scheduled execution. Modify files with this behaviour are located in
+this repo under "src/time-sync" for that configuration.
+
+
+
 =================
 | Some Thoughts |
 =================
@@ -537,12 +560,6 @@ since the last system start.
 Note the filesystem cache on which the files resides for a while before being 
 flushing into disk. If things go wrong, like a kernel panic, maybe the last 
 updates of the db already written into the file can be lots.
-
-The startup date (btime) is written into db when tuptime detect a new boot and
-that never changes after that. On some systems the btime value reported in
-/proc/stat may change, usually if the hardware clock is out of sync. Tuptime
-always use the register stored in db and compensate the current uptime value
-with the btime time drift if it is possible.
 
 As usual, if the system have configured a time zone with daylight saving time
 (DST), for avoid problems when the time change, the real time clock (RTC) 
