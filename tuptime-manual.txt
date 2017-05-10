@@ -531,13 +531,14 @@ time and the current uptime value.
 
 If the system starts with a incorrect date and time and some extenal time sync is
 used, like ntpd or timesyncd, a few time after boot the startup date reported by the
-system may change. A slightly drif is compensate over the uptime value, but a very
-hight drift can cause inconsisten registers and output, for example, Raspberry PI
+system may change. A slightly drift is compensate over the uptime value, but a very
+high drift can cause inconsistent registers and output, for example, Raspberry Pi
 don't have any clock and initializes from 1 January 1970.
 
-For avoid that problem, the use of "ntp-wait" and/or "time-sync.target" are recomended
-in the init and scheduled execution. Modify files with this behaviour are located in
-this repo under "src/time-sync" for that configuration.
+For avoid that problem the systemd unit have the time-sync.target requirement. Use
+timesyncd if is availble (timedatectl set-ntp true), it can also keep the time in
+systems without hardware clock. As an alternative, "ntp-wait" can be added to the
+init script and the cron line preceeding the tuptime execution. 
 
 
 
