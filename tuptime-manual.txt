@@ -522,7 +522,8 @@ mode is enabled.
 | About sync date and time |
 ============================
 
-Large jumps over the date and time in a system can cause probles.
+Large jumps over the date and time in a system can cause problems, expecially
+when the uptime value is low.
 
 Take care of the harware clock, or how the operating system initializes their clock
 at startup. Tuptime register the date reported by the system at first execution
