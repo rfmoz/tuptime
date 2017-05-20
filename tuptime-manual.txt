@@ -525,21 +525,46 @@ mode is enabled.
 Large jumps over the date and time in a system can cause problems, expecially
 when the uptime value is low.
 
-Take care of the harware clock, or how the operating system initializes their clock
-at startup. Tuptime register the date reported by the system at first execution
-after boot (usually from init system) and use it to calculate the previous shutdown
-time and the current uptime value.
+Take care of the harware clock RTC (if the system have), or how the operating
+system initializes their clock at startup. Tuptime register the date reported by
+the system at first execution after boot (usually from init system) and use it
+to calculate the previous shutdown time and the current uptime value. The command
+"who -b" do more less the same.
 
-If the system starts with a incorrect date and time and some extenal time sync is
-used, like ntpd or timesyncd, a few time after boot the startup date reported by the
-system may change. A slightly drift is compensate over the uptime value, but a very
-high drift can cause inconsistent registers and output, for example, Raspberry Pi
-don't have any clock and initializes from 1 January 1970.
+If the system starts with a incorrect date and time and some external time sync is
+used, like ntpd or timesyncd, a few time after boot the startup date reported by
+the system may change. A slightly drift is compensate over the uptime value, but a
+very high drift can cause inconsistent registers and output, for example, Raspberry
+Pi don't have any clock and initializes from 1 January 1970.
 
-For avoid that problem the systemd unit have the time-sync.target requirement. Use
-timesyncd if is availble (timedatectl set-ntp true), it can also keep the time in
-systems without hardware clock. As an alternative, "ntp-wait" can be added to the
-init script and the cron line preceeding the tuptime execution. 
+For avoid that problem the systemd unit have the time-sync.target requirement, but
+for now it have a bug (https://github.com/systemd/systemd/issues/5097) and not work
+as expected.
+
+A few recomendations / workarounds are:
+
+If the systems is a single-board computer, like Raspberry Pi or Beaglebone, use a
+RTC module and configure it properly.
+
+Use timesyncd if is available (timedatectl set-ntp true), it can also keep the time
+in systems without hardware clock.
+
+If the system dont have any RTC and the bug over time-sync isn't fixed, the use of 
+"systemd-timesyncd-wait" can reach the desired behaviour and solve it. More info
+in (https://github.com/assisi/systemd-timesyncd-wait)
+
+Use the traditional ntp client and delay the execution of tuptime until the time
+is synced. Add under "[Unit]" the text "ntp.service" at the end of "After=" and
+"Requires=" lines.
+
+Force a time sync in the "tuptime.unit" file. Add under "[Service]" definition the 
+line "ExecStartPre=/usr/bin/ntpdate pool.ntp.org"
+
+In systems without systemd, "ntp-wait" can be added to the init script and the cron
+line preceeding the tuptime execution. 
+
+Try and failure is the best way to find the right solution for the environment in 
+which the system is running.
 
 
 
