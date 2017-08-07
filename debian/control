@@ -10,7 +10,7 @@ Homepage: https://github.com/rfrail3/tuptime
 Package: tuptime
 Architecture: any
 Multi-Arch: foreign
-Depends: ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${python:Depends}
   , python (>= 2.7)
   , adduser
   , lsb-base (>= 3.0-6)
