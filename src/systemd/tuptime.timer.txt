@@ -1,3 +1,0 @@
-systemctl enable tuptime.timer
-systemctl status tuptime.timer
-systemctl list-timers --all
