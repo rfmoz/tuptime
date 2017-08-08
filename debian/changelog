@@ -4,7 +4,7 @@ tuptime (3.3.3) unstable; urgency=low
   * Improve verbose drift output
   * Requirement of time-sync in systemd unit
 
- -- Ricardo F. <rfraile@rfraile.eu>  Mon, 7 Aug 2017 22:29:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Mon, 7 Aug 2017 22:29:00 +0100
 
 tuptime (3.3.2) unstable; urgency=low
 
