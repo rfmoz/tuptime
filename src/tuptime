@@ -1095,14 +1095,14 @@ def main():
     else:
         for row in db_rows:  # Reset negative values
             if (row['downtime'] < 0) or (row['uptime'] < 0):
-                logging.warning('Negative value registered at \'' + str(row['startup']) + '\'')
+                logging.warning('Negative value registered at startup \'' + str(row['startup']) + '\'')
                 if row['downtime'] < 0:
                     logging.warning('Downtime \'' + str(row['downtime']) + '\' reset to \'0\'')
                     row['downtime'] = 0
                 if row['uptime'] < 0:
                     logging.warning('Uptime \'' + str(row['uptime']) + '\' reset to \'0\'')
                     row['uptime'] = 0
-                logging.warning('Check system clock sync.')
+                logging.info('Check system clock sync.')
 
         if arg.lst:
             print_list(db_rows, arg)
