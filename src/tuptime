@@ -722,17 +722,16 @@ def print_default(db_rows, cuptime, cbtime, arg):
     def extract_times(db_rows, option, key):
         """Extract max/min values for uptime/downtime"""
 
-        # Work with a copy for start always with the same dict, even if some
-        # rows are deleted in each case
+        # Work with a fresh copy of the list of dicts
         dbr = db_rows[:]
 
         # Remove empty startup and downtime dates for avoid report them
         if key == 'downtime':
-            for row in dbr:
+            for row in dbr[:]:
                 if row['offbtime'] < 0:
                     dbr.remove(row)
         if key == 'uptime':
-            for row in dbr:
+            for row in dbr[:]:
                 if row['btime'] < 0:
                     dbr.remove(row)
 
