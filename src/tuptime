@@ -840,7 +840,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
     else:
         if db_rows[-1]['offbtime'] != -1:
             prev_shdown = db_rows[-1]['endst']
-    
+
     # Get kernel count:
     #   Remove duplicate and empty elements
     kernel_cnt = len(set(filter(None, kernel_cnt)))
@@ -1091,12 +1091,25 @@ def main():
     #  Print values
     if arg.silent:
         logging.info('Only update')
-    elif arg.lst:
-        print_list(db_rows, arg)
-    elif arg.table:
-        print_table(db_rows, arg)
+
     else:
-        print_default(db_rows, uptime, btoffset, arg)
+        for row in db_rows:  # Reset negative values
+            if (row['downtime'] < 0) or (row['uptime'] < 0):
+                logging.warning('Negative value registered at \'' + str(row['startup']) + '\'')
+                if row['downtime'] < 0:
+                    logging.warning('Downtime \'' + str(row['downtime']) + '\' reset to \'0\'')
+                    row['downtime'] = 0
+                if row['uptime'] < 0:
+                    logging.warning('Uptime \'' + str(row['uptime']) + '\' reset to \'0\'')
+                    row['uptime'] = 0
+                logging.warning('Check system clock sync.')
+
+        if arg.lst:
+            print_list(db_rows, arg)
+        elif arg.table:
+            print_table(db_rows, arg)
+        else:
+            print_default(db_rows, uptime, btoffset, arg)
 
 if __name__ == "__main__":
     main()
