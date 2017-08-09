@@ -3,7 +3,7 @@
                          ----------------------
                               version 3.3.3
                                 Ricardo F.
-                                6/May/2017
+                                9/Aug/2017
 
 
 
@@ -55,11 +55,13 @@ If a distro is used, all is met with:
 
 For Linux systems:
 
-   + Package install .deb
+   + From distribution repository:
 
-      Available in Debian Sid (unstable):
+      Debian  - https://packages.debian.org/tuptime
 
-         https://packages.debian.org/sid/tuptime
+      Ubuntu  - https://packages.ubuntu.com/tuptime
+
+      Arch    - https://aur.archlinux.org/packages/tuptime/
 
    + Using .sh script:
       
@@ -89,39 +91,45 @@ For Linux systems:
 
          # chown -R tuptime:tuptime /var/lib/tuptime
 
-      If is a system with systemd, copy service and timer file and enable both:
+      Copy cron file:
+
+         # cp tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
+         # chmod 644 /etc/cron.d/tuptime
+
+      If is a system with systemd, copy service file and enable it:
 	
          # cp tuptime/src/systemd/tuptime.service /lib/systemd/system/
          # chmod 644 /lib/systemd/system/tuptime.service
          # systemctl enable tuptime.service
-         # cp tuptime/src/systemd/tuptime.timer /lib/systemd/system/
-         # chmod 644 /lib/systemd/system/tuptime.timer
-         # systemctl enable tuptime.timer
 
-      If have upstart system, copy the file and the cron execution:
+         (Alternative) Using systemd timer instead of cron file:
+
+             # cp tuptime/src/systemd/tuptime.timer /lib/systemd/system/
+             # chmod 644 /lib/systemd/system/tuptime.timer
+             # systemctl enable tuptime.timer
+             # rm /etc/cron.d/tuptime
+
+      If have upstart system, copy the file:
 
          # cp tuptime/src/init.d/redhat/tuptime /etc/init.d/tuptime
 	 # chmod 755 /etc/init.d/tuptime
 	 # chkconfig --add tuptime
 	 # chkconfig tuptime on
-         # cp tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
-         # chmod 644 /etc/cron.d/tuptime
 
-      If have init system, copy the file and the cron execution:
+      If have init system, copy the file:
 
          # cp tuptime/src/init.d/debian/tuptime /etc/init.d/tuptime
          # chmod 755 /etc/init.d/tuptime
          # update-rc.d tuptime defaults
 	 # /etc/init.d/tuptime start
-         # cp tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
-         # chmod 644 /etc/cron.d/tuptime
+
 
 
 For FreeBSD system:
 
    + Using FreeBSD ports
 
-      Located at /usr/ports/sysutils/tuptime
+      /usr/ports/sysutils/tuptime
 
       Add the suggested cron entry
 
