@@ -574,6 +574,13 @@ line preceeding the tuptime execution.
 Try and failure is the best way to find the right solution for the environment in 
 which the system is running.
 
+Good reads:
+
+    https://tools.ietf.org/html/rfc1589
+    https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=119971
+    https://unix.stackexchange.com/questions/118631/how-can-i-measure-and-prevent-clock-drift
+    Timekeeping in VMware Virtual Machines (Document)
+
 
 
 =================
