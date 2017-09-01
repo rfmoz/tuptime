@@ -203,7 +203,12 @@ def get_arguments():
 def get_os_values():
     """Get values from each type of operating system"""
 
-    def os_bsd():
+    btime = None
+    uptime = None
+    ex_user = None
+    kernel = None
+
+    def os_bsd(btime, uptime, ex_user):
         """Get values from BSD"""
 
         import time
@@ -220,7 +225,7 @@ def get_os_values():
         ex_user = os.getuid()
         return btime, uptime, ex_user
 
-    def os_linux():
+    def os_linux(btime, uptime, ex_user):
         """Get values from Linux"""
 
         logging.info('Linux system')
@@ -234,11 +239,11 @@ def get_os_values():
         return btime, uptime, ex_user
 
     if os.path.isfile('/proc/uptime') and os.path.isfile('/proc/stat'):
-        btime, uptime, ex_user = os_linux()
+        btime, uptime, ex_user = os_linux(btime, uptime, ex_user)
     # elif:
     #     other_os()
     else:
-        btime, uptime, ex_user = os_bsd()
+        btime, uptime, ex_user = os_bsd(btime, uptime, ex_user)
 
     kernel = platform.platform()
 
@@ -246,6 +251,15 @@ def get_os_values():
     logging.info('btime = ' + str(btime))
     logging.info('kernel = ' + str(kernel))
     logging.info('Execution user = ' + str(ex_user))
+
+    # Check right assignment of system variables before continue
+    for osvarkey, osvarvalue in {'btime':btime, 'uptime':uptime, 'ex_user':ex_user, 'kernel':kernel}.items():
+        if osvarvalue is None:
+            if osvarkey == 'kernel':
+                logging.warning(str(osvarkey) + ' value keep default value: ' + str(osvarvalue))
+            else:
+                logging.error(str(osvarkey) + ' value not assigned from system. Can\'t continue.')
+                sys.exit(-1)
 
     return btime, uptime, kernel
 

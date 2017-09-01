@@ -4,8 +4,9 @@ tuptime (3.3.3) unstable; urgency=low
   * Improve verbose drift output
   *  Requirement of time-sync in systemd unit
   * Warn about negative values produced by inconsistent time sync.
+  * Validate right assignment of system variables
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Wed, 9 Aug 2017 17:38:00 +0200
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Fri, 1 Sep 2017 17:38:00 +0200
 
 tuptime (3.3.2) unstable; urgency=low
 
