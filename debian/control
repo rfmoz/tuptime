@@ -15,5 +15,5 @@ Depends: ${misc:Depends}, ${shlibs:Depends}
   , adduser
   , lsb-base (>= 3.0-6)
 Description: report historical system running time.
- Tuptime report historical and statistical running time of the system, 
+ Tuptime report historical and statistical running time of the system,
  keeping it between restarts.

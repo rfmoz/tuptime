@@ -145,7 +145,7 @@ tuptime (2.4.26) stable; urgency=low
 
 tuptime (2.4.10) stable; urgency=low
 
-  * Fix false wrong shutdown bug when some kernels rarely report +1 or -1 
+  * Fix false wrong shutdown bug when some kernels rarely report +1 or -1
     second inside /proc/stat btime variable
 
  -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 26 Jul 2015 10:00:00 -0400
