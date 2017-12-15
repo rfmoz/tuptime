@@ -1072,7 +1072,6 @@ def main():
 
         db_rows = [dict(row) for row in db_rows]  # for allow item assignment
 
-        # If last row in db_rows is really the last register in db an update is needed
         if arg.update is True:
             # If the user can only read db, the previous select return outdated numbers in last row
             # because the db was not updated previously. The following snippet update that in memmory
