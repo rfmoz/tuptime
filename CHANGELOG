@@ -6,8 +6,9 @@ tuptime (3.3.3) unstable; urgency=low
   * Warn about negative values produced by inconsistent time sync.
   * Validate right assignment of system variables
   * Update .deb package
+  * Fix Debian Bug #884955: tuptime: Files to install
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 14 Oct 2017 15:05:00 +0200
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 24 Dec 2017 09:56:00 +0200
 
 tuptime (3.3.2) unstable; urgency=low
 

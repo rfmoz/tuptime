@@ -28,7 +28,7 @@ case "$1" in
                 --gecos 'Tuptime execution user,,,' tuptime
         fi
 
-	su - tuptime -c "tuptime -x"
+	su -s /bin/sh tuptime -c "tuptime -x"
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

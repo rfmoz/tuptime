@@ -71,7 +71,7 @@ chown -R tuptime:tuptime /var/lib/tuptime
 chmod 750 /var/lib/tuptime
 
 echo "Executing tuptime with tuptime user for testing"
-su - tuptime -c "tuptime -x"
+su -s /bin/sh tuptime -c "tuptime -x"
 
 systemctl --version &> /dev/null
 if [ $? -eq 0 ]; then
