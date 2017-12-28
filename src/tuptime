@@ -238,12 +238,17 @@ def get_os_values():
         ex_user = os.getuid()
         return btime, uptime, ex_user
 
+    # Linux and any OS with '/proc' filesystem
     if os.path.isfile('/proc/uptime') and os.path.isfile('/proc/stat'):
         btime, uptime, ex_user = os_linux(btime, uptime, ex_user)
+    # BSDs with 'sec' in kern.boottime 
+    elif sys.platform.startswith(('freebsd', 'darwin')):
+        btime, uptime, ex_user = os_bsd(btime, uptime, ex_user)
     # elif:
     #     other_os()
     else:
-        btime, uptime, ex_user = os_bsd(btime, uptime, ex_user)
+        logging.error('Operating system \'' + sys.platform + '\' not supported.')
+        sys.exit(-1)
 
     kernel = platform.platform()
 
