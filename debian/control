@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Ricardo Fraile <rfraile@rfraile.eu>
 Build-Depends: debhelper (>= 9.20160709~) | dh-systemd,
                debhelper (>= 9~)
-Standards-Version: 4.1.1
+Standards-Version: 4.1.2
 Homepage: https://github.com/rfrail3/tuptime
 
 Package: tuptime
