@@ -19,7 +19,7 @@ Copy the "tuptime" file located under "latest/" directory to "/usr/bin/" and mak
 
 Assure that the system pass the prerequisites:
 
-	python 2.7 or 3.X 
+	python 3.X 
 
 Run first with a privileged user:
 

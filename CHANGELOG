@@ -1,3 +1,9 @@
+tuptime (3.3.4) unstable; urgency=low
+
+  * Python 3.x as requirement
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Mon, 01 Jan 2018 23:56:00 +0200
+
 tuptime (3.3.3) unstable; urgency=low
 
   * Unify order arguments under -o

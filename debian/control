@@ -11,7 +11,7 @@ Package: tuptime
 Architecture: any
 Multi-Arch: foreign
 Depends: ${misc:Depends}, ${shlibs:Depends}
-  , python (>= 2.7)
+  , python3:any
   , adduser
   , lsb-base (>= 3.0-6)
 Description: report historical system running time.

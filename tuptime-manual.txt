@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 3.3.3
+                              version 3.3.4
                                 Ricardo F.
-                                9/Aug/2017
+                                1/Jan/2018
 
 
 
@@ -38,13 +38,13 @@ Operating system:
    - OSX (Darwin)
 
 Software:
-   - Python 2.7 or Python 3.X (Latest recomended)
+   - Python 3.x
    - Python modules (most included in python core by default):
        sys, os, optparse, sqlite3, datetime, locale, platform, logging, time
 
 If a distro is used, all is met with:
-    - In Linux:  'python' package >= 2.7
-    - In FreeBSD: '/usr/ports/lang/python' and '/usr/ports/databases/py-sqlite3'
+    - In Linux:  'python' package >= 3.0
+    - In FreeBSD: '/usr/ports/lang/python3.6' and '/usr/ports/databases/py36-sqlite3'
     - In OSX: 'python' installed by default in base system
 
 
@@ -171,6 +171,12 @@ For OSX system:
 
    Tuptime is compatible with OSX but, for now, the project lacks of launchd files
    for the startup and the schedule run.
+
+
+Note about Python 2.7:
+
+   Tuptime 3.3.4 can continue running over Python 2.7 if the shebang line is 
+   changed to '#!/usr/bin/env python'
 
 
 
