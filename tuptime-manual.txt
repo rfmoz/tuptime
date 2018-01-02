@@ -44,7 +44,7 @@ Software:
 
 If a distro is used, all is met with:
     - In Linux:  'python' package >= 3.0
-    - In FreeBSD: '/usr/ports/lang/python3.6' and '/usr/ports/databases/py36-sqlite3'
+    - In FreeBSD: '/usr/ports/lang/python3' and '/usr/ports/databases/py36-sqlite3'
     - In OSX: 'python' installed by default in base system
 
 
