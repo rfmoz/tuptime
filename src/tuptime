@@ -140,7 +140,7 @@ def get_arguments():
         action='store',
         type=int,
         nargs=1,
-        help='restrict since this timestamp'
+        help='restrict since this epoch timestamp'
     )
     parser.add_option(
         '--tuntil',
@@ -150,7 +150,7 @@ def get_arguments():
         action='store',
         type=int,
         nargs=1,
-        help='restrict until this timestamp'
+        help='restrict until this epoch timestamp'
     )
     parser.add_option(
         '-U', '--until',
@@ -407,8 +407,8 @@ def until_opt(db_rows, arg, startups_num):
     """Get rows until a given row startup number registered"""
 
     if arg.until < 0:  # Negative value start from bottom
-        arg.until = db_rows[-1]['startup'] + arg.until + 1
-        if arg.until < 0:
+        arg.until = db_rows[-1]['startup'] + arg.until
+        if arg.until <= 0:
             logging.warning('Invalid "until" value. Reset to last. ')
             arg.until = db_rows[-1]['startup']
 
