@@ -89,10 +89,10 @@ T}
 Enumerate system life as table
 T}
 \-\-tsince@T{
-Restrict since this timestamp
+Restrict since this epoch timestamp
 T}
 \-\-tuntil@T{
-Restrict until this timestamp
+Restrict until this epoch timestamp
 T}
 \-U | \-\-until@T{
 Restrict until this register number
@@ -119,8 +119,7 @@ Total number of system startups from since to until date.
 System shutdowns:
 .RS
 Total number of shutdowns done correctly or incorrectly. The separator
-points to the state of last shutdown if any restrict filter is used
-(<-) ok, (->) bad.
+usually points to the state of last shutdown (<-) ok, (->) bad.
 
 .RE
 System uptime:
@@ -185,7 +184,9 @@ dates in epoch.
 .TP
 .B tuptime -d '%H:%M:%S   %m-%d-%Y'
 Change the date format. By default it's printed based on system locales.
-
+.TP
+.B tuptime --tsince -31557600
+Report since one year ago.
 
 .SH FILES
 .TP
