@@ -3,7 +3,7 @@
 
 """tuptime - Report the historical and statistical running time of the system,
 keeping it between restarts."""
-# Copyright (C) 2011-2017 - Ricardo F.
+# Copyright (C) 2011-2018 - Ricardo F.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ locale.setlocale(locale.LC_ALL, '')
 DATE_FORMAT = '%X %x'
 DEC = int(2)  # Decimals for seconds
 DECP = int(2)  # Decimals for percentages
-__version__ = '3.3.4'
+__version__ = '3.3.3'
 
 
 def get_arguments():
@@ -850,15 +850,11 @@ def print_default(db_rows, cuptime, cbtime, arg):
     else:
         startups = len(db_rows)
 
-    # Get state of previous shutdown:
+    # Get state of previous shutdown if filters aren't used:
     if len(db_rows) > 1:
-        if db_rows[-1]['offbtime'] != -1:  # Get from last row if it have one
-            prev_shdown = db_rows[-1]['endst']
-        else:
-            prev_shdown = db_rows[-2]['endst']
-    else:
-        if db_rows[-1]['offbtime'] != -1:
-            prev_shdown = db_rows[-1]['endst']
+        if not (arg.since or arg.until):
+            if not (arg.ts or arg.tu):
+                prev_shdown = db_rows[-2]['endst']
 
     # Get kernel count:
     #   Remove duplicate and empty elements

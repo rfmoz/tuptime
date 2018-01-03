@@ -1,4 +1,4 @@
-.TH TUPTIME 1 "Jan 2018" "3.3.4" "Linux Manual"
+.TH TUPTIME 1 "Jan 2018" "3.3.3" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical running time of the system, keeping it between restarts.
@@ -119,7 +119,8 @@ Total number of system startups from since to until date.
 System shutdowns:
 .RS
 Total number of shutdowns done correctly or incorrectly. The separator
-points to the state of last shutdown when it is available (<-) ok, (->) bad.
+points to the state of last shutdown if any restrict filter is used
+(<-) ok, (->) bad.
 
 .RE
 System uptime:

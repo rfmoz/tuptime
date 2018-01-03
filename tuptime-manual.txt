@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 3.3.4
+                              version 3.3.3
                                 Ricardo F.
-                                1/Jan/2018
+                                3/Jan/2018
 
 
 
@@ -44,7 +44,7 @@ Software:
 
 If a distro is used, all is met with:
     - In Linux:  'python' package >= 3.0
-    - In FreeBSD: '/usr/ports/lang/python3' and '/usr/ports/databases/py36-sqlite3'
+    - In FreeBSD: 'python3' and one of the 'py34-sqlite3', 'py35-sqlite3' or 'py36-sqlite3'
     - In OSX: 'python' installed by default in base system
 
 
@@ -175,7 +175,7 @@ For OSX system:
 
 Note about Python 2.7:
 
-   Tuptime 3.3.4 can continue running over Python 2.7 if the shebang line is 
+   Tuptime 3.3.3 can continue running over Python 2.7 if the shebang line is 
    changed to '#!/usr/bin/env python'
 
 
@@ -355,7 +355,7 @@ These are the command line options, no configuration file is used:
 
 
 -S <SINCE>, --since <SINCE>
-  Calculate values only since this startup number. Take it from (-t) table or
+  Restrict values only since this startup number. Take it from (-t) table or
   (-l) list reports.
 
   Examples:
@@ -392,7 +392,7 @@ These are the command line options, no configuration file is used:
 
 
 -U <UNTIL>, --until <UNTIL>
-  Calculate values only until this startup number. Take it from (-t) table or
+  Restrict values only until this startup number. Take it from (-t) table or
   (-l) list reports.
 
   Examples:
@@ -449,7 +449,8 @@ System startups:
 
 System shutdowns:
   Total number of shutdowns done correctly or incorrectly. The separator 
-  points to the state of last shutdown when it is available (<-) ok, (->) bad.
+  points to the state of last shutdown if any restrict filter is used 
+  (<-) ok, (->) bad.
 
 System uptime:
   Percentage of uptime and time counter.
