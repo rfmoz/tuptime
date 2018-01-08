@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 3.3.1
+                              version 3.3.3
                                 Ricardo F.
-                              16/January/2017
+                                3/Jan/2018
 
 
 
@@ -38,13 +38,13 @@ Operating system:
    - OSX (Darwin)
 
 Software:
-   - Python 2.7 or Python 3.X (Latest recomended)
+   - Python 3.x
    - Python modules (most included in python core by default):
-       sys, os, optparse, sqlite3, datetime, locale, platform, subprocess, logging, time
+       sys, os, optparse, sqlite3, datetime, locale, platform, logging, time
 
 If a distro is used, all is met with:
-    - In Linux:  'python' package >= 2.7
-    - In FreeBSD: '/usr/ports/lang/python' and '/usr/ports/databases/py-sqlite3'
+    - In Linux:  'python' package >= 3.0
+    - In FreeBSD: 'python3' and one of the 'py34-sqlite3', 'py35-sqlite3' or 'py36-sqlite3'
     - In OSX: 'python' installed by default in base system
 
 
@@ -55,11 +55,13 @@ If a distro is used, all is met with:
 
 For Linux systems:
 
-   + Package install .deb
+   + From distribution repository:
 
-      Available in Debian Sid (unstable):
+      Debian  - https://packages.debian.org/tuptime
 
-         https://packages.debian.org/sid/tuptime
+      Ubuntu  - https://packages.ubuntu.com/tuptime
+
+      Arch    - https://aur.archlinux.org/packages/tuptime/
 
    + Using .sh script:
       
@@ -100,6 +102,13 @@ For Linux systems:
          # chmod 644 /lib/systemd/system/tuptime.service
          # systemctl enable tuptime.service
 
+         (Alternative) Using systemd timer instead of cron file:
+
+             # cp tuptime/src/systemd/tuptime.timer /lib/systemd/system/
+             # chmod 644 /lib/systemd/system/tuptime.timer
+             # systemctl enable tuptime.timer
+             # rm /etc/cron.d/tuptime
+
       If have upstart system, copy the file:
 
          # cp tuptime/src/init.d/redhat/tuptime /etc/init.d/tuptime
@@ -115,11 +124,18 @@ For Linux systems:
 	 # /etc/init.d/tuptime start
 
 
+
 For FreeBSD system:
 
    + Using FreeBSD ports
 
-     Located at /usr/ports/sysutils/tuptime
+      /usr/ports/sysutils/tuptime
+
+      Add the suggested cron entry
+
+      Enable it in rc:
+
+         # echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
    + Manual install
 
@@ -157,6 +173,12 @@ For OSX system:
    for the startup and the schedule run.
 
 
+Note about Python 2.7:
+
+   Tuptime 3.3.3 can continue running over Python 2.7 if the shebang line is 
+   changed to '#!/usr/bin/env python'
+
+
 
 ============================
 | Command line  parameters |
@@ -165,28 +187,26 @@ For OSX system:
 These are the command line options, no configuration file is used:
 
   -h, --help            show this help message and exit
-  -c, --ckernel         classify / order by kernel
-  --csv                 csv output
+  -c, --csv             csv output
   -d DATE_FORMAT, --date=DATE_FORMAT
                         date format output
-  -e, --end             order by end state
   -f FILE, --filedb=FILE
                         database file
   -g, --graceful        register a gracefully shutdown
   -k, --kernel          print kernel information
   -l, --list            enumerate system life as list
   -n, --noup            avoid update values
-  -o, --offtime         order by offtime / downtime
+  -o TYPE, --order=TYPE
+                        order enumerate by [<e|d|k|u>]
   -r, --reverse         reverse order
   -s, --seconds         output time in seconds and epoch
   -S SINCE, --since=SINCE
                         restric since this register number
   -t, --table           enumerate system life as table
-  --tsince=TIMESTAMP    restrict since this timestamp
-  --tuntil=TIMESTAMP    restrict until this timestamp
+  --tsince=TIMESTAMP    restrict since this epoch timestamp
+  --tuntil=TIMESTAMP    restrict until this epoch timestamp
   -U UNTIL, --until=UNTIL
                         restrict until this register number
-  -u, --uptime          order by uptime
   -v, --verbose         verbose output
   -V, --version         show version
   -x, --silent          update values into db without output
@@ -200,18 +220,7 @@ These are the command line options, no configuration file is used:
          tuptime --help
 
 
--c, --ckernel
-  Order table or list by kernel name. Therefore, only works in conjunction 
-  with (-k) and (-t) or (-l) options.
-
-  Examples:
-         tuptime -ckl
-         tuptime -ckt
-         tuptime -t --ckernel
-         tuptime -l --ckernel
-
-
---csv
+-c, --csv
   Report in csv format.
 
   Examples:
@@ -259,17 +268,6 @@ These are the command line options, no configuration file is used:
          tuptime -d '%X %x'  # (Default)
          tuptime -d '%H:%M:%S   %m-%d-%Y'  # British style
          tuptime -d '%H:%M:%S   %d-%b-%Y'  # Spanish style
-
-
--e, --end
-  Order table or list by end status at power off. Therefore, only works 
-  in conjunction with (-t) or (-l) options.
-
-  Examples:
-         tuptime -te
-         tuptime -le
-         tuptime -t --end
-         tuptime -l --end
 
 
 -f <FILE>, --filedb=<FILE>
@@ -321,15 +319,19 @@ These are the command line options, no configuration file is used:
          tuptime --noup
 
 
--o, --offtime
-  Order table or list by offtime / downtime. Therefore, only works in conjunction with 
-  (-t) or (-l) options.
+-o [<e|d|k|u>], --order=[<e|d|k|u>]
+  Order enumerate output from table or list by:
+    <e>  end status
+    <d>  downtime
+    <k>  kernel
+    <u>  uptime
+  Therefore, only works in conjunction with (-t) or (-l) options.
 
   Examples:
-         tuptime -to
-         tuptime -lo
-         tuptime -t --offtime
-         tuptime -l --offtime
+         tuptime -t -o e
+         tuptime -l -o k
+         tuptime -t --order u
+         tuptime -l --order d
 
 
 -r, --reverse
@@ -353,13 +355,13 @@ These are the command line options, no configuration file is used:
 
 
 -S <SINCE>, --since <SINCE>
-  Calculate values only since this startup number. Take it from (-t) table or
-  (-l) list reports.
+  Restrict values only since this startup number. Take it from (-t) table or
+  (-l) list reports. Negative values allowed.
 
   Examples:
           tuptime -S 34
           tuptime --since 22
-          tuptime -s -1
+          tuptime -l -S -10  # List since last 10 registers
 
   
 -t, --table
@@ -372,42 +374,31 @@ These are the command line options, no configuration file is used:
 
 
 --tsince <TIMESTAMP>
-  Restrict report since the given timestamp.
+  Restrict report since the given epoch timestamp. Negative values allowed.
   Options (-S) and (-U) have precedence over this one.
 
   Examples:
          tuptime --tsince 1454998872
-         tuptime --tsince -1000
+         tuptime --tsince -31557600  # Since one year ago
 
 
 --tuntil <TIMESTAMP>
-  Restrict report until the given timestamp.
+  Restrict report until the given epoch timestamp. Negative values allowed.
   Options (-S) and (-U) have precedence over this one.
 
   Examples:
          tuptime --tuntil 1454999619
-         tuptime --tuntil -1000
-
-
--u, --uptime
-  Order table or list by uptime. Therefore, only works in conjunction with 
-  (-t) or (-l) options.
-
-  Examples:
-         tuptime -tu
-         tuptime -lu
-         tuptime -t --uptime
-         tuptime -l --uptime
+         tuptime --tuntil -2629750  # Until one month ago
 
 
 -U <UNTIL>, --until <UNTIL>
-  Calculate values only until this startup number. Take it from (-t) table or
-  (-l) list reports.
+  Restrict values only until this startup number. Take it from (-t) table or
+  (-l) list reports. Negative values allowed.
 
   Examples:
           tuptime -U 45
-          tuptime --since 11
-          tuptime -S -10
+          tuptime --until 11
+          tuptime -l -U -10  # List all except last 10 registers
 
 
 -v, --verbose
@@ -443,7 +434,8 @@ These are the command line options, no configuration file is used:
 It's important to have a schedule execution. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
 shutdown, but if the system fails, hangs or whatever, the uptime time will
-be lost. Be sure that the cron entry is installed as expected.
+be lost. Be sure that the cron entry or systemd .timer unit are installed as
+expected.
 
 
 
@@ -452,11 +444,12 @@ be lost. Be sure that the cron entry is installed as expected.
 ==================
 
 System startups:	
- Total number of system startups from a since date. Until is joined if
+ Total number of system startups from since to until date. Until is joined if
  is used in a narrow range.
 
 System shutdowns:
-  Total number of shutdowns done correctly or incorrectly.
+  Total number of shutdowns done correctly or incorrectly. The separator 
+  usually points to the state of last shutdown (<-) ok, (->) bad.
 
 System uptime:
   Percentage of uptime and time counter.
@@ -465,22 +458,22 @@ System downtime:
   Percentage of downtime and time counter.
 
 System life:
-  Time counter since first startup date until last. Arguments --tsince or
-  --tuntil can delimit a narrow range.
+  Time counter since first startup date until last.
 
 Largest uptime:
 Shortest uptime:
 Largest downtime:
 Shortest downtime:
-  Time counter and date with the large/short uptime complete register. Narrow
-  ranges can produce incomplete registers and are excluded.
+  Time counter and date with the largest/shortest uptime register. 
 
 Average uptime:
 Average downtime: 
-  Time counter with the average time. Narrow ranges are included.
+  Time counter with the average time.
 
 Current uptime:
-  Actual time counter and date. Always is update, even if no update is used.
+  Actual time counter and date since registered boot date.
+
+
 
 
 
@@ -539,9 +532,66 @@ mode is enabled.
 
 
 
-================
+============================
+| About sync date and time |
+============================
+
+Large jumps over the date and time in a system can cause problems, expecially
+when the uptime value is low.
+
+Take care of the harware clock RTC (if the system have), or how the operating
+system initializes their clock at startup. Tuptime register the date reported by
+the system at first execution after boot (usually from init system) and use it
+to calculate the previous shutdown time and the current uptime value. The command
+"who -b" do more less the same.
+
+If the system starts with a incorrect date and time and some external time sync is
+used, like ntpd or timesyncd, a few time after boot the startup date reported by
+the system may change. A slightly drift is compensate over the uptime value, but a
+very high drift can cause inconsistent registers and output, for example, Raspberry
+Pi don't have any clock and initializes from 1 January 1970.
+
+For avoid that problem the systemd unit have the time-sync.target requirement, but
+for now it have a bug (https://github.com/systemd/systemd/issues/5097) and not work
+as expected.
+
+A few recomendations / workarounds are:
+
+If the systems is a single-board computer, like Raspberry Pi or Beaglebone, use a
+RTC module and configure it properly.
+
+Use timesyncd if is available (timedatectl set-ntp true), it can also keep the time
+in systems without hardware clock.
+
+If the system dont have any RTC and the bug over time-sync isn't fixed, the use of 
+"systemd-timesyncd-wait" can reach the desired behaviour and solve it. More info
+in (https://github.com/assisi/systemd-timesyncd-wait)
+
+Use the traditional ntp client and delay the execution of tuptime until the time
+is synced. Add under "[Unit]" the text "ntp.service" at the end of "After=" and
+"Requires=" lines.
+
+Force a time sync in the "tuptime.unit" file. Add under "[Service]" definition the 
+line "ExecStartPre=/usr/bin/ntpdate pool.ntp.org"
+
+In systems without systemd, "ntp-wait" can be added to the init script and the cron
+line preceeding the tuptime execution. 
+
+Try and failure is the best way to find the right solution for the environment in 
+which the system is running.
+
+Good reads:
+
+    https://tools.ietf.org/html/rfc1589
+    https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=119971
+    https://unix.stackexchange.com/questions/118631/how-can-i-measure-and-prevent-clock-drift
+    Timekeeping in VMware Virtual Machines (Document)
+
+
+
+=================
 | Some Thoughts |
-================
+=================
 
 Tuptime can be executed with 'root' user, but it's recommendable the use of an
 unprivileged user, like 'tuptime' as the installation section reflects for
@@ -554,6 +604,10 @@ at startup and shutdown at least.
 Kernel name is registered each time that tuptime update values. If ksplice is
 used to update the kernel, last kernel will have the whole time assignment
 since the last system start.
+
+Note the filesystem cache on which the files resides for a while before being 
+flushing into disk. If things go wrong, like a kernel panic, maybe the last 
+updates of the db already written into the file can be lots.
 
 As usual, if the system have configured a time zone with daylight saving time
 (DST), for avoid problems when the time change, the real time clock (RTC) 

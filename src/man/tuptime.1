@@ -1,107 +1,238 @@
-.TH TUPTIME 1 "January 2017" "3.3.1" "Linux Manual"
+.TH TUPTIME 1 "Jan 2018" "3.3.3" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical running time of the system, keeping it between restarts.
 
 .SH SYNOPSIS
-tuptime [\-h | \-\-help] [\-c | \-\-ckernel] [\-\-csv] [{\-d | \-\-date}=<date\ format] [\-e | \-\-end] [{\-f | \-\-filedb}=<database\ file]  [\-g | \-\-graceful] [\-k | \-\-kernel] [\-l | \-\-list] [\-n | \-\-noup]  [\-o | \-\-offtime] [\-r | \-\-reverse] [\-s | \-\-seconds] [\-S | \-\-since] [\-t | \-\-table] [\-\-tsince] [\-\-tuntil] [\-U | \-\-until] [\-u | \-\-uptime] [\-v | \-\-verbose]  [\-V | \-\-version] [\-x | \-\-silent]
+tuptime [\-h | \-\-help] [\-c | \-\-csv] [{\-d | \-\-date}=<date\ format] [{\-f | \-\-filedb}=<database\ file]  [\-g | \-\-graceful] [\-k | \-\-kernel] [\-l | \-\-list] [\-n | \-\-noup]  [{\-o | \-\-order}={e|d|k|u}] [\-r | \-\-reverse] [\-s | \-\-seconds] [\-S | \-\-since] [\-t | \-\-table] [\-\-tsince] [\-\-tuntil] [\-U | \-\-until] [\-v | \-\-verbose]  [\-V | \-\-version] [\-x | \-\-silent]
 
 .SH DESCRIPTION
+.RS
+.RE
 Tuptime is a tool for report the historical and statistical running time of 
 the system, keeping it between restarts. Indeed, it can:
-  - Count system startups
-  - Register first boot time (a.k.a. installation time)
-  - Count nicely and accidentally shutdowns
-  - Uptime and downtime percentage since first boot time
-  - Accumulated system uptime, downtime and total
-  - Largest, shortest and average uptime and downtime
-  - Current uptime
-  - Print formatted table or list with most of the previous values
-  - Register used kernels
-  - Narrow reports since and/or until a given startup or timestamp
-  - Reports in csv
+.RS
+- Count system startups
+.RS
+.RE
+- Register first boot time (a.k.a. installation time)
+.RS
+.RE
+- Count nicely and accidentally shutdowns
+.RS
+.RE
+- Uptime and downtime percentage since first boot time
+.RS
+.RE
+- Accumulated system uptime, downtime and total
+.RS
+.RE
+- Largest, shortest and average uptime and downtime
+.RS
+.RE
+- Current uptime
+.RS
+.RE
+- Print formatted table or list with most of the previous values
+.RS
+.RE
+- Register used kernels
+.RS
+.RE
+- Narrow reports since and/or until a given startup or timestamp
+.RS
+.RE
+- Reports in csv
 
 .SH OPTIONS
 .SS FIELDS
-.B \-h | \-\-help
-\- Show this help message and exit
-.PP
-.B \-c | \-\-ckernel
-\- Classify / order by kernel
-.PP
-.B \-\-csv
-\- Output in csv format
-.PP
-.B \-d | \-\-date
-\- Date format
-.PP
-.B \-e | \-\-end
-\- Order by end state
-.PP
-.B \-f | \-\-file
-\- Database file
-.PP
-.B \-g | \-\-graceful
-\- Register a gracefully shutdown
-.PP
-.B \-k | \-\-kernel
-\- Print kernel information
-.PP
-.B \-l | \-\-list
-\- Enumerate system life as list
-.PP
-.B \-n | \-\-noup
-\- Avoid update values
-.PP
-.B \-o | \-\-offtime
-\- Order by offtime / downtime
-.PP
-.B \-r | \-\-reverse
-\- Reverse order
-.PP
-.B \-s | \-\-seconds
-\- Output time in seconds and epoch
-.PP
-.B \-S | \-\-since
-\- Restric since this register number
-.PP
-.B \-t | \-\-table
-\- Enumerate system life as table
-.PP
-.B \-\-tsince
-\- Restrict since this timestamp
-.PP
-.B \-\-tuntil
-\- Restrict until this timestamp
-.PP
-.B \-U | \-\-until
-\- Restrict until this register number
-.PP
-.B \-u | \-\-uptime
-\- Order by uptime
-.PP
-.B \-v | \-\-verbose
-\- Verbose output
-.PP
-.B \-V | \-\-version
-\- Show version.
-.PP
-.B \-x | \-\-silent
-\- Update values without print
+.TS
+tab (@);
+l lx.
+\-h | \-\-help@T{
+Show this help message and exit
+T}
+\-c | \-\-csv@T{
+Output in csv format
+T}
+\-d | \-\-date@T{
+Date format
+T}
+\-f | \-\-file@T{
+Database file
+T}
+\-g | \-\-graceful@T{
+Register a gracefully shutdown
+T}
+\-k | \-\-kernel@T{
+Print kernel information
+T}
+\-l | \-\-list@T{
+Enumerate system life as list
+T}
+\-n | \-\-noup@T{
+Avoid update values
+T}
+\-o | \-\-order@T{
+Order enumerate by [<e|d|k|u>] e = end status | d = downtime | k = kernel | u = uptime
+T}
+\-r | \-\-reverse@T{
+Reverse order
+T}
+\-s | \-\-seconds@T{
+Output time in seconds and epoch
+T}
+\-S | \-\-since@T{
+Restric since this register number
+T}
+\-t | \-\-table@T{
+Enumerate system life as table
+T}
+\-\-tsince@T{
+Restrict since this epoch timestamp
+T}
+\-\-tuntil@T{
+Restrict until this epoch timestamp
+T}
+\-U | \-\-until@T{
+Restrict until this register number
+T}
+\-v | \-\-verbose@T{
+Verbose output
+T}
+\-V | \-\-version@T{
+Show version.
+T}
+\-x | \-\-silent@T{
+Update values without print
+T}
+.TE
+
+.SH DEFAULT OUTPUT
+.RS
+.RE
+System startups:
+.RS
+Total number of system startups from since to until date.
+
+.RE
+System shutdowns:
+.RS
+Total number of shutdowns done correctly or incorrectly. The separator
+usually points to the state of last shutdown (<-) ok, (->) bad.
+
+.RE
+System uptime:
+.RS
+Percentage of uptime and time counter.
+
+.RE
+System downtime:
+.RS
+Percentage of downtime and time counter.
+
+.RE
+System life:
+.RS
+Time counter since first startup date until last.
+
+.RE
+Largest uptime:
+.RE
+Shortest uptime:
+.RE
+Largest downtime:
+.RE
+Shortest downtime:
+.RS
+Time counter and date with the largest/shortest uptime register.
+
+.RE
+Average uptime:
+.RE
+Average downtime:
+.RS
+Time counter with the average time.
+
+.RE
+Current uptime:
+.RS
+Actual time counter and date. Always is update.
+
+.SH EXAMPLES
+.TP 
+.BI tuptime
+Default output.
+.TP 
+.B tuptime -t
+Enumerate as table each startup number, startup date, uptime, shutdown date,
+end status and downtime.
+.TP 
+.B tuptime -l
+Enumerate as list each startup number, startup date, uptime, shutdown date,
+end status and offtime.
+.TP
+.B tuptime -k 
+Add kernel information to the output.
+.TP
+.B tuptime --csv
+Report in csv format.
+.TP
+.B tuptime -s
+Change default human readable date style and print times in seconds and
+dates in epoch.
+.TP
+.B tuptime -d '%H:%M:%S   %m-%d-%Y'
+Change the date format. By default it's printed based on system locales.
+.TP
+.B tuptime --tsince -31557600
+Report since one year ago.
+
 .SH FILES
-https://github.com/rfrail3/tuptime
+.TP
+.I /etc/cron.d/tuptime
+Scheduled cron file.
+.TP
+.I /etc/init.d/tuptime
+Init file.
+.TP
+.I /lib/systemd/system/tuptime.service
+Systemd service unit file.
+.TP
+.I /usr/bin/tuptime
+Main and only executable file.
+.TP
+.I /usr/share/doc/tuptime/
+Directory with multiple documentation files.
+.TP
+.I /usr/share/doc/tuptime/examples/tuptime.timer
+Optional .timer unit for use instead of cron.
+.TP
+.I /usr/share/man/man1/tuptime.1
+Manual page.
 
 .SH SEE ALSO
-Detailed documentation can be found in 
-/usr/share/doc/tuptime/tuptime-manual.txt.gz
+.TP
+.I /usr/share/doc/tuptime/tuptime-manual.txt.gz
+Detailed documentation.
+.TP
+.I https://github.com/rfrail3/tuptime/
+Official repository.
 
 .SH "AUTHOR"
 .IX Header "AUTHORS"
-Ricardo F. <rfraile@rfraile.eu>
+Ricardo Fraile <rfraile@rfraile.eu>
 .PP
+.SH HISTORY
+.nf
+2007 - Originally written in Perl.
+2009 - Rewrited in Python.
+2015 - Available in FreeBSD, Debian, Ubuntu and Arch.
+
 .SH "COPYRIGHT"
 .IX Header "COPYRIGHT"
-Copyright (C) 2017 by Ricardo F. All Rights Reserved.
+Copyright (C) 2018 by Ricardo F. All Rights Reserved.
+
 This product is distributed in the hope that it will be useful, but
 WITHOUT any warranty; without even the implied warranty of 
 MERCHANTABILITY or FITNESS for a particular purpose.

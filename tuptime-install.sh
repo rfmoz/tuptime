@@ -28,19 +28,19 @@ fi
 pyver=`python --version 2>&1 /dev/null`
 if [ $? -ne 0 ]; then
         echo "ERROR: Python not available"
-        echo "Please, install version 2.7 or greater (3.X recomended)"; exit 1
+        echo "Please, install version 3 or greater"; exit 1
 else
-	# Test if version 27 or avobe of python is installed
+	# Test if version 3 or avobe of python is installed
         pynum=`echo ${pyver} | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2`
-        if [ $pynum -lt 27 ] ; then
-                echo "ERROR: Its needed Python version 2.7 or greater (3.X recomended), not ${pyver}"
+        if [ $pynum -lt 30 ] ; then
+                echo "ERROR: Its needed Python version 3, not ${pyver}"
                 echo "Please, upgrade it."; exit 1
         else
 		# Test if all modules needed are available
-		pymod=`python -c "import sys, os, optparse, sqlite3, locale, platform, subprocess, time, datetime, operator, logging"`
+		pymod=`python -c "import sys, os, optparse, sqlite3, locale, platform, datetime, logging"`
                 if [ $? -ne 0 ]; then
                         echo "ERROR: Please, ensure that these Python modules are available in the local system:"
-                        echo "sys, os, optparse, sqlite3, locale, platform, subprocess, time, datetime, operator, logging"
+                        echo "sys, os, optparse, sqlite3, locale, platform, datetime, logging"
                 fi
         fi
 fi
@@ -71,7 +71,7 @@ chown -R tuptime:tuptime /var/lib/tuptime
 chmod 750 /var/lib/tuptime
 
 echo "Executing tuptime with tuptime user for testing"
-su - tuptime -c "tuptime -x"
+su -s /bin/sh tuptime -c "tuptime -x"
 
 systemctl --version &> /dev/null
 if [ $? -eq 0 ]; then

@@ -19,7 +19,7 @@ Copy the "tuptime" file located under "latest/" directory to "/usr/bin/" and mak
 
 Assure that the system pass the prerequisites:
 
-	python 2.7 or 3.X 
+	python 3.X 
 
 Run first with a privileged user:
 
@@ -90,19 +90,19 @@ Or this, with -l | --list option:
 	Downtime: 16 seconds
 	. . .
 
-Don't forget! For keep it updated, add it to the init system, to the cron service and use 'tuptime' user for execution. (Scripts/Units/Files provided inside this repo)
+Don't forget! For keep it updated, add it to the init system, to the cron service and use 'tuptime' user for execution. (All scripts, units and related files are provided inside this repo)
 
 
 
 ### What offer tuptime different than other alternatives like uptimed and downtimed
 
-- It doesn't run as a daemon, at least, it only need execution when the init manager startup and shutdown the system. For avoid problems with behaviours that can produce a switch off without a proper shutdown, like power failures, a cron job is shipped with the project for update the registers each n minutes. As a system administrator, you can easily choose the best number for your particular system requirements.
+- It doesn't run as a daemon, at least, it only need execution when the init manager startup and shutdown the system. For avoid problems with behaviours that can produce a switch off without a proper shutdown, like power failures, a cron job and a .timer unit are shipped with the project for update the registers each n minutes. As a system administrator, you can easily choose the best number for your particular system requirements.
 
-- Is written in Python using common modules and as few as I can, easy to see whats inside it, modify if it is neccesary or port it to embedded devices.
+- It is written in Python using common modules and as few as possible, easy to see whats inside it, modify if it is necesary or use  it in embedded devices.
 
-- It register the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it have the option for output the registers in seconds and epoch (-s), easy to pipe it to other commands.
+- It register the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it have the option for output the registers in seconds and epoch (-s) or/and in csv format, easy to pipe it to other commands.
 
-- Its main purpose is only one thing, tracking all of the system startups/shutdowns and present that information to the user with the more understandable way. Don't have mail alerts when a milestones are reached or the limitation of keep the last n records.
+- Its main purpose is tracking all the system startups/shutdowns and present that information to the user in the more understandable way. Don't have mail alerts when a milestones are reached or the limitation of keep the last n records.
 
 - Its written for avoid false startups registers, actually there are some issues with other alternatives related to that. This is an issue that sometimes happens on virtualized enviroments, servers with high load or when ntp are running.
 

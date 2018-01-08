@@ -9,4 +9,4 @@ override_dh_installinit:
 	dh_installinit --onlyscripts
 
 %:
-	dh $@ --with=systemd
+	dh $@

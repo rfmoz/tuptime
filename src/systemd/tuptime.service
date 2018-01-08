@@ -1,5 +1,6 @@
 [Unit]
 Description=Tuptime service
+Wants=time-sync.target
 
 [Service]
 Type=oneshot

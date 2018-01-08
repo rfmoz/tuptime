@@ -21,14 +21,14 @@ set -e
 case "$1" in
     configure)
         if ! getent passwd tuptime >/dev/null ; then
-            echo "adding tuptime user..."
+            echo "Adding tuptime user ..."
             adduser --quiet --system --group --disabled-password \
                 --home "/var/lib/tuptime" \
                 --shell '/bin/sh' \
                 --gecos 'Tuptime execution user,,,' tuptime
         fi
 
-	su - tuptime -c "tuptime -x"
+	su -s /bin/sh tuptime -c "tuptime -x"
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

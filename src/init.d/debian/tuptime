@@ -1,6 +1,6 @@
 #!/bin/sh
 # tuptime - Report the historical and statistical running time of the system, keeping it between restarts.
-# Author Ricardo F. - 2015
+# Author Ricardo Fraile - 2017
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,19 +39,19 @@ do_start () {
         # Start service
         log_action_begin_msg "Starting $BIN_NAME"
         log_end_msg 0
-        su - $USER -c "$PATH_BIN -x" > /dev/null
+        su -s /bin/sh $USER -c "$PATH_BIN -x" > /dev/null
 }
 
 do_stop () {
         # Stop service
         log_action_begin_msg "Stopping $BIN_NAME"
         log_end_msg 0
-        su - $USER -c "$PATH_BIN -xg" > /dev/null
+        su -s /bin/sh $USER -c "$PATH_BIN -xg" > /dev/null
 }
 
 do_status () {
 	# Status service
-	su - $USER -c "$PATH_BIN"
+	su -s /bin/sh $USER -c "$PATH_BIN"
 }
 
 
