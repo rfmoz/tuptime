@@ -25,7 +25,7 @@ fi
 
 
 # Test if python is installed
-pyver=`python --version 2>&1 /dev/null`
+pyver=`python3 --version 2>&1 /dev/null`
 if [ $? -ne 0 ]; then
         echo "ERROR: Python not available"
         echo "Please, install version 3 or greater"; exit 1
