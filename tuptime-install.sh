@@ -2,7 +2,7 @@
 
 #
 # Tuptime installation linux script
-# v.1.6
+# v.1.7
 #
 
 # Destination dir for executable file
