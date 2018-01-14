@@ -1,3 +1,10 @@
+tuptime (3.3.4) unstable; urgency=low
+
+  * Add DragonflyBSD support
+  * Improve error report when checking db path and file
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 14 Jan 2018 13:26:00 +0200
+
 tuptime (3.3.3) unstable; urgency=low
 
   * Unify order arguments under -o
