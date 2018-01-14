@@ -2,7 +2,7 @@
 
 #
 # Tuptime installation linux script
-# v.1.7
+# v.1.7.1
 #
 
 # Destination dir for executable file
@@ -68,7 +68,7 @@ tuptime -x
 
 echo "Setting tuptime db ownership"
 chown -R tuptime:tuptime /var/lib/tuptime
-chmod 750 /var/lib/tuptime
+chmod 755 /var/lib/tuptime
 
 echo "Executing tuptime with tuptime user for testing"
 su -s /bin/sh tuptime -c "tuptime -x"
