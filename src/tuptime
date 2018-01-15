@@ -17,7 +17,7 @@ keeping it between restarts."""
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, os, optparse, locale, platform, logging, sqlite3
+import sys, os, argparse, locale, platform, logging, sqlite3
 from datetime import datetime
 
 
@@ -41,22 +41,22 @@ def get_arguments():
         """Enable verbose mode"""
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
-    parser = optparse.OptionParser()
-    parser.add_option(
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
         '-c', '--csv',
         dest='csv',
         action='store_true',
         default=False,
         help='csv output'
     )
-    parser.add_option(
+    parser.add_argument(
         '-d', '--date',
         dest='date_format',
         default=DATE_FORMAT,
         action='store',
         help='date format output'
     )
-    parser.add_option(
+    parser.add_argument(
         '-f', '--filedb',
         dest='db_file',
         default=DB_FILE,
@@ -64,7 +64,7 @@ def get_arguments():
         help='database file',
         metavar='FILE'
     )
-    parser.add_option(
+    parser.add_argument(
         '-g', '--graceful',
         dest='endst',
         action='store_const',
@@ -72,120 +72,123 @@ def get_arguments():
         const=int(1),
         help='register a gracefully shutdown'
     )
-    parser.add_option(
+    parser.add_argument(
         '-k', '--kernel',
         dest='kernel',
         action='store_true',
         default=False,
         help='print kernel information'
     )
-    parser.add_option(
+    parser.add_argument(
         '-l', '--list',
         dest='lst',
         default=False,
         action='store_true',
         help='enumerate system life as list'
     )
-    parser.add_option(
+    parser.add_argument(
         '-n', '--noup',
         dest='update',
         default=True,
         action='store_false',
         help='avoid update values'
     )
-    parser.add_option(
+    parser.add_argument(
         '-o', '--order',
         dest='order',
         metavar='TYPE',
         default=False,
         action='store',
-        type="string",
+        type=str,
         help='order enumerate by [<e|d|k|u>]'
     )
-    parser.add_option(
+    parser.add_argument(
         '-r', '--reverse',
         dest='reverse',
         default=False,
         action='store_true',
         help='reverse order'
     )
-    parser.add_option(
+    parser.add_argument(
         '-s', '--seconds',
         dest='seconds',
         default=None,
         action='store_true',
         help='output time in seconds and epoch'
     )
-    parser.add_option(
+    parser.add_argument(
         '-S', '--since',
         dest='since',
         default=0,
         action='store',
-        nargs=1,
         type=int,
         help='restric since this register number'
     )
-    parser.add_option(
+    parser.add_argument(
         '-t', '--table',
         dest='table',
         default=False,
         action='store_true',
         help='enumerate system life as table'
     )
-    parser.add_option(
+    parser.add_argument(
         '--tsince',
         dest='ts',
         metavar='TIMESTAMP',
         default=None,
         action='store',
         type=int,
-        nargs=1,
         help='restrict since this epoch timestamp'
     )
-    parser.add_option(
+    parser.add_argument(
         '--tuntil',
         dest='tu',
         metavar='TIMESTAMP',
         default=None,
         action='store',
         type=int,
-        nargs=1,
         help='restrict until this epoch timestamp'
     )
-    parser.add_option(
+    parser.add_argument(
         '-U', '--until',
         dest='until',
         default=0,
         action='store',
         type=int,
-        nargs=1,
         help='restrict until this register number'
     )
-    parser.add_option(
+    parser.add_argument(
         '-v', '--verbose',
-        action='callback',
-        callback=enable_verbose,
+        dest='verbose',
+        default=False,
+        action='store_true',
         help='verbose output'
     )
-    parser.add_option(
+    parser.add_argument(
         '-V', '--version',
-        action='callback',
-        callback=print_version,
+        dest='version',
+        default=False,
+        action='store_true',
         help='show version'
     )
-    parser.add_option(
+    parser.add_argument(
         '-x', '--silent',
         dest='silent',
         default=False,
         action='store_true',
         help='update values into db without output'
     )
-    arg, _ = parser.parse_args()
+    arg = parser.parse_args()
+
+    if arg.verbose:
+        enable_verbose()
+
+    if arg.version:
+        print_version()
 
     # - Check order arguments
     if arg.order and (arg.order not in ('e', 'd', 'k', 'u')):
         parser.error('order argument must be followed by a type: "e", "d", "k" or "u"')
-
 
     # - Check combination of operator requirements
     if arg.reverse or arg.order:
@@ -196,7 +199,7 @@ def get_arguments():
         if not arg.table and not arg.lst:
             parser.error('used operators must be combined with [-t|--table] or [-l|--list]')
 
-    logging.info('Arguments: ' + str(arg))
+    logging.info('Arguments: ' + str(vars(arg)))
     return arg
 
 
@@ -241,7 +244,7 @@ def get_os_values():
     # Linux and any OS with '/proc' filesystem
     if os.path.isfile('/proc/uptime') and os.path.isfile('/proc/stat'):
         btime, uptime, ex_user = os_linux(btime, uptime, ex_user)
-    # BSDs with 'sec' in kern.boottime 
+    # BSDs with 'sec' in kern.boottime
     elif sys.platform.startswith(('freebsd', 'darwin', 'dragonfly5')):
         btime, uptime, ex_user = os_bsd(btime, uptime, ex_user)
     # elif:
@@ -285,8 +288,8 @@ def assure_state_db(btime, uptime, kernel, arg):
             logging.info('Creating path = ' + str(os.path.dirname(arg.db_file)))
             os.makedirs(os.path.dirname(arg.db_file))
     except Exception as exp_path:
-            logging.error('Checking db path \"' + str(os.path.dirname(arg.db_file)) + '\" ' + str(exp_path))
-            sys.exit(-1)
+        logging.error('Checking db path \"' + str(os.path.dirname(arg.db_file)) + '\" ' + str(exp_path))
+        sys.exit(-1)
 
     # Test and create db with the initial values
     try:
@@ -1068,6 +1071,8 @@ def main():
                 logging.error('After system restart, the values must be saved into db. '
                               'Please, execute tuptime with a privileged user.')
                 sys.exit(-1)
+    else:
+        logging.info('Skipping update values')
 
     if not arg.silent:
         # - Get all rows for calculate print values
@@ -1112,7 +1117,7 @@ def main():
 
     #  Print values
     if arg.silent:
-        logging.info('Only update')
+        logging.info('Silent mode')
 
     else:
         for row in db_rows:  # Reset negative values
