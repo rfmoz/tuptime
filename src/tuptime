@@ -17,16 +17,21 @@ keeping it between restarts."""
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, os, argparse, locale, platform, logging, sqlite3
+import sys, os, argparse, locale, platform, signal, logging, sqlite3
 from datetime import datetime
 
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
-locale.setlocale(locale.LC_ALL, '')
 DATE_FORMAT = '%X %x'
 DEC = int(2)  # Decimals for seconds
 DECP = int(2)  # Decimals for percentages
 __version__ = '3.3.4'
+
+# Terminate when SIGPIPE signal is received
+signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
+# Set locale to the user’s default setting (LANG env. var)
+locale.setlocale(locale.LC_ALL, '')
 
 
 def get_arguments():
