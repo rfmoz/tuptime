@@ -37,15 +37,6 @@ locale.setlocale(locale.LC_ALL, '')
 def get_arguments():
     """Get arguments from command line"""
 
-    def print_version(*_):
-        """Print version"""
-        print('tuptime version ' + __version__)
-        sys.exit(0)
-
-    def enable_verbose(*_):
-        """Enable verbose mode"""
-        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '-c', '--csv',
@@ -105,6 +96,7 @@ def get_arguments():
         default=False,
         action='store',
         type=str,
+        choices=['e', 'd', 'k', 'u'],
         help='order enumerate by [<e|d|k|u>]'
     )
     parser.add_argument(
@@ -171,9 +163,8 @@ def get_arguments():
     )
     parser.add_argument(
         '-V', '--version',
-        dest='version',
-        default=False,
-        action='store_true',
+        action='version',
+        version='tuptime version ' + (__version__),
         help='show version'
     )
     parser.add_argument(
@@ -185,15 +176,9 @@ def get_arguments():
     )
     arg = parser.parse_args()
 
+    # - Check enable verbose
     if arg.verbose:
-        enable_verbose()
-
-    if arg.version:
-        print_version()
-
-    # - Check order arguments
-    if arg.order and (arg.order not in ('e', 'd', 'k', 'u')):
-        parser.error('order argument must be followed by a type: "e", "d", "k" or "u"')
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     # - Check combination of operator requirements
     if arg.reverse or arg.order:
