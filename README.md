@@ -6,7 +6,7 @@ Tuptime is a tool for report the historical and statistical running time of the 
 
 ### Basic Installation and usage
 
-In a Linux, FreeBSD or OSX system...
+In a Linux or FreeBSD system...
 
 Clone the repo:
 
@@ -46,7 +46,7 @@ And you will get some similar to this:
 If you do the same a few days after, the output may will be more similar to this:
 
 	System startups:	110   since   10:15:27 08/08/15
-	System shutdowns:	107 ok   -   2 bad
+	System shutdowns:	107 ok  <-   2 bad
 	System uptime: 		4.04 %   -   1 days, 22 hours, 4 minutes and 44 seconds
 	System downtime: 	95.96 %   -   45 days, 13 hours, 57 minutes and 30 seconds
 	System life: 		47 days, 12 hours, 2 minutes and 15 seconds
