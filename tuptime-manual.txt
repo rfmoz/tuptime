@@ -3,7 +3,7 @@
                          ----------------------
                               version 3.3.3
                                 Ricardo F.
-                                3/Jan/2018
+                               22/Jan/2018
 
 
 
@@ -35,7 +35,6 @@ Indeed, it can:
 Operating system:
    - Linux
    - FreeBSD
-   - OSX (Darwin)
 
 Software:
    - Python 3.x
@@ -167,10 +166,22 @@ For FreeBSD system:
          # echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
 
-For OSX system:
+Partial support for OSX (Darwin) system:
 
    Tuptime is compatible with OSX but, for now, the project lacks of launchd files
    for the startup and the schedule run.
+
+
+Partial support for Windows system:
+
+   Two options are available for running Tuptime under Windows:
+
+       + Cywin with Python3.
+
+       + WLS with Ubuntu installed. 
+
+   But you need to find the right way in your setup to launch the execution at 
+   startup and shutdown plus the triggering from the task schedule.
 
 
 Note about Python 2.7:
