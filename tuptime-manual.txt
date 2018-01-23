@@ -191,9 +191,9 @@ Note about Python 2.7:
 
 
 
-============================
-| Command line  parameters |
-============================
+===========================
+| Command line parameters |
+===========================
 
 These are the command line options, no configuration file is used:
 
@@ -600,9 +600,9 @@ Good reads:
 
 
 
-=================
-| Some Thoughts |
-=================
+===========
+| Caveats |
+===========
 
 Tuptime can be executed with 'root' user, but it's recommendable the use of an
 unprivileged user, like 'tuptime' as the installation section reflects for
