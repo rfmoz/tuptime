@@ -98,7 +98,7 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 - It doesn't run as a daemon, at least, it only need execution when the init manager startup and shutdown the system. For avoid problems with behaviours that can produce a switch off without a proper shutdown, like power failures, a cron job and a .timer unit are shipped with the project for update the registers each n minutes. As a system administrator, you can easily choose the best number for your particular system requirements.
 
-- It is written in Python using common modules and as few as possible, easy to see whats inside it, modify if it is necesary or use  it in embedded devices.
+- It is written in Python using common modules and as few as possible, easy to see what is inside it, and modify it for fit for your particular use case.
 
 - It register the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it have the option for output the registers in seconds and epoch (-s) or/and in csv format, easy to pipe it to other commands.
 
