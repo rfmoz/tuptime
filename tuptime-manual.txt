@@ -3,7 +3,7 @@
                          ----------------------
                               version 3.3.3
                                 Ricardo F.
-                               22/Jan/2018
+                               24/Jan/2018
 
 
 
@@ -600,6 +600,39 @@ Good reads:
 
 
 
+========================
+| Date and Epoch notes |
+========================
+
+The options --tsince and --tuntil use epoch timestamp format, as quick
+reference here are some notes:
+
+Seconds equivalences:
+	1 year    31536000 seconds
+	1 month    2592000 seconds
+	1 week      604800 seconds
+	1 day	     86400 seconds
+	1 hour        3600 seconds
+
+Convert human date to epoch:
+	date --date="JAN-18-2018" +%s
+	date --date="20-JAN-18" +%s
+	date --date="2018-01-20 16:21:42" +%s
+	date --date="2018-01-20 16:21:42 GMT+2" +%s
+	date --date="3 week ago" +%s
+	date --date="1 year ago" +%s
+	date --date="now" +%s
+
+Convert epoch to human date:
+	date --date="@1516748400"
+
+More info about date input formats:
+	man date
+	"https://www.gnu.org/software/coreutils/manual/html_node/
+	Date-input-formats.html#Date-input-formats"
+
+
+
 ===========
 | Caveats |
 ===========
@@ -624,12 +657,4 @@ As usual, if the system have configured a time zone with daylight saving time
 (DST), for avoid problems when the time change, the real time clock (RTC) 
 should have set to universal time coordinated (UTC), not local time. Check it
 with 'timedatectl' command.
-http://tldp.org/HOWTO/Clock-2.html
-
-Useful numbers for use with --tsince and --tuntil filter options:
-
- 1 year   31536000 seconds
- 1 month   2592000 seconds
- 1 week     604800 seconds
- 1 day	     86400 seconds
- 1 hour       3600 seconds
+https://tldp.org/HOWTO/Clock-2.html
