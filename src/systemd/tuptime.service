@@ -1,5 +1,6 @@
 [Unit]
 Description=Tuptime service
+Documentation=man:tuptime(1) file:///usr/share/doc/tuptime/tuptime-manual.txt.gz
 Wants=time-sync.target
 
 [Service]
