@@ -566,6 +566,10 @@ For avoid that problem the systemd unit have the time-sync.target requirement, b
 for now it have a bug (https://github.com/systemd/systemd/issues/5097) and not work
 as expected.
 
+Tuptime report the drift when it is executed in verbose mode "tuptime -v" in the
+line "INFO:Drift over btime". Values around +-1 are very common and can be
+considered as normal.
+
 A few recomendations / workarounds are:
 
 If the systems is a single-board computer, like Raspberry Pi or Beaglebone, use a
