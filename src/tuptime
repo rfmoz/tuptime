@@ -245,9 +245,10 @@ def get_os_values():
 
     kernel = platform.platform()
 
-    logging.info('uptime = ' + str(uptime))
-    logging.info('btime = ' + str(btime))
-    logging.info('kernel = ' + str(kernel))
+    logging.info('Current locale = ' + str(locale.getlocale()))
+    logging.info('Uptime = ' + str(uptime))
+    logging.info('Btime = ' + str(btime))
+    logging.info('Kernel = ' + str(kernel))
     logging.info('Execution user = ' + str(ex_user))
 
     # Check right assignment of system variables before continue
