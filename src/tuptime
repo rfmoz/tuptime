@@ -23,8 +23,8 @@ from datetime import datetime
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATE_FORMAT = '%X %x'
-DEC = int(2)  # Decimals for seconds
-DECP = int(2)  # Decimals for percentages
+DEC = int(2)  # Default decimals for seconds
+DECP = int(2)  # Default decimals for percentages
 __version__ = '3.3.4'
 
 # Terminate when SIGPIPE signal is received
@@ -53,6 +53,15 @@ def get_arguments():
         help='date format output'
     )
     parser.add_argument(
+        '--decp',
+        dest='decp',
+        default=DECP,
+        metavar='DECIMALS',
+        action='store',
+        type=int,
+        help='number of decimals in percentages'
+    )
+    parser.add_argument(
         '-f', '--filedb',
         dest='db_file',
         default=DB_FILE,
@@ -66,7 +75,7 @@ def get_arguments():
         action='store_const',
         default=int(0),
         const=int(1),
-        help='register a gracefully shutdown'
+        help='register a graceful shutdown'
     )
     parser.add_argument(
         '-k', '--kernel',
@@ -873,8 +882,8 @@ def print_default(db_rows, cuptime, cbtime, arg):
 
     # Get rates and average uptime / downtime
     if sys_life > 0:
-        uprate = round((total_uptime * 100) / sys_life, DECP)
-        downrate = round((total_downtime * 100) / sys_life, DECP)
+        uprate = round((total_uptime * 100) / sys_life, arg.decp)
+        downrate = round((total_downtime * 100) / sys_life, arg.decp)
     else:
         uprate = 0.0
         downrate = 0.0
@@ -980,11 +989,12 @@ def print_default(db_rows, cuptime, cbtime, arg):
     if arg.kernel:
         print(sp0 + '...with kernel' + sp2 + str(shrt_down_kern) + sp0)
     print(sp0 + 'Average downtime' + sp2 + str(average_down) + sp0)
-    if arg.csv is False:
-        print('')
-    print(sp0 + 'Current uptime' + sp2 + str(cuptime) + sp5 + 'since' + sp5 + str(cbtime) + sp0)
-    if arg.kernel:
-        print(sp0 + '...with kernel' + sp2 + str(db_rows[-1]['kernel']) + sp0)
+    if arg.update is True:
+        if arg.csv is False:
+            print('')
+        print(sp0 + 'Current uptime' + sp2 + str(cuptime) + sp5 + 'since' + sp5 + str(cbtime) + sp0)
+        if arg.kernel:
+            print(sp0 + '...with kernel' + sp2 + str(db_rows[-1]['kernel']) + sp0)
 
 
 def main():

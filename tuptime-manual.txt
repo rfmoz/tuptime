@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 3.3.3
+                              version 3.3.4
                                 Ricardo F.
-                               24/Jan/2018
+                               12/Feb/2018
 
 
 
@@ -201,9 +201,10 @@ These are the command line options, no configuration file is used:
   -c, --csv             csv output
   -d DATE_FORMAT, --date=DATE_FORMAT
                         date format output
+  --decp DECIMALS       number of decimals in percentages
   -f FILE, --filedb=FILE
                         database file
-  -g, --graceful        register a gracefully shutdown
+  -g, --graceful        register a graceful shutdown
   -k, --kernel          print kernel information
   -l, --list            enumerate system life as list
   -n, --noup            avoid update values
@@ -281,6 +282,13 @@ These are the command line options, no configuration file is used:
          tuptime -d '%H:%M:%S   %d-%b-%Y'  # Spanish style
 
 
+--dec DECIMALS
+  Change the decimal lenght in percentages. The number is rounded to this value.
+
+  Examples:
+         tuptime --dec 9
+
+
 -f <FILE>, --filedb=<FILE>
   Define an alternative database file. Default is located in 
   '/var/lib/tuptime/tuptime.db'
@@ -292,10 +300,9 @@ These are the command line options, no configuration file is used:
 
   
 -g, --graceful
-  Register last time in the db as a graceful shutdown. This option is the way
-  that tuptime have for know if is a good or a bad shutdown, like a hang of the
-  system, for example. This is used in the init.d and systemd files at the 
-  shutdown process.
+  Register the time in db as a graceful shutdown. This option is the way that
+  tuptime have for know if is a good or a bad shutdown. This is used in the 
+  init.d and systemd files at the shutdown process.
 
   Examples:
          tuptime -g

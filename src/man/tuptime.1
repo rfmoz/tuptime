@@ -1,10 +1,10 @@
-.TH TUPTIME 1 "Jan 2018" "3.3.3" "Linux Manual"
+.TH TUPTIME 1 "Feb 2018" "3.3.4" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical running time of the system, keeping it between restarts.
 
 .SH SYNOPSIS
-tuptime [\-h | \-\-help] [\-c | \-\-csv] [{\-d | \-\-date}=<date\ format] [{\-f | \-\-filedb}=<database\ file]  [\-g | \-\-graceful] [\-k | \-\-kernel] [\-l | \-\-list] [\-n | \-\-noup]  [{\-o | \-\-order}={e|d|k|u}] [\-r | \-\-reverse] [\-s | \-\-seconds] [\-S | \-\-since] [\-t | \-\-table] [\-\-tsince] [\-\-tuntil] [\-U | \-\-until] [\-v | \-\-verbose]  [\-V | \-\-version] [\-x | \-\-silent]
+tuptime [\-h | \-\-help] [\-c | \-\-csv] [{\-d | \-\-date}=<date\ format>] [\-\-decp=<decimals>] [{\-f | \-\-filedb}=<file>]  [\-g | \-\-graceful] [\-k | \-\-kernel] [\-l | \-\-list] [\-n | \-\-noup]  [{\-o | \-\-order}={e|d|k|u}] [\-r | \-\-reverse] [\-s | \-\-seconds] [{\-S | \-\-since}=<number>] [\-t | \-\-table] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [\-U | \-\-until=<number>] [\-v | \-\-verbose]  [\-V | \-\-version] [\-x | \-\-silent]
 
 .SH DESCRIPTION
 .RS
@@ -58,11 +58,14 @@ T}
 \-d | \-\-date@T{
 Date format
 T}
+\--decp@T{
+Number of decimals in percentages
+T}
 \-f | \-\-file@T{
 Database file
 T}
 \-g | \-\-graceful@T{
-Register a gracefully shutdown
+Register a graceful shutdown
 T}
 \-k | \-\-kernel@T{
 Print kernel information
@@ -222,12 +225,6 @@ Official repository.
 .SH "AUTHOR"
 .IX Header "AUTHORS"
 Ricardo Fraile <rfraile@rfraile.eu>
-.PP
-.SH HISTORY
-.nf
-2007 - Original written in Perl.
-2009 - Rewrited in Python.
-2015 - Official available in FreeBSD, Debian, Ubuntu and Arch.
 
 .SH "COPYRIGHT"
 .IX Header "COPYRIGHT"
