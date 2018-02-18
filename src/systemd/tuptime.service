@@ -11,4 +11,4 @@ ExecStart=/usr/bin/tuptime -x
 ExecStop=/usr/bin/tuptime -xg
 
 [Install]
-WantedBy=basic.target
+WantedBy=multi-user.target
