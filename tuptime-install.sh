@@ -80,17 +80,17 @@ if [ $? -eq 0 ]; then
 	systemctl daemon-reload
 	systemctl enable tuptime.service
 	systemctl start tuptime.service
-elif [ -f /lib/lsb/init-functions ]; then
-	echo "Copying init debian file..."
-	cp -a ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime
-	chmod 755 /etc/init.d/tuptime
-	update-rc.d tuptime defaults
 elif [ -f /etc/rc.d/init.d/functions ]; then
 	echo "Copying init redhat file..."
 	cp -a ${F_TMP1}/src/init.d/redhat/tuptime /etc/init.d/tuptime
 	chmod 755 /etc/init.d/tuptime
 	chkconfig --add tuptime
 	chkconfig tuptime on
+elif [ -f /lib/lsb/init-functions ]; then
+	echo "Copying init debian file..."
+	cp -a ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime
+	chmod 755 /etc/init.d/tuptime
+	update-rc.d tuptime defaults
 else
 	echo "#####################################"
 	echo "ERROR - Any init file for your system"
