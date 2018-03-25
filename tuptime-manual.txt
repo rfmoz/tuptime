@@ -672,3 +672,5 @@ for avoid problems when the time change, the real time clock (RTC) should have
 set to universal time coordinated (UTC), not local time. Check it with 
 'timedatectl' command.  Reports matching DST changes are completely right.
 https://tldp.org/HOWTO/Clock-2.html
+
+The name of the tool is based on the contraction of the words Total Uptime.

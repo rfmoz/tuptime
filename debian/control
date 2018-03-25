@@ -15,4 +15,5 @@ Depends: ${misc:Depends}, ${shlibs:Depends}
   , lsb-base (>= 3.0-6)
 Description: report historical system running time
  Tuptime track and report historical and statistical running time of the
- system, keeping the uptime and downtime between shutdowns.
+ system, keeping the uptime and downtime between shutdowns. The total
+ uptime tool.
