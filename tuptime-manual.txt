@@ -455,6 +455,9 @@ shutdown, but if the system fails, hangs or whatever, the uptime time will
 be lost. Be sure that the cron entry or systemd .timer unit are installed as
 expected.
 
+By default, both have a 5 minutes scheduled execution. Feel free to lower 
+that value if your requirements are narrow.
+
 
 
 ==================
@@ -664,8 +667,8 @@ Note the filesystem cache on which the files resides for a while before being
 flushing into disk. If things go wrong, like a kernel panic, maybe the last 
 updates of the db already written into the file can be lots.
 
-As usual, if the system have configured a time zone with daylight saving time
-(DST), for avoid problems when the time change, the real time clock (RTC) 
-should have set to universal time coordinated (UTC), not local time. Check it
-with 'timedatectl' command.
+If the system have configured a time zone with daylight saving time (DST),
+for avoid problems when the time change, the real time clock (RTC) should have
+set to universal time coordinated (UTC), not local time. Check it with 
+'timedatectl' command.  Reports matching DST changes are completely right.
 https://tldp.org/HOWTO/Clock-2.html
