@@ -3,10 +3,10 @@ tuptime (3.3.4) unstable; urgency=low
   * Add DragonflyBSD support
   * Improve error report when checking db path and file
   * Arguments refactoring. Change deprecated module optparse to argpaser
-  * Adding --decp option. Allow change decimal lenght in percentages
+  * Adding --decp option. Allow change decimal length in percentages
   * Fix right termination when SIGPIPE signal is received
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 14 Jan 2018 13:26:00 +0200
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Fri, 13 Apr 2018 23:56:00 +0200
 
 tuptime (3.3.3) unstable; urgency=low
 
