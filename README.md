@@ -8,8 +8,8 @@ Tuptime is a tool for report the historical and statistical running time of the 
 
 #### Package installation
 
-* Debian: https://packages.debian.org/stable/tuptime
-* Ubuntu: https://launchpad.net/ubuntu/+source/tuptime
+* Debian: https://packages.debian.org/tuptime
+* Ubuntu: https://packages.ubuntu.com/tuptime
 * ArchLinux: https://aur.archlinux.org/packages/tuptime
 * FreeBSD: https://www.freshports.org/sysutils/tuptime
 
@@ -34,7 +34,7 @@ Run first with a privileged user:
 
 	tuptime
 
-#### Usage
+#### Examples
 
 Sample output after install:
 
