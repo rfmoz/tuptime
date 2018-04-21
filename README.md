@@ -6,6 +6,15 @@ Tuptime is a tool for report the historical and statistical running time of the 
 
 ### Basic Installation and usage
 
+#### Package installation
+
+* Debian: https://packages.debian.org/stable/tuptime
+* Ubuntu: https://launchpad.net/ubuntu/+source/tuptime
+* ArchLinux: https://aur.archlinux.org/packages/tuptime
+* FreeBSD: https://www.freshports.org/sysutils/tuptime
+
+#### Manual installation
+
 In a Linux or FreeBSD system...
 
 Clone the repo:
@@ -25,7 +34,9 @@ Run first with a privileged user:
 
 	tuptime
 
-And you will get some similar to this:
+#### Usage
+
+Sample output after install:
 
 	System startups:	1   since   21:54:09 24/09/15
 	System shutdowns:	0 ok   -   0 bad
