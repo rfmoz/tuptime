@@ -1,13 +1,13 @@
-<!DOCTYPE HTML SYSTEM>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <!--
 This is a very basic sample Tuptime wrapper made in PHP.
 Maybe you can find it usefull as starting point to other particular proyect.
 //-->
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Tuptime</title>
-    <style type="text/css">
+    <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
             background-color: #b3b3b3;
@@ -132,6 +132,8 @@ Maybe you can find it usefull as starting point to other particular proyect.
 
             # Create the row content 
             foreach ($row as $cell) {
+
+                $cell=htmlentities($cell);  // Convert special chars to html
 
                 # For table type
                 if ($type === 'table') {
