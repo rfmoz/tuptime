@@ -163,8 +163,7 @@ Maybe you can find it usefull as starting point to other particular proyect.
                 # For default type
                 else {
                     # Match rows with different number of columns
-                    if (   strpos($tmprow, 'System startups') !== false
-                        || strpos($tmprow, 'System uptime') !== false
+                    if (  strpos($tmprow, 'System uptime') !== false
                         || strpos($tmprow, 'System downtime') !== false
                         || strpos($tmprow, 'Largest uptime') !== false
                         || strpos($tmprow, 'Shortest uptime') !== false 
