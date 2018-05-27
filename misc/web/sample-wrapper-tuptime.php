@@ -6,7 +6,7 @@ Maybe you can find it usefull as starting point to other particular proyect.
 //-->
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Tuptime</title>
+    <title>Tuptime Web Wrapper</title>
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
