@@ -12,8 +12,6 @@ Maybe you can find it usefull as starting point to other particular proyect.
             font-family: Arial, Helvetica, sans-serif;
             background-color: #b3b3b3;
         }
-
-
         #links-menu {
             margin: 5px;
             font-size: 110%;
@@ -28,8 +26,6 @@ Maybe you can find it usefull as starting point to other particular proyect.
             background: #222222;
             color: #d7d7d7;
         }
-
-
         table {
             margin-left: auto;
             margin-right: auto;
@@ -48,8 +44,6 @@ Maybe you can find it usefull as starting point to other particular proyect.
         tr:hover td{
             background-color: #1a1a1a;
         }
-
-
         #type-default td {
             border-bottom: 1px solid #111111;
         }
@@ -60,8 +54,6 @@ Maybe you can find it usefull as starting point to other particular proyect.
             font-weight: bold;
             border-right: 1px solid #111111;
         }
-
-
         #type-table td {
             border: 1px solid #111111;
         }
@@ -70,8 +62,6 @@ Maybe you can find it usefull as starting point to other particular proyect.
             font-weight: bold;
             border-bottom: 3px solid #111111;
         }
-
-
         #type-list td {
             border-bottom: 1px solid #111111;
         }
@@ -98,23 +88,25 @@ Maybe you can find it usefull as starting point to other particular proyect.
         # Read arguments fron GET method
         if(isset($_GET['type'])) {
             $type = $_GET['type'];
+        } else {
+            $type = 'default';
         }
 
         # Choose the right behaviour
         if (isset($type)) {
             if ($type === 'table') {
                 exec('tuptime -t --csv 2> /dev/null', $output, $return);
-                echo "<table id='type-table'>";
+                echo "<table id='type-table'>\n";
             } else if ($type === 'list') {
                 exec('tuptime -l --csv 2> /dev/null', $output, $return);
-                echo "<table id='type-list'>";
+                echo "<table id='type-list'>\n";
             } else {
                 exec('tuptime --csv 2> /dev/null', $output, $return);
-                echo "<table id='type-default'>";
+                echo "<table id='type-default'>\n";
             }
         } else {
             exec('tuptime --csv 2> /dev/null', $output, $return);
-            echo "<table id='type-default'>";
+            echo "<table id='type-default'>\n";
         }
 
         # Initialize empty array for the table
@@ -123,15 +115,17 @@ Maybe you can find it usefull as starting point to other particular proyect.
         # Create table content based on execution output
         foreach ($output as $row) {
 
-            $column = 0;  // Column counter
+            $column = -1;  // Column counter
             $tmprow = '';  // Temporary row store
 
-            array_push($table, "<tr>");  // Start creating the row
+            array_push($table, "        <tr>");  // Add start of table row into array
 
             $row = str_getcsv($row);  // Parse csv row into the array
 
             # Create the row content 
             foreach ($row as $cell) {
+
+                $column++;  // Increment column counter
 
                 $cell=htmlentities($cell);  // Convert special chars to html
 
@@ -142,65 +136,54 @@ Maybe you can find it usefull as starting point to other particular proyect.
 
                 # For list type
                 else if ($type === 'list') {
-                    # Match rows with different number of columns
-                    if (  strpos($tmprow, 'Uptime') !== false 
-                        || strpos($tmprow, 'Downtime') !== false 
-                        || strpos($tmprow, 'Kernel') !== false ) {
-                        # Assign the right colspan to the right column number
+                    # Match rows with different number of columns and
+                    # assign the right colspan to the right column number
+                    if (  in_array('Uptime', $row)
+                        || in_array('Downtime', $row) 
+                        || in_array('Kernel', $row) ) {
                         switch ($column) {
                             case 1:
                                 $tmprow .= "<td colspan='3'>$cell</td>";
-                                break;
-                            default:
-                                $tmprow .= "<td>$cell</td>";
+                                continue 2;
                         }
-                    # Default row assignment
-                    } else {
-                        $tmprow .= "<td>$cell</td>";
                     }
+                    # Default row assignment
+                    $tmprow .= "<td>$cell</td>";
                 }
 
                 # For default type
                 else {
-                    # Match rows with different number of columns
-                    if (  strpos($tmprow, 'System uptime') !== false
-                        || strpos($tmprow, 'System downtime') !== false
-                        || strpos($tmprow, 'Largest uptime') !== false
-                        || strpos($tmprow, 'Shortest uptime') !== false 
-                        || strpos($tmprow, 'Largest downtime') !== false
-                        || strpos($tmprow, 'Shortest downtime') !== false 
-                        || strpos($tmprow, 'Current uptime') !== false ) {
-                        # Assign the right colspan to the right column number
+                    # Match rows with different number of columns and
+                    # assign the right colspan to the right column number
+                    if (  in_array('System uptime', $row)
+                        || in_array('System downtime', $row)
+                        || in_array('Largest uptime', $row)
+                        || in_array('Shortest uptime', $row)
+                        || in_array('Largest downtime', $row)
+                        || in_array('Shortest downtime', $row)
+                        || in_array('Current uptime', $row)
+                        || in_array('System startups', $row) != in_array('until', $row) ) {
                         switch ($column) {
                             case 1:
                             case 3:
                                 $tmprow .= "<td colspan='2'>$cell</td>";
-                                break;
-                            default:
-                                $tmprow .= "<td>$cell</td>";
+                                continue 2;
                         }
                     }
-                    # Match rows with different number of columns
-                    elseif (   strpos($tmprow, 'System life') !== false
-                            || strpos($tmprow, 'Average uptime') !== false 
-                            || strpos($tmprow, 'System kernels') !== false 
-                            || strpos($tmprow, '...with kernel') !== false 
-                            || strpos($tmprow, 'Average downtime') !== false ) {
-                        # Assign the right colspan to the right column number
+                    elseif (   in_array('System life', $row)
+                            || in_array('Average uptime', $row) 
+                            || in_array('System kernels', $row) 
+                            || in_array('...with kernel', $row) 
+                            || in_array('Average downtime' , $row) ) {
                         switch ($column) {
                             case 1:
                                 $tmprow .= "<td colspan='5'>$cell</td>";
-                                break;
-                            default:
-                                $tmprow .= "<td>$cell</td>";
+                                continue 2;
                         }
                     }
                     # Default row assignment
-                    else {
-                        $tmprow .= "<td>$cell</td>";
-                   }
+                    $tmprow .= "<td>$cell</td>";
                }
-               $column++;  // Increment column counter
             }
             array_push($table, "$tmprow");  // Add row into table array
             array_push($table, "</tr>\n");  // Add end of table row into array
