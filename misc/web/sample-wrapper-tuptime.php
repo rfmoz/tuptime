@@ -32,6 +32,7 @@ Maybe you can find it usefull as starting point to other particular proyect.
             font-size: 105%;
             border-collapse: collapse;
             color: #d7d7d7;
+            table-layout: fixed;
         }
         tr{
             vertical-align:middle;
@@ -62,6 +63,9 @@ Maybe you can find it usefull as starting point to other particular proyect.
             font-weight: bold;
             border-bottom: 3px solid #111111;
         }
+        #type-list tr.rowblock{
+            border-top: 3px solid #111111;
+        }
         #type-list td {
             border-bottom: 1px solid #111111;
         }
@@ -71,9 +75,6 @@ Maybe you can find it usefull as starting point to other particular proyect.
             color: #00bb55;
             font-weight: bold;
             border-right: 1px solid #111111;
-        }
-        #type-list tr:nth-child(4n) td{
-            border-bottom: 3px solid #111111;
         }
     </style>
 </head>
@@ -118,9 +119,23 @@ Maybe you can find it usefull as starting point to other particular proyect.
             $column = -1;  // Column counter
             $tmprow = '';  // Temporary row store
 
-            array_push($table, "        <tr>");  // Add start of table row into array
-
             $row = str_getcsv($row);  // Parse csv row into the array
+
+            # Start row adding it into the array
+            # For table type
+            if ($type === 'table') {
+                array_push($table, "        <tr>");
+            }
+            # For list type
+            else if ($type === 'list') {
+                if ( in_array('Startup', $row) && count($table) > 1 ) {
+                    array_push($table, "        <tr class='rowblock'>");
+                }
+            }
+            # For default type
+            else {
+                array_push($table, "        <tr>");
+            }
 
             # Create the row content 
             foreach ($row as $cell) {
@@ -138,7 +153,7 @@ Maybe you can find it usefull as starting point to other particular proyect.
                 else if ($type === 'list') {
                     # Match rows with different number of columns and
                     # assign the right colspan to the right column number
-                    if (  in_array('Uptime', $row)
+                    if (   in_array('Uptime', $row)
                         || in_array('Downtime', $row) 
                         || in_array('Kernel', $row) ) {
                         switch ($column) {
@@ -155,14 +170,13 @@ Maybe you can find it usefull as starting point to other particular proyect.
                 else {
                     # Match rows with different number of columns and
                     # assign the right colspan to the right column number
-                    if (  in_array('System uptime', $row)
+                    if (   in_array('System uptime', $row)
                         || in_array('System downtime', $row)
                         || in_array('Largest uptime', $row)
                         || in_array('Shortest uptime', $row)
                         || in_array('Largest downtime', $row)
                         || in_array('Shortest downtime', $row)
-                        || in_array('Current uptime', $row)
-                        || in_array('System startups', $row) != in_array('until', $row) ) {
+                        || in_array('Current uptime', $row) ) {
                         switch ($column) {
                             case 1:
                             case 3:
@@ -178,6 +192,17 @@ Maybe you can find it usefull as starting point to other particular proyect.
                         switch ($column) {
                             case 1:
                                 $tmprow .= "<td colspan='5'>$cell</td>";
+                                continue 2;
+                        }
+                    }
+                    elseif (   in_array('System startups', $row) != in_array('until', $row) ) {
+                        switch ($column) {
+                            case 1:
+                            case 3:
+                                $tmprow .= "<td colspan='2'>$cell</td>";
+                                continue 2;
+                            case 4:
+                            case 5:
                                 continue 2;
                         }
                     }
