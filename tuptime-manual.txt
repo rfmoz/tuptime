@@ -3,7 +3,7 @@
                          ----------------------
                               version 3.3.4
                                 Ricardo F.
-                               12/Feb/2018
+                               29/May/2018
 
 
 
@@ -665,6 +665,9 @@ since the last system start.
 Note the filesystem cache on which the files resides for a while before being 
 flushing into disk. If things go wrong, like a kernel panic, maybe the last 
 updates of the db already written into the file can be lots.
+
+A basic sample web wrapper is available under misc/web/. It is made in php and
+can be used as starting point to adapt it to any particular case.
 
 If the system have configured a time zone with daylight saving time (DST),
 for avoid problems when the time change, the real time clock (RTC) should have
