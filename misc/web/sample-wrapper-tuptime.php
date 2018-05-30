@@ -6,7 +6,7 @@ Maybe you can find it usefull as starting point to other particular proyect.
 //-->
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Tuptime Web Wrapper</title>
+    <title>Tuptime Web Wrapper - <?php echo gethostname(); ?></title>
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -39,7 +39,7 @@ Maybe you can find it usefull as starting point to other particular proyect.
             background-color: #222222;
         }
         td{
-            text-align:center; 
+            text-align:center;
             padding: 15px;
         }
         tr:hover td{
@@ -149,7 +149,7 @@ Maybe you can find it usefull as starting point to other particular proyect.
                 array_push($table, "        <tr>");
             }
 
-            # Create the row content 
+            # Create the row content
             foreach ($row as $cell) {
 
                 $column++;  // Increment column counter
@@ -166,7 +166,7 @@ Maybe you can find it usefull as starting point to other particular proyect.
                     # Match rows with different number of columns and
                     # assign the right colspan to the right column number
                     if (   in_array('Uptime', $row)
-                        || in_array('Downtime', $row) 
+                        || in_array('Downtime', $row)
                         || in_array('Kernel', $row) ) {
                         switch ($column) {
                             case 1:
@@ -197,9 +197,9 @@ Maybe you can find it usefull as starting point to other particular proyect.
                         }
                     }
                     elseif (   in_array('System life', $row)
-                            || in_array('Average uptime', $row) 
-                            || in_array('System kernels', $row) 
-                            || in_array('...with kernel', $row) 
+                            || in_array('Average uptime', $row)
+                            || in_array('System kernels', $row)
+                            || in_array('...with kernel', $row)
                             || in_array('Average downtime' , $row) ) {
                         switch ($column) {
                             case 1:
