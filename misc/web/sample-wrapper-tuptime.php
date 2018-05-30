@@ -76,6 +76,12 @@ Maybe you can find it usefull as starting point to other particular proyect.
             font-weight: bold;
             border-right: 1px solid #111111;
         }
+        #error {
+            font-size: 125%;
+            font-weight: bold;
+            text-align: center;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -108,6 +114,12 @@ Maybe you can find it usefull as starting point to other particular proyect.
         } else {
             exec('tuptime --csv 2> /dev/null', $output, $return);
             echo "<table id='type-default'>\n";
+        }
+
+        # Check right execution
+        if ($return != 0) {
+            echo "<div id='error'>- Error $return -</div>";
+            exit(1);
         }
 
         # Initialize empty array for the table
