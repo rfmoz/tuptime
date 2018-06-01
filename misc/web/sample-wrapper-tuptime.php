@@ -2,7 +2,8 @@
 <html lang="en">
 <!--
 This is a very basic sample Tuptime wrapper made in PHP.
-Maybe you can find it usefull as starting point to other particular proyect.
+Maybe you can find it usefull as starting point to other particular project.
+Compatible with Tuptime 3.3.4 and above.
 //-->
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -79,6 +80,13 @@ Maybe you can find it usefull as starting point to other particular proyect.
         #error {
             font-size: 125%;
             font-weight: bold;
+            text-align: center;
+            width: 100%;
+        }
+        #version {
+            margin-top: 2%;
+            margin-bottom: 15px;
+            color: #808080;
             text-align: center;
             width: 100%;
         }
@@ -232,5 +240,11 @@ Maybe you can find it usefull as starting point to other particular proyect.
         }
     ?>
     </table>
+    <div id="version">
+        <?php
+            exec('tuptime -V 2> /dev/null', $v_output);
+            echo current($v_output) . "\n";
+        ?>
+    </div>
 </body>
 </html>
