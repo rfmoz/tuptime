@@ -94,9 +94,9 @@ Compatible with Tuptime 3.3.4 and above.
 </head>
 <body>
     <div id="links-menu">
-        <a href="test.php">&nbsp;Normal&nbsp;</a>
-        <a href="test.php?type=table">&nbsp;Table&nbsp;</a>
-        <a href="test.php?type=list">&nbsp;List&nbsp;</a>
+        <a href="?type=default">&nbsp;Normal&nbsp;</a>
+        <a href="?type=table">&nbsp;Table&nbsp;</a>
+        <a href="?type=list">&nbsp;List&nbsp;</a>
     </div>
     <?php
 
