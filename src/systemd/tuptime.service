@@ -6,7 +6,6 @@ Wants=time-sync.target
 [Service]
 Type=oneshot
 User=tuptime
-RemainAfterExit=true
 ExecStart=/usr/bin/tuptime -x
 ExecStop=/usr/bin/tuptime -xg
 
