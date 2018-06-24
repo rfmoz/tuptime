@@ -160,7 +160,7 @@ For FreeBSD system:
 
       Add an entry to /etc/crontab
 
-         */5     *       *       *       *       tuptime    /usr/local/bin/tuptime -x
+         */3     *       *       *       *       tuptime    /usr/local/bin/tuptime -x
 
       Copy rc.d file:
 
