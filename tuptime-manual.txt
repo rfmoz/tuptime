@@ -67,7 +67,11 @@ For Linux systems:
 
          # bash <(curl -s https://raw.githubusercontent.com/rfrail3/tuptime/master/tuptime-install.sh)
 
-   + Manual install
+   + Building RPM file:
+
+      Instructions and .spec file located at misc/rpm/
+
+   + Manual install:
 
       Clone repository and copy executable file:
 
