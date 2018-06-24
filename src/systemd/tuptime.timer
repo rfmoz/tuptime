@@ -3,7 +3,7 @@ Description=Tuptime service timer
 
 [Timer]
 OnBootSec=1min
-OnActiveSec=3min
+OnCalendar=*:0/3
 
 [Install]
 WantedBy=timers.target
