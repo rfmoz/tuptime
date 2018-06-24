@@ -29,6 +29,6 @@ Install and enable as root:
 
     rpm -i /tmp/tuptime*.rpm
     systemctl enable tuptime.service
-    systemctl enable tuptime.tiimer
+    systemctl enable tuptime.timer
     systemctl start tuptime.service
     systemctl start tuptime.timer
