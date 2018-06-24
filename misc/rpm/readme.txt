@@ -5,7 +5,7 @@
 
 Install dependencies:
 
-    yum -y install rpmdevtools git
+    yum -y install rpmdevtools git python3-devel
 
 Change to any unprivileged user. Not build packages using root.
 
@@ -23,3 +23,12 @@ Create the package:
 Here is:
 
     ls ~/rpmbuild/RPMS/noarch/tuptime*.rpm
+    cp ~/rpmbuild/RPMS/noarch/tuptime*.rpm /tmp/
+
+Install and enable as root:
+
+    rpm -i /tmp/tuptime*.rpm
+    systemctl enable tuptime.service
+    systemctl enable tuptime.tiimer
+    systemctl start tuptime.service
+    systemctl start tuptime.timer

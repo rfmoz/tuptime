@@ -9,7 +9,7 @@ URL:		https://github.com/rfrail3/tuptime/
 Source0:	https://github.com/rfrail3/tuptime/archive/%{version}.tar.gz
 
 %{?systemd_requires}
-BuildRequires:	sed
+BuildRequires:	python3-devel sed
 Requires(pre):	shadow-utils
 Requires:	python3 systemd
 
