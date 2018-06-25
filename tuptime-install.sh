@@ -61,7 +61,7 @@ chmod 755 ${D_BIN}/tuptime
 
 echo "Creating tuptime user..."
 useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
-        --shell '/bin/sh' --comment 'Tuptime execution user,,,' tuptime
+        --shell '/bin/false' --comment 'Tuptime execution user,,,' tuptime
 
 echo "Creating tuptime db"
 tuptime -x

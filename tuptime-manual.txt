@@ -67,10 +67,6 @@ For Linux systems:
 
          # bash <(curl -s https://raw.githubusercontent.com/rfrail3/tuptime/master/tuptime-install.sh)
 
-   + Building RPM file:
-
-      Instructions and .spec file located at misc/rpm/
-
    + Manual install:
 
       Clone repository and copy executable file:
@@ -82,7 +78,7 @@ For Linux systems:
 
          # adduser --quiet --system --no-create-home --group \
                 --home "/var/lib/tuptime" \
-                --shell '/bin/sh' \
+                --shell '/bin/false' \
                 --gecos 'Tuptime execution user,,,' tuptime
 
       Execute tuptime with a privilege user for create db path:
@@ -125,6 +121,10 @@ For Linux systems:
          # update-rc.d tuptime defaults
 	 # /etc/init.d/tuptime start
 
+   + Building RPM file for RedHat, Fedora, Suse and derivates:
+
+      Instructions and .spec file located at misc/rpm/
+
 
 
 For FreeBSD system:
@@ -148,7 +148,7 @@ For FreeBSD system:
 
       Add tuptime user:
 
-         # pw adduser tuptime -d /nonexistent -s /bin/sh -c "Tuptime execution user"
+         # pw adduser tuptime -d /nonexistent -s /bin/false -c "Tuptime execution user"
 
       Execute tuptime with a privilege user for create db path:
 

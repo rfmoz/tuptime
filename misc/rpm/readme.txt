@@ -32,3 +32,6 @@ Install and enable as root:
     systemctl enable tuptime.timer
     systemctl start tuptime.service
     systemctl start tuptime.timer
+
+
+# Tested on Fedora 28
