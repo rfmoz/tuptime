@@ -6,8 +6,9 @@ tuptime (3.3.4) unstable; urgency=low
   * Adding --decp option. Allow change decimal length in percentages
   * Fixed equal number of values per line in csv output
   * Fix right termination when SIGPIPE signal is received
+  * Removed RemainAfterExit=yes from Systemd unit for .timer compatibility
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Tue, 29 May 2018 18:56:00 +0200
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Tue, 26 Jun 2018 00:59:00 +0200
 
 tuptime (3.3.3) unstable; urgency=low
 
