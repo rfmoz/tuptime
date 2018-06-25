@@ -60,12 +60,13 @@ su -s /bin/sh tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 %files
 %{_unitdir}/tuptime.service
 %{_unitdir}/tuptime.timer
-%attr(0755, root, root) "%{_bindir}/tuptime"
+%attr(0755, root, root) %{_bindir}/tuptime
 %dir %attr(0755, tuptime, tuptime) %{_sharedstatedir}/tuptime/
-%doc %{_mandir}/man1/tuptime.1.gz
-%doc %{_docdir}/tuptime/tuptime-manual.txt
-%doc %{_docdir}/tuptime/README.md
-%doc %{_docdir}/tuptime/CHANGELOG
+%docdir %{_docdir}/tuptime/
+%{_docdir}/tuptime/tuptime-manual.txt
+%{_docdir}/tuptime/README.md
+%{_docdir}/tuptime/CHANGELOG
+%{_mandir}/man1/tuptime.1.gz
 
 %changelog
 * Sun Jun 24 2018 Ricardo Fraile <rfraile@rfraile.eu> 3.3.3-1
