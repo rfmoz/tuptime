@@ -10,17 +10,18 @@ Source0:	https://github.com/rfrail3/tuptime/archive/%{version}.tar.gz
 
 %{?systemd_requires}
 # Conditional requirements based on distribution release
-%if (0%{?fedora} < 22 || 0%{?rhel} < 8)
+%if (0%{?fedora} && 0%{?fedora} > 18) || (0%{?rhel} && 0%{?rhel} > 7) || (0%{?suse_version} && 0%{?suse_version} > 1210)
+BuildRequires:  python3-devel
+Requires:       python3
+%else
 # Require EPEL
 BuildRequires:  python34-devel
 Requires:       python34
-%else
-BuildRequires:  python3-devel
-Requires:       python3
 %endif
 BuildRequires:  sed
 Requires:       systemd
 Requires(pre):  shadow-utils
+
 
 
 %description
@@ -67,6 +68,7 @@ su -s /bin/sh tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 %systemd_postun_with_restart tuptime.timer
 
 %files
+%defattr(-,root,root)
 %{_unitdir}/tuptime.service
 %{_unitdir}/tuptime.timer
 %attr(0755, root, root) %{_bindir}/tuptime
