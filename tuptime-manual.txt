@@ -43,7 +43,7 @@ Software:
 
 If a distro is used, all is met with:
     - In Linux:  'python' package >= 3.0
-    - In FreeBSD: 'python3' and one of the 'py34-sqlite3', 'py35-sqlite3' or 'py36-sqlite3'
+    - In FreeBSD: 'python3' and 'py36-sqlite3'
 
 
 
@@ -121,7 +121,7 @@ For Linux systems:
          # update-rc.d tuptime defaults
 	 # /etc/init.d/tuptime start
 
-   + Building RPM file for RedHat, Fedora, Suse and derivates:
+   + Building RPM file for RedHat, Fedora and derivates:
 
       Instructions and .spec file located at misc/rpm/
 
@@ -148,7 +148,7 @@ For FreeBSD system:
 
       Add tuptime user:
 
-         # pw adduser tuptime -d /nonexistent -s /bin/false -c "Tuptime execution user"
+         # pw adduser tuptime -d /nonexistent -s /bin/sh -c "Tuptime execution user"
 
       Execute tuptime with a privilege user for create db path:
 

@@ -5,7 +5,11 @@
 
 Install dependencies:
 
-    yum -y install rpmdevtools git python3-devel
+    Latest releases of Fedora, RedHat 8, Centos 8:
+        yum -y install rpmdevtools git python3 python3-devel
+
+    Older releases of Fedora, Redhat 7, CentOS 7, install from EPEL:
+        yum -y install rpmdevtools git python34 python34-devel
 
 Change to any unprivileged user. Not build packages using root.
 
@@ -22,16 +26,12 @@ Create the package:
 
 Here is:
 
-    ls ~/rpmbuild/RPMS/noarch/tuptime*.rpm
-    cp ~/rpmbuild/RPMS/noarch/tuptime*.rpm /tmp/
+    ls ~/rpmbuild/RPMS/noarch/tuptime-*.rpm
 
-Install and enable as root:
+As root, install and enable:
 
-    rpm -i /tmp/tuptime*.rpm
+    rpm -i tuptime-*.rpm
     systemctl enable tuptime.service
     systemctl enable tuptime.timer
     systemctl start tuptime.service
     systemctl start tuptime.timer
-
-
-# Tested on Fedora 28
