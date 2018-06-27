@@ -6,10 +6,10 @@
 Install dependencies:
 
     Latest releases of Fedora, RedHat 8, Centos 8:
-        yum -y install rpmdevtools git python3 python3-devel
+        yum -y install rpmdevtools git python3 python3-rpm-macros
 
     Older releases of Fedora, Redhat 7, CentOS 7, install from EPEL:
-        yum -y install rpmdevtools git python34 python34-devel
+        yum -y install rpmdevtools git python34 python3-rpm-macros
 
 Change to any unprivileged user. Not build packages using root.
 

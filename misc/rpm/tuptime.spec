@@ -11,14 +11,12 @@ Source0:	https://github.com/rfrail3/tuptime/archive/%{version}.tar.gz
 %{?systemd_requires}
 # Conditional requirements based on distribution release
 %if (0%{?fedora} && 0%{?fedora} > 18) || (0%{?rhel} && 0%{?rhel} > 7) || (0%{?amzn} && 0%{?amzn} > 1)
-BuildRequires:  python3-devel
 Requires:       python3
 %else
 # Require EPEL
-BuildRequires:  python34-devel
 Requires:       python34
 %endif
-BuildRequires:  sed
+BuildRequires:  sed python3-rpm-macros
 Requires:       systemd
 Requires(pre):  shadow-utils
 
