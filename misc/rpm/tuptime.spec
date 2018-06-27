@@ -48,7 +48,8 @@ install -d %{buildroot}%{_sharedstatedir}/tuptime/
 install -d %{buildroot}%{_docdir}/tuptime/
 cp -R %{_topdir}/BUILD/%{name}-%{version}/src/tuptime %{buildroot}%{_bindir}/
 cp -R %{_topdir}/BUILD/%{name}-%{version}/src/systemd/tuptime.service %{buildroot}%{_unitdir}/
-cp -R %{_topdir}/BUILD/%{name}-%{version}/src/systemd/tuptime.timer %{buildroot}%{_unitdir}/
+cp -R %{_topdir}/BUILD/%{name}-%{version}/src/systemd/tuptime-cron.service %{buildroot}%{_unitdir}/
+cp -R %{_topdir}/BUILD/%{name}-%{version}/src/systemd/tuptime-cron.timer %{buildroot}%{_unitdir}/
 cp -R %{_topdir}/BUILD/%{name}-%{version}/src/man/tuptime.1 %{buildroot}%{_mandir}/man1/
 cp -R %{_topdir}/BUILD/%{name}-%{version}/tuptime-manual.txt %{buildroot}%{_docdir}/tuptime/
 cp -R %{_topdir}/BUILD/%{name}-%{version}/CHANGELOG %{buildroot}%{_docdir}/tuptime/
@@ -57,23 +58,27 @@ cp -R %{_topdir}/BUILD/%{name}-%{version}/CHANGELOG %{buildroot}%{_docdir}/tupti
 %post
 su -s /bin/sh tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 %systemd_post tuptime.service
-%systemd_post tuptime.timer
+%systemd_post tuptime-cron.service
+%systemd_post tuptime-cron.timer
 
 
 %preun
-%systemd_user_preun %{name}.service
-%systemd_user_preun %{name}.timer
+%systemd_user_preun tuptime.service
+%systemd_user_preun tuptime-cron.service
+%systemd_user_preun tuptime-cron.timer
 
 
 %postun
 %systemd_postun_with_restart tuptime.service
-%systemd_postun_with_restart tuptime.timer
+%systemd_postun_with_restart tuptime-cron.service
+%systemd_postun_with_restart tuptime-cron.timer
 
 
 %files
 %defattr(-,root,root)
 %{_unitdir}/tuptime.service
-%{_unitdir}/tuptime.timer
+%{_unitdir}/tuptime-cron.service
+%{_unitdir}/tuptime-cron.timer
 %attr(0755, root, root) %{_bindir}/tuptime
 %dir %attr(0755, tuptime, tuptime) %{_sharedstatedir}/tuptime/
 %docdir %{_docdir}/tuptime/
