@@ -6,21 +6,18 @@
 Install dependencies:
 
     Latest releases of Fedora, RedHat 8, Centos 8:
-        yum -y install rpmdevtools git python3 python3-rpm-macros
+        yum -y install rpmdevtools wget python3-rpm-macros python-srpm-macros
 
     Older releases of Fedora, Redhat 7, CentOS 7, install from EPEL:
-        yum -y install rpmdevtools git python34 python3-rpm-macros
+        yum -y install rpmdevtools wget python3-rpm-macros python-srpm-macros
 
-Change to any unprivileged user. Not build packages using root.
+Change to any unprivileged user and create the package. Not build packages using root.
 
     cd ~
-    git clone https://github.com/rfrail3/tuptime.git
-
-Create the package:
-
     rpmdev-setuptree
-    cp tuptime/misc/rpm/tuptime.spec ~/rpmbuild/SPECS/
     cd ~/rpmbuild/SPECS/
+    wget 'https://raw.githubusercontent.com/rfrail3/tuptime/master/misc/rpm/tuptime.spec'
+    # Dev branch --> wget 'https://raw.githubusercontent.com/rfrail3/tuptime/dev/misc/rpm/tuptime.spec'
     spectool -g -R tuptime.spec
     rpmbuild -ba --target=noarch tuptime.spec
 

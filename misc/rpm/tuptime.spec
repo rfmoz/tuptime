@@ -9,27 +9,27 @@ URL:		https://github.com/rfrail3/tuptime/
 Source0:	https://github.com/rfrail3/tuptime/archive/%{version}.tar.gz
 
 %{?systemd_requires}
-# Conditional requirements based on distribution release
-%if (0%{?fedora} && 0%{?fedora} > 18) || (0%{?rhel} && 0%{?rhel} > 7) || (0%{?amzn} && 0%{?amzn} > 1)
-Requires:       python3
+# Check for EPEL Python (python34, python36)
+%if 0%{python3_pkgversion}
+Requires:       python%{python3_pkgversion}
 %else
-# Require EPEL
-Requires:       python34
+Requires:       python3
 %endif
-BuildRequires:  sed python3-rpm-macros
+BuildRequires:  sed python3-rpm-macros python-srpm-macros
 Requires:       systemd
 Requires(pre):  shadow-utils
-
 
 
 %description
 Tuptime track and report historical and statistical running time of the
  system, keeping the uptime and downtime between shutdowns.
 
+
 %prep
 %setup -q
 # Fix python shebang
 sed -i '1s=^#!/usr/bin/\(python\|env python\)[23]\?=#!%{__python3}=' src/tuptime
+
 
 %pre
 getent group tuptime >/dev/null || groupadd -r tuptime
@@ -38,6 +38,7 @@ getent passwd tuptime >/dev/null || useradd --system --gid tuptime --home-dir "/
 
 %build
 exit 0
+
 
 %install
 install -d %{buildroot}%{_bindir}/
@@ -52,18 +53,22 @@ cp -R %{_topdir}/BUILD/%{name}-%{version}/src/man/tuptime.1 %{buildroot}%{_mandi
 cp -R %{_topdir}/BUILD/%{name}-%{version}/tuptime-manual.txt %{buildroot}%{_docdir}/tuptime/
 cp -R %{_topdir}/BUILD/%{name}-%{version}/CHANGELOG %{buildroot}%{_docdir}/tuptime/
 
+
 %post
 su -s /bin/sh tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 %systemd_post tuptime.service
 %systemd_post tuptime.timer
 
+
 %preun
 %systemd_user_preun %{name}.service
 %systemd_user_preun %{name}.timer
 
+
 %postun
 %systemd_postun_with_restart tuptime.service
 %systemd_postun_with_restart tuptime.timer
+
 
 %files
 %defattr(-,root,root)
@@ -75,6 +80,7 @@ su -s /bin/sh tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 %{_docdir}/tuptime/tuptime-manual.txt
 %{_docdir}/tuptime/CHANGELOG
 %{_mandir}/man1/tuptime.1.gz
+
 
 %changelog
 * Sun Jun 24 2018 Ricardo Fraile <rfraile@rfraile.eu> 3.3.3-1
