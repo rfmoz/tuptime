@@ -1124,7 +1124,7 @@ def main():
     else:
         for row in db_rows:  # Reset negative values
             if (row['downtime'] < 0) or (row['uptime'] < 0):
-                logging.warning('Negative value registered at startup \'' + str(row['startup']) + '\'')
+                logging.warning('Negative value registered inside startup number \'' + str(row['startup']) + '\'')
                 if row['downtime'] < 0:
                     logging.warning('Downtime \'' + str(row['downtime']) + '\' reset to \'0\'')
                     row['downtime'] = 0
