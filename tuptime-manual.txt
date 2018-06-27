@@ -102,9 +102,12 @@ For Linux systems:
 
          (Alternative) Using systemd timer instead of cron file:
 
-             # cp tuptime/src/systemd/tuptime.timer /lib/systemd/system/
-             # chmod 644 /lib/systemd/system/tuptime.timer
-             # systemctl enable tuptime.timer
+             # cp tuptime/src/systemd/tuptime-cron.* /lib/systemd/system/
+             # chmod 644 /lib/systemd/system/tuptime-cron.*
+             # systemctl enable tuptime-cron.timer
+             # systemctl enable tuptime-cron.service
+             # systemctl start tuptime-cron.timer
+             # systemctl start tuptime-cron.service
              # rm /etc/cron.d/tuptime
 
       If it have upstart system, copy the file:
@@ -457,8 +460,8 @@ These are the command line options, no configuration file is used:
 It's important to have a schedule execution. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
 shutdown, but if the system fails, hangs or whatever, the uptime time will
-be lost. Be sure that the cron entry or systemd .timer unit are installed as
-expected.
+be lost. Be sure that the cron entry or systemd tuptime-cron.[timer|service]
+units are installed as expected.
 
 By default, both have a 5 minutes scheduled execution. Feel free to lower 
 that value if your requirements are narrow.
