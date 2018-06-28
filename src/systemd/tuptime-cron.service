@@ -7,6 +7,3 @@ Requires=tuptime.service
 Type=oneshot
 User=tuptime
 ExecStart=/usr/bin/tuptime -x
-
-[Install]
-WantedBy=multi-user.target
