@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # PROVIDE: tuptime
+# REQUIRE: ldconfig
 # KEYWORD: nojail shutdown
 
 . /etc/rc.subr
