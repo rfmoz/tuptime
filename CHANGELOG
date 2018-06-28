@@ -8,6 +8,7 @@ tuptime (3.3.4) unstable; urgency=low
   * Fix right termination when SIGPIPE signal is received
   * Removed RemainAfterExit=yes from Systemd unit
   * Scheduled execution with tuptime-cron.timer and tuptime-cron.service
+  * Tuptime user without /bin/sh shell
 
  -- Ricardo Fraile <rfraile@rfraile.eu>  Tue, 26 Jun 2018 00:59:00 +0200
 
