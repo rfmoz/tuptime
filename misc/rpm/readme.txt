@@ -29,8 +29,6 @@ As root, install and enable:
 
     rpm -i tuptime-*.rpm
     systemctl enable tuptime.service
-    systemctl enable tuptime-cron.service
     systemctl enable tuptime-cron.timer
     systemctl start tuptime.service
-    systemctl start tuptime-cron.service
     systemctl start tuptime-cron.timer

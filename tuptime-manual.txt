@@ -105,9 +105,7 @@ For Linux systems:
              # cp tuptime/src/systemd/tuptime-cron.* /lib/systemd/system/
              # chmod 644 /lib/systemd/system/tuptime-cron.*
              # systemctl enable tuptime-cron.timer
-             # systemctl enable tuptime-cron.service
              # systemctl start tuptime-cron.timer
-             # systemctl start tuptime-cron.service
              # rm /etc/cron.d/tuptime
 
       If it have upstart system, copy the file:
