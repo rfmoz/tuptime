@@ -55,6 +55,10 @@ echo ""
 echo "Clonning repository..."
 git clone https://github.com/rfrail3/tuptime.git ${F_TMP1}
 
+#echo "Swich to dev branch"
+#cd ${F_TMP1}/
+#git checkout -b dev origin/dev
+
 echo "Copying files..."
 cp -a ${F_TMP1}/src/tuptime ${D_BIN}/tuptime
 chmod 755 ${D_BIN}/tuptime
