@@ -126,6 +126,10 @@ For Linux systems:
 
       Instructions and .spec file located at misc/rpm/
 
+   + Building DEB file for Debian, Ubuntu and derivates:
+
+      Instructions located at misc/deb/
+
 
 
 For FreeBSD system:
@@ -173,8 +177,8 @@ For FreeBSD system:
 Partial support for OSX (Darwin) system:
 
    Tuptime is compatible with OSX, it also comes with 'python' installed by
-   default, but for now, the project lacks of launchd files for the startup
-   and the schedule run.
+   default, but for now, the project lacks of launchd files for the startup,
+   shutdown and the schedule run.
 
 
 Partial support for Windows system:
