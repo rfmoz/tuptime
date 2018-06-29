@@ -4,6 +4,10 @@
 # Tuptime installation linux script
 # v.1.8.0
 #
+# Usage:
+#	bash tuptime-install.sh		Normal installation
+#	bash tuptime-install.sh -d 	Installation using dev branch
+#
 
 # Destination dir for executable file
 D_BIN='/usr/bin'
@@ -65,10 +69,10 @@ echo "Tuptime installation script"
 echo ""
 
 echo "Clonning repository..."
-if [ $? -eq 1 ]; then
+if [ $DEV -eq 1 ]; then
         echo "...using dev branch"
 	git clone -b dev https://github.com/rfrail3/tuptime.git ${F_TMP1}
-then
+else
 	git clone https://github.com/rfrail3/tuptime.git ${F_TMP1}
 fi
 
