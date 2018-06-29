@@ -2,11 +2,23 @@
 
 #
 # Tuptime installation linux script
-# v.1.7.1
+# v.1.8.0
 #
 
 # Destination dir for executable file
 D_BIN='/usr/bin'
+DEV=0
+
+
+# Test arguments
+while test $# -gt 0
+do
+    case "$1" in
+        -d) DEV=1
+           ;;
+    esac
+    shift
+done
 
 
 # Test if is a linux system
@@ -53,11 +65,12 @@ echo "Tuptime installation script"
 echo ""
 
 echo "Clonning repository..."
-git clone https://github.com/rfrail3/tuptime.git ${F_TMP1}
-
-#echo "Swich to dev branch"
-#cd ${F_TMP1}/
-#git checkout -b dev origin/dev
+if [ $? -eq 1 ]; then
+        echo "...using dev branch"
+	git clone -b dev https://github.com/rfrail3/tuptime.git ${F_TMP1}
+then
+	git clone https://github.com/rfrail3/tuptime.git ${F_TMP1}
+fi
 
 echo "Copying files..."
 cp -a ${F_TMP1}/src/tuptime ${D_BIN}/tuptime
