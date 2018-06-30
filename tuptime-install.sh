@@ -53,7 +53,7 @@ else
                 echo "Please, upgrade it."; exit 1
         else
 		# Test if all modules needed are available
-		pymod=`python -c "import sys, os, argparse, locale, platform, signal, logging, sqlite3, datetime"`
+		pymod=`python3 -c "import sys, os, argparse, locale, platform, signal, logging, sqlite3, datetime"`
                 if [ $? -ne 0 ]; then
                         echo "ERROR: Please, ensure that these Python modules are available in the local system:"
                         echo "sys, os, optparse, sqlite3, locale, platform, datetime, logging"
@@ -65,6 +65,7 @@ fi
 # Temporary dir for clone repo into it
 F_TMP1=`mktemp -d`
 
+echo ""
 echo "Tuptime installation script"
 echo ""
 
