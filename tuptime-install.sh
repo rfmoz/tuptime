@@ -69,7 +69,7 @@ if [[ "$SELX" != "" ]] && [[ $SELX == 'Enforcing' ]]; then
         echo "Selinux enabled in Enforcing"
 	SELX='True'
 else
-	unset SELX
+	SELX=''
 fi
 
 
