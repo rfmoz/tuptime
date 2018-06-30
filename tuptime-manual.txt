@@ -71,8 +71,7 @@ For Linux systems:
 
       Clone repository and copy executable file:
 
-         # cp tuptime/src/tuptime /usr/bin/tuptime
-         # chmod 755 /usr/bin/tuptime 
+         # install -m 755 tuptime/src/tuptime /usr/bin/tuptime
 
       Add tuptime user:
 
@@ -89,13 +88,11 @@ For Linux systems:
 
       Copy cron file:
 
-         # cp tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
-         # chmod 644 /etc/cron.d/tuptime
+         # install -m 644 tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
 
       If use systemd, copy service file and enable it:
 	
-         # cp tuptime/src/systemd/tuptime.service /lib/systemd/system/
-         # chmod 644 /lib/systemd/system/tuptime.service
+         # install -m 644 tuptime/src/systemd/tuptime.service /lib/systemd/system/tuptime.service
          # systemctl enable tuptime.service
          # systemctl start tuptime.service
 
@@ -109,15 +106,13 @@ For Linux systems:
 
       Or if it have upstart system, copy the file:
 
-         # cp tuptime/src/init.d/redhat/tuptime /etc/init.d/tuptime
-	 # chmod 755 /etc/init.d/tuptime
+         # install -m 755 tuptime/src/init.d/redhat/tuptime /etc/init.d/tuptime
 	 # chkconfig --add tuptime
 	 # chkconfig tuptime on
 
       Or if it have init system, copy the file:
 
-         # cp tuptime/src/init.d/debian/tuptime /etc/init.d/tuptime
-         # chmod 755 /etc/init.d/tuptime
+         # install -m 755 tuptime/src/init.d/debian/tuptime /etc/init.d/tuptime
          # update-rc.d tuptime defaults
 	 # /etc/init.d/tuptime start
 
