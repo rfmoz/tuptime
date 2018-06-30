@@ -76,10 +76,15 @@ For Linux systems:
 
       Add tuptime user:
 
-         # adduser --quiet --system --no-create-home --group \
-                --home "/var/lib/tuptime" \
-                --shell '/bin/false' \
-                --gecos 'Tuptime execution user,,,' tuptime
+         For Debian and derivates:
+
+             # adduser --quiet --system --no-create-home --group --home "/var/lib/tuptime" \
+                --shell '/bin/false' --gecos 'Tuptime execution user,,,' tuptime
+
+         For RedHat and derivates:
+
+             # useradd --system --gid tuptime --home-dir "/var/lib/tuptime" \
+                --shell '/sbin/nologin' --comment 'Tuptime execution user' tuptime
 
       Execute tuptime with a privilege user for create db path:
 
@@ -121,6 +126,8 @@ For Linux systems:
          # chmod 755 /etc/init.d/tuptime
          # update-rc.d tuptime defaults
 	 # /etc/init.d/tuptime start
+
+      That's all.
 
    + Building RPM file for RedHat, Fedora and derivates:
 
@@ -673,7 +680,7 @@ since the last system start.
 
 Note the filesystem cache on which the files resides for a while before being 
 flushing into disk. If things go wrong, like a kernel panic, maybe the last 
-updates of the db already written into the file can be lots.
+updates of the db already written into the file can be lost.
 
 A basic sample web wrapper is available under misc/web/. It is made in php and
 can be useful as a starting template to any other particular use case.
