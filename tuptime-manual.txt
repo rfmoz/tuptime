@@ -92,11 +92,12 @@ For Linux systems:
          # cp tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
          # chmod 644 /etc/cron.d/tuptime
 
-      If it is a system with systemd, copy service file and enable it:
+      If use systemd, copy service file and enable it:
 	
          # cp tuptime/src/systemd/tuptime.service /lib/systemd/system/
          # chmod 644 /lib/systemd/system/tuptime.service
          # systemctl enable tuptime.service
+         # systemctl start tuptime.service
 
          (Alternative) Using systemd timer instead of cron file:
 
@@ -106,21 +107,21 @@ For Linux systems:
              # systemctl start tuptime-cron.timer
              # rm /etc/cron.d/tuptime
 
-      If it have upstart system, copy the file:
+      Or if it have upstart system, copy the file:
 
          # cp tuptime/src/init.d/redhat/tuptime /etc/init.d/tuptime
 	 # chmod 755 /etc/init.d/tuptime
 	 # chkconfig --add tuptime
 	 # chkconfig tuptime on
 
-      If it have init system, copy the file:
+      Or if it have init system, copy the file:
 
          # cp tuptime/src/init.d/debian/tuptime /etc/init.d/tuptime
          # chmod 755 /etc/init.d/tuptime
          # update-rc.d tuptime defaults
 	 # /etc/init.d/tuptime start
 
-      That's all.
+      That's all, enjoy it.
 
    + Building RPM file for RedHat, Fedora and derivates:
 
