@@ -56,7 +56,7 @@ else
 		pymod=`python3 -c "import sys, os, argparse, locale, platform, signal, logging, sqlite3, datetime"`
                 if [ $? -ne 0 ]; then
                         echo "ERROR: Please, ensure that these Python modules are available in the local system:"
-                        echo "sys, os, optparse, sqlite3, locale, platform, datetime, logging"
+                        echo "sys, os, optparse, sqlite3, locale, platform, datetime, logging"; exit 1
                 fi
         fi
 fi
