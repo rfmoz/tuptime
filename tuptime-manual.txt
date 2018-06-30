@@ -98,8 +98,7 @@ For Linux systems:
 
          (Alternative) Using systemd timer instead of cron file:
 
-             # cp tuptime/src/systemd/tuptime-cron.* /lib/systemd/system/
-             # chmod 644 /lib/systemd/system/tuptime-cron.*
+             # install -m 644 tuptime/src/systemd/tuptime-cron.* /lib/systemd/system/
              # systemctl enable tuptime-cron.timer
              # systemctl start tuptime-cron.timer
              # rm /etc/cron.d/tuptime
@@ -144,8 +143,7 @@ For FreeBSD system:
 
       Clone repository and copy executable file:
 
-         # cp tuptime/src/tuptime /usr/local/bin/tuptime
-         # chmod 755 /usr/local/bin/tuptime 
+         # install -m 755 tuptime/src/tuptime /usr/local/bin/tuptime
 
       Add tuptime user:
 
@@ -165,8 +163,7 @@ For FreeBSD system:
 
       Copy rc.d file:
 
-         # cp tuptime/src/rc.d/freebsd/tuptime /usr/local/etc/rc.d/tuptime
-         # chmod 555 /usr/local/etc/rc.d/tuptime
+         # install -m 555 tuptime/src/rc.d/freebsd/tuptime /usr/local/etc/rc.d/tuptime
          # echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
 

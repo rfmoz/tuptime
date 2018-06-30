@@ -90,9 +90,8 @@ else
 fi
 
 echo "Copying files..."
-cp -a ${F_TMP1}/src/tuptime ${D_BIN}/tuptime
-chmod 755 ${D_BIN}/tuptime
-if [ ${SELX} = true ]; then restorecon -vvRF ${D_BIN}/tuptime; fi
+install -m 755 ${F_TMP1}/src/tuptime ${D_BIN}/tuptime
+if [ ${SELX} = true ]; then restorecon -vF ${D_BIN}/tuptime; fi
 
 echo "Creating tuptime user..."
 useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
@@ -112,22 +111,20 @@ systemctl --version &> /dev/null
 if [ $? -eq 0 ]; then
 	echo "Copying systemd file..."
 	cp -a ${F_TMP1}/src/systemd/tuptime.service  /lib/systemd/system/
-	if [ ${SELX} = true ]; then restorecon -vvRF /lib/systemd/system/tuptime.service; fi
+	if [ ${SELX} = true ]; then restorecon -vF /lib/systemd/system/tuptime.service; fi
 	systemctl daemon-reload
 	systemctl enable tuptime.service
 	systemctl start tuptime.service
 elif [ -f /etc/rc.d/init.d/functions ]; then
 	echo "Copying init redhat file..."
-	cp -a ${F_TMP1}/src/init.d/redhat/tuptime /etc/init.d/tuptime
-	chmod 755 /etc/init.d/tuptime
-	if [ ${SELX} = true ]; then restorecon -vvRF /etc/init.d/tuptime; fi
+	install -m 755 ${F_TMP1}/src/init.d/redhat/tuptime /etc/init.d/tuptime
+	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	chkconfig --add tuptime
 	chkconfig tuptime on
 elif [ -f /lib/lsb/init-functions ]; then
 	echo "Copying init debian file..."
-	cp -a ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime
-	chmod 755 /etc/init.d/tuptime
-	if [ ${SELX} = true ]; then restorecon -vvRF /etc/init.d/tuptime; fi
+	install -m 755 ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime
+	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	update-rc.d tuptime defaults
 else
 	echo "#####################################"
@@ -137,7 +134,7 @@ fi
 
 echo "Copying cron file..."
 cp -a ${F_TMP1}/src/cron.d/tuptime /etc/cron.d/tuptime
-if [ ${SELX} = true ]; then restorecon -vvRF /etc/cron.d/tuptime; fi
+if [ ${SELX} = true ]; then restorecon -vF /etc/cron.d/tuptime; fi
 
 echo ""
 echo "Enjoy!"
