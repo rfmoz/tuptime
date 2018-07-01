@@ -92,12 +92,12 @@ For Linux systems:
 
       If use systemd, copy service file and enable it:
 	
-         # install -m 644 tuptime/src/systemd/tuptime.service /lib/systemd/system/tuptime.service
+         # install -m 644 tuptime/src/systemd/tuptime.service /usr/lib/systemd/system/
          # systemctl enable tuptime.service && systemctl start tuptime.service
 
          (Alternative) Using systemd timer instead of cron file:
 
-             # install -m 644 tuptime/src/systemd/tuptime-cron.* /lib/systemd/system/
+             # install -m 644 tuptime/src/systemd/tuptime-cron.* /usr/lib/systemd/system/
              # systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
              # rm /etc/cron.d/tuptime
 
