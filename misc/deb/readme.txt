@@ -18,7 +18,7 @@
 
     ls ../tuptime-*.deb
 
-4.- As root, install and enable:
+4.- As root, install and check if all was ok:
 
     dpkg -i tuptime-*.deb
     systemctl status tuptime.service
