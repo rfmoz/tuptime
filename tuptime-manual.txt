@@ -76,7 +76,7 @@ For Linux systems:
       Add tuptime user:
 
          # useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
-           --shell '/bin/false' --comment 'Tuptime execution user,,,' tuptime
+           --shell '/bin/false' --comment 'Tuptime execution user' tuptime
 
       Execute tuptime with a privilege user for create db path:
 
@@ -169,18 +169,6 @@ Partial support for OSX (Darwin) system:
    Tuptime is compatible with OSX, it also comes with 'python' installed by
    default, but for now, the project lacks of launchd files for the startup,
    shutdown and the schedule run.
-
-
-Partial support for Windows system:
-
-   Two options are available for running Tuptime under Windows:
-
-       + Cywin with Python3.
-
-       + WSL (Windows Subsystem Linux) with Ubuntu installed. 
-
-   But you need to find the right way in your setup to launch the execution at 
-   startup and shutdown plus the triggering from the task schedule.
 
 
 Note about Python 2.7:

@@ -81,7 +81,7 @@ echo ""
 echo "++ Tuptime installation script ++"
 echo ""
 
-echo "+ Clonning repository"
+echo "+ Cloning repository"
 if [ ${DEV} -eq 1 ]; then
         echo "...using dev branch"
 	git clone -b dev https://github.com/rfrail3/tuptime.git ${F_TMP1}
@@ -95,7 +95,7 @@ if [ ${SELX} = true ]; then restorecon -vF ${D_BIN}/tuptime; fi
 
 echo "+ Creating tuptime user"
 useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
-        --shell '/bin/false' --comment 'Tuptime execution user,,,' tuptime
+        --shell '/bin/false' --comment 'Tuptime execution user' tuptime
 
 echo "+ Creating tuptime db"
 tuptime -x
