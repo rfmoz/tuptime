@@ -78,10 +78,10 @@ fi
 F_TMP1=`mktemp -d`
 
 echo ""
-echo "Tuptime installation script"
+echo "++ Tuptime installation script ++"
 echo ""
 
-echo "Clonning repository..."
+echo "+ Clonning repository"
 if [ ${DEV} -eq 1 ]; then
         echo "...using dev branch"
 	git clone -b dev https://github.com/rfrail3/tuptime.git ${F_TMP1}
@@ -89,40 +89,39 @@ else
 	git clone https://github.com/rfrail3/tuptime.git ${F_TMP1}
 fi
 
-echo "Copying files..."
+echo "+ Copying files"
 install -m 755 ${F_TMP1}/src/tuptime ${D_BIN}/tuptime
 if [ ${SELX} = true ]; then restorecon -vF ${D_BIN}/tuptime; fi
 
-echo "Creating tuptime user..."
+echo "+ Creating tuptime user"
 useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
         --shell '/bin/false' --comment 'Tuptime execution user,,,' tuptime
 
-echo "Creating tuptime db"
+echo "+ Creating tuptime db"
 tuptime -x
 
-echo "Setting tuptime db ownership"
+echo "+ Setting tuptime db ownership"
 chown -R tuptime:tuptime /var/lib/tuptime
 chmod 755 /var/lib/tuptime
 
-echo "Executing tuptime with tuptime user for testing"
+echo "+ Executing tuptime with tuptime user for testing"
 su -s /bin/sh tuptime -c "tuptime -x"
 
 systemctl --version &> /dev/null
 if [ $? -eq 0 ]; then
-	echo "Copying systemd file..."
+	echo "+ Copying systemd file"
 	cp -a ${F_TMP1}/src/systemd/tuptime.service  /lib/systemd/system/
 	if [ ${SELX} = true ]; then restorecon -vF /lib/systemd/system/tuptime.service; fi
 	systemctl daemon-reload
-	systemctl enable tuptime.service
-	systemctl start tuptime.service
+	systemctl enable tuptime.service && systemctl start tuptime.service
 elif [ -f /etc/rc.d/init.d/functions ]; then
-	echo "Copying init redhat file..."
+	echo "+ Copying init redhat file"
 	install -m 755 ${F_TMP1}/src/init.d/redhat/tuptime /etc/init.d/tuptime
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	chkconfig --add tuptime
 	chkconfig tuptime on
 elif [ -f /lib/lsb/init-functions ]; then
-	echo "Copying init debian file..."
+	echo "+ Copying init debian file"
 	install -m 755 ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	update-rc.d tuptime defaults
@@ -132,12 +131,19 @@ else
 	echo "#####################################"
 fi
 
-echo "Copying cron file..."
-cp -a ${F_TMP1}/src/cron.d/tuptime /etc/cron.d/tuptime
-if [ ${SELX} = true ]; then restorecon -vF /etc/cron.d/tuptime; fi
+if [ -d /etc/cron.d/ ]; then
+	echo "+ Copying cron file"
+	cp -a ${F_TMP1}/src/cron.d/tuptime /etc/cron.d/tuptime
+	if [ ${SELX} = true ]; then restorecon -vF /etc/cron.d/tuptime; fi
+else
+	echo "+ Copying tuptime-cron.timer and .service"
+	cp -a ${F_TMP1}/src/systemd/tuptime-cron.*  /lib/systemd/system/
+	if [ ${SELX} = true ]; then restorecon -vF /lib/systemd/system/tuptime-cron.*; fi
+	systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
+fi
 
 echo ""
-echo "Enjoy!"
+echo "+ Enjoy!"
 echo ""
 
 tuptime
