@@ -25,13 +25,11 @@ do
     shift
 done
 
-
 # Test if is a linux system
 if [ "$(expr substr $(uname -s) 1 5)" != "Linux" ]; then
 	echo "Sorry, only for Linux systems"
 	exit 1
 fi
-
 
 # Test if git is installed
 git --version &> /dev/null
@@ -39,7 +37,6 @@ if [ $? -ne 0 ]; then
 	echo "ERROR: \"git\" command not available"
 	echo "Please, install it"; exit 1
 fi
-
 
 # Test if python is installed
 pyver=`python3 --version 2>&1 /dev/null`
@@ -62,6 +59,12 @@ else
         fi
 fi
 
+# Set SystemD path
+if [ -d /usr/lib/systemd/system/ ]; then
+	SYSDPATH='/usr/lib/systemd/system/'
+else
+	SYSDPATH='/lib/systemd/system/'
+fi
 
 # Set Selinux swich
 SELX=`getenforce 2> /dev/null`
@@ -110,8 +113,8 @@ su -s /bin/sh tuptime -c "tuptime -x"
 systemctl --version &> /dev/null
 if [ $? -eq 0 ]; then
 	echo "+ Copying systemd file"
-	cp -a ${F_TMP1}/src/systemd/tuptime.service  /lib/systemd/system/
-	if [ ${SELX} = true ]; then restorecon -vF /lib/systemd/system/tuptime.service; fi
+	cp -a ${F_TMP1}/src/systemd/tuptime.service  ${SYSDPATH}
+	if [ ${SELX} = true ]; then restorecon -vF ${SYSDPATH}tuptime.service; fi
 	systemctl daemon-reload
 	systemctl enable tuptime.service && systemctl start tuptime.service
 elif [ -f /etc/rc.d/init.d/functions ]; then
@@ -137,8 +140,8 @@ if [ -d /etc/cron.d/ ]; then
 	if [ ${SELX} = true ]; then restorecon -vF /etc/cron.d/tuptime; fi
 else
 	echo "+ Copying tuptime-cron.timer and .service"
-	cp -a ${F_TMP1}/src/systemd/tuptime-cron.*  /lib/systemd/system/
-	if [ ${SELX} = true ]; then restorecon -vF /lib/systemd/system/tuptime-cron.*; fi
+	cp -a ${F_TMP1}/src/systemd/tuptime-cron.*  ${SYSDPATH}
+	if [ ${SELX} = true ]; then restorecon -vF ${SYSDPATH}tuptime-cron.*; fi
 	systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
 fi
 
