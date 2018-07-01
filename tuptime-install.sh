@@ -104,7 +104,7 @@ echo "+ Creating tuptime db"
 tuptime -x
 
 echo "+ Setting tuptime db ownership"
-chown -R tuptime:tuptime /var/lib/tuptime
+chown -R tuptime /var/lib/tuptime
 chmod 755 /var/lib/tuptime
 
 echo "+ Executing tuptime with tuptime user for testing"

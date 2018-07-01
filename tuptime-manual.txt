@@ -84,7 +84,7 @@ For Linux systems:
 
       Change owner of the db file:
 
-         # chown -R tuptime:tuptime /var/lib/tuptime
+         # chown -R tuptime /var/lib/tuptime
 
       Copy cron file:
 
@@ -152,7 +152,7 @@ For FreeBSD system:
 
       Change owner of the db file:
 
-         # chown -R tuptime:tuptime /var/lib/tuptime
+         # chown -R tuptime /var/lib/tuptime
 
       Add an entry to /etc/crontab
 
