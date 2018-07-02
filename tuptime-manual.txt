@@ -82,7 +82,7 @@ For Linux systems:
 
          # tuptime
 
-      Change owner of the db file:
+      Change owner of the db path and file:
 
          # chown -R tuptime /var/lib/tuptime
 
@@ -144,19 +144,19 @@ For FreeBSD system:
 
       Add tuptime user:
 
-         # pw adduser tuptime -d /nonexistent -s /bin/sh -c "Tuptime execution user"
+         # pw adduser tuptime -d /nonexistent -s /usr/sbin/nologin -L daemon -c "Tuptime execution user"
 
-      Execute tuptime with a privilege user for create db path:
+      Execute tuptime with a privileged user for create db path:
 
          # tuptime
 
-      Change owner of the db file:
+      Change owner of the db path and file:
 
          # chown -R tuptime /var/lib/tuptime
 
-      Add an entry to /etc/crontab
+      Add the cron entry:
 
-         */3     *       *       *       *       tuptime    /usr/local/bin/tuptime -x
+	# echo '*/3 * * * *  /usr/local/bin/tuptime -x' > /var/cron/tabs/tuptime
 
       Copy rc.d file:
 
