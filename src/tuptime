@@ -392,7 +392,7 @@ def time_conv(secs):
     return str(human_dtm[:-2])
 
 
-def since_opt(db_rows, arg, startups_num):
+def since_opt(db_rows, arg, last_startup_n):
     """Get rows since a given row startup number registered"""
 
     if arg.since < 0:  # Negative value start from bottom
@@ -401,10 +401,10 @@ def since_opt(db_rows, arg, startups_num):
             logging.warning('Invalid "since" value. Reset to first.')
             arg.since = 0
 
-    if arg.since > startups_num:  # Sanity check
+    if arg.since > last_startup_n:  # Sanity check
         logging.warning('Option "since" can not be higher than last startup register. '
-                        'Reset to: ' + str(startups_num))
-        arg.since = startups_num
+                        'Reset to: ' + str(last_startup_n))
+        arg.since = last_startup_n
 
     # Remove row if the startup is lower
     for row in db_rows[:]:
@@ -414,7 +414,7 @@ def since_opt(db_rows, arg, startups_num):
     return db_rows, arg
 
 
-def until_opt(db_rows, arg, startups_num):
+def until_opt(db_rows, arg, last_startup_n):
     """Get rows until a given row startup number registered"""
 
     if arg.until < 0:  # Negative value start from bottom
@@ -428,10 +428,10 @@ def until_opt(db_rows, arg, startups_num):
                         'Reset to: ' + str(arg.since))
         arg.until = arg.since
 
-    if arg.until > startups_num:  # Sanity check
+    if arg.until > last_startup_n:  # Sanity check
         logging.warning('Option "until" can not be higher than last startup register. '
-                        'Reset to: ' + str(startups_num))
-        arg.until = startups_num
+                        'Reset to: ' + str(last_startup_n))
+        arg.until = last_startup_n
 
     # Remove row if the startup is lower
     for row in db_rows[:]:
@@ -1081,9 +1081,9 @@ def main():
         conn.execute('select rowid as startup, * from tuptime')
         db_rows = conn.fetchall()
 
-        startups_num = db_rows[-1]['startup']  # Startups by rowid number
+        last_startup_n = db_rows[-1]['startup']  # Number of last startup by rowid number
 
-        if len(db_rows) != startups_num:  # Real startups are not equal to enumerate startups
+        if len(db_rows) != last_startup_n:  # Real startups are not equal to enumerate startups
             logging.info('Possible deleted rows in db')
 
         db_rows = [dict(row) for row in db_rows]  # for allow item assignment
@@ -1097,10 +1097,10 @@ def main():
             db_rows[-1]['downtime'] = 0
 
         if arg.since:  # Parse since option
-            db_rows, arg = since_opt(db_rows, arg, startups_num)
+            db_rows, arg = since_opt(db_rows, arg, last_startup_n)
 
         if arg.until:  # Parse until option
-            db_rows, arg = until_opt(db_rows, arg, startups_num)
+            db_rows, arg = until_opt(db_rows, arg, last_startup_n)
 
         if arg.tu and arg.tu < 0:  # Negative value decrease actual timestamp
             arg.tu = btoffset + uptime + arg.tu
@@ -1122,16 +1122,21 @@ def main():
         logging.info('Silent mode')
 
     else:
-        for row in db_rows:  # Reset negative values
+        for row in db_rows:
+            # Reset negative values in downtime and uptime
             if (row['downtime'] < 0) or (row['uptime'] < 0):
-                logging.warning('Negative value registered inside startup number \'' + str(row['startup']) + '\'')
-                if row['downtime'] < 0:
-                    logging.warning('Downtime \'' + str(row['downtime']) + '\' reset to \'0\'')
-                    row['downtime'] = 0
+
                 if row['uptime'] < 0:
-                    logging.warning('Uptime \'' + str(row['uptime']) + '\' reset to \'0\'')
+                    logging.info('Startup \'' + str(row['startup']) + '\' reset to \'0\' uptime \'' + str(row['uptime']) + '\'')
+                    if last_startup_n == row['startup']:  # Only show warning if it is a recent event
+                        logging.warning('Reset negative uptime in startup \'' + str(row['startup']) + '\'. Check clock sync.')
                     row['uptime'] = 0
-                logging.info('Check system clock sync.')
+
+                if row['downtime'] < 0:
+                    logging.info('Startup \'' + str(row['startup']) + '\' reset to \'0\' downtime \'' + str(row['downtime']) + '\'')
+                    if last_startup_n == row['startup'] + 1:  # Only show warning if it is a recent event
+                        logging.warning('Reset negative downtime in startup \'' + str(row['startup']) + '\'. Check clock sync.')
+                    row['downtime'] = 0
 
         if arg.lst:
             print_list(db_rows, arg)
