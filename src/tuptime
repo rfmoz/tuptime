@@ -854,15 +854,14 @@ def print_default(db_rows, cuptime, cbtime, arg):
         kernel_cnt.append(row['kernel'])
 
     # Get startups count:
-    #   Each row is an startup, but avoid count them if
-    #   startup register indicate empty values
+    #   Each row is an startup unless startup register indicate empty values
     if db_rows[0]['startup'] == 0:
         startups = 0
     else:
         startups = len(db_rows)
 
     # Get state of previous shutdown if filters aren't used:
-    if len(db_rows) > 1:
+    if startups > 1:
         if not (arg.since or arg.until):
             if not (arg.ts or arg.tu):
                 prev_shdown = db_rows[-2]['endst']
