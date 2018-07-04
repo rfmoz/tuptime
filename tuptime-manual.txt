@@ -530,12 +530,12 @@ kernel   Name of the kernel
 The number of startup sequency is extracted from "rowid", the signed integer 
 key that uniquely identifies the row within its table in sqlite.
 
-For reset all the values, simply detele the database file.
+For reset all the values, simply delete the database file.
 
-Is it possible to query and modify it directly. But if a complete row is
-deleted and the database is not recreate completely (vacuum), rowid keep the real
-information about startup number. Tuptime will advert about it if the verbose
-mode is enabled.
+It is possible to query and modify it directly. But if a complete row is
+deleted and the database is not recreate completely (vacuum), rowid keep the
+real information about startup number. Tuptime will advert about it if the
+verbose mode is enabled.
 
 
 
