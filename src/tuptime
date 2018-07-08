@@ -730,11 +730,15 @@ def print_table(db_rows, arg):
         for i in range(len(tbl[0])):
             colpad.append(maxwidth(tbl, i))
 
+        # Print cols by row
         for row in tbl:
-            sys.stdout.write(str(row[0]).ljust(colpad[0]))
+            sys.stdout.write(str(row[0]).ljust(colpad[0]))  # First col print
             for i in range(1, len(row)):
-                col = str(row[i]).rjust(colpad[i] + side_spaces)
-                sys.stdout.write(str('' + col))
+                if i == 4 or i == 6:   # 'End' and 'Kernel' columns align to left
+                    col = (side_spaces * ' ') + str(row[i]).ljust(colpad[i])
+                else:
+                    col = str(row[i]).rjust(colpad[i] + side_spaces)
+                sys.stdout.write(str('' + col))  # Other col print
             print('')
     else:
 
