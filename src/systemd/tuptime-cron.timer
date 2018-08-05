@@ -3,7 +3,7 @@ Description=Tuptime scheduled execution timer
 
 [Timer]
 OnBootSec=1min
-OnCalendar=*:0/3
+OnCalendar=*:0/5
 
 [Install]
 WantedBy=timers.target

@@ -156,7 +156,7 @@ For FreeBSD system:
 
       Add the cron entry:
 
-	# echo '*/3 * * * *  /usr/local/bin/tuptime -x' > /var/cron/tabs/tuptime
+	# echo '*/5 * * * *  /usr/local/bin/tuptime -x' > /var/cron/tabs/tuptime
 
       Copy rc.d file:
 
