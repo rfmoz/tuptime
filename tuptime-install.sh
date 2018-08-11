@@ -11,6 +11,10 @@
 
 # Destination dir for executable file
 D_BIN='/usr/bin'
+
+# PID 1 process
+PID1=`grep 'Name' /proc/1/status | cut -f2`
+
 # Swich dev branch
 DEV=0
 
@@ -96,38 +100,43 @@ echo "+ Copying files"
 install -m 755 ${F_TMP1}/src/tuptime ${D_BIN}/tuptime
 if [ ${SELX} = true ]; then restorecon -vF ${D_BIN}/tuptime; fi
 
-echo "+ Creating tuptime user"
+echo "+ Creating Tuptime user"
 useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
         --shell '/bin/false' --comment 'Tuptime execution user' tuptime
 
-echo "+ Creating tuptime db"
+echo "+ Creating Tuptime db"
 tuptime -x
 
-echo "+ Setting tuptime db ownership"
+echo "+ Setting Tuptime db ownership"
 chown -R tuptime /var/lib/tuptime
 chmod 755 /var/lib/tuptime
 
-echo "+ Executing tuptime with tuptime user for testing"
+echo "+ Executing Tuptime with tuptime user for testing"
 su -s /bin/sh tuptime -c "tuptime -x"
 
-systemctl --version &> /dev/null
-if [ $? -eq 0 ]; then
-	echo "+ Copying systemd file"
+if [ ${PID1} = 'systemd' ]; then
+	echo "+ Copying Systemd file"
 	cp -a ${F_TMP1}/src/systemd/tuptime.service  ${SYSDPATH}
 	if [ ${SELX} = true ]; then restorecon -vF ${SYSDPATH}tuptime.service; fi
 	systemctl daemon-reload
 	systemctl enable tuptime.service && systemctl start tuptime.service
-elif [ -f /etc/rc.d/init.d/functions ]; then
-	echo "+ Copying init redhat file"
-	install -m 755 ${F_TMP1}/src/init.d/redhat/tuptime /etc/init.d/tuptime
-	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
-	chkconfig --add tuptime
-	chkconfig tuptime on
-elif [ -f /lib/lsb/init-functions ]; then
-	echo "+ Copying init debian file"
-	install -m 755 ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime
-	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
-	update-rc.d tuptime defaults
+elif [ ${PID1} = 'init' ]; then
+	if [ -f /etc/rc.d/init.d/functions ]; then
+		echo "+ Copying  SysV init RedHat file"
+		install -m 755 ${F_TMP1}/src/init.d/redhat/tuptime /etc/init.d/tuptime
+		if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
+		chkconfig --add tuptime
+		chkconfig tuptime on
+	elif [ -f /lib/lsb/init-functions ]; then
+		echo "+ Copying SysV init Debian file"
+		install -m 755 ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime
+		if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
+		update-rc.d tuptime defaults
+	else
+		echo "#####################################"
+		echo "ERROR - Any init file for your system"
+		echo "#####################################"
+	fi
 else
 	echo "#####################################"
 	echo "ERROR - Any init file for your system"
@@ -135,7 +144,7 @@ else
 fi
 
 if [ -d /etc/cron.d/ ]; then
-	echo "+ Copying cron file"
+	echo "+ Copying Cron file"
 	cp -a ${F_TMP1}/src/cron.d/tuptime /etc/cron.d/tuptime
 	if [ ${SELX} = true ]; then restorecon -vF /etc/cron.d/tuptime; fi
 else
