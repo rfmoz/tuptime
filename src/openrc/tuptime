@@ -1,7 +1,6 @@
 #!/sbin/openrc-run
 
 name='Tuptime'
-description='Start and stop Tuptime'
 command='/usr/bin/tuptime'
 command_user='tuptime'
 
@@ -12,13 +11,13 @@ depend() {
 }
 
 start() {
-	ebegin "Starting Tuptime"
+	ebegin "Starting $RC_SVCNAME"
 	command_args='-x'
 	eend $?
 }
   
 stop() {
-	ebegin "Stopping Tuptime"
+	ebegin "Stopping $RC_SVCNAME"
 	command_args='-xg'
 	eend $?
 }
