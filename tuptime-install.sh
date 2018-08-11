@@ -137,6 +137,11 @@ elif [ ${PID1} = 'init' ]; then
 		echo "ERROR - Any init file for your system"
 		echo "#####################################"
 	fi
+elif [ ${PID1} = 'openrc-init' ]; then
+	echo "+ Copying OpenRC file"
+	cp -a ${F_TMP1}/src/openrc/tuptime  /etc/init.d/
+	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
+	rc-update add tuptime default
 else
 	echo "#####################################"
 	echo "ERROR - Any init file for your system"

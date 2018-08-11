@@ -1,0 +1,24 @@
+#!/sbin/openrc-run
+
+name='Tuptime'
+description='Start and stop Tuptime'
+command='/usr/bin/tuptime'
+command_user='tuptime'
+
+depend() {
+	need localmount
+	after bootmisc
+	after clock
+}
+
+start() {
+	ebegin "Starting Tuptime"
+	command_args='-x'
+	eend $?
+}
+  
+stop() {
+	ebegin "Stopping Tuptime"
+	command_args='-xg'
+	eend $?
+}
