@@ -2,7 +2,7 @@
 
 #
 # Tuptime installation linux script
-# v.1.8.0
+# v.1.8.1
 #
 # Usage:
 #	bash tuptime-install.sh		Normal installation
@@ -79,8 +79,6 @@ else
 	SELX='false'
 fi
 
-
-
 # Temporary dir for clone repo into it
 F_TMP1=`mktemp -d`
 
@@ -120,23 +118,17 @@ if [ ${PID1} = 'systemd' ]; then
 	if [ ${SELX} = true ]; then restorecon -vF ${SYSDPATH}tuptime.service; fi
 	systemctl daemon-reload
 	systemctl enable tuptime.service && systemctl start tuptime.service
-elif [ ${PID1} = 'init' ]; then
-	if [ -f /etc/rc.d/init.d/functions ]; then
-		echo "+ Copying  SysV init RedHat file"
-		install -m 755 ${F_TMP1}/src/init.d/redhat/tuptime /etc/init.d/tuptime
-		if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
-		chkconfig --add tuptime
-		chkconfig tuptime on
-	elif [ -f /lib/lsb/init-functions ]; then
-		echo "+ Copying SysV init Debian file"
-		install -m 755 ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime
-		if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
-		update-rc.d tuptime defaults
-	else
-		echo "#####################################"
-		echo "ERROR - Any init file for your system"
-		echo "#####################################"
-	fi
+elif [ ${PID1} = 'init' ] && [ -f /etc/rc.d/init.d/functions ]; then
+	echo "+ Copying  SysV init RedHat file"
+	install -m 755 ${F_TMP1}/src/init.d/redhat/tuptime /etc/init.d/tuptime
+	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
+	chkconfig --add tuptime
+	chkconfig tuptime on
+elif [ ${PID1} = 'init' ] && [ -f /lib/lsb/init-functions ]; then
+	echo "+ Copying SysV init Debian file"
+	install -m 755 ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime
+	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
+	update-rc.d tuptime defaults
 elif [ ${PID1} = 'openrc-init' ]; then
 	echo "+ Copying OpenRC file"
 	cp -a ${F_TMP1}/src/openrc/tuptime  /etc/init.d/
