@@ -139,12 +139,12 @@ elif [ ${PID1} = 'init' ] && [ -f /etc/rc.conf ]; then
 	echo "+ Copying OpenRC file for init"
 	install -m 755 ${F_TMP1}/src/openrc/tuptime  /etc/init.d/
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
-	rc-update add tuptime default
+	rc-update add tuptime default && rc-service tuptime start
 elif [ ${PID1} = 'openrc-init' ]; then
 	echo "+ Copying OpenRC file for openrc-init"
 	install -m 755 ${F_TMP1}/src/openrc/tuptime  /etc/init.d/
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
-	rc-update add tuptime default
+	rc-update add tuptime default && rc-service tuptime start
 else
 	echo "#####################################"
 	echo "ERROR - Any init file for your system"
