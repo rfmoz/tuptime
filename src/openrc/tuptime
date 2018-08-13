@@ -13,11 +13,13 @@ depend() {
 start() {
 	ebegin "Starting $RC_SVCNAME"
 	command_args='-x'
+	start-stop-daemon -u "${command_user}" -exec "${command}" -- "${command_args}"
 	eend $?
 }
   
 stop() {
 	ebegin "Stopping $RC_SVCNAME"
 	command_args='-xg'
+	start-stop-daemon -u "${command_user}" -exec "${command}" -- "${command_args}"
 	eend $?
 }

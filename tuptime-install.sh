@@ -2,7 +2,7 @@
 
 #
 # Tuptime installation linux script
-# v.1.8.1
+# v.1.8.2
 #
 # Usage:
 #	bash tuptime-install.sh		Normal installation
@@ -99,8 +99,13 @@ install -m 755 ${F_TMP1}/src/tuptime ${D_BIN}/tuptime
 if [ ${SELX} = true ]; then restorecon -vF ${D_BIN}/tuptime; fi
 
 echo "+ Creating Tuptime user"
-useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
-        --shell '/bin/false' --comment 'Tuptime execution user' tuptime
+useradd -h &> /dev/null
+if [ $? -eq 0 ]; then
+	useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
+        	--shell '/bin/false' --comment 'Tuptime execution user' tuptime
+else
+	adduser -S -H -h '/var/lib/tuptime' -s '/bin/false' tuptime
+fi
 
 echo "+ Creating Tuptime db"
 tuptime -x
@@ -112,6 +117,7 @@ chmod 755 /var/lib/tuptime
 echo "+ Executing Tuptime with tuptime user for testing"
 su -s /bin/sh tuptime -c "tuptime -x"
 
+# Install init
 if [ ${PID1} = 'systemd' ]; then
 	echo "+ Copying Systemd file"
 	cp -a ${F_TMP1}/src/systemd/tuptime.service  ${SYSDPATH}
@@ -129,8 +135,13 @@ elif [ ${PID1} = 'init' ] && [ -f /lib/lsb/init-functions ]; then
 	install -m 755 ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	update-rc.d tuptime defaults
+elif [ ${PID1} = 'init' ] && [ -f /etc/rc.conf ]; then
+	echo "+ Copying OpenRC file for init"
+	cp -a ${F_TMP1}/src/openrc/tuptime  /etc/init.d/
+	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
+	rc-update add tuptime default
 elif [ ${PID1} = 'openrc-init' ]; then
-	echo "+ Copying OpenRC file"
+	echo "+ Copying OpenRC file for openrc-init"
 	cp -a ${F_TMP1}/src/openrc/tuptime  /etc/init.d/
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	rc-update add tuptime default
@@ -140,15 +151,20 @@ else
 	echo "#####################################"
 fi
 
+# Install cron
 if [ -d /etc/cron.d/ ]; then
 	echo "+ Copying Cron file"
 	cp -a ${F_TMP1}/src/cron.d/tuptime /etc/cron.d/tuptime
 	if [ ${SELX} = true ]; then restorecon -vF /etc/cron.d/tuptime; fi
-else
+elif [ -d ${SYSDPATH} ]; then
 	echo "+ Copying tuptime-cron.timer and .service"
 	cp -a ${F_TMP1}/src/systemd/tuptime-cron.*  ${SYSDPATH}
 	if [ ${SELX} = true ]; then restorecon -vF ${SYSDPATH}tuptime-cron.*; fi
 	systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
+else
+	echo "#####################################"
+	echo "ERROR - Any cron file for your system"
+	echo "#####################################"
 fi
 
 echo ""
