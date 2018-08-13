@@ -1,6 +1,6 @@
 #!/sbin/openrc-run
 
-name='Tuptime'
+name='tuptime'
 command='/usr/bin/tuptime'
 command_user='tuptime'
 command_args='-x'
