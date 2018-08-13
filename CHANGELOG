@@ -1,15 +1,16 @@
 tuptime (3.3.4) unstable; urgency=low
 
-  * Add DragonflyBSD support
+  * Adding DragonflyBSD, OpenBSD and NetBSD support
   * Improve error report when checking db path and file
   * Arguments refactoring. Change deprecated module optparse to argpaser
   * Adding --decp option. Allow change decimal length in percentages
   * Fixed equal number of values per line in csv output
   * Fix right termination when SIGPIPE signal is received
   * Upgrade timer unit with tuptime-cron.timer and tuptime-cron.service
+  * Adding OpenRC init script 
   * Tuptime user without /bin/sh shell
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Tue, 26 Jun 2018 00:59:00 +0200
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Mon, 13 Aug 2018 00:59:00 +0200
 
 tuptime (3.3.3) unstable; urgency=low
 

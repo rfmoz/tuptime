@@ -220,8 +220,12 @@ def get_os_values():
             sysctl_bin = os.path.join(path, 'sysctl')
             if os.path.isfile(sysctl_bin) and os.access(sysctl_bin, os.X_OK):
                 break
-        sysctl_out = os.popen(sysctl_bin + ' kern.boottime').read()
-        sec = sysctl_out.split()[4].replace(',', '')
+        sysctl_out = os.popen(sysctl_bin + ' -n kern.boottime').read()
+        # Some BSDs report the value assigned to 'sec', others do it directly
+        if 'sec' in sysctl_out:  # FreeBSD, Darwin
+            sec = sysctl_out.split()[4].replace(',', '')
+        else:  # OpenBSD, NetBSD
+            sec = sysctl_out
         btime = int(sec)
         uptime = round(float((time.time() - btime)), 2)
         ex_user = os.getuid()
@@ -244,7 +248,8 @@ def get_os_values():
     if os.path.isfile('/proc/uptime') and os.path.isfile('/proc/stat'):
         btime, uptime, ex_user = os_linux(btime, uptime, ex_user)
     # BSDs with 'sec' in kern.boottime
-    elif sys.platform.startswith(('freebsd', 'darwin', 'dragonfly5')):
+    elif sys.platform.startswith(('freebsd', 'darwin', 'dragonfly',
+'openbsd', 'netbsd')):
         btime, uptime, ex_user = os_bsd(btime, uptime, ex_user)
     # elif:
     #     other_os()
