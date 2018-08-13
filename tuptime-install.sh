@@ -137,12 +137,12 @@ elif [ ${PID1} = 'init' ] && [ -f /lib/lsb/init-functions ]; then
 	update-rc.d tuptime defaults
 elif [ ${PID1} = 'init' ] && [ -f /etc/rc.conf ]; then
 	echo "+ Copying OpenRC file for init"
-	cp -a ${F_TMP1}/src/openrc/tuptime  /etc/init.d/
+	install -m 755 ${F_TMP1}/src/openrc/tuptime  /etc/init.d/
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	rc-update add tuptime default
 elif [ ${PID1} = 'openrc-init' ]; then
 	echo "+ Copying OpenRC file for openrc-init"
-	cp -a ${F_TMP1}/src/openrc/tuptime  /etc/init.d/
+	install -m 755 ${F_TMP1}/src/openrc/tuptime  /etc/init.d/
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	rc-update add tuptime default
 else
