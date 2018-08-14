@@ -21,7 +21,7 @@ tuptime_start()
 	if /usr/sbin/pw usershow "${tuptime_user}" >/dev/null 2>&1; then
 		su -m ${tuptime_user} -c "$name $command_args"
 	else
-		name $command_args
+		$name $command_args
 	fi
 }
 
@@ -31,7 +31,7 @@ tuptime_stop()
 	if /usr/sbin/pw usershow "${tuptime_user}" >/dev/null 2>&1; then
 		su -m ${tuptime_user} -c "$name $command_args"
 	else
-		name $command_args
+		$name $command_args
 	fi
 }
 
