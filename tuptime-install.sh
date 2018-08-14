@@ -92,21 +92,21 @@ echo ""
 echo "++ Tuptime installation script ++"
 echo ""
 
-echo -n "+ Cloning repository"
+echo "+ Cloning repository"
 if [ ${DEV} -eq 1 ]; then
-        echo -n " ...using dev branch"
+        echo "  ...using dev branch"
 	git clone -b dev https://github.com/rfrail3/tuptime.git ${F_TMP1} || exit
 else
 	git clone https://github.com/rfrail3/tuptime.git ${F_TMP1} || exit
 fi
-echo ' [OK]'
+echo '  [OK]'
 
-echo -n "+ Copying files"
+echo "+ Copying files"
 install -m 755 ${F_TMP1}/src/tuptime ${D_BIN}/tuptime || exit
 if [ ${SELX} = true ]; then restorecon -vF ${D_BIN}/tuptime; fi
-echo ' [OK]'
+echo '  [OK]'
 
-echo -n "+ Creating Tuptime user"
+echo "+ Creating Tuptime user"
 useradd -h &> /dev/null
 if [ $? -eq 0 ]; then
 	useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
@@ -114,46 +114,46 @@ if [ $? -eq 0 ]; then
 else
 	adduser -S -H -h '/var/lib/tuptime' -s '/bin/false' tuptime || exit
 fi
-echo ' [OK]'
+echo '  [OK]'
 
-echo -n "+ Creating Tuptime db"
+echo "+ Creating Tuptime db"
 tuptime -x
-echo ' [OK]'
+echo '  [OK]'
 
-echo -n "+ Setting Tuptime db ownership"
+echo "+ Setting Tuptime db ownership"
 chown -R tuptime /var/lib/tuptime || exit
 chmod 755 /var/lib/tuptime || exit
-echo ' [OK]'
+echo '  [OK]'
 
-echo -n "+ Executing Tuptime with tuptime user for testing"
+echo "+ Executing Tuptime with tuptime user for testing"
 su -s /bin/sh tuptime -c "tuptime -x" || exit
-echo ' [OK]'
+echo '  [OK]'
 
 # Install init
 if [ ${PID1} = 'systemd' ]; then
-	echo -n "+ Copying Systemd file"
+	echo "+ Copying Systemd file"
 	cp -a ${F_TMP1}/src/systemd/tuptime.service ${SYSDPATH} || exit
 	if [ ${SELX} = true ]; then restorecon -vF ${SYSDPATH}tuptime.service; fi
 	systemctl daemon-reload || exit
 	systemctl enable tuptime.service && systemctl start tuptime.service || exit
 elif [ ${PID1} = 'init' ] && [ -f /etc/rc.d/init.d/functions ]; then
-	echo -n "+ Copying  SysV init RedHat file"
+	echo "+ Copying  SysV init RedHat file"
 	install -m 755 ${F_TMP1}/src/init.d/redhat/tuptime /etc/init.d/tuptime || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	chkconfig --add tuptime || exit
 	chkconfig tuptime on || exit
 elif [ ${PID1} = 'init' ] && [ -f /lib/lsb/init-functions ]; then
-	echo -n "+ Copying SysV init Debian file"
+	echo "+ Copying SysV init Debian file"
 	install -m 755 ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	update-rc.d tuptime defaults || exit
 elif [ ${PID1} = 'init' ] && [ -f /etc/rc.conf ]; then
-	echo -n "+ Copying OpenRC file for init"
+	echo "+ Copying OpenRC file for init"
 	install -m 755 ${F_TMP1}/src/openrc/tuptime /etc/init.d/ || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	rc-update add tuptime default && rc-service tuptime start || exit
 elif [ ${PID1} = 'openrc-init' ]; then
-	echo -n "+ Copying OpenRC file for openrc-init"
+	echo "+ Copying OpenRC file for openrc-init"
 	install -m 755 ${F_TMP1}/src/openrc/tuptime /etc/init.d/ || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	rc-update add tuptime default && rc-service tuptime start || exit
@@ -162,15 +162,15 @@ else
 	echo "ERROR - Any init file for your system"
 	echo "#####################################"
 fi
-echo ' [OK]'
+echo '  [OK]'
 
 # Install cron
 if [ -d /etc/cron.d/ ]; then
-	echo -n "+ Copying Cron file"
+	echo "+ Copying Cron file"
 	cp -a ${F_TMP1}/src/cron.d/tuptime /etc/cron.d/tuptime || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/cron.d/tuptime; fi
 elif [ -d ${SYSDPATH} ]; then
-	echo -n "+ Copying tuptime-cron.timer and .service"
+	echo "+ Copying tuptime-cron.timer and .service"
 	cp -a ${F_TMP1}/src/systemd/tuptime-cron.*  ${SYSDPATH} || exit
 	if [ ${SELX} = true ]; then restorecon -vF ${SYSDPATH}tuptime-cron.*; fi
 	systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
@@ -179,7 +179,7 @@ else
 	echo "ERROR - Any cron file for your system"
 	echo "#####################################"
 fi
-echo ' [OK]'
+echo '  [OK]'
 
 echo ""
 echo "+ Enjoy!"
