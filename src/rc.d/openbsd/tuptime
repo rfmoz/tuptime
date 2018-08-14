@@ -12,10 +12,3 @@ rc_check=NO
 . /etc/rc.d/rc.subr
 
 rc_cmd $1
-
-# Enable:
-# echo 'rc_scripts="tuptime"' >> /etc/rc.conf.local 
-
-# Execution at shutdown:
-# echo '/usr/local/bin/python3 /usr/local/bin/tuptime -xg' >>
-# /etc/rc.shutdown

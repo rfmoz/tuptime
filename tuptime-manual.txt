@@ -114,15 +114,6 @@ For Linux systems:
 
       That's all, enjoy it.
 
-   + Building RPM file for RedHat, Fedora and derivates:
-
-      Instructions and .spec file located at misc/rpm/
-
-   + Building DEB file for Debian, Ubuntu and derivates:
-
-      Instructions located at misc/deb/
-
-
 
 For FreeBSD system:
 
@@ -138,30 +129,7 @@ For FreeBSD system:
 
    + Manual install
 
-      Clone repository and copy executable file:
-
-         # install -m 755 tuptime/src/tuptime /usr/local/bin/tuptime
-
-      Add tuptime user:
-
-         # pw adduser tuptime -d /nonexistent -s /usr/sbin/nologin -c "Tuptime execution user"
-
-      Execute tuptime with a privileged user for create db path:
-
-         # tuptime
-
-      Change owner of the db path and file:
-
-         # chown -R tuptime /var/lib/tuptime
-
-      Add the cron entry:
-
-	# echo '*/5 * * * *  /usr/local/bin/tuptime -x' > /var/cron/tabs/tuptime
-
-      Copy rc.d file:
-
-         # install -m 555 tuptime/src/rc.d/freebsd/tuptime /usr/local/etc/rc.d/tuptime
-         # echo 'tuptime_enable="YES"' >> /etc/rc.conf
+      Please, read misc/inst-notes/freebsd-manual-install.txt
 
 
 Partial support for OSX (Darwin) system:
@@ -169,6 +137,15 @@ Partial support for OSX (Darwin) system:
    Tuptime is compatible with OSX, it also comes with 'python' installed by
    default, but for now, the project lacks of launchd files for the startup,
    shutdown and the schedule run.
+
+
+Alternative installation methods:
+
+   Under misc/inst-notes/ there are some docs about:
+
+      + Building RPM file for RedHat, Fedora and derivates.
+      + Building DEB file for Debian, Ubuntu and derivates.
+      + Manually install on FreBSD and OpenBSD.
 
 
 Note about Python 2.7:
