@@ -181,7 +181,6 @@ else
 fi
 echo '  [OK]'
 
-echo ""
 echo "+ Enjoy!"
 echo ""
 
