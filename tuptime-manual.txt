@@ -101,7 +101,7 @@ For Linux systems:
              # systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
              # rm /etc/cron.d/tuptime
 
-      Or if it have upstart system, copy the file:
+      Or if it have an old RedHat system, copy the file:
 
          # install -m 755 tuptime/src/init.d/redhat/tuptime /etc/init.d/tuptime
 	 # chkconfig --add tuptime && chkconfig tuptime on
@@ -139,13 +139,15 @@ Partial support for OSX (Darwin) system:
    shutdown and the schedule run.
 
 
-Alternative installation methods:
+Other systems:
 
-   Under misc/inst-notes/ there are some docs about:
-
-      + Building RPM file for RedHat, Fedora and derivates.
-      + Building DEB file for Debian, Ubuntu and derivates.
-      + Manually install on FreBSD and OpenBSD.
+   Tuptime can run fine in multiple Linux distributions, like RedHat, CentOS,
+   Fedora, Suse, etc. It also support BSD derivates like OpenBSD, NetBSD and 
+   DragonflyBSD.
+   As not all of this OS have a custom package, on Linux, the script install
+   usually do a good job and can save a manual install. Alternatively, there
+   is some documentation about building RPM and DEB native packages under 
+   'misc/inst-notes/'.
 
 
 Note about Python 2.7:

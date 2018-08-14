@@ -2,27 +2,32 @@
 | FreeBSD manual install |
 ==========================
 
-      Clone repository and copy executable file:
 
-         # install -m 755 tuptime/src/tuptime /usr/local/bin/tuptime
+Install dependencies:
 
-      Add tuptime user:
+    # pkg install python3 py36-sqlite3
 
-         # pw adduser tuptime -d /nonexistent -s /usr/sbin/nologin -c "Tuptime execution user"
+Clone repository and copy executable file:
 
-      Execute tuptime with a privileged user for create db path:
+    # install -m 755 tuptime/src/tuptime /usr/local/bin/tuptime
 
-         # tuptime
+Add tuptime user:
 
-      Change owner of the db path and file:
+    # pw adduser tuptime -d /nonexistent -s /usr/sbin/nologin -c "Tuptime execution user"
 
-         # chown -R tuptime /var/lib/tuptime
+Execute tuptime with a privileged user for create db path:
 
-      Add the cron entry:
+    # tuptime
 
-	# echo '*/5 * * * *  /usr/local/bin/tuptime -x' > /var/cron/tabs/tuptime
+Change owner of the db path and file:
 
-      Copy rc.d file:
+    # chown -R tuptime /var/lib/tuptime
 
-         # install -m 555 tuptime/src/rc.d/freebsd/tuptime /usr/local/etc/rc.d/tuptime
-         # echo 'tuptime_enable="YES"' >> /etc/rc.conf
+Add the cron entry:
+
+    # echo '*/5 * * * *  /usr/local/bin/tuptime -x' > /var/cron/tabs/tuptime
+
+Copy rc.d file:
+
+    # install -m 555 tuptime/src/rc.d/freebsd/tuptime /usr/local/etc/rc.d/tuptime
+    # echo 'tuptime_enable="YES"' >> /etc/rc.conf
