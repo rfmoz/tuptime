@@ -1,5 +1,5 @@
 tuptime (3.3.4) unstable; urgency=low
-  
+ 
   * Adding DragonflyBSD, OpenBSD and NetBSD support
   * Improve error report when checking db path and file
   * Arguments refactoring. Change deprecated module optparse to argpaser
