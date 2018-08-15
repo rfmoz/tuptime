@@ -223,10 +223,9 @@ def get_os_values():
         sysctl_out = os.popen(sysctl_bin + ' -n kern.boottime').read()
         # Some BSDs report the value assigned to 'sec', others do it directly
         if 'sec' in sysctl_out:  # FreeBSD, Darwin
-            sec = sysctl_out.split(' sec = ')[1].split(',')[0]
+            btime = int(sysctl_out.split(' sec = ')[1].split(',')[0])
         else:  # OpenBSD, NetBSD
-            sec = sysctl_out
-        btime = int(sec)
+            btime = int(sysctl_out)
         uptime = round(float((time.time() - btime)), 2)
         ex_user = os.getuid()
         return btime, uptime, ex_user
