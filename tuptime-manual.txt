@@ -44,7 +44,6 @@ Software:
 If a distro is used, all is met with:
     - In Linux:  'python' package >= 3.0
     - In FreeBSD: 'python3' and 'py36-sqlite3'
-    - In OpenBSD: 'python' package >= 3.0
 
 
 

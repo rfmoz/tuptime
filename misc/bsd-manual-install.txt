@@ -78,12 +78,12 @@ Set the right permissions to cron file and restart the service:
 
     # chown tuptime:crontab /var/cron/tabs/tuptime 
     # chmod 600 /var/cron/tabs/tuptime 
-    # rcctl restart cron
 
 Copy rc.d file and enable it:
 
     # install -m 555 tuptime/src/rc.d/openbsd/tuptime /etc/rc.d/tuptime
     # echo 'rc_scripts="tuptime"' >> /etc/rc.conf.local
+    # rcctl start tuptime
 
 Add execution at shutdown:
 
