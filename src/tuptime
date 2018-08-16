@@ -279,8 +279,13 @@ def get_os_values():
 def assure_state_db(btime, uptime, kernel, arg):
     """Assure state of db file and related directories"""
 
-    # Caught a file located in the same directory
-    if arg.db_file != DB_FILE:
+    if arg.db_file == DB_FILE:  # If db_file keeps default value
+        # Check for DB enviroment variable
+        if 'TUPTIME_DBF' in os.environ and os.environ.get('TUPTIME_DBF') != '':
+                arg.db_file = os.environ.get('TUPTIME_DBF')
+                logging.info('DB environ var = ' + str(arg.db_file))
+    else:
+        # Try to caught up a file located in the same directory
         if not arg.db_file.startswith('/') and not arg.db_file.startswith('./'):
             arg.db_file = './' + arg.db_file
 
