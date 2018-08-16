@@ -1,0 +1,15 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=60
+
+start() {
+        echo 'Tuptime start'
+        ln -s /opt/tuptime/ /var/lib/tuptime 2> /dev/null
+        /usr/bin/python3 /usr/bin/tuptime -x
+}
+
+stop() {
+        echo 'Tuptime stop'
+        /usr/bin/python3 /usr/bin/tuptime -xg
+}

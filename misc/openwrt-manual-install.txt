@@ -1,0 +1,41 @@
+====================================
+| OpenWRT manual install - Tutpime |
+====================================
+
+
+Install dependencies:
+
+    # opkg update && opkg install python3-light python3-sqlite3 python3-logging wget unzip
+
+Get the code and copy the executable file:
+
+    # wget https://github.com/rfrail3/tuptime/archive/master.zip
+    # unzip master.zip
+    # cp tuptime/src/tuptime /usr/bin/ && chmod 755 /usr/bin/tuptime
+
+As OpenWRT have a symlink from /var/ to /tmp/ and Tuptime saves their db on /var/lib/tuptime, their content will be lost in each startup. So, it's needed a new destination for the db (cron init file do the same for /var/spool):
+
+    # mkdir -p /opt/tuptime
+    # ln -s /opt/tuptime/ /var/lib/tuptime 2> /dev/null
+
+Add the cron execution. Include the following line in '/etc/crontabs/root':
+
+    */5 * * * * /usr/bin/python3 /usr/bin/tuptime -x
+
+Copy the init file and set the right permissions:
+
+    # cp tuptime/src/init.d/openwrt/tuptime /etc/init.d/tuptime
+    # chmod 755 /etc/init.d/tuptime
+
+Start and enable cron and tuptime:
+
+    # /etc/init.d/cron enable
+    # /etc/init.d/cron start
+    # /etc/init.d/tuptime enable
+    # /etc/init.d/tuptime start
+
+Test it:
+
+    # tuptime
+
+That's all, enjoy it.
