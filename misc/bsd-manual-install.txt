@@ -1,6 +1,6 @@
-==========================
-| FreeBSD manual install |
-==========================
+====================================
+| FreeBSD manual install - Tutpime |
+====================================
 
 
 Install dependencies:
@@ -38,9 +38,9 @@ That's all, enjoy it.
 
 
 
-==========================
-| OpenBSD manual install |
-==========================
+====================================
+| OpenBSD manual install - Tutpime |
+====================================
 
 
 Install dependencies:
@@ -79,11 +79,9 @@ Set the right permissions to cron file and restart the service:
     # chown tuptime:crontab /var/cron/tabs/tuptime 
     # chmod 600 /var/cron/tabs/tuptime 
 
-Copy rc.d file and enable it:
+Add execution at startup:
 
-    # install -m 555 tuptime/src/rc.d/openbsd/tuptime /etc/rc.d/tuptime
-    # echo 'rc_scripts="tuptime"' >> /etc/rc.conf.local
-    # rcctl start tuptime
+    # echo 'su - tuptime -c "/usr/local/bin/python3 /usr/local/bin/tuptime -x"' >> /etc/rc.local
 
 Add execution at shutdown:
 
