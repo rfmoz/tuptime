@@ -42,14 +42,14 @@ if [ "$(expr substr $(uname -s) 1 5)" != "Linux" ]; then
 fi
 
 # Test if git is installed
-git --version &> /dev/null
+git --version > /dev/null 2>&1
 if [ $? -ne 0 ]; then
 	echo "ERROR: \"git\" command not available"
 	echo "Please, install it"; exit 1
 fi
 
 # Test if python is installed
-pyver=`python3 --version 2>&1 /dev/null`
+pyver=`python3 --version > /dev/null 2>&1`
 if [ $? -ne 0 ]; then
         echo "ERROR: Python not available"
         echo "Please, install version 3 or greater"; exit 1
@@ -77,7 +77,7 @@ else
 fi
 
 # Set Selinux swich
-SELX=`getenforce 2> /dev/null`
+SELX=`getenforce > /dev/null 2>&1`
 if [ "${SELX}" = 'Enforcing' ]; then
         echo "Selinux enabled in Enforcing"
 	SELX='true'
