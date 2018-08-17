@@ -1,5 +1,5 @@
 ====================================
-| FreeBSD manual install - Tutpime |
+| FreeBSD manual install - Tuptime |
 ====================================
 
 
@@ -39,7 +39,7 @@ That's all, enjoy it.
 
 
 ====================================
-| OpenBSD manual install - Tutpime |
+| OpenBSD manual install - Tuptime |
 ====================================
 
 

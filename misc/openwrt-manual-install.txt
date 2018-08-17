@@ -1,5 +1,5 @@
 ====================================
-| OpenWRT manual install - Tutpime |
+| OpenWRT manual install - Tuptime |
 ====================================
 
 
