@@ -412,9 +412,11 @@ TUPTIME_DBF
   Set an alternative database file. The argument -f, --filedb takes
   precedence over this.
 
-  Examples:
-         TUPTIME_DBF="/opt/tuptime.db"
+  Example on ksh / sh / bash:
+         export TUPTIME_DBF="/opt/tuptime.db"
 
+  Example on csh / tcsh:
+         setenv TUPTIME_DBF /opt/tuptime.db 
 
 
 ======================

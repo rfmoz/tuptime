@@ -16,7 +16,7 @@ Get the code and copy the executable file:
 As OpenWRT have a symlink from /var/ to /tmp/ and Tuptime saves their db on /var/lib/tuptime, their content will be lost in each startup. So, it's needed a new destination for the db (cron init file do the same for /var/spool):
 
     # mkdir -p /opt/tuptime
-    # ln -s /opt/tuptime/ /var/lib/tuptime 2> /dev/null
+    # ln -s /opt/tuptime/ /var/lib/tuptime
 
 Add the cron execution. Include the following line in '/etc/crontabs/root':
 
