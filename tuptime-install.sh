@@ -136,50 +136,57 @@ if [ ${PID1} = 'systemd' ]; then
 	if [ ${SELX} = true ]; then restorecon -vF ${SYSDPATH}tuptime.service; fi
 	systemctl daemon-reload || exit
 	systemctl enable tuptime.service && systemctl start tuptime.service || exit
+	echo '  [OK]'
 elif [ ${PID1} = 'init' ] && [ -f /etc/rc.d/init.d/functions ]; then
 	echo "+ Copying  SysV init RedHat file"
 	install -m 755 ${F_TMP1}/src/init.d/redhat/tuptime /etc/init.d/tuptime || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	chkconfig --add tuptime || exit
 	chkconfig tuptime on || exit
+	echo '  [OK]'
 elif [ ${PID1} = 'init' ] && [ -f /lib/lsb/init-functions ]; then
 	echo "+ Copying SysV init Debian file"
 	install -m 755 ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	update-rc.d tuptime defaults || exit
+	echo '  [OK]'
 elif [ ${PID1} = 'init' ] && [ -f /etc/rc.conf ]; then
 	echo "+ Copying OpenRC file for init"
 	install -m 755 ${F_TMP1}/src/openrc/tuptime /etc/init.d/ || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	rc-update add tuptime default && rc-service tuptime start || exit
+	echo '  [OK]'
 elif [ ${PID1} = 'openrc-init' ]; then
 	echo "+ Copying OpenRC file for openrc-init"
 	install -m 755 ${F_TMP1}/src/openrc/tuptime /etc/init.d/ || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	rc-update add tuptime default && rc-service tuptime start || exit
+	echo '  [OK]'
 else
-	echo "#####################################"
-	echo "ERROR - Any init file for your system"
-	echo "#####################################"
+	echo "#########################################"
+	echo " WARNING - Any init file for your system"
+	echo "#########################################"
+	echo '  [BAD]'
 fi
-echo '  [OK]'
 
 # Install cron
 if [ -d /etc/cron.d/ ]; then
 	echo "+ Copying Cron file"
 	cp -a ${F_TMP1}/src/cron.d/tuptime /etc/cron.d/tuptime || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/cron.d/tuptime; fi
+	echo '  [OK]'
 elif [ -d ${SYSDPATH} ]; then
 	echo "+ Copying tuptime-cron.timer and .service"
 	cp -a ${F_TMP1}/src/systemd/tuptime-cron.*  ${SYSDPATH} || exit
 	if [ ${SELX} = true ]; then restorecon -vF ${SYSDPATH}tuptime-cron.*; fi
 	systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
+	echo '  [OK]'
 else
-	echo "#####################################"
-	echo "ERROR - Any cron file for your system"
-	echo "#####################################"
+	echo "#########################################"
+	echo " WARNING - Any cron file for your system"
+	echo "#########################################"
+	echo '  [BAD]'
 fi
-echo '  [OK]'
 
 echo "+ Enjoy!"
 echo ""
