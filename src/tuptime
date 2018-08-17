@@ -284,7 +284,8 @@ def assure_state_db(btime, uptime, kernel, arg):
         if 'TUPTIME_DBF' in os.environ and os.environ.get('TUPTIME_DBF') != '':
                 arg.db_file = os.environ.get('TUPTIME_DBF')
                 logging.info('DB environ var = ' + str(arg.db_file))
-    else:
+
+    if arg.db_file != DB_FILE:
         # Try to caught up a file located in the same directory
         if not arg.db_file.startswith('/') and not arg.db_file.startswith('./'):
             arg.db_file = './' + arg.db_file
