@@ -107,7 +107,7 @@ if [ ${SELX} = true ]; then restorecon -vF ${D_BIN}/tuptime; fi
 echo '  [OK]'
 
 echo "+ Creating Tuptime user"
-useradd -h 2> /dev/null
+useradd -h &> /dev/null
 if [ $? -eq 0 ]; then
 	useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
         	--shell '/bin/false' --comment 'Tuptime execution user' tuptime || exit
