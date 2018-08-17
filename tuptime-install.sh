@@ -78,7 +78,7 @@ fi
 
 # Set Selinux swich
 SELX=`getenforce 2> /dev/null`
-if [[ ${SELX} != "" ]] && [[ ${SELX} == 'Enforcing' ]]; then
+if [ ${SELX} != "" ] && [ ${SELX} == 'Enforcing' ]; then
         echo "Selinux enabled in Enforcing"
 	SELX='true'
 else
