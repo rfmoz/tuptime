@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 
 #
 # Tuptime installation linux script
-# v.1.8.2
+# v.1.8.3
 #
 # Usage:
 #	bash tuptime-install.sh		Normal installation
@@ -20,8 +20,8 @@ DEV=0
 
 
 # Check root execution
-if [ "$EUID" -ne 0 ]
-  then echo "Please run this script as root"
+if [ "$(id -u)" != "0" ]; then
+  echo "Please run this script as root"
   exit
 fi
 
@@ -78,7 +78,7 @@ fi
 
 # Set Selinux swich
 SELX=`getenforce 2> /dev/null`
-if [ ${SELX} != "" ] && [ ${SELX} == 'Enforcing' ]; then
+if [ "${SELX}" = 'Enforcing' ]; then
         echo "Selinux enabled in Enforcing"
 	SELX='true'
 else
