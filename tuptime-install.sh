@@ -49,7 +49,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Test if python is installed
-pyver=`python3 --version > /dev/null 2>&1`
+pyver=`python3 --version 2> /dev/null`
 if [ $? -ne 0 ]; then
         echo "ERROR: Python not available"
         echo "Please, install version 3 or greater"; exit 1
@@ -77,7 +77,7 @@ else
 fi
 
 # Set Selinux swich
-SELX=`getenforce > /dev/null 2>&1`
+SELX=`getenforce 2> /dev/null`
 if [ "${SELX}" = 'Enforcing' ]; then
         echo "Selinux enabled in Enforcing"
 	SELX='true'
