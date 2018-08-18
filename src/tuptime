@@ -280,7 +280,7 @@ def assure_state_db(btime, uptime, kernel, arg):
     """Assure state of db file and related directories"""
 
     if arg.db_file == DB_FILE:  # If db_file keeps default value
-        # Check for DB enviroment variable
+        # Check for DB environment variable
         if 'TUPTIME_DBF' in os.environ and os.environ.get('TUPTIME_DBF') != '':
                 arg.db_file = os.environ.get('TUPTIME_DBF')
                 logging.info('DB environ var = ' + str(arg.db_file))

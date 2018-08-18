@@ -247,7 +247,7 @@ These are the command line options, no configuration file is used:
 
 -f <FILE>, --filedb=<FILE>
   Define an alternative database file. Default is located in 
-  '/var/lib/tuptime/tuptime.db'. It takes precedence over enviromental variable
+  '/var/lib/tuptime/tuptime.db'. It takes precedence over environmental variable
   "TUPTIME_DBF".
 
   Examples:
@@ -406,7 +406,7 @@ These are the command line options, no configuration file is used:
 | Environment variables |
 =========================
 
-List of supported enviromental variables:
+List of supported environmental variables:
 
 TUPTIME_DBF
   Set an alternative database file. The argument -f, --filedb takes

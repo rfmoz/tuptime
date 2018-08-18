@@ -26,8 +26,7 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Test arguments
-while test $# -gt 0
-do
+while test $# -gt 0; do
     case "$1" in
         -d) DEV=1
            ;;
