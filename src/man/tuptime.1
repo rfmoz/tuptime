@@ -1,4 +1,4 @@
-.TH TUPTIME 1 "Feb 2018" "3.3.4" "Linux Manual"
+.TH TUPTIME 1 "Agu 2018" "3.3.4" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical running time of the system, keeping it between restarts. Total uptime.
@@ -45,7 +45,7 @@ the system, keeping it between restarts. Indeed, it can:
 - Reports in csv
 
 .SH OPTIONS
-.SS FIELDS
+.SS ARGUMENTS
 .TS
 tab (@);
 l lx.
@@ -109,6 +109,13 @@ T}
 \-x | \-\-silent@T{
 Update values without print
 T}
+.TE
+.SS ENVIRONMENT
+.RE
+TUPTIME_DBF
+.RS
+Set an alternative database file path. The argument -f, --filedb takes
+precedence over this.
 .TE
 
 .SH DEFAULT OUTPUT
@@ -208,8 +215,11 @@ Main and only executable file.
 .I /usr/share/doc/tuptime/
 Directory with multiple documentation files.
 .TP
-.I /usr/share/doc/tuptime/examples/tuptime.timer
+.I /usr/share/doc/tuptime/examples/tuptime-cron.timer
 Optional .timer unit for use instead of cron.
+.TP
+.I /usr/share/doc/tuptime/examples/tuptime-cron.service
+Optional .service unit required by tuptime-cron.timer
 .TP
 .I /usr/share/man/man1/tuptime.1
 Manual page.

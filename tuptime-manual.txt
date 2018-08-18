@@ -409,7 +409,7 @@ These are the command line options, no configuration file is used:
 List of supported environmental variables:
 
 TUPTIME_DBF
-  Set an alternative database file. The argument -f, --filedb takes
+  Set an alternative database file path. The argument -f, --filedb takes
   precedence over this.
 
   Example on ksh / sh / bash:
