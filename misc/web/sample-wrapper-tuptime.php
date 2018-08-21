@@ -3,7 +3,7 @@
 <!--
 This is a very basic sample Tuptime wrapper made in PHP.
 Maybe you can find it usefull as starting point to other particular project.
-Compatible with Tuptime 3.3.4 and above.
+Compatible with Tuptime 3.4.0 and above.
 //-->
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />

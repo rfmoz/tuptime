@@ -1,5 +1,5 @@
 Name:		tuptime
-Version:	3.3.3
+Version:	3.4.0
 Release:	1%{?dist}
 Summary:	Report historical system running time
 
@@ -88,6 +88,6 @@ su -s /bin/sh tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 
 
 %changelog
-* Sun Jun 24 2018 Ricardo Fraile <rfraile@rfraile.eu> 3.3.3-1
+* Tue Aug 21 2018 Ricardo Fraile <rfraile@rfraile.eu> 3.4.0-1
 - Initial RPM release
 - More info: %{_docdir}/CHANGELOG
