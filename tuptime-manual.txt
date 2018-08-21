@@ -412,11 +412,15 @@ TUPTIME_DBF
   Set an alternative database file path. The argument -f, --filedb takes
   precedence over this.
 
-  Example on ksh / sh / bash:
+  Example for ksh / sh / bash:
          export TUPTIME_DBF="/opt/tuptime.db"
 
-  Example on csh / tcsh:
+  Example for csh / tcsh:
          setenv TUPTIME_DBF /opt/tuptime.db 
+
+  Example for systemd unit:
+         Environment="TUPTIME_DBF='/opt/tuptime.db'"
+
 
 
 ======================
