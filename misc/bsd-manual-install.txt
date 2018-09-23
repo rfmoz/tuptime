@@ -1,0 +1,90 @@
+====================================
+| FreeBSD manual install - Tuptime |
+====================================
+
+
+Install dependencies:
+
+    # pkg install python3 py36-sqlite3 git
+
+Clone repository and copy executable file:
+
+    # git clone https://github.com/rfrail3/tuptime.git
+    # install -m 755 tuptime/src/tuptime /usr/local/bin/tuptime
+
+Add tuptime user:
+
+    # pw adduser tuptime -d /nonexistent -s /usr/sbin/nologin -c "Tuptime execution user"
+
+Execute tuptime with a privileged user for create db path:
+
+    # tuptime
+
+Change owner of the db path and file:
+
+    # chown -R tuptime /var/lib/tuptime
+
+Add the cron entry and restart the service:
+
+    # echo '*/5 * * * *  /usr/local/bin/tuptime -x' > /var/cron/tabs/tuptime
+    # service cron restart
+
+Copy rc.d file:
+
+    # install -m 555 tuptime/src/rc.d/freebsd/tuptime /usr/local/etc/rc.d/tuptime
+    # echo 'tuptime_enable="YES"' >> /etc/rc.conf
+
+That's all, enjoy it.
+
+
+
+====================================
+| OpenBSD manual install - Tuptime |
+====================================
+
+
+Install dependencies:
+
+    # pkg_add git python
+
+Create a symlink for the Python3 interpreter:
+
+    # ln -s /usr/local/bin/python3.6 /usr/local/bin/python3 
+     
+Clone repository and copy executable file:
+
+    # git clone https://github.com/rfrail3/tuptime.git
+    # install -m 755 tuptime/src/tuptime /usr/local/bin/tuptime
+
+Add tuptime user:
+
+    # adduser -home /var/empty -shell /sbin/nologin -batch tuptime
+
+Execute tuptime with a privileged user for create db path:
+
+    # tuptime
+
+Change owner of the db path and file:
+
+    # chown -R tuptime /var/lib/tuptime
+
+Add the cron entry, create a '/var/cron/tabs/tuptime' file with this content:
+
+    SHELL=/bin/sh
+    PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin/
+    */5       *       *       *       *       tuptime -x
+
+Set the right permissions to cron file and restart the service:
+
+    # chown tuptime:crontab /var/cron/tabs/tuptime 
+    # chmod 600 /var/cron/tabs/tuptime 
+
+Add execution at startup:
+
+    # echo 'su - tuptime -c "/usr/local/bin/python3 /usr/local/bin/tuptime -x"' >> /etc/rc.local
+
+Add execution at shutdown:
+
+    # echo 'su - tuptime -c "/usr/local/bin/python3 /usr/local/bin/tuptime -xg"' >> /etc/rc.shutdown
+
+That's all, enjoy it.

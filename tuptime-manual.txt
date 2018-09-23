@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 3.3.3
+                              version 3.4.0
                                 Ricardo F.
-                                3/Jan/2018
+                               23/Sep/2018
 
 
 
@@ -32,20 +32,18 @@ Indeed, it can:
 | Prerequisites |
 =================
 
-Operating system:
+Operating systems:
    - Linux
-   - FreeBSD
-   - OSX (Darwin)
+   - BSD
 
 Software:
    - Python 3.x
    - Python modules (most included in python core by default):
-       sys, os, optparse, sqlite3, datetime, locale, platform, logging, time
+       sys, os, argparse, locale, platform, signal, logging, sqlite3, datetime
 
 If a distro is used, all is met with:
     - In Linux:  'python' package >= 3.0
-    - In FreeBSD: 'python3' and one of the 'py34-sqlite3', 'py35-sqlite3' or 'py36-sqlite3'
-    - In OSX: 'python' installed by default in base system
+    - In FreeBSD: 'python3' and 'py36-sqlite3'
 
 
 
@@ -57,132 +55,100 @@ For Linux systems:
 
    + From distribution repository:
 
-      Debian  - https://packages.debian.org/tuptime
+       Debian  - https://packages.debian.org/tuptime
 
-      Ubuntu  - https://packages.ubuntu.com/tuptime
+       Ubuntu  - https://packages.ubuntu.com/tuptime
 
-      Arch    - https://aur.archlinux.org/packages/tuptime/
+       Arch    - https://aur.archlinux.org/packages/tuptime/
 
    + Using .sh script:
       
-      Download and execute the installation script:
+       Download and execute the installation script:
 
-         # bash <(curl -s https://raw.githubusercontent.com/rfrail3/tuptime/master/tuptime-install.sh)
+           # sh <(curl -s https://raw.githubusercontent.com/rfrail3/tuptime/master/tuptime-install.sh)
 
-   + Manual install
+   + Manual install:
 
-      Clone repository and copy executable file:
+       Clone repository and copy executable file:
 
-         # cp tuptime/src/tuptime /usr/bin/tuptime
-         # chmod 755 /usr/bin/tuptime 
+           # install -m 755 tuptime/src/tuptime /usr/bin/tuptime
 
-      Add tuptime user:
+       Add tuptime user:
 
-         # adduser --quiet --system --no-create-home --group \
-                --home "/var/lib/tuptime" \
-                --shell '/bin/sh' \
-                --gecos 'Tuptime execution user,,,' tuptime
+           # useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
+             --shell '/bin/false' --comment 'Tuptime execution user' tuptime
 
-      Execute tuptime with a privilege user for create db path:
+       Execute tuptime with a privilege user for create db path:
 
-         # tuptime
+           # tuptime
 
-      Change owner of the db file:
+       Change owner of the db path and file:
 
-         # chown -R tuptime:tuptime /var/lib/tuptime
+           # chown -R tuptime /var/lib/tuptime
 
-      Copy cron file:
+       Copy cron file:
 
-         # cp tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
-         # chmod 644 /etc/cron.d/tuptime
+           # install -m 644 tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
 
-      If is a system with systemd, copy service file and enable it:
+       If it use systemd, copy service file and enable it:
 	
-         # cp tuptime/src/systemd/tuptime.service /lib/systemd/system/
-         # chmod 644 /lib/systemd/system/tuptime.service
-         # systemctl enable tuptime.service
+           # install -m 644 tuptime/src/systemd/tuptime.service /lib/systemd/system/tuptime.service
+           # systemctl enable tuptime.service && systemctl start tuptime.service
 
-         (Alternative) Using systemd timer instead of cron file:
+           (Alternative) Using systemd timer instead of cron file:
 
-             # cp tuptime/src/systemd/tuptime.timer /lib/systemd/system/
-             # chmod 644 /lib/systemd/system/tuptime.timer
-             # systemctl enable tuptime.timer
-             # rm /etc/cron.d/tuptime
+               # install -m 644 tuptime/src/systemd/tuptime-cron.* /lib/systemd/system/
+               # systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
+               # rm /etc/cron.d/tuptime
 
-      If have upstart system, copy the file:
+       Or if it is an old RedHat system or derivate, copy the init file:
 
-         # cp tuptime/src/init.d/redhat/tuptime /etc/init.d/tuptime
-	 # chmod 755 /etc/init.d/tuptime
-	 # chkconfig --add tuptime
-	 # chkconfig tuptime on
+           # install -m 755 tuptime/src/init.d/redhat/tuptime /etc/init.d/tuptime
+           # chkconfig --add tuptime && chkconfig tuptime on
 
-      If have init system, copy the file:
+       Or if it is and old Debian system or derivate, copy the init file:
 
-         # cp tuptime/src/init.d/debian/tuptime /etc/init.d/tuptime
-         # chmod 755 /etc/init.d/tuptime
-         # update-rc.d tuptime defaults
-	 # /etc/init.d/tuptime start
+           # install -m 755 tuptime/src/init.d/debian/tuptime /etc/init.d/tuptime
+           # update-rc.d tuptime defaults
+	   # /etc/init.d/tuptime start
+
+       That's all, enjoy it.
 
 
+For BSDs systems:
 
-For FreeBSD system:
+   + On FreeBSD and derivates using ports:
 
-   + Using FreeBSD ports
+          # /usr/ports/sysutils/tuptime
 
-      /usr/ports/sysutils/tuptime
+       Add the suggested cron entry
 
-      Add the suggested cron entry
-
-      Enable it in rc:
+       Enable it on rc:
 
          # echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
-   + Manual install
+   + Manual install on FreeBSD, OpenBSD and derivates:
 
-      Clone repository and copy executable file:
-
-         # cp tuptime/src/tuptime /usr/local/bin/tuptime
-         # chmod 755 /usr/local/bin/tuptime 
-
-      Add tuptime user:
-
-         # pw adduser tuptime -d /nonexistent -s /bin/sh -c "Tuptime execution user"
-
-      Execute tuptime with a privilege user for create db path:
-
-         # tuptime
-
-      Change owner of the db file:
-
-         # chown -R tuptime:tuptime /var/lib/tuptime
-
-      Add an entry to /etc/crontab
-
-         */5     *       *       *       *       tuptime    /usr/local/bin/tuptime -x
-
-      Copy rc.d file:
-
-         # cp tuptime/src/rc.d/freebsd/tuptime /usr/local/etc/rc.d/tuptime
-         # chmod 555 /usr/local/etc/rc.d/tuptime
-         # echo 'tuptime_enable="YES"' >> /etc/rc.conf
+       Please, read misc/bsd-manual-install.txt
 
 
-For OSX system:
+Partial support for OSX (Darwin) system:
 
-   Tuptime is compatible with OSX but, for now, the project lacks of launchd files
-   for the startup and the schedule run.
+   Tuptime is compatible with OSX, it also comes with 'python' installed by
+   default, but for now, the project lacks of launchd files for the startup,
+   shutdown and the schedule run.
 
 
 Note about Python 2.7:
 
-   Tuptime 3.3.3 can continue running over Python 2.7 if the shebang line is 
-   changed to '#!/usr/bin/env python'
+   Tuptime <= 3.4.0 can be executed with Python 2.7.
+   Set the shebang line to '#!/usr/bin/env python' to get it.
 
 
 
-============================
-| Command line  parameters |
-============================
+===========================
+| Command line parameters |
+===========================
 
 These are the command line options, no configuration file is used:
 
@@ -190,9 +156,10 @@ These are the command line options, no configuration file is used:
   -c, --csv             csv output
   -d DATE_FORMAT, --date=DATE_FORMAT
                         date format output
+  --decp DECIMALS       number of decimals in percentages
   -f FILE, --filedb=FILE
                         database file
-  -g, --graceful        register a gracefully shutdown
+  -g, --graceful        register a graceful shutdown
   -k, --kernel          print kernel information
   -l, --list            enumerate system life as list
   -n, --noup            avoid update values
@@ -221,7 +188,8 @@ These are the command line options, no configuration file is used:
 
 
 -c, --csv
-  Report in csv format.
+  Report in csv format. When this option is used, for an easier post processed,
+  all lines always have the same number of values (empty or not).
 
   Examples:
          tuptime --csv
@@ -270,9 +238,17 @@ These are the command line options, no configuration file is used:
          tuptime -d '%H:%M:%S   %d-%b-%Y'  # Spanish style
 
 
+--dec DECIMALS
+  Change the decimal lenght in percentages. The number is rounded to this value.
+
+  Examples:
+         tuptime --dec 9
+
+
 -f <FILE>, --filedb=<FILE>
   Define an alternative database file. Default is located in 
-  '/var/lib/tuptime/tuptime.db'
+  '/var/lib/tuptime/tuptime.db'. It takes precedence over environmental variable
+  "TUPTIME_DBF".
 
   Examples:
          tuptime -f /var/lib/tuptime/tuptime.db  # (Default)
@@ -281,10 +257,9 @@ These are the command line options, no configuration file is used:
 
   
 -g, --graceful
-  Register last time in the db as a graceful shutdown. This option is the way
-  that tuptime have for know if is a good or a bad shutdown, like a hang of the
-  system, for example. This is used in the init.d and systemd files at the 
-  shutdown process.
+  Register the time in db as a graceful shutdown. This option is the way that
+  tuptime have for know if is a good or a bad shutdown. This is used in the 
+  init.d and systemd files at the shutdown process.
 
   Examples:
          tuptime -g
@@ -379,7 +354,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime --tsince 1454998872
-         tuptime --tsince -31557600  # Since one year ago
+         tuptime --tsince -31536000  # Since one year ago
 
 
 --tuntil <TIMESTAMP>
@@ -388,7 +363,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime --tuntil 1454999619
-         tuptime --tuntil -2629750  # Until one month ago
+         tuptime --tuntil -2592000  # Until one month ago
 
 
 -U <UNTIL>, --until <UNTIL>
@@ -427,6 +402,27 @@ These are the command line options, no configuration file is used:
 
 
 
+=========================
+| Environment variables |
+=========================
+
+List of supported environmental variables:
+
+TUPTIME_DBF
+  Set an alternative database file path. The argument -f, --filedb takes
+  precedence over this.
+
+  Example for ksh / sh / bash:
+         export TUPTIME_DBF="/opt/tuptime.db"
+
+  Example for csh / tcsh:
+         setenv TUPTIME_DBF /opt/tuptime.db 
+
+  Example for systemd unit:
+         Environment="TUPTIME_DBF='/opt/tuptime.db'"
+
+
+
 ======================
 | Schedule execution |
 ======================
@@ -434,8 +430,11 @@ These are the command line options, no configuration file is used:
 It's important to have a schedule execution. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
 shutdown, but if the system fails, hangs or whatever, the uptime time will
-be lost. Be sure that the cron entry or systemd .timer unit are installed as
-expected.
+be lost. Be sure that the cron entry or systemd tuptime-cron.[timer|service]
+units are installed as expected.
+
+By default, both have a 5 minutes scheduled execution. Feel free to lower 
+that value if your requirements are narrow.
 
 
 
@@ -449,7 +448,7 @@ System startups:
 
 System shutdowns:
   Total number of shutdowns done correctly or incorrectly. The separator 
-  usually points to the state of last shutdown (<-) ok, (->) bad.
+  points to the state of last shutdown (<-) ok, (->) bad if any filter is used.
 
 System uptime:
   Percentage of uptime and time counter.
@@ -475,8 +474,6 @@ Current uptime:
 
 
 
-
-
 =============================================
 | DB format changes from 2.x to 3.x version |
 =============================================
@@ -495,7 +492,7 @@ IndexError: list assignment index out of range
 Is because the database have the format of the 2.x release. For migrate it, 
 please, execute the script "db-tuptime-migrate.sh" which is located at:
 
-https://github.com/rfrail3/tuptime/blob/master/scripts/db-tuptime-migrate.sh
+https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate.sh
  
  
 
@@ -523,12 +520,12 @@ kernel   Name of the kernel
 The number of startup sequency is extracted from "rowid", the signed integer 
 key that uniquely identifies the row within its table in sqlite.
 
-For reset all the values, simply detele the database file.
+For reset all the values, simply delete the database file.
 
-Is it possible to query and modify it directly. But if a complete row is
-deleted and the database is not recreate completely (vacuum), rowid keep the real
-information about startup number. Tuptime will advert about it if the verbose
-mode is enabled.
+It is possible to query and modify it directly. But if a complete row is
+deleted and the database is not recreate completely (vacuum), rowid keep the
+real information about startup number. Tuptime will advert about it if the
+verbose mode is enabled.
 
 
 
@@ -554,6 +551,10 @@ Pi don't have any clock and initializes from 1 January 1970.
 For avoid that problem the systemd unit have the time-sync.target requirement, but
 for now it have a bug (https://github.com/systemd/systemd/issues/5097) and not work
 as expected.
+
+Tuptime report the drift when it is executed in verbose mode "tuptime -v" in the
+line "INFO:Drift over btime". Values around +-1 are very common and can be
+considered as normal.
 
 A few recomendations / workarounds are:
 
@@ -589,9 +590,42 @@ Good reads:
 
 
 
-=================
-| Some Thoughts |
-=================
+========================
+| Date and Epoch notes |
+========================
+
+The options --tsince and --tuntil use epoch timestamp format, as quick
+reference here are some notes:
+
+Seconds equivalences:
+	1 year    31536000 seconds
+	1 month    2592000 seconds
+	1 week      604800 seconds
+	1 day	     86400 seconds
+	1 hour        3600 seconds
+
+Convert human date to epoch:
+	date --date="JAN-18-2018" +%s
+	date --date="20-JAN-18" +%s
+	date --date="2018-01-20 16:21:42" +%s
+	date --date="2018-01-20 16:21:42 GMT+2" +%s
+	date --date="3 week ago" +%s
+	date --date="1 year ago" +%s
+	date --date="now" +%s
+
+Convert epoch to human date:
+	date --date="@1516748400"
+
+More info about date input formats:
+	man date
+	"https://www.gnu.org/software/coreutils/manual/html_node/
+	Date-input-formats.html#Date-input-formats"
+
+
+
+===========
+| Caveats |
+===========
 
 Tuptime can be executed with 'root' user, but it's recommendable the use of an
 unprivileged user, like 'tuptime' as the installation section reflects for
@@ -607,10 +641,15 @@ since the last system start.
 
 Note the filesystem cache on which the files resides for a while before being 
 flushing into disk. If things go wrong, like a kernel panic, maybe the last 
-updates of the db already written into the file can be lots.
+updates of the db already written into the file can be lost.
 
-As usual, if the system have configured a time zone with daylight saving time
-(DST), for avoid problems when the time change, the real time clock (RTC) 
-should have set to universal time coordinated (UTC), not local time. Check it
-with 'timedatectl' command.
-http://tldp.org/HOWTO/Clock-2.html
+A basic sample web wrapper is available under misc/web/. It is made in php and
+can be useful as a starting template to any other particular use case.
+
+If the system have configured a time zone with daylight saving time (DST),
+for avoid problems when the time change, the real time clock (RTC) should have
+set to universal time coordinated (UTC), not local time. Check it with 
+'timedatectl' command.  Reports matching DST changes are completely right.
+https://tldp.org/HOWTO/Clock-2.html
+
+The name of the tool is based on the contraction of the words Total Uptime.

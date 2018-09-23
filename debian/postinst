@@ -24,7 +24,7 @@ case "$1" in
             echo "Adding tuptime user ..."
             adduser --quiet --system --group --disabled-password \
                 --home "/var/lib/tuptime" \
-                --shell '/bin/sh' \
+                --shell '/usr/sbin/nologin' \
                 --gecos 'Tuptime execution user,,,' tuptime
         fi
 

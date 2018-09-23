@@ -6,7 +6,16 @@ Tuptime is a tool for report the historical and statistical running time of the 
 
 ### Basic Installation and usage
 
-In a Linux, FreeBSD or OSX system...
+#### Package installation
+
+* Debian: https://packages.debian.org/tuptime
+* Ubuntu: https://packages.ubuntu.com/tuptime
+* ArchLinux: https://aur.archlinux.org/packages/tuptime
+* FreeBSD: https://www.freshports.org/sysutils/tuptime
+
+#### Manual installation
+
+In a Linux or FreeBSD system...
 
 Clone the repo:
 
@@ -25,7 +34,9 @@ Run first with a privileged user:
 
 	tuptime
 
-And you will get some similar to this:
+#### Examples
+
+Sample output after install:
 
 	System startups:	1   since   21:54:09 24/09/15
 	System shutdowns:	0 ok   -   0 bad
@@ -46,7 +57,7 @@ And you will get some similar to this:
 If you do the same a few days after, the output may will be more similar to this:
 
 	System startups:	110   since   10:15:27 08/08/15
-	System shutdowns:	107 ok   -   2 bad
+	System shutdowns:	107 ok  <-   2 bad
 	System uptime: 		4.04 %   -   1 days, 22 hours, 4 minutes and 44 seconds
 	System downtime: 	95.96 %   -   45 days, 13 hours, 57 minutes and 30 seconds
 	System life: 		47 days, 12 hours, 2 minutes and 15 seconds
@@ -98,7 +109,7 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 - It doesn't run as a daemon, at least, it only need execution when the init manager startup and shutdown the system. For avoid problems with behaviours that can produce a switch off without a proper shutdown, like power failures, a cron job and a .timer unit are shipped with the project for update the registers each n minutes. As a system administrator, you can easily choose the best number for your particular system requirements.
 
-- It is written in Python using common modules and as few as possible, easy to see whats inside it, modify if it is necesary or use  it in embedded devices.
+- It is written in Python using common modules and as few as possible, easy to see what is inside it, and modify it for fit for your particular use case.
 
 - It register the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it have the option for output the registers in seconds and epoch (-s) or/and in csv format, easy to pipe it to other commands.
 

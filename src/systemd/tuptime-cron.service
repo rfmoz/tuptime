@@ -1,14 +1,9 @@
 [Unit]
-Description=Tuptime service
+Description=Tuptime scheduled execution service
 Documentation=man:tuptime(1) file:///usr/share/doc/tuptime/tuptime-manual.txt.gz
-Wants=time-sync.target
+Requires=tuptime.service
 
 [Service]
 Type=oneshot
 User=tuptime
-RemainAfterExit=true
 ExecStart=/usr/bin/tuptime -x
-ExecStop=/usr/bin/tuptime -xg
-
-[Install]
-WantedBy=multi-user.target
