@@ -3,7 +3,7 @@
                          ----------------------
                               version 3.4.0
                                 Ricardo F.
-                               21/Aug/2018
+                               23/Sep/2018
 
 
 
@@ -123,7 +123,7 @@ For BSDs systems:
 
        Add the suggested cron entry
 
-       Enable it in rc:
+       Enable it on rc:
 
          # echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
