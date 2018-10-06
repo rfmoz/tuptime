@@ -25,7 +25,7 @@ DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATE_FORMAT = '%X %x'
 DEC = int(2)  # Default decimals for seconds
 DECP = int(2)  # Default decimals for percentages
-__version__ = '3.4.0'
+__version__ = '3.4.1'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
