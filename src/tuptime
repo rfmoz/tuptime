@@ -198,7 +198,7 @@ def get_arguments():
         if not arg.table and not arg.lst:
             parser.error('used operators must be combined with [-t|--table] or [-l|--list]')
 
-    logging.info('Arguments: ' + str(vars(arg)))
+    logging.info('Arguments: %s', str(vars(arg)))
     return arg
 
 
@@ -248,29 +248,29 @@ def get_os_values():
         btime, uptime, ex_user = os_linux(btime, uptime, ex_user)
     # BSDs with 'sec' in kern.boottime
     elif sys.platform.startswith(('freebsd', 'darwin', 'dragonfly',
-'openbsd', 'netbsd')):
+                                  'openbsd', 'netbsd')):
         btime, uptime, ex_user = os_bsd(btime, uptime, ex_user)
     # elif:
     #     other_os()
     else:
-        logging.error('Operating system \'' + sys.platform + '\' not supported.')
+        logging.error('Operating system %s not supported.', sys.platform)
         sys.exit(-1)
 
     kernel = platform.platform()
 
-    logging.info('Current locale = ' + str(locale.getlocale()))
-    logging.info('Uptime = ' + str(uptime))
-    logging.info('Btime = ' + str(btime))
-    logging.info('Kernel = ' + str(kernel))
-    logging.info('Execution user = ' + str(ex_user))
+    logging.info('Current locale = %s', str(locale.getlocale()))
+    logging.info('Uptime = %s', str(uptime))
+    logging.info('Btime = %s', str(btime))
+    logging.info('Kernel = %s', str(kernel))
+    logging.info('Execution user = %s', str(ex_user))
 
     # Check right assignment of system variables before continue
-    for osvarkey, osvarvalue in {'btime':btime, 'uptime':uptime, 'ex_user':ex_user, 'kernel':kernel}.items():
+    for osvarkey, osvarvalue in {'btime': btime, 'uptime': uptime, 'ex_user': ex_user, 'kernel': kernel}.items():
         if osvarvalue is None:
             if osvarkey == 'kernel':
-                logging.warning(str(osvarkey) + ' value keep default value: ' + str(osvarvalue))
+                logging.warning('%s value keep default value: %s', str(osvarkey), str(osvarvalue))
             else:
-                logging.error(str(osvarkey) + ' value not assigned from system. Can\'t continue.')
+                logging.error('%s value not assigned from system. Can\'t continue.', str(osvarkey))
                 sys.exit(-1)
 
     return btime, uptime, kernel
@@ -282,8 +282,8 @@ def assure_state_db(btime, uptime, kernel, arg):
     if arg.db_file == DB_FILE:  # If db_file keeps default value
         # Check for DB environment variable
         if 'TUPTIME_DBF' in os.environ and os.environ.get('TUPTIME_DBF') != '':
-                arg.db_file = os.environ.get('TUPTIME_DBF')
-                logging.info('DB environ var = ' + str(arg.db_file))
+            arg.db_file = os.environ.get('TUPTIME_DBF')
+            logging.info('DB environ var = %s', str(arg.db_file))
 
     if arg.db_file != DB_FILE:
         # Try to caught up a file located in the same directory
@@ -293,20 +293,20 @@ def assure_state_db(btime, uptime, kernel, arg):
     # Test path
     try:
         if os.path.isdir(os.path.dirname(arg.db_file)):
-            logging.info('Directory exists = ' + str(os.path.dirname(arg.db_file)))
+            logging.info('Directory exists = %s', str(os.path.dirname(arg.db_file)))
         else:
-            logging.info('Creating path = ' + str(os.path.dirname(arg.db_file)))
+            logging.info('Creating path = %s', str(os.path.dirname(arg.db_file)))
             os.makedirs(os.path.dirname(arg.db_file))
     except Exception as exp_path:
-        logging.error('Checking db path \"' + str(os.path.dirname(arg.db_file)) + '\" ' + str(exp_path))
+        logging.error('Checking db path "%s": %s', str(os.path.dirname(arg.db_file)), str(exp_path))
         sys.exit(-1)
 
     # Test and create db with the initial values
     try:
         if os.path.isfile(arg.db_file):
-            logging.info('DB file exists = ' + str(arg.db_file))
+            logging.info('DB file exists = %s', str(arg.db_file))
         else:
-            logging.info('Creating DB file = ' + str(arg.db_file))
+            logging.info('Creating DB file = %s', str(arg.db_file))
             db_conn = sqlite3.connect(arg.db_file)
             conn = db_conn.cursor()
             conn.execute('create table if not exists tuptime'
@@ -326,7 +326,7 @@ def assure_state_db(btime, uptime, kernel, arg):
             db_conn.commit()
             db_conn.close()
     except Exception as exp_file:
-        logging.error('Checking db file \"' + str(arg.db_file) + '\" ' + str(exp_file))
+        logging.error('Checking db file "%s": %s', str(arg.db_file), str(exp_file))
         sys.exit(-1)
 
 
@@ -339,25 +339,25 @@ def control_drift(last_btime, btime, uptime):
     if last_btime != btime:
         offset = btime - last_btime  # Calculate time offset
         logging.info('Correcting drift...')
-        logging.info('Drift over btime = ' + str(offset))
+        logging.info('Drift over btime = %s', str(offset))
 
         # Apply offset to uptime and btime
         if uptime > offset:  # Only if offset is lower than uptime
-            logging.info('System timestamp = ' + str(btime + uptime))
+            logging.info('System timestamp = %s', str(btime + uptime))
             uptime = uptime + offset
-            logging.info('Fixed uptime = ' + str(uptime))
+            logging.info('Fixed uptime = %s', str(uptime))
             if uptime < 0:
                 logging.info('Drift decrease uptime under 0. Impossible')
                 uptime = 0
-                logging.info('Fixed uptime = ' + str(uptime))
+                logging.info('Fixed uptime = %s', str(uptime))
             btime = btime - offset
-            logging.info('Fixed btime = ' + str(btime))
-            logging.info('Fixed timestamp = ' + str(btime + uptime))
+            logging.info('Fixed btime = %s', str(btime))
+            logging.info('Fixed timestamp = %s', str(btime + uptime))
             # Fixed timestamp must be equal to system timestamp after drift values
         else:
             logging.info('Drift is greather than uptime. Skipping')
     else:
-        logging.info('Drift over btime = ' + str(offset))
+        logging.info('Drift over btime = %s', str(offset))
 
     return uptime, btime
 
@@ -413,7 +413,7 @@ def since_opt(db_rows, arg, last_startup_n):
 
     if arg.since > last_startup_n:  # Sanity check
         logging.warning('Option "since" can not be higher than last startup register. '
-                        'Reset to: ' + str(last_startup_n))
+                        'Reset to: %s', str(last_startup_n))
         arg.since = last_startup_n
 
     # Remove row if the startup is lower
@@ -435,12 +435,12 @@ def until_opt(db_rows, arg, last_startup_n):
 
     if arg.until < arg.since:  # Sanity check
         logging.warning('Option "until" can not be lower than "since". '
-                        'Reset to: ' + str(arg.since))
+                        'Reset to: %s', str(arg.since))
         arg.until = arg.since
 
     if arg.until > last_startup_n:  # Sanity check
         logging.warning('Option "until" can not be higher than last startup register. '
-                        'Reset to: ' + str(last_startup_n))
+                        'Reset to: %s', str(last_startup_n))
         arg.until = last_startup_n
 
     # Remove row if the startup is lower
@@ -470,7 +470,7 @@ def tuntil_opt(db_rows, arg):
     else:
 
         if arg.ts and arg.tu < arg.ts:  # Sanity check
-            logging.info('Option "tuntil" lower than "tsince". Reset to: ' + str(arg.ts))
+            logging.info('Option "tuntil" lower than "tsince". Reset to: %s', str(arg.ts))
             arg.tu = arg.ts
 
         # Look for a match along all rows and get the offset
@@ -514,7 +514,7 @@ def tuntil_opt(db_rows, arg):
                 db_rows.remove(row)
 
     # Report 0 if matches produce an empty db
-    if len(db_rows) == 0:
+    if not db_rows:
         db_rows = [{'kernel': '', 'uptime': 0, 'endst': -1, 'offbtime': -1, 'startup': 0, 'btime': -1, 'downtime': 0}]
 
     return db_rows, arg
@@ -532,8 +532,8 @@ def tsince_opt(db_rows, arg):
         logging.warning('Option "tsince" lower than 0 - Not applying.')
 
     elif arg.ts <= db_rows[0]['btime']:  # Sanity check
-        logging.info('Option "tsince" lower or equal than first startup timestamp: '
-                     + str(db_rows[0]['btime']) + ' - Not applying.')
+        logging.info('Option "tsince" lower or equal than first startup timestamp: %s'
+                     ' - Not applying.', str(db_rows[0]['btime']))
 
     else:
         # Look for a match along all rows and get the offset
@@ -571,7 +571,7 @@ def tsince_opt(db_rows, arg):
                         db_rows.remove(row)
 
     # Report 0 if matches produce an empty db
-    if len(db_rows) == 0:
+    if not db_rows:
         db_rows = [{'kernel': '', 'uptime': 0, 'endst': -1, 'offbtime': -1, 'startup': 0, 'btime': -1, 'downtime': 0}]
 
     return db_rows, arg
@@ -744,7 +744,7 @@ def print_table(db_rows, arg):
         for row in tbl:
             sys.stdout.write(str(row[0]).ljust(colpad[0]))  # First col print
             for i in range(1, len(row)):
-                if i == 4 or i == 6:   # 'End' and 'Kernel' columns align to left
+                if i in (4, 6):   # 'End' and 'Kernel' columns align to left
                     col = (side_spaces * ' ') + str(row[i]).ljust(colpad[i])
                 else:
                     col = str(row[i]).rjust(colpad[i] + side_spaces)
@@ -781,9 +781,9 @@ def print_default(db_rows, cuptime, cbtime, arg):
 
         # Extract max/min values from the complete time rows only if
         # the dict keep 1 row or more
-        if option == 'max' and len(dbr) > 0:
+        if option == 'max' and dbr:
             row = max(dbr, key=lambda x: int(x[key]))
-        elif option == 'min' and len(dbr) > 0:
+        elif option == 'min' and dbr:
             row = min(dbr, key=lambda x: int(x[key]))
         else:
             # If the dict is empty, report 0 values.
@@ -797,8 +797,8 @@ def print_default(db_rows, cuptime, cbtime, arg):
         # Report based on the key requested
         if key == 'uptime':
             return float(round(row['uptime'], DEC)), row['btime'], row['kernel']
-        elif key == 'downtime':
-            return float(round(row['downtime'], DEC)), row['offbtime'], row['kernel']
+
+        return float(round(row['downtime'], DEC)), row['offbtime'], row['kernel']
 
     def extract_max_min_tst(db_rows, arg):
         """Extract max and min timestamps values available"""
@@ -942,7 +942,6 @@ def print_default(db_rows, cuptime, cbtime, arg):
         total_downtime = time_conv(total_downtime)
         sys_life = time_conv(sys_life)
 
-
     if arg.csv is False:  # Define content/spaces between values
         sp0 = sp7 = ''
         sp1 = ':\t'
@@ -1028,8 +1027,8 @@ def main():
 
     conn.execute('select btime, uptime from tuptime where rowid = (select max(rowid) from tuptime)')
     last_btime, last_uptime = conn.fetchone()
-    logging.info('Last btime from db = ' + str(last_btime))
-    logging.info('Last uptime from db = ' + str(last_uptime))
+    logging.info('Last btime from db = %s', str(last_btime))
+    logging.info('Last uptime from db = %s', str(last_uptime))
     lasts = last_btime + last_uptime
 
     # - Test if system was resterted
@@ -1056,8 +1055,8 @@ def main():
                 logging.info('System was restarted')
                 offbtime_db = int(round(lasts, 0))
                 downtime_db = round((btime - lasts), 2)
-                logging.info('Recording offbtime into db = ' + str(offbtime_db))
-                logging.info('Recording downtime into db = ' + str(downtime_db))
+                logging.info('Recording offbtime into db = %s', str(offbtime_db))
+                logging.info('Recording downtime into db = %s', str(downtime_db))
                 # Save downtimes for previous boot
                 conn.execute('update tuptime set offbtime = ' + str(offbtime_db) + ', downtime = ' + str(downtime_db) +
                              ' where rowid = (select max(rowid) from tuptime)')
@@ -1140,15 +1139,15 @@ def main():
             if (row['downtime'] < 0) or (row['uptime'] < 0):
 
                 if row['uptime'] < 0:
-                    logging.info('Startup \'' + str(row['startup']) + '\' reset to \'0\' uptime \'' + str(row['uptime']) + '\'')
+                    logging.info('Startup \'%s\' reset to \'0\' uptime \'%s\'', str(row['startup']), str(row['uptime']))
                     if last_startup_n == row['startup']:  # Only show warning if it is a recent event
-                        logging.warning('Reset negative uptime in startup \'' + str(row['startup']) + '\'. Check clock sync.')
+                        logging.warning('Reset negative uptime in startup \'%s\'. Check clock sync.', str(row['startup']))
                     row['uptime'] = 0
 
                 if row['downtime'] < 0:
-                    logging.info('Startup \'' + str(row['startup']) + '\' reset to \'0\' downtime \'' + str(row['downtime']) + '\'')
+                    logging.info('Startup \'%s\' reset to \'0\' downtime \'%s\'', str(row['startup']), str(row['downtime']))
                     if last_startup_n == row['startup'] + 1:  # Only show warning if it is a recent event
-                        logging.warning('Reset negative downtime in startup \'' + str(row['startup']) + '\'. Check clock sync.')
+                        logging.warning('Reset negative downtime in startup \'%s\'. Check clock sync.', str(row['startup']))
                     row['downtime'] = 0
 
         if arg.lst:
@@ -1157,6 +1156,7 @@ def main():
             print_table(db_rows, arg)
         else:
             print_default(db_rows, uptime, btoffset, arg)
+
 
 if __name__ == "__main__":
     main()
