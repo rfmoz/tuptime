@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 3.4.0
+                              version 3.4.1
                                 Ricardo F.
-                               23/Sep/2018
+                               18/Oct/2018
 
 
 
@@ -134,9 +134,8 @@ For BSDs systems:
 
 Partial support for OSX (Darwin) system:
 
-   Tuptime is compatible with OSX, it also comes with 'python' installed by
-   default, but for now, the project lacks of launchd files for the startup,
-   shutdown and the schedule run.
+   Tuptime is compatible with OSX, but the integration with LaunchD is not
+   complete. Please, read misc/osx-notes.txt
 
 
 Note about Python 2.7:

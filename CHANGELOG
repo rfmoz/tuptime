@@ -1,3 +1,10 @@
+tuptime (3.4.1) unstable; urgency=low
+
+  * Adding Launchd .plist
+  * Code quality checker fixes.
+
+ -- Ricardo Fraile <rfraile@rfraile.eu> Thu, 18 Oct 2018 19:16:00 +0200
+
 tuptime (3.4.0) unstable; urgency=low
 
   * Adding DragonflyBSD, OpenBSD and NetBSD support
