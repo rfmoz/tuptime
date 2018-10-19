@@ -2,13 +2,14 @@ Source: tuptime
 Section: utils
 Priority: optional
 Maintainer: Ricardo Fraile <rfraile@rfraile.eu>
-Build-Depends: debhelper (>= 11~)
+Build-Depends: debhelper (>= 11.4~)
 Standards-Version: 4.2.1
 Homepage: https://github.com/rfrail3/tuptime
 
 Package: tuptime
 Architecture: any
 Multi-Arch: foreign
+Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends}, ${shlibs:Depends}
   , python3:any
   , adduser
