@@ -117,15 +117,17 @@ For Linux systems:
 
 For BSDs systems:
 
-   + On FreeBSD and derivates using ports:
+   + On FreeBSD and derivates using packages or ports:
 
-          # /usr/ports/sysutils/tuptime
+           # pkg install tuptime
+      
+           (or)
+       
+           # /usr/ports/sysutils/tuptime
 
-       Add the suggested cron entry
+       Add the suggested cron entry and enable it on rc:
 
-       Enable it on rc:
-
-         # echo 'tuptime_enable="YES"' >> /etc/rc.conf
+           # echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
    + Manual install on FreeBSD, OpenBSD and derivates:
 
