@@ -3,16 +3,16 @@
 # This script migrate the uprecords registers to tuptime db
 #
 # Note the following:
-#   Uptimed is an uptime record daemon keeping track of the highest uptimes a computer system ever had.
-#   Tuptime is a tool for report the historical and statistical running time of the system, keeping it between restarts.
+#   Uptimed is an uptime record daemon keeping track of the highest uptimes that a computer system ever had.
+#   Tuptime is a tool for report the historical and statistical real time of the system, keeping it between restarts.
 #
-# If you used Uptimed for the purpose of Tuptime, wich is possible changing some variables (for example, usually Uptimed 
+# If you used Uptimed for the purpose of Tuptime, wich is possible changing some variables (for example, normally Uptimed 
 # keep only last 50 max uptimes), this script can convert the register values to Tuptime format.
 # For achieve that:
-#	1- Uptimed must be running and Tuptimne installed.
+#	1- Uptimed must be running and Tuptime installed.
 #	2- Execute this script and accept replace database if the values are ok. Previous Tuptime values will be lost.
 #	3- Done.
-# Usually the kernel name is not exactly the same, is it possible to correct it directly into Tuptime db sqlite3.
+# Normaly the kernel name is not exactly the same, it is possible to correct it directly into Tuptime db sqlite3.
 
 SOURCE_F='/var/spool/uptimed/records'
 DEST_F='/var/lib/tuptime/tuptime.db'
@@ -38,7 +38,7 @@ while true; do
     read -p "Correct? (y/n)" yn
     case ${yn} in
         [Yy]* ) break;;
-        [Nn]* ) echo 'Please, modify SOURCE_F or DEST_F in the header of the script with the correct location'; exit;;
+        [Nn]* ) echo 'Please, modify SOURCE_F or DEST_F in the header of the script with the right location'; exit;;
         * ) echo "Please answer yes or no.";;
     esac
 done

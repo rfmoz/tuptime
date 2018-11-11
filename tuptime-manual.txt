@@ -3,7 +3,7 @@
                          ----------------------
                               version 3.4.1
                                 Ricardo F.
-                               18/Oct/2018
+                               11/Nov/2018
 
 
 
@@ -11,7 +11,7 @@
 | Abstract |
 ============
 
-Tuptime report historical and statistical running time of the system, keeping it between restarts.
+Tuptime report historical and statistical real time of the system, keeping it between restarts.
 Indeed, it can:
 
   - Count system startups

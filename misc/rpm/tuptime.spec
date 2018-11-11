@@ -1,7 +1,7 @@
 Name:		tuptime
 Version:	3.4.0
 Release:	1%{?dist}
-Summary:	Report historical system running time
+Summary:	Report historical system real time
 
 License:	GPLv2+
 BuildArch:	noarch
@@ -21,7 +21,7 @@ Requires(pre):  shadow-utils
 
 
 %description
-Tuptime track and report historical and statistical running time of the
+Tuptime track and report historical and statistical real time of the
  system, keeping the uptime and downtime between shutdowns.
 
 

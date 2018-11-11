@@ -14,6 +14,6 @@ Depends: ${misc:Depends}, ${shlibs:Depends}
   , python3:any
   , adduser
   , lsb-base (>= 3.0-6)
-Description: report historical system running time
- Tuptime track and report historical and statistical running time of the
+Description: report historical system real time
+ Tuptime track and report historical and statistical real time of the
  system, keeping the uptime and downtime between shutdowns.
