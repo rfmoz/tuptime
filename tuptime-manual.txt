@@ -644,6 +644,15 @@ Note the filesystem cache on which the files resides for a while before being
 flushing into disk. If things go wrong, like a kernel panic, maybe the last 
 updates of the db already written into the file can be lost.
 
+The time passed on suspend and hibernate are considered uptime. When the kernel
+recovers from any of those power states, it doesn't reset the 'uptime' and
+'btime' values, wich are the main source information for Tuptime. The uptime
+reference is linked with the wall clock time elapsed since boot, not the
+running efective time.
+
+That is because both are referenced in the kernel with the wall clock time and
+none of these values are reset when the power state of the system reaches
+
 A basic sample web wrapper is available under misc/web/. It is made in php and
 can be useful as a starting template to any other particular use case.
 
