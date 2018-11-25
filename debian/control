@@ -17,3 +17,4 @@ Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: report historical system real time
  Tuptime track and report historical and statistical real time of the
  system, keeping the uptime and downtime between shutdowns.
+ Includes an Uptimed migration script.
