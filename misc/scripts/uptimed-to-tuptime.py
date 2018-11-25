@@ -146,9 +146,9 @@ def uptimed_to_tuptime(uptimed):
         newrecords.append(line)
 
     # Reset last line
+    newrecords[-1][3] = '-1'  # offbtime
     newrecords[-1].append('0.0')  # downtime
     newrecords[-1].append('1')  # endst
-    newrecords[-1][3] = '-1'  # offbtime
 
     if not len(newrecords):
         logging.error('Any records to migrate to Tuptime')
@@ -174,12 +174,14 @@ def substitution():
         except Exception as excp:
             sys.exit(excp)
 
-        print('\n+ Setting user and group')
+        print('\n+ Setting user and group\n')
         user = os.stat(os.path.dirname(TUPT_DBF)).st_uid
         group = os.stat(os.path.dirname(TUPT_DBF)).st_gid
         os.chown(TUPT_DBF, user, group)
+    else:
+        print("\n(run with \'--replace\' to apply changes)")
 
-    print('\n+ Done \n')
+    print('+ Done \n')
 
 
 
