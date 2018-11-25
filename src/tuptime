@@ -30,7 +30,7 @@ __version__ = '3.4.1'
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
-# Set locale to the user’s default setting (LANG env. var)
+# Set locale to the user’s default settings (LANG env. var)
 locale.setlocale(locale.LC_ALL, '')
 
 
@@ -128,7 +128,7 @@ def get_arguments():
         default=0,
         action='store',
         type=int,
-        help='restric since this register number'
+        help='restrict since this register number'
     )
     parser.add_argument(
         '-t', '--table',
@@ -264,13 +264,13 @@ def get_os_values():
     logging.info('Kernel = %s', str(kernel))
     logging.info('Execution user = %s', str(ex_user))
 
-    # Check right assignment of system variables before continue
+    # Check right allocation of system variables before continue
     for osvarkey, osvarvalue in {'btime': btime, 'uptime': uptime, 'ex_user': ex_user, 'kernel': kernel}.items():
         if osvarvalue is None:
             if osvarkey == 'kernel':
                 logging.warning('%s value keep default value: %s', str(osvarkey), str(osvarvalue))
             else:
-                logging.error('%s value not assigned from system. Can\'t continue.', str(osvarkey))
+                logging.error('%s value unallocate from system. Can\'t continue.', str(osvarkey))
                 sys.exit(-1)
 
     return btime, uptime, kernel
@@ -331,11 +331,11 @@ def assure_state_db(btime, uptime, kernel, arg):
 
 
 def control_drift(last_btime, btime, uptime):
-    """Control time drift due inconsistencies with system clock"""
+    """Check time drift due inconsistencies with system clock"""
 
     offset = 0  # Initialize for store time drift
 
-    # If previous btime don't match in a running system (not restarted)
+    # If previous btime doesn't match in a running system (not restarted)
     if last_btime != btime:
         offset = btime - last_btime  # Calculate time offset
         logging.info('Correcting drift...')
@@ -398,7 +398,7 @@ def time_conv(secs):
         human_dtm = human_dtm.replace('minutes, ', 'minutes and ')
         human_dtm = human_dtm.replace('minute, ', 'minute and ')
 
-    # Return without last comma and space chareacter
+    # Return without last comma and space character
     return str(human_dtm[:-2])
 
 
@@ -412,7 +412,7 @@ def since_opt(db_rows, arg, last_startup_n):
             arg.since = 0
 
     if arg.since > last_startup_n:  # Sanity check
-        logging.warning('Option "since" can not be higher than last startup register. '
+        logging.warning('Option "since" can not be greater than last startup register. '
                         'Reset to: %s', str(last_startup_n))
         arg.since = last_startup_n
 
@@ -439,7 +439,7 @@ def until_opt(db_rows, arg, last_startup_n):
         arg.until = arg.since
 
     if arg.until > last_startup_n:  # Sanity check
-        logging.warning('Option "until" can not be higher than last startup register. '
+        logging.warning('Option "until" can not be greater than last startup register. '
                         'Reset to: %s', str(last_startup_n))
         arg.until = last_startup_n
 
@@ -456,7 +456,7 @@ def tuntil_opt(db_rows, arg):
 
     '''
     Conventions:
-        - Each row keep their startup number
+        - Each row keeps its startup number
         - startup == 0 indicate any result, empty values
         - btime == -1 indicate that both btime and uptime are empty
         - btime == 0 indicate an empty btime only
@@ -473,22 +473,22 @@ def tuntil_opt(db_rows, arg):
             logging.info('Option "tuntil" lower than "tsince". Reset to: %s', str(arg.ts))
             arg.tu = arg.ts
 
-        # Look for a match along all rows and get the offset
+        # Find a match along all rows and get the offset
         offset = None
         for ind, row in enumerate(db_rows[:]):
 
             # Stop when offset is set
             if offset is None:
 
-                # If is equal to btime, finish
+                # If it is equal to btime, finish
                 if arg.tu == row['btime']:
                     offset = 0
                     db_rows[ind]['uptime'] = 0
                     db_rows[ind]['offbtime'] = -1
                     db_rows[ind]['downtime'] = 0
                     db_rows[ind]['endst'] = -1
-                # If is between btime and offbtime
-                # (offbtime is calculated directly with round 0 for avoid problem with uptime decimals)
+                # If it is between btime and offbtime
+                # (offbtime is calculated directly with round 0 to avoid problems with uptime decimals)
                 elif arg.tu > row['btime'] and arg.tu < int(round(row['btime'] + row['uptime'], 0)):
                     offset = arg.tu - row['btime']
                     db_rows[ind]['uptime'] = offset
@@ -496,12 +496,12 @@ def tuntil_opt(db_rows, arg):
                     db_rows[ind]['downtime'] = 0
                     db_rows[ind]['endst'] = -1
                 else:
-                    # If is equal to offbtime, finish
+                    # If it is equal to offbtime, finish
                     if arg.tu == row['offbtime']:
                         offset = 0
                         db_rows[ind]['downtime'] = 0
-                    # If is between offbtime and nextbtime
-                    # (next btime is calculated directly with round 0 for avoid problem with uptime decimals)
+                    # If it is between offbtime and nextbtime
+                    # (next btime is calculated directly with round 0 to avoid problems with uptime decimals)
                     elif arg.tu > row['offbtime'] and arg.tu < int(round(row['offbtime'] + row['downtime'], 0)):
                         offset = arg.tu - row['offbtime']
                         db_rows[ind]['downtime'] = offset
@@ -536,30 +536,30 @@ def tsince_opt(db_rows, arg):
                      ' - Not applying.', str(db_rows[0]['btime']))
 
     else:
-        # Look for a match along all rows and get the offset
+        # Find a match along all rows and get the offset
         offset = None
         for row in db_rows[:]:
 
             # Stop when offset is set
             if offset is None:
 
-                # If is equal to btime, finish
+                # If it is equal to btime, finish
                 if arg.ts == row['btime']:
                     offset = 0
-                # If is between btime and offtime
-                # (offbtime is calculated directly with round 0 for avoid problem with uptime decimals)
+                # If it is between btime and offtime
+                # (offbtime is calculated directly with round 0 to avoid problems with uptime decimals)
                 elif arg.ts > row['btime'] and arg.ts < int(round(row['btime'] + row['uptime'], 0)):
                     offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
                     db_rows[0]['btime'] = 0
                     db_rows[0]['uptime'] = offset
                 else:
-                    # If is equal to offbtime, finish
+                    # If it is equal to offbtime, finish
                     if arg.ts == row['offbtime']:
                         offset = 0
                         db_rows[0]['btime'] = -1
                         db_rows[0]['uptime'] = 0
-                    # If is between offbtime and next btime
-                    # (next btime is calculated directly with round 0 for avoid problem with uptime decimals)
+                    # If it is between offbtime and next btime
+                    # (next btime is calculated directly with round 0 to avoid problems with uptime decimals)
                     elif arg.ts > row['offbtime'] and arg.ts < int(round(row['offbtime'] + row['downtime'], 0)):
                         offset = round(row['offbtime'] + row['downtime'] - arg.ts, 2)
                         db_rows[0]['btime'] = -1
@@ -580,7 +580,7 @@ def tsince_opt(db_rows, arg):
 def ordering_output(db_rows, arg):
     """Order output"""
 
-    # In the case of multiple matches the order is: uptime > end > downtime > kernel
+    # In the case of multiple matches, the order is: uptime > end > downtime > kernel
     if arg.order and (arg.order in ('e', 'd', 'k', 'u')):
         key_lst = []
         arg.reverse = not arg.reverse
@@ -608,7 +608,7 @@ def for_print(db_rows, arg):
         Same as tuntil_opt and tsince_opt
     '''
 
-    remap = []  # For store procesed list
+    remap = []  # To store processed list
 
     # Following the conventions defined in tsince_opt and tuntil_opt...
     for row in db_rows:
@@ -703,7 +703,7 @@ def print_list(db_rows, arg):
 
 
 def print_table(db_rows, arg):
-    """Print values as table"""
+    """Print values as a table"""
 
     def maxwidth(table, index):
         """Get the maximum width of the given column index"""
@@ -718,7 +718,7 @@ def print_table(db_rows, arg):
 
     db_rows = ordering_output(db_rows, arg)
 
-    # Construct table for print
+    # Build table for print
     for row_dict in for_print(db_rows, arg):
         tbl.append([str(row_dict['startup']),
                     str(row_dict['btime']),
@@ -728,7 +728,7 @@ def print_table(db_rows, arg):
                     str(row_dict['downtime']),
                     str(row_dict['kernel'])])
 
-    if not arg.kernel:  # Delete kernel if is not used
+    if not arg.kernel:  # Delete kernel if it isnt used
         tbl_no_kern = []
         for elx in tbl:
             del elx[-1]
@@ -769,7 +769,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
         # Work with a fresh copy of the list of dicts
         dbr = db_rows[:]
 
-        # Remove empty startup and downtime dates for avoid report them
+        # Remove empty startup and downtime dates to avoid reporting them
         if key == 'downtime':
             for row in dbr[:]:
                 if row['offbtime'] < 0:
@@ -954,7 +954,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
         sp1 = sp2 = sp3 = sp4 = sp5 = '","'
         sp7 = '","",""'
 
-    # Mark how was previous shutdown
+    # Set how was previous shutdown
     if prev_shdown == 1:
         sp6 = '<-'
     elif prev_shdown == 0:
@@ -1017,7 +1017,7 @@ def main():
 
     btime, uptime, kernel = get_os_values()
 
-    btoffset = btime  # Initialize for store btime drifted
+    btoffset = btime  # Initialize to store btime drifted
 
     assure_state_db(btime, uptime, kernel, arg)
 
@@ -1032,13 +1032,13 @@ def main():
     lasts = last_btime + last_uptime
 
     # - Test if system was resterted
-    # How tuptime do it:
+    # How tuptime does it:
     #    Checking if last_btime saved into db plus uptime is lower than actual btime
     #
     # In some particular cases the btime value from /proc/stat may change.
     # Testing only last_btime vs actual btime can produce a false startup register.
-    # This issue usually happend on virtualized enviroments, servers with high load,
-    # high disk I/O or when ntp are running.
+    # This issue usually happen on virtualized enviroments, servers with high load,
+    # high disk I/O or when ntp is running.
     # Related to kernel system clock frequency, computation of jiffies / HZ and the problem
     # of lost ticks.
     # More info:
@@ -1046,9 +1046,9 @@ def main():
     #    https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=119971
     #    http://unix.stackexchange.com/questions/118631/how-can-i-measure-and-prevent-clock-drift
     #
-    # For avoid problems with extreme corner cases, please be sure that the init/systemd script
+    # To avoid problems with extreme corner cases, please be sure that the init/systemd script
     # and cron line works as expected. A uptime record can be lost if tuptime is executed, at first
-    # time after boot, when the uptime is higher than the difference between btime - last_btime.
+    # time after boot, when the uptime is greater than the difference between btime - last_btime.
     if arg.update is True:
         try:
             if (last_btime + uptime) < btime:
@@ -1080,7 +1080,7 @@ def main():
             logging.info('Values not saved into db')
 
             if (last_btime + uptime) < btime:
-                # If you see this error, maybe systemd script isn't executed at startup
+                # If you see this error, maybe the systemd script isn't executed at startup
                 # or the db file (DB_FILE) have wrong permissions.
                 logging.error('After system restart, the values must be saved into db. '
                               'Please, execute tuptime with a privileged user.')
@@ -1098,7 +1098,7 @@ def main():
         if len(db_rows) != last_startup_n:  # Real startups are not equal to enumerate startups
             logging.info('Possible deleted rows in db')
 
-        db_rows = [dict(row) for row in db_rows]  # for allow item assignment
+        db_rows = [dict(row) for row in db_rows]  # To allow item allocation
 
         if arg.update is True:
             # If the user can only read db, the previous select return outdated numbers in last row

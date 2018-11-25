@@ -1,5 +1,5 @@
 Name:		tuptime
-Version:	3.4.0
+Version:	3.4.1
 Release:	1%{?dist}
 Summary:	Report historical system real time
 
@@ -88,6 +88,6 @@ su -s /bin/sh tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 
 
 %changelog
-* Tue Aug 21 2018 Ricardo Fraile <rfraile@rfraile.eu> 3.4.0-1
+* Tue Aug 21 2018 Ricardo Fraile <rfraile@rfraile.eu> 3.4.1-1
 - Initial RPM release
 - More info: %{_docdir}/CHANGELOG
