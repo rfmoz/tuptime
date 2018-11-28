@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 3.4.0
+                              version 3.4.1
                                 Ricardo F.
-                               23/Sep/2018
+                               23/Nov/2018
 
 
 
@@ -11,7 +11,7 @@
 | Abstract |
 ============
 
-Tuptime report historical and statistical running time of the system, keeping it between restarts.
+Tuptime report historical and statistical real time of the system, keeping it between restarts.
 Indeed, it can:
 
   - Count system startups
@@ -117,15 +117,17 @@ For Linux systems:
 
 For BSDs systems:
 
-   + On FreeBSD and derivates using ports:
+   + On FreeBSD and derivates using packages or ports:
 
-          # /usr/ports/sysutils/tuptime
+           # pkg install tuptime
+      
+           (or)
+       
+           # /usr/ports/sysutils/tuptime
 
-       Add the suggested cron entry
+       Add the suggested cron entry and enable it on rc:
 
-       Enable it on rc:
-
-         # echo 'tuptime_enable="YES"' >> /etc/rc.conf
+           # echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
    + Manual install on FreeBSD, OpenBSD and derivates:
 
@@ -134,9 +136,8 @@ For BSDs systems:
 
 Partial support for OSX (Darwin) system:
 
-   Tuptime is compatible with OSX, it also comes with 'python' installed by
-   default, but for now, the project lacks of launchd files for the startup,
-   shutdown and the schedule run.
+   Tuptime is compatible with OSX, but the integration with LaunchD is not
+   complete. Please, read misc/osx-notes.txt
 
 
 Note about Python 2.7:
@@ -642,6 +643,15 @@ since the last system start.
 Note the filesystem cache on which the files resides for a while before being 
 flushing into disk. If things go wrong, like a kernel panic, maybe the last 
 updates of the db already written into the file can be lost.
+
+The time passed on suspend and hibernate are considered uptime. When the kernel
+recovers from any of those power states, it doesn't reset the 'uptime' and
+'btime' values, wich are the main source information for Tuptime. The uptime
+reference is linked with the wall clock time elapsed since boot, not the
+running efective time.
+
+That is because both are referenced in the kernel with the wall clock time and
+none of these values are reset when the power state of the system reaches
 
 A basic sample web wrapper is available under misc/web/. It is made in php and
 can be useful as a starting template to any other particular use case.

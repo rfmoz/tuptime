@@ -1,7 +1,7 @@
 tuptime
 =======
 
-Tuptime is a tool for report the historical and statistical running time of the system, keeping it between restarts. Like uptime command but with more interesting output.
+Tuptime is a tool for report the historical and statistical real time of the system, keeping it between restarts. Like uptime command but with more interesting output.
 
 
 ### Basic Installation and usage
@@ -111,9 +111,9 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 - It is written in Python using common modules and as few as possible, easy to see what is inside it, and modify it for fit for your particular use case.
 
-- It register the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it have the option for output the registers in seconds and epoch (-s) or/and in csv format, easy to pipe it to other commands.
+- It registers the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it has the option to output the registers in seconds and epoch (-s) or/and in csv format, easy to pipe it to other commands.
 
-- Its main purpose is tracking all the system startups/shutdowns and present that information to the user in the more understandable way. Don't have mail alerts when a milestones are reached or the limitation of keep the last n records.
+- Its main purpose is tracking all the system startups/shutdowns and present that information to the user in a more understandable way. Don't have mail alerts when a milestones are reached or the limitation of keep the last n records.
 
 - Its written for avoid false startups registers, actually there are some issues with other alternatives related to that. This is an issue that sometimes happens on virtualized enviroments, servers with high load or when ntp are running.
 

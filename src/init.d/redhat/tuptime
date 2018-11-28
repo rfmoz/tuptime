@@ -1,9 +1,9 @@
 #!/bin/sh
 #
-# tuptime - Historical and statistical running time of the system.
+# tuptime - Historical and statistical real time of the system.
 #
 # chkconfig:   12345  25  90
-# description: Report the historical and statistical running time  \
+# description: Report the historical and statistical real time  \
 #              of the system, keeping it between restarts. 
 
 ### BEGIN INIT INFO
@@ -11,7 +11,7 @@
 # Required-Start: $local_fs $time
 # Required-Stop: $local_fs $time
 # Short-Description: start and stop tuptime
-# Description: Report the historical and statistical running time
+# Description: Report the historical and statistical real time
 #  of the system, keeping it between restarts.
 ### END INIT INFO
 

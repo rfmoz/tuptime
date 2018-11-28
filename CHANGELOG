@@ -1,3 +1,13 @@
+tuptime (3.4.1) unstable; urgency=low
+
+  * Adding Launchd .plist
+  * Code quality checker fixes
+  * Update .deb package
+  * Adding Uptimed migration script
+  * Fix Debian Bug about real time definition (Closes: #912996)
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Fri, 23 Nov 2018 21:16:00 +0100
+
 tuptime (3.4.0) unstable; urgency=low
 
   * Adding DragonflyBSD, OpenBSD and NetBSD support

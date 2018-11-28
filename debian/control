@@ -2,17 +2,19 @@ Source: tuptime
 Section: utils
 Priority: optional
 Maintainer: Ricardo Fraile <rfraile@rfraile.eu>
-Build-Depends: debhelper (>= 11~)
-Standards-Version: 4.1.5
+Build-Depends: debhelper (>= 11.4~)
+Standards-Version: 4.2.1
 Homepage: https://github.com/rfrail3/tuptime
 
 Package: tuptime
 Architecture: any
 Multi-Arch: foreign
+Pre-Depends: ${misc:Pre-Depends}
 Depends: ${misc:Depends}, ${shlibs:Depends}
   , python3:any
   , adduser
   , lsb-base (>= 3.0-6)
-Description: report historical system running time
- Tuptime track and report historical and statistical running time of the
+Description: report historical system real time
+ Tuptime track and report historical and statistical real time of the
  system, keeping the uptime and downtime between shutdowns.
+ Includes an Uptimed migration script.

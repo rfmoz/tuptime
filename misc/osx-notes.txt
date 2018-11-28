@@ -1,0 +1,23 @@
+=======================
+| OSX notes - Tuptime |
+=======================
+
+
+Tuptime is compatible with OSX, which comes with 'python' installed by default.
+
+But for now, I haven't found a clean way to configure a Launchd task to be 
+executed before shutdown, so, Tuptime can't register the whole time and the 
+shutdown status.
+
+The closest approach is to have a Launchd plist that runs at startup and each
+minute. The drawbacks will be an error range <60 secs. and a BAD shutdown
+status always.
+
+To install the .plist, copy file to the right location:
+
+    # git clone https://github.com/rfrail3/tuptime.git
+    # cp src/launchd/localhost.tuptime.plist /Library/LaunchDaemons/
+
+Load it:
+
+    # launchctl load -w /Library/LaunchDaemons/localhost.tuptime.plist
