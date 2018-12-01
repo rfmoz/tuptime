@@ -28,6 +28,9 @@ case "$1" in
                 --gecos 'Tuptime execution user,,,' tuptime
         fi
 
+	# Assure right ownership
+	chown -R tuptime:tuptime /var/lib/tuptime
+
 	su -s /bin/sh tuptime -c "tuptime -x"
     ;;
 
