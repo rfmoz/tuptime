@@ -1082,8 +1082,8 @@ def main():
             if (last_btime + uptime) < btime:
                 # If you see this error, maybe the systemd script isn't executed at startup
                 # or the db file (DB_FILE) have wrong permissions.
-                logging.error('After system restart, the values must be saved into db. '
-                              'Please, execute tuptime with a privileged user.')
+                logging.error('Detected a new system startup but the values are not saved into db.')
+                logging.error('Tuptime execution user can\'t write into db file: %s', str(arg.db_file))
                 sys.exit(-1)
     else:
         logging.info('Skipping update values')
