@@ -27,6 +27,11 @@ DEC = int(2)  # Default decimals for seconds
 DECP = int(2)  # Default decimals for percentages
 __version__ = '3.4.2'
 
+# Human style time counter format:
+#  Large --> 1 hour, 48 minutes and 55 seconds
+#  Short --> 01:48:55
+SHORT_HFMT = False
+
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
@@ -367,8 +372,12 @@ def time_conv(secs):
 
     secs = round(secs, 0)
 
-    if secs == 0:  # Avoid process empty seconds
-        return '0 seconds'
+    # Avoid process empty seconds
+    if secs == 0:
+        if SHORT_HFMT:
+            return '00'
+        else:
+            return '0 seconds'
 
     # Dict for store values
     dtm = {'years': int(0), 'days': int(0), 'hours': int(0), 'minutes': int(0), 'seconds': int(0)}
@@ -387,19 +396,27 @@ def time_conv(secs):
         if (dtm[key] == 0) and zero_enter:
             continue
         else:
-            if (int(dtm[key])) == 1:  # Not plural for 1 unit
-                human_dtm += str(int(dtm[key])) + ' ' + str(key[:-1]) + ', '
+            if SHORT_HFMT:
+                human_dtm += str(int(dtm[key])).zfill(2) + ':'
             else:
-                human_dtm += str(int(dtm[key])) + ' ' + str(key) + ', '
+                if (int(dtm[key])) == 1:  # Not plural for 1 unit
+                    human_dtm += str(int(dtm[key])) + ' ' + str(key[:-1]) + ', '
+                else:
+                    human_dtm += str(int(dtm[key])) + ' ' + str(key) + ', '
             zero_enter = False
 
-    # Nice sentence end, remove comma
-    if human_dtm.find('minutes, ') or human_dtm.find('minute, '):
-        human_dtm = human_dtm.replace('minutes, ', 'minutes and ')
-        human_dtm = human_dtm.replace('minute, ', 'minute and ')
+    if SHORT_HFMT:
+        # Return without last semicolon character
+        return str(human_dtm[:-1])
 
-    # Return without last comma and space character
-    return str(human_dtm[:-2])
+    else:
+        # Nice sentence end, remove comma
+        if human_dtm.find('minutes, ') or human_dtm.find('minute, '):
+            human_dtm = human_dtm.replace('minutes, ', 'minutes and ')
+            human_dtm = human_dtm.replace('minute, ', 'minute and ')
+
+        # Return without last comma and space character
+        return str(human_dtm[:-2])
 
 
 def since_opt(db_rows, arg, last_startup_n):
