@@ -1,3 +1,9 @@
+tuptime (3.4.2) unstable; urgency=low
+
+  * Fix Debian Bug Fails to upgrade (Closes: #914954)
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Tue, 04 Dec 2018 19:41:00 +0100
+
 tuptime (3.4.1) unstable; urgency=low
 
   * Adding Launchd .plist
