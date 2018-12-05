@@ -372,16 +372,8 @@ def time_conv(secs):
 
     secs = round(secs, 0)
 
-    # Avoid process empty seconds
-    if secs == 0:
-        if SHORT_HFMT:
-            return '00'
-        else:
-            return '0 seconds'
-
-    # Dict for store values
+    # Dict to store values
     dtm = {'years': int(0), 'days': int(0), 'hours': int(0), 'minutes': int(0), 'seconds': int(0)}
-    zero_enter = True
     human_dtm = ''
 
     # Calculate values
@@ -392,8 +384,9 @@ def time_conv(secs):
 
     # Construct date sentence
     for key in ('years', 'days', 'hours', 'minutes', 'seconds'):
+
         # Avoid print empty values at the beginning
-        if (dtm[key] == 0) and zero_enter:
+        if (dtm[key] == 0) and (human_dtm == '') and (key != 'seconds'):
             continue
         else:
             if SHORT_HFMT:
@@ -403,7 +396,6 @@ def time_conv(secs):
                     human_dtm += str(int(dtm[key])) + ' ' + str(key[:-1]) + ', '
                 else:
                     human_dtm += str(int(dtm[key])) + ' ' + str(key) + ', '
-            zero_enter = False
 
     if SHORT_HFMT:
         # Return without last semicolon character
@@ -845,7 +837,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
             # note that without offbtime, produce a negative result
         else:
             # If range is under any timestamp, use max_tstamp date if is possible
-            # for avoid fall into 0
+            # to avoid fall into 0
             if max_tstamp > 0:
                 min_tstamp = max_tstamp
             else:
