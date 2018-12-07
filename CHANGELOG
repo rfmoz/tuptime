@@ -1,8 +1,9 @@
 tuptime (3.4.2) unstable; urgency=low
 
   * Fix Debian Bug Fails to upgrade (Closes: #914954)
+  * Change deb architecture from any to all
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Tue, 04 Dec 2018 19:41:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Fri, 07 Dec 2018 15:48:00 +0100
 
 tuptime (3.4.1) unstable; urgency=low
 
