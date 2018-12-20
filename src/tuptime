@@ -25,7 +25,7 @@ DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATE_FORMAT = '%X %x'
 DEC = int(2)  # Default decimals for seconds
 DECP = int(2)  # Default decimals for percentages
-__version__ = '3.4.2'
+__version__ = '3.4.3'
 
 # Human style time counter format:
 #  Large --> 1 hour, 48 minutes and 55 seconds
@@ -356,7 +356,7 @@ def control_drift(last_btime, btime, uptime):
                 uptime = 0
                 logging.info('Fixed uptime = %s', str(uptime))
             btime = btime - offset
-            logging.info('Fixed btime = %s', str(btime))
+            #logging.info('Fixed btime = %s', str(btime))
             logging.info('Fixed timestamp = %s', str(btime + uptime))
             # Fixed timestamp must be equal to system timestamp after drift values
         else:
@@ -364,7 +364,7 @@ def control_drift(last_btime, btime, uptime):
     else:
         logging.info('Drift over btime = %s', str(offset))
 
-    return uptime, btime
+    return uptime
 
 
 def time_conv(secs):
@@ -1026,8 +1026,6 @@ def main():
 
     btime, uptime, kernel = get_os_values()
 
-    btoffset = btime  # Initialize to store btime drifted
-
     assure_state_db(btime, uptime, kernel, arg)
 
     db_conn = sqlite3.connect(arg.db_file)
@@ -1062,10 +1060,12 @@ def main():
         try:
             if (last_btime + uptime) < btime:
                 logging.info('System was restarted')
+
                 offbtime_db = int(round(lasts, 0))
                 downtime_db = round((btime - lasts), 2)
                 logging.info('Recording offbtime into db = %s', str(offbtime_db))
                 logging.info('Recording downtime into db = %s', str(downtime_db))
+
                 # Save downtimes for previous boot
                 conn.execute('update tuptime set offbtime = ' + str(offbtime_db) + ', downtime = ' + str(downtime_db) +
                              ' where rowid = (select max(rowid) from tuptime)')
@@ -1079,7 +1079,7 @@ def main():
                               str(kernel)))
             else:
                 # Adjust time drift. Check only when system wasn't restarted
-                uptime, btoffset = control_drift(last_btime, btime, uptime)
+                uptime = control_drift(last_btime, btime, uptime)
 
                 logging.info('System wasn\'t restarted. Updating db values...')
                 conn.execute('update tuptime set uptime = ' + str(uptime) + ', endst = ' + str(arg.endst) +
@@ -1088,7 +1088,7 @@ def main():
         except sqlite3.OperationalError:
             logging.info('Values not saved into db')
 
-            if (last_btime + uptime) < btime:
+            if 'offbtime_db' in locals() and 'downtime_db' in locals():
                 # If you see this error, maybe the systemd script isn't executed at startup
                 # or the db file (DB_FILE) have wrong permissions.
                 logging.error('Detected a new system startup but the values are not saved into db.')
@@ -1124,10 +1124,10 @@ def main():
             db_rows, arg = until_opt(db_rows, arg, last_startup_n)
 
         if arg.tu and arg.tu < 0:  # Negative value decrease actual timestamp
-            arg.tu = btoffset + uptime + arg.tu
+            arg.tu = btime + uptime + arg.tu
 
         if arg.ts and arg.ts < 0:  # Negative value decrease actual timestamp
-            arg.ts = btoffset + uptime + arg.ts
+            arg.ts = btime + uptime + arg.ts
 
         if arg.tu:  # Parse tuntil option
             db_rows, arg = tuntil_opt(db_rows, arg)
@@ -1164,7 +1164,7 @@ def main():
         elif arg.table:
             print_table(db_rows, arg)
         else:
-            print_default(db_rows, uptime, btoffset, arg)
+            print_default(db_rows, uptime, btime, arg)
 
 
 if __name__ == "__main__":
