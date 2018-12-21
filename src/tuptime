@@ -1031,6 +1031,11 @@ def main():
 
     btime, uptime, kernel = get_os_values()
 
+    if btime < 946684800:   # 01/01/2000 00:00
+        logging.error('Epoch boot time value is too old \'%s\'. Check system clock sync.', str(btime))
+        logging.error('Tuptime execution can\'t continue.')
+        sys.exit(-1)
+
     assure_state_db(btime, uptime, kernel, arg)
 
     db_conn = sqlite3.connect(arg.db_file)
