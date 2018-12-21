@@ -342,7 +342,7 @@ def control_drift(last_btime, btime, uptime):
         logging.info('Drift over btime = %s', str(offset))
 
         # Apply offset to uptime and btime
-        if uptime > offset:  # Only if offset is lower than uptime
+        if uptime > offset and (uptime + offset) > 0:
             logging.info('System timestamp = %s', str(btime + uptime))
             uptime = uptime + offset
             logging.info('Fixed uptime = %s', str(uptime))
@@ -354,8 +354,12 @@ def control_drift(last_btime, btime, uptime):
             #logging.info('Fixed btime = %s', str(btime))
             logging.info('Fixed timestamp = %s', str(btime + uptime))
             # Fixed timestamp must be equal to system timestamp after drift values
+
         else:
-            logging.info('Drift is greather than uptime. Skipping')
+            if uptime < offset:
+                logging.info('Drift is bigger than uptime. Skipping')
+            if (uptime + offset) < 0:
+                logging.info('Drift decreases uptime under 0. Skipping')
     else:
         logging.info('Drift over btime = %s', str(offset))
 
@@ -1036,7 +1040,7 @@ def main():
     last_btime, last_uptime = conn.fetchone()
     logging.info('Last btime from db = %s', str(last_btime))
     logging.info('Last uptime from db = %s', str(last_uptime))
-    lasts = last_btime + last_uptime
+    offbtime_raw = last_btime + last_uptime
 
     # - Test if system was resterted
     # How tuptime does it:
@@ -1061,8 +1065,8 @@ def main():
             if (last_btime + uptime) < btime:
                 logging.info('System was restarted')
 
-                offbtime_db = int(round(lasts, 0))
-                downtime_db = round((btime - lasts), 2)
+                offbtime_db = int(round(offbtime_raw, 0))
+                downtime_db = round((btime - offbtime_raw), 2)
                 logging.info('Recording offbtime into db = %s', str(offbtime_db))
                 logging.info('Recording downtime into db = %s', str(downtime_db))
 
@@ -1103,11 +1107,11 @@ def main():
         db_rows = conn.fetchall()
 
         last_startup_n = db_rows[-1]['startup']  # Number of last startup by rowid number
-
         if len(db_rows) != last_startup_n:  # Real startups are not equal to enumerate startups
             logging.info('Possible deleted rows in db')
 
-        db_rows = [dict(row) for row in db_rows]  # To allow item allocation
+        # Create list of dicts from sqlite row objects to allow item allocation
+        db_rows = [dict(row) for row in db_rows]
 
         if arg.update is True:
             # If the user can only read db, the previous select return outdated numbers in last row
@@ -1143,22 +1147,6 @@ def main():
         logging.info('Silent mode')
 
     else:
-        for row in db_rows:
-            # Reset negative values in downtime and uptime
-            if (row['downtime'] < 0) or (row['uptime'] < 0):
-
-                if row['uptime'] < 0:
-                    logging.info('Startup \'%s\' reset to \'0\' uptime \'%s\'', str(row['startup']), str(row['uptime']))
-                    if last_startup_n == row['startup']:  # Only show warning if it is a recent event
-                        logging.warning('Reset negative uptime in startup \'%s\'. Check clock sync.', str(row['startup']))
-                    row['uptime'] = 0
-
-                if row['downtime'] < 0:
-                    logging.info('Startup \'%s\' reset to \'0\' downtime \'%s\'', str(row['startup']), str(row['downtime']))
-                    if last_startup_n == row['startup'] + 1:  # Only show warning if it is a recent event
-                        logging.warning('Reset negative downtime in startup \'%s\'. Check clock sync.', str(row['startup']))
-                    row['downtime'] = 0
-
         if arg.lst:
             print_list(db_rows, arg)
         elif arg.table:
