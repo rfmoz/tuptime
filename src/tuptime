@@ -210,7 +210,7 @@ def get_os_values():
     ex_user = None
     kernel = None
 
-    def os_bsd(btime, uptime, ex_user):
+    def os_bsd(btime, uptime):
         """Get values from BSD"""
 
         import time
@@ -227,10 +227,10 @@ def get_os_values():
         else:  # OpenBSD, NetBSD
             btime = int(sysctl_out)
         uptime = round(float((time.time() - btime)), 2)
-        ex_user = os.getuid()
-        return btime, uptime, ex_user
 
-    def os_linux(btime, uptime, ex_user):
+        return btime, uptime
+
+    def os_linux(btime, uptime):
         """Get values from Linux"""
 
         logging.info('Linux system')
@@ -240,22 +240,23 @@ def get_os_values():
             for line in fl2:
                 if line.startswith('btime'):
                     btime = int(line.split()[1])
-        ex_user = os.getuid()
-        return btime, uptime, ex_user
+
+        return btime, uptime
 
     # Linux and any OS with '/proc' filesystem
     if os.path.isfile('/proc/uptime') and os.path.isfile('/proc/stat'):
-        btime, uptime, ex_user = os_linux(btime, uptime, ex_user)
+        btime, uptime = os_linux(btime, uptime)
     # BSDs with 'sec' in kern.boottime
     elif sys.platform.startswith(('freebsd', 'darwin', 'dragonfly',
                                   'openbsd', 'netbsd')):
-        btime, uptime, ex_user = os_bsd(btime, uptime, ex_user)
+        btime, uptime = os_bsd(btime, uptime)
     # elif:
     #     other_os()
     else:
         logging.error('Operating system %s not supported.', sys.platform)
         sys.exit(-1)
 
+    ex_user = os.getuid()
     kernel = platform.platform()
 
     logging.info('Current locale = %s', str(locale.getlocale()))
