@@ -1,3 +1,11 @@
+tuptime (3.4.3) unstable; urgency=low
+
+  * Avoid execution if the startup date is prior to 01/Jan/2000 00:00
+  * Avoid corect drift when it decreases uptime under 0
+  * Minnor code refactoring
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Fri, 21 Dec 2018 17:18:00 +0100
+
 tuptime (3.4.2) unstable; urgency=low
 
   * Fix Debian Bug Fails to upgrade (Closes: #914954)
