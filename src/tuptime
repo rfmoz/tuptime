@@ -1051,7 +1051,8 @@ def main():
 
     # - Test if system was resterted
     # How tuptime does it:
-    #    Checking if the value resultant from last_btime plus last_uptime (both saved into db) is lower than actual btime
+    #    Checking if the value resultant from last_btime plus last_uptime (both saved into db)
+    #    is lower than actual btime.
     #
     # In some particular cases the btime value from /proc/stat may change.
     # Testing only last_btime vs actual btime can produce a false startup register.
@@ -1064,9 +1065,9 @@ def main():
     #    https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=119971
     #    http://unix.stackexchange.com/questions/118631/how-can-i-measure-and-prevent-clock-drift
     #
-    # To avoid problems with extreme corner cases, please be sure that the init/systemd script
-    # and cron line works as expected. A uptime record can be lost if tuptime is executed, at first
-    # time after boot, when the uptime is greater than the difference between btime - last_btime.
+    # To avoid problems, please be sure that the system have time sync enabled, the init/systemd script and
+    # the cron line works as expected. A uptime record can be lost if the btime value goes backward more
+    # than the difference between last_offbtime and the new btime.
     if arg.update is True:
         try:
             if last_offbtime < btime:
