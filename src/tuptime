@@ -25,7 +25,7 @@ DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATE_FORMAT = '%X %x'
 DEC = int(2)  # Default decimals for seconds
 DECP = int(2)  # Default decimals for percentages
-__version__ = '3.4.3'
+__version__ = '3.5.0'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -1046,11 +1046,12 @@ def main():
     last_btime, last_uptime = conn.fetchone()
     logging.info('Last btime from db = %s', str(last_btime))
     logging.info('Last uptime from db = %s', str(last_uptime))
-    offbtime_raw = last_btime + last_uptime
+    last_offbtime = last_btime + last_uptime
+    logging.info('Last offbtime from db = %s', str(last_offbtime))
 
     # - Test if system was resterted
     # How tuptime does it:
-    #    Checking if last_btime saved into db plus uptime is lower than actual btime
+    #    Checking if the value resultant from last_btime plus last_uptime (both saved into db) is lower than actual btime
     #
     # In some particular cases the btime value from /proc/stat may change.
     # Testing only last_btime vs actual btime can produce a false startup register.
@@ -1068,11 +1069,11 @@ def main():
     # time after boot, when the uptime is greater than the difference between btime - last_btime.
     if arg.update is True:
         try:
-            if (last_btime + uptime) < btime:
+            if last_offbtime < btime:
                 logging.info('System was restarted')
 
-                offbtime_db = int(round(offbtime_raw, 0))
-                downtime_db = round((btime - offbtime_raw), 2)
+                offbtime_db = int(round(last_offbtime, 0))
+                downtime_db = round((btime - last_offbtime), 2)
                 logging.info('Recording offbtime into db = %s', str(offbtime_db))
                 logging.info('Recording downtime into db = %s', str(downtime_db))
 
