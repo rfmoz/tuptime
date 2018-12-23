@@ -352,7 +352,7 @@ def control_drift(last_btime, btime, uptime):
                 uptime = 0
                 logging.info('Fixed uptime = %s', str(uptime))
             btime = btime - offset
-            #logging.info('Fixed btime = %s', str(btime))
+            logging.info('Fixed btime = %s', str(btime))
             logging.info('Fixed timestamp = %s', str(btime + uptime))
             # Fixed timestamp must be equal to system timestamp after drift values
 
@@ -364,7 +364,7 @@ def control_drift(last_btime, btime, uptime):
     else:
         logging.info('Drift over btime = %s', str(offset))
 
-    return uptime
+    return btime, uptime
 
 
 def time_conv(secs):
@@ -1089,7 +1089,7 @@ def main():
                               str(kernel)))
             else:
                 # Adjust time drift. Check only when system wasn't restarted
-                uptime = control_drift(last_btime, btime, uptime)
+                btime, uptime = control_drift(last_btime, btime, uptime)
 
                 logging.info('System wasn\'t restarted. Updating db values...')
                 conn.execute('update tuptime set uptime = ' + str(uptime) + ', endst = ' + str(arg.endst) +
