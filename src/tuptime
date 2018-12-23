@@ -1046,7 +1046,7 @@ def main():
     last_btime, last_uptime = conn.fetchone()
     logging.info('Last btime from db = %s', str(last_btime))
     logging.info('Last uptime from db = %s', str(last_uptime))
-    last_offbtime = last_btime + last_uptime
+    last_offbtime = int(round((last_btime + last_uptime), 0))
     logging.info('Last offbtime from db = %s', str(last_offbtime))
 
     # - Test if system was resterted
@@ -1073,8 +1073,8 @@ def main():
             if last_offbtime < btime:
                 logging.info('System was restarted')
 
-                offbtime_db = int(round(last_offbtime, 0))
-                downtime_db = round((btime - last_offbtime), 2)
+                offbtime_db = last_offbtime
+                downtime_db = btime - last_offbtime
                 logging.info('Recording offbtime into db = %s', str(offbtime_db))
                 logging.info('Recording downtime into db = %s', str(downtime_db))
 
