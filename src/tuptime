@@ -334,24 +334,21 @@ def assure_state_db(btime, uptime, kernel, arg):
 def control_drift(last_btime, btime, uptime):
     """Check time drift due inconsistencies with system clock"""
 
-    offset = 0  # Initialize for store time drift
+    offset = btime - last_btime  # Calculate time offset
+    logging.info('Drift over btime = %s', str(offset))
 
-    # If previous btime doesn't match in a running system (not restarted)
+    # If previous btime doesn't match
     if last_btime != btime:
-        offset = btime - last_btime  # Calculate time offset
         logging.info('Correcting drift...')
-        logging.info('Drift over btime = %s', str(offset))
 
         # Apply offset to uptime and btime
         if uptime > offset and (uptime + offset) > 0:
             logging.info('System timestamp = %s', str(btime + uptime))
-            uptime = uptime + offset
+
+            uptime = round(float(uptime + offset), 2)
             logging.info('Fixed uptime = %s', str(uptime))
-            if uptime < 0:
-                logging.info('Drift decrease uptime under 0. Impossible')
-                uptime = 0
-                logging.info('Fixed uptime = %s', str(uptime))
-            btime = btime - offset
+
+            btime = int(btime - offset)
             logging.info('Fixed btime = %s', str(btime))
             logging.info('Fixed timestamp = %s', str(btime + uptime))
             # Fixed timestamp must be equal to system timestamp after drift values
@@ -361,8 +358,6 @@ def control_drift(last_btime, btime, uptime):
                 logging.info('Drift is bigger than uptime. Skipping')
             if (uptime + offset) < 0:
                 logging.info('Drift decreases uptime under 0. Skipping')
-    else:
-        logging.info('Drift over btime = %s', str(offset))
 
     return btime, uptime
 
