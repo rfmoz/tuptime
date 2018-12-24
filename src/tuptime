@@ -191,12 +191,12 @@ def get_arguments():
 
     # - Check combination of operator requirements
     if arg.reverse or arg.order:
-        if arg.order == 'k':
-            if not arg.kernel:
-                logging.info('Auto enable kernel option. Order by kernel used.')
-                arg.kernel = True
         if not arg.table and not arg.lst:
             parser.error('used operators must be combined with [-t|--table] or [-l|--list]')
+        if arg.order == 'k':
+            if not arg.kernel:
+                logging.info('Auto enable kernel option.')
+                arg.kernel = True
 
     logging.info('Arguments: %s', str(vars(arg)))
     return arg
