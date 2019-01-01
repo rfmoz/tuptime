@@ -958,10 +958,12 @@ def print_default(db_rows, cuptime, cbtime, arg):
         sp3 = ': \t\t'
         sp4 = ' '
         sp5 = '   '
+        sp8 = ' '
     else:
         sp0 = '"'
         sp1 = sp2 = sp3 = sp4 = sp5 = '","'
         sp7 = '","",""'
+        sp8 = ''
 
     # Set how was previous shutdown
     if prev_shdown == 1:
@@ -994,7 +996,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
     else:
         print(sp0 + 'Shortest uptime' + sp1 + str(shrt_up_uptime) + sp7)
     if arg.kernel:
-        print(sp0 + '...with kernel' + sp2 + str(shrt_up_kern) + sp0)
+        print(sp0 + sp8 + '...with kernel' + sp2 + str(shrt_up_kern) + sp0)
     print(sp0 + 'Average uptime' + sp2 + str(average_up) + sp0)
     if arg.csv is False:
         print('')
@@ -1003,13 +1005,13 @@ def print_default(db_rows, cuptime, cbtime, arg):
     else:
         print(sp0 + 'Largest downtime' + sp1 + str(larg_down_downtime) + sp7)
     if arg.kernel:
-        print(sp0 + '...with kernel' + sp2 + str(larg_down_kern) + sp0)
+        print(sp0 + (sp8 * 2) + '...with kernel' + sp2 + str(larg_down_kern) + sp0)
     if isinstance(shrt_down_offbtime, str) or shrt_down_offbtime > 0:
         print(sp0 + 'Shortest downtime' + sp1 + str(shrt_down_downtime) + sp5 + 'from' + sp5 + str(shrt_down_offbtime) + sp0)
     else:
         print(sp0 + 'Shortest downtime' + sp1 + str(shrt_down_downtime) + sp7)
     if arg.kernel:
-        print(sp0 + '...with kernel' + sp2 + str(shrt_down_kern) + sp0)
+        print(sp0 + (sp8 * 3) + '...with kernel' + sp2 + str(shrt_down_kern) + sp0)
     print(sp0 + 'Average downtime' + sp2 + str(average_down) + sp0)
     if arg.update is True:
         if arg.csv is False:
