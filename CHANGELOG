@@ -1,11 +1,11 @@
 tuptime (3.5.0) unstable; urgency=low
 
   * Avoid execution if the startup date is prior to 01/Jan/2000 00:00
-  * Avoid corect drift when it decreases uptime under 0
+  * Avoid correct drift when it decreases uptime under 0
   * Fix register shutdown with negative downtime
   * Minnor code refactoring
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 23 Dec 2018 12:18:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 05 Jan 2019 17:02:00 +0100
 
 tuptime (3.4.2) unstable; urgency=low
 
