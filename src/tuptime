@@ -259,7 +259,10 @@ def get_os_values():
     ex_user = os.getuid()
     kernel = platform.platform()
 
-    logging.info('Current locale = %s', str(locale.getlocale()))
+    try:
+        logging.info('Current locale = %s', str(locale.getlocale()))
+    except Exception:
+        pass
     logging.info('Uptime = %s', str(uptime))
     logging.info('Btime = %s', str(btime))
     logging.info('Kernel = %s', str(kernel))
