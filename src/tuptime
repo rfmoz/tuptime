@@ -289,12 +289,8 @@ def assure_state_db(btime, uptime, kernel, arg):
             arg.db_file = os.environ.get('TUPTIME_DBF')
             logging.info('DB environ var = %s', str(arg.db_file))
 
-    if arg.db_file != DB_FILE:
-        # Try to caught up a file located in the same directory
-        if not arg.db_file.startswith('/') and not arg.db_file.startswith('./'):
-            arg.db_file = './' + arg.db_file
-
     # Test path
+    arg.db_file = os.path.abspath(arg.db_file)  # Get absolute or relative path
     try:
         if os.path.isdir(os.path.dirname(arg.db_file)):
             logging.info('Directory exists = %s', str(os.path.dirname(arg.db_file)))
