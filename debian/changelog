@@ -5,7 +5,7 @@ tuptime (3.5.0) unstable; urgency=low
   * Fix register shutdown with negative downtime
   * Minnor code refactoring
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 05 Jan 2019 17:02:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Wed, 20 Feb 2019 17:02:00 +0100
 
 tuptime (3.4.2) unstable; urgency=low
 
