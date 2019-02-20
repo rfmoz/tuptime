@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 3.4.2
+                              version 3.5.0
                                 Ricardo F.
-                               04/Dec/2018
+                               20/Feb/2019
 
 
 
@@ -142,7 +142,7 @@ Partial support for OSX (Darwin) system:
 
 Note about Python 2.7:
 
-   Tuptime <= 3.4.0 can be executed with Python 2.7.
+   Tuptime <= 3.5.0 can be executed with Python 2.7.
    Set the shebang line to '#!/usr/bin/env python' to get it.
 
 

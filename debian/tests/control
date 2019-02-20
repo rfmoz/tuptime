@@ -1,0 +1,7 @@
+Tests: exec-simple
+Depends: @
+Restrictions: isolation-container
+
+Tests: exec-debug
+Depends: @
+Restrictions: isolation-container, allow-stderr

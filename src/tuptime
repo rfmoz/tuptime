@@ -3,7 +3,7 @@
 
 """tuptime - Report the historical and statistical real time of the system,
 keeping it between restarts."""
-# Copyright (C) 2011-2018 - Ricardo F.
+# Copyright (C) 2011-2019 - Ricardo F.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,12 +25,7 @@ DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATE_FORMAT = '%X %x'
 DEC = int(2)  # Default decimals for seconds
 DECP = int(2)  # Default decimals for percentages
-__version__ = '3.4.2'
-
-# Human style time counter format:
-#  Large --> 1 hour, 48 minutes and 55 seconds
-#  Short --> 01:48:55
-SHORT_HFMT = False
+__version__ = '3.5.0'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -196,12 +191,15 @@ def get_arguments():
 
     # - Check combination of operator requirements
     if arg.reverse or arg.order:
+        if not arg.table and not arg.lst:
+            parser.error('Used operators must be combined with [-t|--table] or [-l|--list].')
         if arg.order == 'k':
             if not arg.kernel:
-                logging.info('Auto enable kernel option. Order by kernel used.')
+                logging.info('Auto enable kernel option.')
                 arg.kernel = True
-        if not arg.table and not arg.lst:
-            parser.error('used operators must be combined with [-t|--table] or [-l|--list]')
+
+    if arg.table and arg.lst:
+        parser.error('Operators [-t|--table] and [-l|--list] can\'t be combined together.')
 
     logging.info('Arguments: %s', str(vars(arg)))
     return arg
@@ -215,7 +213,7 @@ def get_os_values():
     ex_user = None
     kernel = None
 
-    def os_bsd(btime, uptime, ex_user):
+    def os_bsd(btime, uptime):
         """Get values from BSD"""
 
         import time
@@ -232,10 +230,10 @@ def get_os_values():
         else:  # OpenBSD, NetBSD
             btime = int(sysctl_out)
         uptime = round(float((time.time() - btime)), 2)
-        ex_user = os.getuid()
-        return btime, uptime, ex_user
 
-    def os_linux(btime, uptime, ex_user):
+        return btime, uptime
+
+    def os_linux(btime, uptime):
         """Get values from Linux"""
 
         logging.info('Linux system')
@@ -245,25 +243,29 @@ def get_os_values():
             for line in fl2:
                 if line.startswith('btime'):
                     btime = int(line.split()[1])
-        ex_user = os.getuid()
-        return btime, uptime, ex_user
+
+        return btime, uptime
 
     # Linux and any OS with '/proc' filesystem
     if os.path.isfile('/proc/uptime') and os.path.isfile('/proc/stat'):
-        btime, uptime, ex_user = os_linux(btime, uptime, ex_user)
+        btime, uptime = os_linux(btime, uptime)
     # BSDs with 'sec' in kern.boottime
     elif sys.platform.startswith(('freebsd', 'darwin', 'dragonfly',
                                   'openbsd', 'netbsd')):
-        btime, uptime, ex_user = os_bsd(btime, uptime, ex_user)
+        btime, uptime = os_bsd(btime, uptime)
     # elif:
     #     other_os()
     else:
         logging.error('Operating system %s not supported.', sys.platform)
         sys.exit(-1)
 
+    ex_user = os.getuid()
     kernel = platform.platform()
 
-    logging.info('Current locale = %s', str(locale.getlocale()))
+    try:
+        logging.info('Current locale = %s', str(locale.getlocale()))
+    except Exception:
+        pass
     logging.info('Uptime = %s', str(uptime))
     logging.info('Btime = %s', str(btime))
     logging.info('Kernel = %s', str(kernel))
@@ -286,16 +288,12 @@ def assure_state_db(btime, uptime, kernel, arg):
 
     if arg.db_file == DB_FILE:  # If db_file keeps default value
         # Check for DB environment variable
-        if 'TUPTIME_DBF' in os.environ and os.environ.get('TUPTIME_DBF') != '':
+        if os.environ.get('TUPTIME_DBF'):
             arg.db_file = os.environ.get('TUPTIME_DBF')
             logging.info('DB environ var = %s', str(arg.db_file))
 
-    if arg.db_file != DB_FILE:
-        # Try to caught up a file located in the same directory
-        if not arg.db_file.startswith('/') and not arg.db_file.startswith('./'):
-            arg.db_file = './' + arg.db_file
-
     # Test path
+    arg.db_file = os.path.abspath(arg.db_file)  # Get absolute or relative path
     try:
         if os.path.isdir(os.path.dirname(arg.db_file)):
             logging.info('Directory exists = %s', str(os.path.dirname(arg.db_file)))
@@ -338,39 +336,43 @@ def assure_state_db(btime, uptime, kernel, arg):
 def control_drift(last_btime, btime, uptime):
     """Check time drift due inconsistencies with system clock"""
 
-    offset = 0  # Initialize for store time drift
+    offset = btime - last_btime  # Calculate time offset
+    logging.info('Drift over btime = %s', str(offset))
 
-    # If previous btime doesn't match in a running system (not restarted)
+    # If previous btime doesn't match
     if last_btime != btime:
-        offset = btime - last_btime  # Calculate time offset
         logging.info('Correcting drift...')
-        logging.info('Drift over btime = %s', str(offset))
 
         # Apply offset to uptime and btime
-        if uptime > offset:  # Only if offset is lower than uptime
+        if uptime > offset and (uptime + offset) > 0:
             logging.info('System timestamp = %s', str(btime + uptime))
-            uptime = uptime + offset
+
+            uptime = round(float(uptime + offset), 2)
             logging.info('Fixed uptime = %s', str(uptime))
-            if uptime < 0:
-                logging.info('Drift decrease uptime under 0. Impossible')
-                uptime = 0
-                logging.info('Fixed uptime = %s', str(uptime))
-            btime = btime - offset
+
+            btime = int(btime - offset)
             logging.info('Fixed btime = %s', str(btime))
             logging.info('Fixed timestamp = %s', str(btime + uptime))
             # Fixed timestamp must be equal to system timestamp after drift values
-        else:
-            logging.info('Drift is greather than uptime. Skipping')
-    else:
-        logging.info('Drift over btime = %s', str(offset))
 
-    return uptime, btime
+        else:
+            if uptime < offset:
+                logging.info('Drift is bigger than uptime. Skipping')
+            if (uptime + offset) < 0:
+                logging.info('Drift decreases uptime under 0. Skipping')
+
+    return btime, uptime
 
 
 def time_conv(secs):
     """Convert seconds to human readable syle"""
 
     secs = round(secs, 0)
+
+    # Human style time counter format:
+    #  Large --> 1 hour, 48 minutes and 55 seconds
+    #  Short --> 01:48:55
+    large_hfmt = True
 
     # Dict to store values
     dtm = {'years': int(0), 'days': int(0), 'hours': int(0), 'minutes': int(0), 'seconds': int(0)}
@@ -389,19 +391,15 @@ def time_conv(secs):
         if (dtm[key] == 0) and (human_dtm == '') and (key != 'seconds'):
             continue
         else:
-            if SHORT_HFMT:
-                human_dtm += str(int(dtm[key])).zfill(2) + ':'
-            else:
+            if large_hfmt:
                 if (int(dtm[key])) == 1:  # Not plural for 1 unit
                     human_dtm += str(int(dtm[key])) + ' ' + str(key[:-1]) + ', '
                 else:
                     human_dtm += str(int(dtm[key])) + ' ' + str(key) + ', '
+            else:
+                human_dtm += str(int(dtm[key])).zfill(2) + ':'
 
-    if SHORT_HFMT:
-        # Return without last semicolon character
-        return str(human_dtm[:-1])
-
-    else:
+    if large_hfmt:
         # Nice sentence end, remove comma
         if human_dtm.find('minutes, ') or human_dtm.find('minute, '):
             human_dtm = human_dtm.replace('minutes, ', 'minutes and ')
@@ -409,6 +407,10 @@ def time_conv(secs):
 
         # Return without last comma and space character
         return str(human_dtm[:-2])
+    else:
+        # Return without last semicolon character
+        return str(human_dtm[:-1])
+
 
 
 def since_opt(db_rows, arg, last_startup_n):
@@ -958,10 +960,12 @@ def print_default(db_rows, cuptime, cbtime, arg):
         sp3 = ': \t\t'
         sp4 = ' '
         sp5 = '   '
+        sp8 = ' '
     else:
         sp0 = '"'
         sp1 = sp2 = sp3 = sp4 = sp5 = '","'
         sp7 = '","",""'
+        sp8 = ''
 
     # Set how was previous shutdown
     if prev_shdown == 1:
@@ -994,7 +998,7 @@ def print_default(db_rows, cuptime, cbtime, arg):
     else:
         print(sp0 + 'Shortest uptime' + sp1 + str(shrt_up_uptime) + sp7)
     if arg.kernel:
-        print(sp0 + '...with kernel' + sp2 + str(shrt_up_kern) + sp0)
+        print(sp0 + sp8 + '...with kernel' + sp2 + str(shrt_up_kern) + sp0)
     print(sp0 + 'Average uptime' + sp2 + str(average_up) + sp0)
     if arg.csv is False:
         print('')
@@ -1003,13 +1007,13 @@ def print_default(db_rows, cuptime, cbtime, arg):
     else:
         print(sp0 + 'Largest downtime' + sp1 + str(larg_down_downtime) + sp7)
     if arg.kernel:
-        print(sp0 + '...with kernel' + sp2 + str(larg_down_kern) + sp0)
+        print(sp0 + (sp8 * 2) + '...with kernel' + sp2 + str(larg_down_kern) + sp0)
     if isinstance(shrt_down_offbtime, str) or shrt_down_offbtime > 0:
         print(sp0 + 'Shortest downtime' + sp1 + str(shrt_down_downtime) + sp5 + 'from' + sp5 + str(shrt_down_offbtime) + sp0)
     else:
         print(sp0 + 'Shortest downtime' + sp1 + str(shrt_down_downtime) + sp7)
     if arg.kernel:
-        print(sp0 + '...with kernel' + sp2 + str(shrt_down_kern) + sp0)
+        print(sp0 + (sp8 * 3) + '...with kernel' + sp2 + str(shrt_down_kern) + sp0)
     print(sp0 + 'Average downtime' + sp2 + str(average_down) + sp0)
     if arg.update is True:
         if arg.csv is False:
@@ -1026,7 +1030,10 @@ def main():
 
     btime, uptime, kernel = get_os_values()
 
-    btoffset = btime  # Initialize to store btime drifted
+    if btime < 946684800:   # 01/01/2000 00:00
+        logging.error('Epoch boot time value is too old \'%s\'. Check system clock sync.', str(btime))
+        logging.error('Tuptime execution can\'t continue.')
+        sys.exit(-1)
 
     assure_state_db(btime, uptime, kernel, arg)
 
@@ -1038,11 +1045,13 @@ def main():
     last_btime, last_uptime = conn.fetchone()
     logging.info('Last btime from db = %s', str(last_btime))
     logging.info('Last uptime from db = %s', str(last_uptime))
-    lasts = last_btime + last_uptime
+    last_offbtime = int(round((last_btime + last_uptime), 0))
+    logging.info('Last offbtime from db = %s', str(last_offbtime))
 
     # - Test if system was resterted
     # How tuptime does it:
-    #    Checking if last_btime saved into db plus uptime is lower than actual btime
+    #    Checking if the value resultant from last_btime plus last_uptime (both saved into db)
+    #    is lower than actual btime.
     #
     # In some particular cases the btime value from /proc/stat may change.
     # Testing only last_btime vs actual btime can produce a false startup register.
@@ -1055,17 +1064,19 @@ def main():
     #    https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=119971
     #    http://unix.stackexchange.com/questions/118631/how-can-i-measure-and-prevent-clock-drift
     #
-    # To avoid problems with extreme corner cases, please be sure that the init/systemd script
-    # and cron line works as expected. A uptime record can be lost if tuptime is executed, at first
-    # time after boot, when the uptime is greater than the difference between btime - last_btime.
+    # To avoid problems, please be sure that the system have time sync enabled, the init/systemd script and
+    # the cron line works as expected. A uptime record can be lost if the btime value goes backward more
+    # than the difference between last_offbtime and the new btime.
     if arg.update is True:
         try:
-            if (last_btime + uptime) < btime:
+            if last_offbtime < btime:
                 logging.info('System was restarted')
-                offbtime_db = int(round(lasts, 0))
-                downtime_db = round((btime - lasts), 2)
+
+                offbtime_db = last_offbtime
+                downtime_db = btime - last_offbtime
                 logging.info('Recording offbtime into db = %s', str(offbtime_db))
                 logging.info('Recording downtime into db = %s', str(downtime_db))
+
                 # Save downtimes for previous boot
                 conn.execute('update tuptime set offbtime = ' + str(offbtime_db) + ', downtime = ' + str(downtime_db) +
                              ' where rowid = (select max(rowid) from tuptime)')
@@ -1079,7 +1090,7 @@ def main():
                               str(kernel)))
             else:
                 # Adjust time drift. Check only when system wasn't restarted
-                uptime, btoffset = control_drift(last_btime, btime, uptime)
+                btime, uptime = control_drift(last_btime, btime, uptime)
 
                 logging.info('System wasn\'t restarted. Updating db values...')
                 conn.execute('update tuptime set uptime = ' + str(uptime) + ', endst = ' + str(arg.endst) +
@@ -1088,7 +1099,7 @@ def main():
         except sqlite3.OperationalError:
             logging.info('Values not saved into db')
 
-            if (last_btime + uptime) < btime:
+            if 'offbtime_db' in locals() and 'downtime_db' in locals():
                 # If you see this error, maybe the systemd script isn't executed at startup
                 # or the db file (DB_FILE) have wrong permissions.
                 logging.error('Detected a new system startup but the values are not saved into db.')
@@ -1103,11 +1114,11 @@ def main():
         db_rows = conn.fetchall()
 
         last_startup_n = db_rows[-1]['startup']  # Number of last startup by rowid number
-
         if len(db_rows) != last_startup_n:  # Real startups are not equal to enumerate startups
             logging.info('Possible deleted rows in db')
 
-        db_rows = [dict(row) for row in db_rows]  # To allow item allocation
+        # Create list of dicts from sqlite row objects to allow item allocation
+        db_rows = [dict(row) for row in db_rows]
 
         if arg.update is True:
             # If the user can only read db, the previous select return outdated numbers in last row
@@ -1124,10 +1135,10 @@ def main():
             db_rows, arg = until_opt(db_rows, arg, last_startup_n)
 
         if arg.tu and arg.tu < 0:  # Negative value decrease actual timestamp
-            arg.tu = btoffset + uptime + arg.tu
+            arg.tu = btime + uptime + arg.tu
 
         if arg.ts and arg.ts < 0:  # Negative value decrease actual timestamp
-            arg.ts = btoffset + uptime + arg.ts
+            arg.ts = btime + uptime + arg.ts
 
         if arg.tu:  # Parse tuntil option
             db_rows, arg = tuntil_opt(db_rows, arg)
@@ -1143,28 +1154,12 @@ def main():
         logging.info('Silent mode')
 
     else:
-        for row in db_rows:
-            # Reset negative values in downtime and uptime
-            if (row['downtime'] < 0) or (row['uptime'] < 0):
-
-                if row['uptime'] < 0:
-                    logging.info('Startup \'%s\' reset to \'0\' uptime \'%s\'', str(row['startup']), str(row['uptime']))
-                    if last_startup_n == row['startup']:  # Only show warning if it is a recent event
-                        logging.warning('Reset negative uptime in startup \'%s\'. Check clock sync.', str(row['startup']))
-                    row['uptime'] = 0
-
-                if row['downtime'] < 0:
-                    logging.info('Startup \'%s\' reset to \'0\' downtime \'%s\'', str(row['startup']), str(row['downtime']))
-                    if last_startup_n == row['startup'] + 1:  # Only show warning if it is a recent event
-                        logging.warning('Reset negative downtime in startup \'%s\'. Check clock sync.', str(row['startup']))
-                    row['downtime'] = 0
-
         if arg.lst:
             print_list(db_rows, arg)
         elif arg.table:
             print_table(db_rows, arg)
         else:
-            print_default(db_rows, uptime, btoffset, arg)
+            print_default(db_rows, uptime, btime, arg)
 
 
 if __name__ == "__main__":
