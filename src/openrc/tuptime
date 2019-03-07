@@ -11,9 +11,20 @@ depend() {
 	after clock
 }
 
+start() {
+        ebegin "Starting ${name}"
+        su ${command_user} -s /bin/sh -c "${command} -x"
+        eend $?
+}
+
 stop() {
-	ebegin "Stopping $RC_SVCNAME"
-	command_args='-xg'
-	start-stop-daemon -u "${command_user}" -exec "${command}" -- "${command_args}"
-	eend $?
+        ebegin "Starting ${name}"
+        su ${command_user} -s /bin/sh -c "${command} -xg"
+        eend $?
+}
+
+status() {
+        ebegin "Status ${name}"
+        su ${command_user} -s /bin/sh -c "${command} -xg"
+        eend $?
 }
