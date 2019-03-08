@@ -25,6 +25,6 @@ stop() {
 
 status() {
         ebegin "Status ${name}"
-        su ${command_user} -s /bin/sh -c "${command} -xg"
+        su ${command_user} -s /bin/sh -c "${command} -x"
         eend $?
 }
