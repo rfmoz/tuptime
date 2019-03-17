@@ -491,11 +491,6 @@ def time_conv(secs):
                 human_dtm += str(int(dtm[key])).zfill(2) + ':'
 
     if large_hfmt:
-        # Nice sentence end, remove comma
-        if human_dtm.find('minutes, ') or human_dtm.find('minute, '):
-            human_dtm = human_dtm.replace('minutes, ', 'minutes and ')
-            human_dtm = human_dtm.replace('minute, ', 'minute and ')
-
         # Return without last comma and space character
         return str(human_dtm[:-2])
     else:
