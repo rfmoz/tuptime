@@ -348,7 +348,7 @@ def get_os_values():
     return btime, uptime, rntime, spdtime, kernel
 
 
-def assure_state_db(btime, uptime, rntime, spdtime, kernel, arg, upgrade=False):
+def assure_state_db(btime, uptime, rntime, spdtime, kernel, arg):
     """Assure state of db file and related directories"""
 
     if arg.db_file == DB_FILE:  # If db_file keeps default value
@@ -373,31 +373,6 @@ def assure_state_db(btime, uptime, rntime, spdtime, kernel, arg, upgrade=False):
     try:
         if os.path.isfile(arg.db_file):
             logging.info('DB file exists = %s', str(arg.db_file))
-
-            # Upgrade from DB format < v.4
-            if upgrade:
-
-                if not os.access(arg.db_file, os.W_OK):
-                    logging.error('"%s" file not writable by execution user', str(arg.db_file))
-                    sys.exit(-1)
-
-                logging.warning('Upgrading DB file = %s', str(arg.db_file))
-                db_conn = sqlite3.connect(arg.db_file)
-                conn = db_conn.cursor()
-                conn.execute('alter table tuptime RENAME TO tuptimeOld')
-                conn.execute('create table if not exists tuptime'
-                             '(btime integer, uptime real, rntime real, spdtime real,'
-                             'offbtime integer, endst integer, downtime real, kernel text)')
-                conn.execute('insert into tuptime '
-                             '(btime, uptime, offbtime, endst, downtime, kernel) '
-                             'SELECT btime, uptime, offbtime, endst, downtime, kernel '
-                             'FROM tuptimeOld')
-                conn.execute('update tuptime set rntime = uptime')
-                conn.execute('update tuptime set spdtime = 0.0')
-                conn.execute('drop table tuptimeOld')
-                db_conn.commit()
-                db_conn.close()
-                logging.warning('Upgraded')
         else:
             logging.info('Creating DB file = %s', str(arg.db_file))
             db_conn = sqlite3.connect(arg.db_file)
@@ -413,6 +388,34 @@ def assure_state_db(btime, uptime, rntime, spdtime, kernel, arg, upgrade=False):
     except Exception as exp_file:
         logging.error('Checking db file "%s": %s', str(arg.db_file), str(exp_file))
         sys.exit(-1)
+
+
+def upgrade_db(db_conn, conn, arg):
+    """Upgrade db to from 3.x to 4.x format"""
+
+    if not os.access(arg.db_file, os.W_OK):
+        logging.error('"%s" file not writable by execution user', str(arg.db_file))
+        sys.exit(-1)
+    logging.warning('Upgrading DB file = %s', str(arg.db_file))
+
+    try:
+        conn.execute('create table if not exists tuptimeNew'
+                     '(btime integer, uptime real, rntime real, spdtime real,'
+                     'offbtime integer, endst integer, downtime real, kernel text)')
+        conn.execute('insert into tuptimeNew '
+                     '(btime, uptime, offbtime, endst, downtime, kernel) '
+                     'SELECT btime, uptime, offbtime, endst, downtime, kernel '
+                     'FROM tuptime')
+        conn.execute('update tuptimeNew set rntime = uptime')
+        conn.execute('update tuptimeNew set spdtime = 0.0')
+        conn.execute('drop table tuptime')
+        conn.execute('alter table tuptimeNew RENAME TO tuptime')
+        db_conn.commit()
+    except Exception as exp_db:
+        logging.error('Upgrading DB format failed. "%s"', str(exp_db))
+        sys.exit(-1)
+
+    logging.warning('Upgraded')
 
 
 def control_drift(last_btime, btime, uptime, rntime, spdtime):
@@ -1191,7 +1194,6 @@ def main():
         logging.error('Tuptime execution can\'t continue.')
         sys.exit(-1)
 
-    assure_state_db(btime, uptime, rntime, spdtime, kernel, arg)
 
     db_conn = sqlite3.connect(arg.db_file)
     db_conn.row_factory = sqlite3.Row
@@ -1201,7 +1203,7 @@ def main():
     columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
     if 'rntime' and 'spdtime' not in columns:
         logging.warning('DB format outdated')
-        assure_state_db(btime, uptime, rntime, spdtime, kernel, arg, upgrade=True)
+        upgrade_db(db_conn, conn, arg)
 
     conn.execute('select btime, uptime from tuptime where rowid = (select max(rowid) from tuptime)')
     last_btime, last_uptime = conn.fetchone()
