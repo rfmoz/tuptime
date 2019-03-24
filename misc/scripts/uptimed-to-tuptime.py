@@ -15,7 +15,8 @@ from shutil import which, copyfile
 #
 # V1.0: Gustavo Panizzo 2018-11-18
 # V1.1: Ricardo Fraile 2018-11-21
-__version__ = '1.1'
+# V1.2: Ricardo Fraile 2019-03-24
+__version__ = '1.2'
 
 # Default Tuptime db location
 TUPT_DBF = '/var/lib/tuptime/tuptime.db'
@@ -39,15 +40,17 @@ def insert_row(row):
 
     conn = sqlite3.connect(TUPT_TMP_DBF)
     uptime = row[0]
+    rntime = row[0]
+    spdtime = 0.0
     btime = row[1]
     kernel = row[2]
     _offbtime = row[3]
     downtime = row[4]
     endst = row[5]
-    params = [btime, uptime, _offbtime, endst, downtime, kernel]
+    params = [btime, uptime, rntime, spdtime, _offbtime, endst, downtime, kernel]
     print(str(params))
 
-    conn.execute("INSERT INTO tuptime VALUES (?,?,?,?,?,?)", params)
+    conn.execute("INSERT INTO tuptime VALUES (?,?,?,?,?,?,?,?)", params)
     conn.commit()
     conn.close()
 
@@ -65,12 +68,8 @@ def create_db(db_file):
     db_conn = sqlite3.connect(db_file)
     conn = db_conn.cursor()
     conn.execute('create table if not exists tuptime'
-                 '(btime integer,'
-                 'uptime real,'
-                 'offbtime integer,'
-                 'endst integer,'
-                 'downtime real,'
-                 'kernel text)')
+                 '(btime integer, uptime real, rntime real, spdtime real,'
+                 'offbtime integer, endst integer, downtime real, kernel text)')
     db_conn.commit()
     db_conn.close()
 
