@@ -41,12 +41,12 @@ if [ $? -ne 0 ]; then
 fi
 
 # Adding new columns
-sqlite3 ${TMP_DBF} "ALTER TABLE tuptime RENAME TO tuptimeOld;" && \
-sqlite3 ${TMP_DBF} "CREATE TABLE tuptime (btime integer, uptime real, rntime real, spdtime real, offbtime integer, endst integer, downtime real, kernel text);" && \
-sqlite3 ${TMP_DBF} "INSERT INTO tuptime(btime, uptime, offbtime, endst, downtime, kernel) SELECT btime, uptime, offbtime, endst, downtime, kernel FROM tuptimeOld;" && \
-sqlite3 ${TMP_DBF} "UPDATE tuptime SET rntime = uptime;" && \
-sqlite3 ${TMP_DBF} "UPDATE tuptime SET spdtime = 0.0;" && \
-sqlite3 ${TMP_DBF} "DROP TABLE tuptimeOld;"
+sqlite3 ${TMP_DBF} "CREATE TABLE tuptimeNew (btime integer, uptime real, rntime real, spdtime real, offbtime integer, endst integer, downtime real, kernel text);" && \
+sqlite3 ${TMP_DBF} "INSERT INTO tuptimeNew(btime, uptime, offbtime, endst, downtime, kernel) SELECT btime, uptime, offbtime, endst, downtime, kernel FROM tuptime;" && \
+sqlite3 ${TMP_DBF} "UPDATE tuptimeNew SET rntime = uptime;" && \
+sqlite3 ${TMP_DBF} "UPDATE tuptimeNew SET spdtime = 0.0;" && \
+sqlite3 ${TMP_DBF} "DROP TABLE tuptime;" && \
+sqlite3 ${TMP_DBF} "ALTER TABLE tuptimeNew RENAME TO tuptime;" 
 if [ $? -ne 0 ]; then
 	echo "FAIL: ERROR 5" && exit 5
 fi
