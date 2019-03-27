@@ -1,3 +1,10 @@
+tuptime (4.0.0) unstable; urgency=low
+
+  * Adding support for running and suspended time. (-p, --power)
+  * Change database specs. Add rntime and spdtime columns.
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Wed, 27 Mar 2019 20:45:00 +0100
+
 tuptime (3.5.0) unstable; urgency=low
 
   * Avoid execution if the startup date is prior to 01/Jan/2000 00:00

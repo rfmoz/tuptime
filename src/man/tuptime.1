@@ -1,10 +1,10 @@
-.TH TUPTIME 1 "Feb 2019" "3.5.0" "Linux Manual"
+.TH TUPTIME 1 "Mar 2019" "4.0.0" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [\-h | \-\-help] [\-c | \-\-csv] [{\-d | \-\-date}=<date\ format>] [\-\-decp=<decimals>] [{\-f | \-\-filedb}=<file>]  [\-g | \-\-graceful] [\-k | \-\-kernel] [\-l | \-\-list] [\-n | \-\-noup]  [{\-o | \-\-order}={e|d|k|u}] [\-r | \-\-reverse] [\-s | \-\-seconds] [{\-S | \-\-since}=<number>] [\-t | \-\-table] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [\-U | \-\-until=<number>] [\-v | \-\-verbose]  [\-V | \-\-version] [\-x | \-\-silent]
+tuptime [\-h | \-\-help] [\-c | \-\-csv] [{\-d | \-\-date}=<date\ format>] [\-\-decp=<decimals>] [{\-f | \-\-filedb}=<file>]  [\-g | \-\-graceful] [\-k | \-\-kernel] [\-l | \-\-list] [\-n | \-\-noup]  [{\-o | \-\-order}={e|d|k|u}] [\-p | \-\-power] [\-r | \-\-reverse] [\-s | \-\-seconds] [{\-S | \-\-since}=<number>] [\-t | \-\-table] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [\-U | \-\-until=<number>] [\-v | \-\-verbose]  [\-V | \-\-version] [\-x | \-\-silent]
 
 .SH DESCRIPTION
 .RS
@@ -81,6 +81,9 @@ Order enumerate by [<e|d|k|u>] e = end status | d = downtime | k = kernel | u = 
 T}
 \-r | \-\-reverse@T{
 Reverse order
+T}
+\-p | \-\-power@T{
+Print power states run/suspended
 T}
 \-s | \-\-seconds@T{
 Output time in seconds and epoch

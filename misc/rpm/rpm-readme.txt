@@ -40,9 +40,9 @@
 Z.- For testing with "dev" branch. Replace step "2" with the following:
 
     cd ~
-    git clone -b dev https://github.com/rfrail3/tuptime.git tuptime-3.5.0
+    git clone -b dev https://github.com/rfrail3/tuptime.git tuptime-4.0.0
     rpmdev-setuptree
     cd ~/rpmbuild/SPECS/
-    cp ../../tuptime-3.5.0/misc/rpm/tuptime.spec .
-    tar -czvf ../SOURCES/3.5.0.tar.gz ../../tuptime-3.5.0
+    cp ../../tuptime-4.0.0/misc/rpm/tuptime.spec .
+    tar -czvf ../SOURCES/4.0.0.tar.gz ../../tuptime-4.0.0
     rpmbuild -ba --target=noarch tuptime.spec

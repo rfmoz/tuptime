@@ -117,7 +117,7 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 - Its written for avoid false startups registers, actually there are some issues with other alternatives related to that. This is an issue that sometimes happens on virtualized enviroments, servers with high load or when ntp are running.
 
-- It can report the whole life of the system or only a part of that life, closing the range between startups/shutdowns or timestamps.
+- It can report the whole life of the system or only a part of that life, closing the range between startups/shutdowns or timestamps. Also, it report the accumulated running and suspended time inside a tuptime slot.
 
 
 ### More information
