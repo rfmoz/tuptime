@@ -14,12 +14,12 @@ class UptimeRangeInDay:
 
     def __init__(self, btime, uptime):
         """
-        :splits: list, each element is time consumed of 2 different computer state
+        :splits: list, each element is time spent of 2 different computer state
             (shutdown, startup) in same day, the first state is always shutdown,
             then startup, shutdown, startup...
-            But the time consumed on one state can be 0(boot pc at midnight, the
+            But the time spent on one state can be 0(boot pc at midnight, the
             first element will be 0, as the first state is shutdown)
-        :date: date of this startup, if the `btime` and `offtime` of db record
+        :day: date of this startup, if the `btime` and `offtime` of db record
             crossing midnight, it will be split to 2 parts.
         :start_point: start time of this state, changing for different states.
         :end_point: end time of this state.
@@ -31,10 +31,6 @@ class UptimeRangeInDay:
         self.end_point = self.start_point + uptime / 86400
         self.splits.append(self.start_point)
         self.splits.append(self.end_point - self.start_point)
-
-    def add_split(self, split_consumed_time):
-        """add time cousumed by a computer state. """
-        self.splits.append(split_consumed_time)
 
 
 def get_uptime_data(arg):
@@ -86,8 +82,8 @@ def get_uptime_range_each_day(db_rows, arg):
 
         if urid.date == bdate_prev_record:
             urid_prev_record = uptime_ranges[-1]
-            urid_prev_record.add_split(urid.start_point - urid_prev_record.end_point)
-            urid_prev_record.add_split(urid.end_point - urid.start_point)
+            urid_prev_record.splits.append(urid.start_point - urid_prev_record.end_point)
+            urid_prev_record.splits.append(urid.end_point - urid.start_point)
             urid_prev_record.end_point = urid.end_point
             if len(urid_prev_record.splits) > max_splits_in_day:
                 max_splits_in_day = len(urid_prev_record.splits)
@@ -179,7 +175,7 @@ def plot_time(uptime_ranges, max_splits_in_day, arg):
     plt.title("Tuptime bar chart")
     plt.ylabel('Hours')
     plt.xlabel('Date')
-    plt.legend((p1[0], p2[0]), ('downtime', 'uptime'), loc="upper right")
+    plt.legend((p1[0], p2[0]), ('downtime', 'uptime'))
     plt.show()
 
 
