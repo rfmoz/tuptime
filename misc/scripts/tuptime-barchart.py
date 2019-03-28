@@ -161,25 +161,30 @@ def plot_time(uptime_ranges, max_splits_in_day, arg):
         for j in range(len(bottom_data[0])):
             bottom_data[i][j] += bottom_data[i - 1][j]
 
-    plt.figure(figsize=(arg.fig_length, arg.fig_width))
+    fig, ax = plt.subplots()
+    fig.set_size_inches(arg.fig_length, arg.fig_width)
     ind = list(range(len(uptime_ranges)))
     width = arg.bar_width
 
-    p1 = plt.bar(ind, data[0], width, color='b')
-    p2 = plt.bar(ind, data[1], width, color='r', bottom=data[0])
+    p1 = ax.bar(ind, data[0], width, color='b')
+    p2 = ax.bar(ind, data[1], width, color='r', bottom=data[0])
     for i in range(2, max_splits_in_day):
         if i % 2 == 0:
             region_color = 'b'
         else:
             region_color = 'r'
-        plt.bar(ind, data[i], width, color=region_color, bottom=bottom_data[i-1])
+        ax.bar(ind, data[i], width, color=region_color, bottom=bottom_data[i-1])
 
-    plt.xticks(ind, xticks)
-    plt.yticks(list(range(0, 25, 2)))
-    plt.title("Tuptime bar chart")
-    plt.ylabel('Hours')
-    plt.xlabel('Date')
-    plt.legend((p1[0], p2[0]), ('downtime', 'uptime'), loc="upper right")
+
+    ax.set_yticks(list(range(0, 25, 4)))
+    ax.set_yticks(list(range(0, 25, 2)), minor=True)
+    ax.set_xticks(ind)
+    ax.set_title("Tuptime bar chart")
+    ax.set_ylabel('Hours')
+    ax.set_xlabel('Date')
+    ax.legend((p1[0], p2[0]), ('downtime', 'uptime'), loc="upper right")
+    ax.grid(which='minor', axis='y', linestyle=(0, (3, 10, 1, 10)),
+            linewidth=arg.line_width, alpha=arg.grid_alpha)
     plt.show()
 
 
@@ -189,7 +194,16 @@ def get_last_midnight_date(date):
 
 def get_arguments():
     DB_FILE = '/var/lib/tuptime/tuptime.db'
-    parser = argparse.ArgumentParser()
+
+    class CustomHelpFormatter(argparse.HelpFormatter):
+        def _format_action_invocation(self, action):
+            if not action.option_strings or action.nargs == 0:
+                return super()._format_action_invocation(action)
+            default = self._get_default_metavar_for_optional(action)
+            args_string = self._format_args(action, default)
+            return ', '.join(action.option_strings) + ' ' + args_string
+
+    parser = argparse.ArgumentParser(formatter_class=lambda prog: CustomHelpFormatter(prog))
     parser.add_argument(
         '-f', '--filedb',
         dest='db_file',
@@ -215,7 +229,7 @@ def get_arguments():
         type=int
     )
     parser.add_argument(
-        '-bw', '--bwidth',
+        '--bwidth',
         dest='bar_width',
         default=.5,
         action='store',
@@ -243,6 +257,22 @@ def get_arguments():
         action='store',
         help='past days to plot, will be ignored if set bdate (default is 7).',
         type=int
+    )
+    parser.add_argument(
+        '--lwidth',
+        dest='line_width',
+        default=1,
+        action='store',
+        help='line width of figure grid (default is 1).',
+        type=float
+    )
+    parser.add_argument(
+        '-a', '--galpha',
+        dest='grid_alpha',
+        default=.0,
+        action='store',
+        help='alpha value of figure grid (default is 0).',
+        type=float
     )
 
     arg = parser.parse_args()
