@@ -1194,6 +1194,7 @@ def main():
         logging.error('Tuptime execution can\'t continue.')
         sys.exit(-1)
 
+    assure_state_db(btime, uptime, rntime, spdtime, kernel, arg)
 
     db_conn = sqlite3.connect(arg.db_file)
     db_conn.row_factory = sqlite3.Row
