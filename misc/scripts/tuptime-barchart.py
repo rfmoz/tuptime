@@ -36,8 +36,8 @@ class UptimeRangeInDay:
         self._date = datetime(bdate.year, bdate.month, bdate.day)
         self._start_point = (btime - self._date.timestamp()) / SECONDS_DAY
         self._end_point = self._start_point + uptime / SECONDS_DAY
-        self._splits.append(self._start_point)
-        self._splits.append(self._end_point - self._start_point)
+        self.add_splits((self._start_point,
+                        self._end_point - self._start_point))
 
     @property
     def splits(self):
@@ -65,7 +65,7 @@ class UptimeRangeInDay:
             cls.max_split_count = count
 
     def add_splits(self, split_consumed_times):
-        """add time cousumed into splits. """
+        """add time cousumed into splits."""
         self._splits.extend(split_consumed_times)
         self.update_max_split_count(len(self))
 
@@ -89,8 +89,7 @@ def get_uptime_data(arg):
 
     tuptime_install_date = get_last_midnight_date(datetime.fromtimestamp(db_rows[0]['btime']))
     if arg.begin_date < tuptime_install_date:
-        logging.warning(f"First tuptime entry was recorded at \
-                {tuptime_install_date:%Y-%m-%d}.")
+        logging.warning(f"First tuptime entry was recorded at {tuptime_install_date:%Y-%m-%d}.")
 
     db_date_rows = []
     # including tuptime record of day before begin_date
@@ -123,7 +122,8 @@ def get_uptime_range_each_day(db_rows, arg):
     record_before_begin_date = True
 
     def create_or_update_uptime_range():
-        """Create uptime range object and insert state start/end point to object's splits."""
+        """Create uptime range object and insert state
+        start/end point to object's splits."""
 
         nonlocal uptime_ranges, bdate_prev_record, urid, entry_state
 
@@ -148,8 +148,7 @@ def get_uptime_range_each_day(db_rows, arg):
         if db_row['offbtime'] == -1:  # last db entry
             db_prev_record = db_rows[-2]
             if db_prev_record['endst'] == 1:
-                last_urid = uptime_ranges[-1]
-                last_urid.add_splits((db_rows[-2]['downtime'] / SECONDS_DAY,))
+                uptime_ranges[-1].add_splits((db_rows[-2]['downtime'] / SECONDS_DAY,))
             break
         entry_state = db_row['endst']
         if entry_state == 0:  # bad shutdown
@@ -228,9 +227,9 @@ def plot_time(uptime_ranges, max_splits_in_day, arg):
 
     ax.set_yticks(list(range(0, 25, 4)))
     ax.set_yticks(list(range(0, 25, 2)), minor=True)
-    xticks = [f"{up.date:%Y%m%d}" for up in uptime_ranges]
+    xticks = [f"{up.date:%Y-%m-%d}" for up in uptime_ranges]
     ax.set_xticks(ind)
-    ax.set_xticklabels(xticks)
+    ax.set_xticklabels(xticks, rotation=arg.xtick_labels_rotation)
     ax.set_title("Tuptime bar chart")
     ax.set_ylabel('Hours')
     ax.set_xlabel('Date')
@@ -307,7 +306,15 @@ def get_arguments():
         dest='bar_width',
         default=.5,
         action='store',
-        help='The width of the bars (default is 0.5).',
+        help='width of the bars (default is 0.5).',
+        type=float
+    )
+    parser.add_argument(
+        '-r', '--xrotation',
+        dest='xtick_labels_rotation',
+        default=30,
+        action='store',
+        help='rotation of xticks label (default is 30 drgrees).',
         type=float
     )
     parser.add_argument(
@@ -328,6 +335,7 @@ def get_arguments():
     )
 
     arg = parser.parse_args()
+    logging.basicConfig(format='%(levelname)s:%(message)s')
 
     if arg.end_date:
         arg.end_date = datetime.strptime(arg.end_date, "%Y-%m-%d") + timedelta(days=1)
