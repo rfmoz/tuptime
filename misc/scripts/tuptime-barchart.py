@@ -37,7 +37,7 @@ class UptimeRangeInDay:
         self._start_point = (btime - self._date.timestamp()) / SECONDS_DAY
         self._end_point = self._start_point + uptime / SECONDS_DAY
         self.add_splits((self._start_point,
-                        self._end_point - self._start_point))
+                        self._end_point - self._start_point, 0))
 
     @property
     def splits(self):
@@ -69,8 +69,9 @@ class UptimeRangeInDay:
         self._splits.extend(split_consumed_times)
         self.update_max_split_count(len(self))
 
-    def insert_split(self, idx, value):
-        self._splits.insert(idx, value)
+    def exchange_splits(self, idx, idy):
+        self._splits[idx], self._splits[idy] = \
+                self._splits[idy], self._splits[idx]
 
     def __len__(self):
         return len(self._splits)
@@ -91,23 +92,32 @@ def get_uptime_data(arg):
     if arg.begin_date < tuptime_install_date:
         logging.warning(f"First tuptime entry was recorded at {tuptime_install_date:%Y-%m-%d}.")
 
-    db_date_rows = []
+    # last db entry is right now running state
+    db_row = db_rows[-1]
+    if db_row['offbtime'] == -1:
+        db_row['offbtime'] = db_row['btime'] + db_row['uptime']
+        db_row['endst'] = 1
+
+    selected_db_rows = []
     # including tuptime record of day before begin_date
     # as last tuptime record may cross midnight
-    begin_second = int(arg.begin_date.strftime("%s")) - SECONDS_DAY
+    begin_second = int(arg.begin_date.strftime("%s"))
     end_second = int(arg.end_date.strftime("%s"))
 
-    for row in db_rows:
-        if begin_second <= row['btime'] < end_second:
-            db_date_rows.append(row)
+    for db_row in db_rows:
+        if db_row['endst'] == 0:  # bad shutdown
+            db_row['offbtime'] = int(db_row['offbtime'] + db_row['downtime'])
+        if db_row['offbtime'] > begin_second  and  db_row['btime'] < end_second:
+            selected_db_rows.append(db_row)
 
-    if len(db_date_rows) == 0:
+    if len(selected_db_rows) == 0:
         logging.warning("No tuptime entries in this date range.")
         sys.exit(1)
-    return db_date_rows
+
+    return selected_db_rows
 
 
-def get_uptime_range_each_day(db_rows, arg):
+def get_uptime_range_each_day(selected_db_rows, arg):
     """Get all states for all date between bdate and edate.
     Focus on urid's splits which is a sequence of time consumed on each
     state. The previous state of a startup state must be a shotdown state
@@ -118,14 +128,13 @@ def get_uptime_range_each_day(db_rows, arg):
     """
 
     uptime_ranges = []
-    bdate_prev_record = datetime.fromtimestamp(db_rows[0]['btime'])
-    record_before_begin_date = True
+    bdate_prev_record = datetime.fromtimestamp(selected_db_rows[0]['btime'])
 
     def create_or_update_uptime_range():
         """Create uptime range object and insert state
         start/end point to object's splits."""
 
-        nonlocal uptime_ranges, bdate_prev_record, urid, entry_state
+        nonlocal bdate_prev_record
 
         if urid.date == bdate_prev_record:
             urid_prev_record = uptime_ranges[-1]
@@ -138,30 +147,17 @@ def get_uptime_range_each_day(db_rows, arg):
             urid_prev_record.end_point = urid.end_point
         else:
             if entry_state == 0:
-                urid.insert_split(1, 0)  # insert zero for startup state
-            else:
-                urid.insert_split(2, 0)  # insert zero for bad shutdown state
+                # exchange time consumed between first uptime and first badtime
+                urid.exchange_splits(1, 2)
             uptime_ranges.append(urid)
             bdate_prev_record = urid.date
 
-    for db_row in db_rows:
-        if db_row['offbtime'] == -1:  # last db entry
-            db_prev_record = db_rows[-2]
-            if db_prev_record['endst'] == 1:
-                uptime_ranges[-1].add_splits((db_rows[-2]['downtime'] / SECONDS_DAY,))
-            break
+    for db_row in selected_db_rows:
         entry_state = db_row['endst']
-        if entry_state == 0:  # bad shutdown
-            db_row['offbtime'] = int(db_row['offbtime'] + db_row['downtime'])
         btime = db_row['btime']
         bdate = datetime.fromtimestamp(btime)
         midnight_date = datetime(bdate.year, bdate.month, bdate.day) + timedelta(days=1)
         offbtime = db_row['offbtime']
-        if record_before_begin_date:
-            if datetime.fromtimestamp(offbtime) < arg.begin_date:
-                continue
-            else:
-                record_before_begin_date = False
         while True:
             # split record if corssing midnight
             if offbtime > midnight_date.timestamp():
@@ -179,11 +175,11 @@ def get_uptime_range_each_day(db_rows, arg):
                 create_or_update_uptime_range()
                 break
 
-    # last urid index which ignored to add last pc state
+    # last urid index which should set last pc state
     idx_urid = len(uptime_ranges) - 1
     if arg.end_date < datetime.today():
         idx_urid += 1
-    # add last pc state to shutdown, if total time of splits less than 1
+    # set last pc state to shutdown, if total time of splits less than 1
     for up in uptime_ranges[:idx_urid]:
         total_time = sum(up.splits)
         if abs(1 - total_time) > 1e-3:
@@ -193,11 +189,12 @@ def get_uptime_range_each_day(db_rows, arg):
         logging.warning("Computer is running, no other record in this date range in DB.")
         sys.exit(1)
 
-    return uptime_ranges, UptimeRangeInDay.max_split_count
+    return uptime_ranges
 
 
-def plot_time(uptime_ranges, max_splits_in_day, arg):
+def plot_time(uptime_ranges, arg):
     """Plot stacked bar chart."""
+    max_splits_in_day = UptimeRangeInDay.max_split_count
 
     # different day got different BAD record, statistic all index that got bad
     # record, insert a 0 to split if that day didn't have a bad record at same
@@ -360,9 +357,9 @@ def get_arguments():
 def main():
 
     arg = get_arguments()
-    db_rows = get_uptime_data(arg)
-    uptime_ranges, max_splits_in_day = get_uptime_range_each_day(db_rows, arg)
-    plot_time(uptime_ranges, max_splits_in_day, arg)
+    selected_db_rows = get_uptime_data(arg)
+    uptime_ranges = get_uptime_range_each_day(selected_db_rows, arg)
+    plot_time(uptime_ranges, arg)
 
 
 if __name__ == "__main__":
