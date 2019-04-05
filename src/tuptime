@@ -806,12 +806,18 @@ def print_list(db_rows, arg):
         if row_dict['uptime']:
             print(sp0 + 'Uptime' + sp4 + str(row_dict['uptime']) + sp0)
 
-        if arg.power:
-            print(sp0 + 'Running' + sp3 + str(row_dict['rntime']) + sp0)
-            print(sp0 + 'Suspended' + sp3 + str(row_dict['spdtime']) + sp0)
+            if arg.power:
+                print(sp0 + 'Running' + sp3 + str(row_dict['rntime']) + sp0)
+                print(sp0 + 'Suspended' + sp3 + str(row_dict['spdtime']) + sp0)
 
-        if row_dict['offbtime']:
+        if row_dict['offbtime'] and row_dict['endst']:
             print(sp0 + 'Shutdown' + sp2 + str(row_dict['endst']) + sp1 + 'at' + sp1 + str(row_dict['offbtime']) + sp0)
+
+        elif row_dict['endst']:
+            if arg.csv is False:
+                print(sp0 + 'Shutdown' + sp2 + str(row_dict['endst']) + sp0)
+            else:
+                print(sp0 + 'Shutdown' + sp2 + str(row_dict['endst']) + sp1 + '' + sp1 + '' + sp0)
 
         if row_dict['downtime']:
             print(sp0 + 'Downtime' + sp2 + str(row_dict['downtime']) + sp0)
