@@ -1002,8 +1002,9 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, arg):
 
         # Count totals
         total_uptime += row['uptime']
-        total_rntime += row['rntime']
-        total_spdtime += row['spdtime']
+        if arg.power:
+            total_rntime += row['rntime']
+            total_spdtime += row['spdtime']
         total_downtime += row['downtime']
 
         # List with kernel names
