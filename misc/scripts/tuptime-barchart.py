@@ -215,8 +215,8 @@ def plot_time(uptime_ranges, arg):
     width = arg.bar_width
 
     p1 = ax.bar(ind, data[0], width, color='b')
-    p2 = ax.bar(ind, data[1], width, color='r', bottom=data[0])
-    p3 = ax.bar(ind, data[2], width, color='k', bottom=data[1])
+    p2 = ax.bar(ind, data[1], width, color='r', bottom=bottom_data[0])
+    p3 = ax.bar(ind, data[2], width, color='k', bottom=bottom_data[1])
     colors = {0: 'b', 1: 'r', 2: 'k'}
     for i in range(3, max_splits_in_day):
         region_color = colors[i % 3]
