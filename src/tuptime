@@ -132,7 +132,7 @@ def get_arguments():
     parser.add_argument(
         '-S', '--since',
         dest='since',
-        default=None,
+        default=0,
         action='store',
         type=int,
         help='restrict since this register number'
@@ -165,7 +165,7 @@ def get_arguments():
     parser.add_argument(
         '-U', '--until',
         dest='until',
-        default=None,
+        default=0,
         action='store',
         type=int,
         help='restrict until this register number'
@@ -744,7 +744,7 @@ def for_print(db_rows, arg):
         else:
             row['downtime'] = ''
 
-        if arg.seconds is not None:  # Fixed number of decimals always
+        if arg.seconds:  # Fixed number of decimals always
             if row['uptime'] != '':
                 row['uptime'] = ('{0:.' + str(DEC) + 'f}').format(round(row['uptime'], DEC))
                 row['rntime'] = ('{0:.' + str(DEC) + 'f}').format(round(row['rntime'], DEC))
@@ -1290,16 +1290,16 @@ def main():
                     if row[value] is None:
                         row[value] = False
 
-        if arg.since is not None:  # Parse since option
+        if arg.since:  # Parse since option
             db_rows, arg = since_opt(db_rows, arg, last_startup_n)
 
-        if arg.until is not None:  # Parse until option
+        if arg.until:  # Parse until option
             db_rows, arg = until_opt(db_rows, arg, last_startup_n)
 
-        if arg.tu is not None and arg.tu < 0:  # Negative value decrease actual timestamp
+        if arg.tu and arg.tu < 0:  # Negative value decrease actual timestamp
             arg.tu = btime + uptime + arg.tu
 
-        if arg.ts is not None and arg.ts < 0:  # Negative value decrease actual timestamp
+        if arg.ts and arg.ts < 0:  # Negative value decrease actual timestamp
             arg.ts = btime + uptime + arg.ts
 
         if arg.tu is not None:  # Parse tuntil option
