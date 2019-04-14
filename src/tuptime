@@ -705,7 +705,6 @@ def for_print(db_rows, arg):
         else:
             row['btime'] = ''
 
-        #if row['uptime'] or (row['btime'] and row['uptime'] is not False):
         if row['uptime'] is not False:
             if arg.seconds is None:
                 row['uptime'] = time_conv(row['uptime'])
@@ -720,21 +719,23 @@ def for_print(db_rows, arg):
             row['rntime'] = ''
             row['spdtime'] = ''
 
+        if row['endst'] is not False:
+            if row['offbtime'] is not False or row['downtime'] is not False:
+                if row['endst'] == 1:
+                    row['endst'] = 'OK'
+                elif row['endst'] == 0:
+                    row['endst'] = 'BAD'
+            else:
+                row['endst'] = ''
+        else:
+            row['endst'] = ''
+
         if row['offbtime'] is not False:
             if arg.seconds is None:
                 row['offbtime'] = datetime.fromtimestamp(row['offbtime']).strftime(arg.date_format)
         else:
             row['offbtime'] = ''
 
-        if row['endst'] is not False:
-            if row['endst'] == 1:
-                row['endst'] = 'OK'
-            elif row['endst'] == 0:
-                row['endst'] = 'BAD'
-        else:
-            row['endst'] = ''
-
-        #if row['downtime'] or (row['offbtime'] and row['downtime'] is not False):
         if row['downtime'] is not False:
             if arg.seconds is None:
                 row['downtime'] = time_conv(row['downtime'])
@@ -932,7 +933,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, arg):
         elif last_offbtime is not False:
             max_tstamp = last_offbtime + db_rows[-1]['downtime']
         else:
-            max_tstamp = 0
+            max_tstamp = None
 
         # Get min timestamp available
         if arg.ts is not None:
@@ -945,13 +946,13 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, arg):
         else:
             # If range is under any timestamp, use max_tstamp date if is possible
             # to avoid fall into 0
-            if max_tstamp > 0:
+            if max_tstamp:
                 min_tstamp = max_tstamp
             else:
-                min_tstamp = 0
+                min_tstamp = None
 
         # If range is over any timestamp, use min_tstamp if is possible for avoid fall into 0
-        if max_tstamp == 0:
+        if max_tstamp is None:
             max_tstamp = min_tstamp
 
         return max_tstamp, min_tstamp
@@ -972,11 +973,12 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, arg):
 
         # Count shutdowns when endst is set
         if row['endst'] is not False:
-            if row['endst'] == 0:
-                bad_shdown += 1
-            if row['endst'] == 1:
-                ok_shdown += 1
-            shutdowns += 1
+            if row['offbtime'] is not False or row['downtime'] is not False:
+                if row['endst'] == 0:
+                    bad_shdown += 1
+                if row['endst'] == 1:
+                    ok_shdown += 1
+                shutdowns += 1
 
         # Count totals
         total_uptime += row['uptime']
@@ -1049,8 +1051,11 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, arg):
     total_downtime = round(total_downtime, DEC)
 
     if arg.seconds is None:  # - Human readable style
-        max_tstamp = datetime.fromtimestamp(max_tstamp).strftime(arg.date_format)
-        min_tstamp = datetime.fromtimestamp(min_tstamp).strftime(arg.date_format)
+        if max_tstamp is not None:
+            max_tstamp = datetime.fromtimestamp(max_tstamp).strftime(arg.date_format)
+
+        if min_tstamp is not None:
+            min_tstamp = datetime.fromtimestamp(min_tstamp).strftime(arg.date_format)
 
         average_up = time_conv(average_up)
         average_down = time_conv(average_down)
@@ -1277,7 +1282,6 @@ def main():
             db_rows[-1]['endst'] = arg.endst
             db_rows[-1]['kernel'] = kernel
             db_rows[-1]['offbtime'] = False
-            db_rows[-1]['endst'] = False
             db_rows[-1]['downtime'] = False
         else:
             # Convert from sqlite None to False
