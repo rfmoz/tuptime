@@ -132,7 +132,7 @@ def get_arguments():
     parser.add_argument(
         '-S', '--since',
         dest='since',
-        default=0,
+        default=None,
         action='store',
         type=int,
         help='restrict since this register number'
@@ -165,7 +165,7 @@ def get_arguments():
     parser.add_argument(
         '-U', '--until',
         dest='until',
-        default=0,
+        default=None,
         action='store',
         type=int,
         help='restrict until this register number'
@@ -602,7 +602,7 @@ def tuntil_opt(db_rows, arg):
 
     # Report 0 if matches produce an empty db
     if not db_rows:
-        db_rows = [{'kernel': False, 'uptime': False, 'rntime': False, 'spdtime': False, 'endst': False, 'offbtime': False, 'startup': 0, 'btime': False, 'downtime': False}]
+        db_rows = [{'kernel': '', 'uptime': False, 'rntime': False, 'spdtime': False, 'endst': False, 'offbtime': False, 'startup': 0, 'btime': False, 'downtime': False}]
 
     return db_rows, arg
 
@@ -660,7 +660,7 @@ def tsince_opt(db_rows, arg):
 
     # Report 0 if matches produce an empty db
     if not db_rows:
-        db_rows = [{'kernel': False, 'uptime': False, 'rntime': False, 'spdtime': False, 'endst': False, 'offbtime': False, 'startup': 0, 'btime': False, 'downtime': False}]
+        db_rows = [{'kernel': '', 'uptime': False, 'rntime': False, 'spdtime': False, 'endst': False, 'offbtime': False, 'startup': 0, 'btime': False, 'downtime': False}]
 
     return db_rows, arg
 
@@ -801,7 +801,7 @@ def print_list(db_rows, arg):
         if row_dict['downtime']:
             print(sp0 + 'Downtime' + sp2 + str(row_dict['downtime']) + sp0)
 
-        if arg.kernel:
+        if arg.kernel and row_dict['kernel']:
             print(sp0 + 'Kernel' + sp4 + str(row_dict['kernel']) + sp0)
 
         if arg.csv is False:
@@ -875,7 +875,7 @@ def print_table(db_rows, arg):
             print("")
 
 
-def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, arg):
+def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
     """Print values as default output"""
 
     def extract_times(db_rows, option, key):
@@ -909,7 +909,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, arg):
             row['spdtime'] = False
             row['offbtime'] = False
             row['downtime'] = False
-            row['kernel'] = False
+            row['kernel'] = ''
 
         # Report based on the key requested
         if key == 'uptime':
@@ -1168,7 +1168,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, arg):
             print(sp0 + (sp8 * 7) + 'running' + sp2 + str(crntime) + sp0)
             print(sp0 + (sp8 * 5) + 'suspended' + sp2 + str(cspdtime) + sp0)
         if arg.kernel:
-            print(sp0 + '...with kernel' + sp2 + str(db_rows[-1]['kernel']) + sp0)
+            print(sp0 + '...with kernel' + sp2 + str(kernel) + sp0)
 
 
 def main():
@@ -1290,22 +1290,22 @@ def main():
                     if row[value] is None:
                         row[value] = False
 
-        if arg.since:  # Parse since option
+        if arg.since is not None:  # Parse since option
             db_rows, arg = since_opt(db_rows, arg, last_startup_n)
 
-        if arg.until:  # Parse until option
+        if arg.until is not None:  # Parse until option
             db_rows, arg = until_opt(db_rows, arg, last_startup_n)
 
-        if arg.tu and arg.tu < 0:  # Negative value decrease actual timestamp
+        if arg.tu is not None and arg.tu < 0:  # Negative value decrease actual timestamp
             arg.tu = btime + uptime + arg.tu
 
-        if arg.ts and arg.ts < 0:  # Negative value decrease actual timestamp
+        if arg.ts is not None and arg.ts < 0:  # Negative value decrease actual timestamp
             arg.ts = btime + uptime + arg.ts
 
-        if arg.tu:  # Parse tuntil option
+        if arg.tu is not None:  # Parse tuntil option
             db_rows, arg = tuntil_opt(db_rows, arg)
 
-        if arg.ts:  # Parse tsince option
+        if arg.ts is not None:  # Parse tsince option
             db_rows, arg = tsince_opt(db_rows, arg)
 
     db_conn.commit()
@@ -1321,7 +1321,7 @@ def main():
         elif arg.table:
             print_table(db_rows, arg)
         else:
-            print_default(db_rows, btime, uptime, rntime, spdtime, arg)
+            print_default(db_rows, btime, uptime, rntime, spdtime, kernel, arg)
 
 
 if __name__ == "__main__":
