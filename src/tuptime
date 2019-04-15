@@ -945,8 +945,8 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
             # note that without offbtime, produce a negative result
         else:
             # If range is under any timestamp, use max_tstamp date if is possible
-            # to avoid fall into 0
-            if max_tstamp:
+            # to avoid fall into None
+            if max_tstamp is not None:
                 min_tstamp = max_tstamp
             else:
                 min_tstamp = None
