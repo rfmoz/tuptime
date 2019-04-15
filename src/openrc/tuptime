@@ -18,7 +18,7 @@ start() {
 }
 
 stop() {
-        ebegin "Starting ${name}"
+        ebegin "Stopping ${name}"
         su ${command_user} -s /bin/sh -c "${command} -xg"
         eend $?
 }
