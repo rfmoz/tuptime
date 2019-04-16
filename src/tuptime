@@ -405,6 +405,7 @@ def upgrade_db(db_conn, conn, arg):
                      'FROM tuptime')
         conn.execute('update tuptimeNew set rntime = uptime')
         conn.execute('update tuptimeNew set spdtime = 0.0')
+        conn.execute('update tuptimeNew set offbtime = cast(round(offbtime) as int)')
         conn.execute('drop table tuptime')
         conn.execute('alter table tuptimeNew RENAME TO tuptime')
         db_conn.commit()
