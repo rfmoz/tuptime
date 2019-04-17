@@ -1157,7 +1157,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
     if arg.kernel:
         print(sp0 + (sp8 * 3) + '...with kernel' + sp2 + str(shrt_down_kern) + sp0)
     print(sp0 + 'Average downtime' + sp2 + str(average_down) + sp0)
-    if arg.update is True:
+    if arg.update:
         if not arg.csv:
             print('')
         print(sp0 + 'Current uptime' + sp2 + str(cuptime) + sp5 + 'since' + sp5 + str(cbtime) + sp0)
@@ -1220,7 +1220,7 @@ def main():
     # To avoid problems, please be sure that the system have time sync enabled, the init/systemd script and
     # the cron line works as expected. A uptime record can be lost if the btime value goes backward more
     # than the difference between last_offbtime and the new btime.
-    if arg.update is True:
+    if arg.update:
         try:
             if last_offbtime < btime:
                 logging.info('System was restarted')
@@ -1277,7 +1277,7 @@ def main():
         # Create list of dicts from sqlite row objects to allow item allocation
         db_rows = [dict(row) for row in db_rows]
 
-        if arg.update is True:
+        if arg.update:
             # If the user can only read db, the previous select return outdated numbers in last row
             # because the db was not updated previously. The following snippet update that in memmory
             db_rows[-1]['uptime'] = uptime
