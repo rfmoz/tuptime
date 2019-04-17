@@ -760,7 +760,7 @@ def print_list(db_rows, arg):
 
     for row_dict in for_print(db_rows, arg):
 
-        if arg.csv is False:  # Define content/spaces between values
+        if not arg.csv:  # Define content/spaces between values
             sp0 = ''
             sp1 = '  '
             sp2 = ': '
@@ -774,7 +774,7 @@ def print_list(db_rows, arg):
         if row_dict['btime']:
             print(sp0 + 'Startup' + sp3 + str(row_dict['startup']) + sp1 + 'at' + sp1 + str(row_dict['btime']) + sp0)
         else:
-            if arg.csv is False:
+            if not arg.csv:
                 print(sp0 + 'Startup' + sp3 + str(row_dict['startup']) + sp0)
             else:  # Consistent csv output, always with the same number of values
                 print(sp0 + 'Startup' + sp3 + str(row_dict['startup']) + sp1 + '' + sp1 + '' + sp0)
@@ -790,7 +790,7 @@ def print_list(db_rows, arg):
             print(sp0 + 'Shutdown' + sp2 + str(row_dict['endst']) + sp1 + 'at' + sp1 + str(row_dict['offbtime']) + sp0)
 
         elif row_dict['endst']:
-            if arg.csv is False:
+            if not arg.csv:
                 print(sp0 + 'Shutdown' + sp2 + str(row_dict['endst']) + sp0)
             else:
                 print(sp0 + 'Shutdown' + sp2 + str(row_dict['endst']) + sp1 + '' + sp1 + '' + sp0)
@@ -801,7 +801,7 @@ def print_list(db_rows, arg):
         if arg.kernel and row_dict['kernel']:
             print(sp0 + 'Kernel' + sp4 + str(row_dict['kernel']) + sp0)
 
-        if arg.csv is False:
+        if not arg.csv:
             print('')
 
 
@@ -814,7 +814,7 @@ def print_table(db_rows, arg):
 
     tbl = []  # Initialize table plus its header
     tbl.append(['No.', 'Startup Date', 'Uptime', 'Running', 'Suspended', 'Shutdown Date', 'End', 'Downtime', 'Kernel'])
-    if arg.csv is False:   # Add empty brake up line if csv is not used
+    if not arg.csv:   # Add empty brake up line if csv is not used
         tbl.append([''] * len(tbl[0]))
     colpad = []
     side_spaces = 3
@@ -847,7 +847,7 @@ def print_table(db_rows, arg):
             tbl_no_kern.append(elx[:-1])
         tbl = tbl_no_kern
 
-    if arg.csv is False:
+    if not arg.csv:
 
         for i in range(len(tbl[0])):
             colpad.append(maxwidth(tbl, i))
@@ -1086,7 +1086,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
         total_downtime = time_conv(total_downtime)
         sys_life = time_conv(sys_life)
 
-    if arg.csv is False:  # Define content/spaces between values
+    if not arg.csv:  # Define content/spaces between values
         sp0 = sp7 = ''
         sp1 = ':\t'
         sp2 = ': \t'
@@ -1121,7 +1121,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
     print(sp0 + 'System life' + sp3 + str(sys_life) + sp0)
     if arg.kernel:
         print(sp0 + 'System kernels' + sp2 + str(kernel_cnt) + sp0)
-    if arg.csv is False:
+    if not arg.csv:
         print('')
     if isinstance(larg_up_btime, str) or larg_up_btime is not False:
         print(sp0 + 'Largest uptime' + sp2 + str(larg_up_uptime) + sp5 + 'from' + sp5 + str(larg_up_btime) + sp0)
@@ -1142,7 +1142,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
     if arg.kernel:
         print(sp0 + sp8 + '...with kernel' + sp2 + str(shrt_up_kern) + sp0)
     print(sp0 + 'Average uptime' + sp2 + str(average_up) + sp0)
-    if arg.csv is False:
+    if not arg.csv:
         print('')
     if isinstance(larg_down_offbtime, str) or larg_down_offbtime is not False:
         print(sp0 + 'Largest downtime' + sp1 + str(larg_down_downtime) + sp5 + 'from' + sp5 + str(larg_down_offbtime) + sp0)
@@ -1158,7 +1158,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
         print(sp0 + (sp8 * 3) + '...with kernel' + sp2 + str(shrt_down_kern) + sp0)
     print(sp0 + 'Average downtime' + sp2 + str(average_down) + sp0)
     if arg.update is True:
-        if arg.csv is False:
+        if not arg.csv:
             print('')
         print(sp0 + 'Current uptime' + sp2 + str(cuptime) + sp5 + 'since' + sp5 + str(cbtime) + sp0)
         if arg.power:
@@ -1263,16 +1263,16 @@ def main():
         conn.execute('select rowid as startup, * from tuptime')
         db_rows = conn.fetchall()
 
+        last_startup_n = db_rows[-1]['startup']  # Number of last startup by rowid number
+        if len(db_rows) != last_startup_n:  # Real startups are not equal to enumerate startups
+            logging.info('Possible deleted rows in db')
+
     db_conn.commit()
     db_conn.close()
 
     if arg.silent:
         logging.info('Silent mode')
     else:
-
-        last_startup_n = db_rows[-1]['startup']  # Number of last startup by rowid number
-        if len(db_rows) != last_startup_n:  # Real startups are not equal to enumerate startups
-            logging.info('Possible deleted rows in db')
 
         # Create list of dicts from sqlite row objects to allow item allocation
         db_rows = [dict(row) for row in db_rows]
