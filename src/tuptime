@@ -597,7 +597,7 @@ def tuntil_opt(db_rows, btime, uptime, arg):
 
         # If offset is set, remove rows
         else:
-             db_rows.remove(row)
+            db_rows.remove(row)
 
     # Report 0 if matches produce an empty db
     if not db_rows:
@@ -887,14 +887,14 @@ def print_at(db_rows, btime, uptime, arg):
                      ' - Not applying.', str(db_rows[0]['btime']))
 
     elif (db_rows[-1]['offbtime'] is not False and
-         arg.at > int(round(db_rows[-1]['offbtime'] + db_rows[-1]['downtime'], 0))):
-            logging.info('Option "at" greater than last timestamp available: %s'
-                         ' - Not applying.', str(db_rows[0]['btime']))
+          arg.at > int(round(db_rows[-1]['offbtime'] + db_rows[-1]['downtime'], 0))):
+        logging.info('Option "at" greater than last timestamp available: %s'
+                     ' - Not applying.', str(db_rows[0]['btime']))
 
     elif (db_rows[-1]['offbtime'] is False and
-         arg.at > int(round(db_rows[-1]['btime'] + db_rows[-1]['uptime'], 0))):
-            logging.info('Option "at" greater than last timestamp available: %s'
-                         ' - Not applying.', str(db_rows[0]['btime']))
+          arg.at > int(round(db_rows[-1]['btime'] + db_rows[-1]['uptime'], 0))):
+        logging.info('Option "at" greater than last timestamp available: %s'
+                     ' - Not applying.', str(db_rows[0]['btime']))
     else:
         report = {'at' : False, 'startup' : False, 'status' : False, 'time' : False}
 
@@ -1368,7 +1368,7 @@ def main():
         # Parse since until arguments
         if arg.until:
             db_rows, arg = until_opt(db_rows, arg, last_startup_n)
-        if arg.since: 
+        if arg.since:
             db_rows, arg = since_opt(db_rows, arg, last_startup_n)
 
         if arg.tu is not None:
