@@ -579,8 +579,8 @@ def tuntil_opt(db_rows, btime, uptime, arg):
         # Stop when offset is set
         if offset is None:
 
-            # If it is equal or between btime and offbtime
-            if arg.tu >= row['btime'] and arg.tu < row['offbtime']:
+            # If it is equal or between btime and offbtime (the sum evict using False check for offbtime)
+            if arg.tu >= row['btime'] and arg.tu < int(round(row['btime'] + row['uptime'], 0)):
                 offset = arg.tu - row['btime']
                 db_rows[ind]['uptime'] = offset
                 db_rows[ind]['offbtime'] = False
@@ -634,8 +634,8 @@ def tsince_opt(db_rows, btime, uptime, arg):
                 # If it is equal to btime, finish
                 if arg.ts == row['btime']:
                     offset = 0
-                # If it is between btime and offtime
-                elif arg.ts > row['btime'] and arg.ts < row['offbtime']:
+                # If it is between btime and offtime (the sum evict using False for check)
+                elif arg.ts > row['btime'] and arg.ts < int(round(row['btime'] + row['uptime'], 0)):
                     offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
                     db_rows[0]['btime'] = False
                     db_rows[0]['uptime'] = offset
@@ -911,7 +911,6 @@ def print_at(db_rows, btime, uptime, arg):
                 report['time'] = round(arg.at - row['btime'], 2)
                 break
             elif row['offbtime'] is False:
-                print('false')
                 continue
             else:
                 if row['endst'] == 1:
