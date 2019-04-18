@@ -45,6 +45,7 @@ sqlite3 ${TMP_DBF} "CREATE TABLE tuptimeNew (btime integer, uptime real, rntime 
 sqlite3 ${TMP_DBF} "INSERT INTO tuptimeNew(btime, uptime, offbtime, endst, downtime, kernel) SELECT btime, uptime, offbtime, endst, downtime, kernel FROM tuptime;" && \
 sqlite3 ${TMP_DBF} "UPDATE tuptimeNew SET rntime = uptime;" && \
 sqlite3 ${TMP_DBF} "UPDATE tuptimeNew SET spdtime = 0.0;" && \
+sqlite3 ${TMP_DBF} "UPDATE tuptimeNew SET offbtime = cast(round(offbtime) as int);" && \
 sqlite3 ${TMP_DBF} "DROP TABLE tuptime;" && \
 sqlite3 ${TMP_DBF} "ALTER TABLE tuptimeNew RENAME TO tuptime;" 
 if [ $? -ne 0 ]; then
