@@ -188,6 +188,14 @@ These are the command line options, no configuration file is used:
          tuptime --help
 
 
+--at
+  Report system status at specific timestamp.
+
+  Examples:
+         tuptime --at 1555280149
+         tuptime -cs --at 1555281311
+
+
 -c, --csv
   Report in csv format. When this option is used, for an easier post processed,
   all lines always have the same number of values (empty or not).

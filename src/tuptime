@@ -39,6 +39,14 @@ def get_arguments():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '--at',
+        dest='at',
+        default=None,
+        action='store',
+        type=int,
+        help='status at epoch time'
+    )
+    parser.add_argument(
         '-c', '--csv',
         dest='csv',
         action='store_true',
@@ -212,11 +220,11 @@ def get_arguments():
     if arg.table and arg.lst:
         parser.error('Operators [-t|--table] and [-l|--list] can\'t be combined together.')
 
-    if arg.power:
+    if arg.power or arg.at:
         if arg.ts or arg.tu:
             # Is not possible to know if the system was running or suspended if the given
             # timestamp is inside a uptime range.
-            parser.error('[-p|--power] operator can\'t be combined with [--tsince] or [--tuntil]')
+            parser.error('Operator can\'t be combined with [--tsince] or [--tuntil]')
 
     logging.info('Arguments: %s', str(vars(arg)))
     return arg
@@ -628,7 +636,6 @@ def tsince_opt(db_rows, btime, uptime, arg):
                     offset = 0
                 # If it is between btime and offtime
                 elif arg.ts > row['btime'] and arg.ts < row['offbtime']:
-                    print('a')
                     offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
                     db_rows[0]['btime'] = False
                     db_rows[0]['uptime'] = offset
@@ -867,6 +874,70 @@ def print_table(db_rows, arg):
                 if (key + 1) != len(row):
                     sys.stdout.write(',')
             print("")
+
+
+def print_at(db_rows, btime, uptime, arg):
+
+    # Negative value decrease actual timestamp
+    if arg.at < 0:
+        arg.at = btime + uptime + arg.at
+
+    if arg.at < db_rows[0]['btime']:
+        logging.info('Option "at" lower than first startup timestamp: %s'
+                     ' - Not applying.', str(db_rows[0]['btime']))
+
+    elif (db_rows[-1]['offbtime'] is not False and
+         arg.at > int(round(db_rows[-1]['offbtime'] + db_rows[-1]['downtime'], 0))):
+            logging.info('Option "at" greater than last timestamp available: %s'
+                         ' - Not applying.', str(db_rows[0]['btime']))
+
+    elif (db_rows[-1]['offbtime'] is False and
+         arg.at > int(round(db_rows[-1]['btime'] + db_rows[-1]['uptime'], 0))):
+            logging.info('Option "at" greater than last timestamp available: %s'
+                         ' - Not applying.', str(db_rows[0]['btime']))
+    else:
+        report = {'at' : False, 'startup' : False, 'status' : False, 'time' : False}
+
+        for row in db_rows[:]:
+            report['at'] = arg.at
+            report['startup'] = row['startup']
+
+            if arg.at == row['btime']:
+                report['status'] = 'UP'
+                report['time'] = 0
+                break
+            elif arg.at > row['btime'] and arg.at < int(round(row['btime'] + row['uptime'], 0)):
+                report['status'] = 'UP'
+                report['time'] = round(arg.at - row['btime'], 2)
+                break
+            elif row['offbtime'] is False:
+                print('false')
+                continue
+            else:
+                if row['endst'] == 1:
+                    report['status'] = 'DOWN-OK'
+                elif row['endst'] == 0:
+                    report['status'] = 'DOWN-BAD'
+                else:
+                    report['status'] = 'DOWN'
+
+                if arg.at == row['offbtime']:
+                    report['time'] = 0
+                    break
+                elif arg.at > row['offbtime'] and arg.at < int(round(row['offbtime'] + row['downtime'], 0)):
+                    report['time'] = round(arg.at - row['offbtime'], 2)
+                    break
+
+        if report['time'] is not False:
+
+            if not arg.seconds:
+                report['at'] = datetime.fromtimestamp(report['at']).strftime(arg.date_format)
+                report['time'] = time_conv(report['time'])
+
+            if not arg.csv:
+                print(str(report['at']) + '    ' + str(report['startup']) + '    ' + str(report['status']) + '    ' + str(report['time']))
+            else:
+                print('"' + str(report['at']) + '","' + str(report['startup']) + '","' + str(report['status']) + '","' + str(report['time']) + '"')
 
 
 def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
@@ -1291,10 +1362,10 @@ def main():
                         row[value] = False
 
         # Parse since until arguments
-        if arg.since: 
-            db_rows, arg = since_opt(db_rows, arg, last_startup_n)
         if arg.until:
             db_rows, arg = until_opt(db_rows, arg, last_startup_n)
+        if arg.since: 
+            db_rows, arg = since_opt(db_rows, arg, last_startup_n)
 
         if arg.tu is not None:
             db_rows, arg = tuntil_opt(db_rows, btime, uptime, arg)
@@ -1306,6 +1377,8 @@ def main():
             print_list(db_rows, arg)
         elif arg.table:
             print_table(db_rows, arg)
+        elif arg.at:
+            print_at(db_rows, btime, uptime, arg)
         else:
             print_default(db_rows, btime, uptime, rntime, spdtime, kernel, arg)
 
