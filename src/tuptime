@@ -911,7 +911,12 @@ def print_at(db_rows, btime, uptime, arg):
                 report['time'] = round(arg.at - row['btime'], 2)
                 break
             elif row['offbtime'] is False:
-                continue
+                if arg.at == int(round(row['btime'] + row['uptime'], 0)):
+                    report['status'] = 'UP'
+                    report['time'] = round(arg.at - row['btime'], 2)
+                    break
+                else:
+                    continue
             else:
                 if row['endst'] == 1:
                     report['status'] = 'DOWN-OK'
@@ -1376,7 +1381,7 @@ def main():
             print_list(db_rows, arg)
         elif arg.table:
             print_table(db_rows, arg)
-        elif arg.at:
+        elif arg.at is not None:
             print_at(db_rows, btime, uptime, arg)
         else:
             print_default(db_rows, btime, uptime, rntime, spdtime, kernel, arg)
