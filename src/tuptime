@@ -882,66 +882,52 @@ def print_at(db_rows, btime, uptime, arg):
     if arg.at < 0:
         arg.at = btime + uptime + arg.at
 
-    if arg.at < db_rows[0]['btime']:
-        logging.info('Option "at" lower than first startup timestamp: %s'
-                     ' - Not applying.', str(db_rows[0]['btime']))
+    report = {'at' : False, 'startup' : False, 'status' : False, 'time' : False}
 
-    elif (db_rows[-1]['offbtime'] is not False and
-          arg.at > int(round(db_rows[-1]['offbtime'] + db_rows[-1]['downtime'], 0))):
-        logging.info('Option "at" greater than last timestamp available: %s'
-                     ' - Not applying.', str(db_rows[0]['btime']))
+    for row in db_rows[:]:
+        report['at'] = arg.at
+        report['startup'] = row['startup']
 
-    elif (db_rows[-1]['offbtime'] is False and
-          arg.at > int(round(db_rows[-1]['btime'] + db_rows[-1]['uptime'], 0))):
-        logging.info('Option "at" greater than last timestamp available: %s'
-                     ' - Not applying.', str(db_rows[0]['btime']))
-    else:
-        report = {'at' : False, 'startup' : False, 'status' : False, 'time' : False}
-
-        for row in db_rows[:]:
-            report['at'] = arg.at
-            report['startup'] = row['startup']
-
-            if arg.at == row['btime']:
-                report['status'] = 'UP'
-                report['time'] = 0
-                break
-            elif arg.at > row['btime'] and arg.at < int(round(row['btime'] + row['uptime'], 0)):
+        if arg.at == row['btime']:
+            report['status'] = 'UP'
+            report['time'] = 0
+            break
+        elif arg.at > row['btime'] and arg.at < int(round(row['btime'] + row['uptime'], 0)):
+            report['status'] = 'UP'
+            report['time'] = round(arg.at - row['btime'], 2)
+            break
+        elif row['offbtime'] is False:
+            if arg.at == int(round(row['btime'] + row['uptime'], 0)):
                 report['status'] = 'UP'
                 report['time'] = round(arg.at - row['btime'], 2)
                 break
-            elif row['offbtime'] is False:
-                if arg.at == int(round(row['btime'] + row['uptime'], 0)):
-                    report['status'] = 'UP'
-                    report['time'] = round(arg.at - row['btime'], 2)
-                    break
-                else:
-                    continue
             else:
-                if row['endst'] == 1:
-                    report['status'] = 'DOWN-OK'
-                elif row['endst'] == 0:
-                    report['status'] = 'DOWN-BAD'
-                else:
-                    report['status'] = 'DOWN'
-
-                if arg.at == row['offbtime']:
-                    report['time'] = 0
-                    break
-                elif arg.at > row['offbtime'] and arg.at < int(round(row['offbtime'] + row['downtime'], 0)):
-                    report['time'] = round(arg.at - row['offbtime'], 2)
-                    break
-
-        if report['time'] is not False:
-
-            if not arg.seconds:
-                report['at'] = datetime.fromtimestamp(report['at']).strftime(arg.date_format)
-                report['time'] = time_conv(report['time'])
-
-            if not arg.csv:
-                print(str(report['at']) + '    ' + str(report['startup']) + '    ' + str(report['status']) + '    ' + str(report['time']))
+                continue
+        else:
+            if row['endst'] == 1:
+                report['status'] = 'DOWN-OK'
+            elif row['endst'] == 0:
+                report['status'] = 'DOWN-BAD'
             else:
-                print('"' + str(report['at']) + '","' + str(report['startup']) + '","' + str(report['status']) + '","' + str(report['time']) + '"')
+                report['status'] = 'DOWN'
+
+            if arg.at == row['offbtime']:
+                report['time'] = 0
+                break
+            elif arg.at > row['offbtime'] and arg.at < int(round(row['offbtime'] + row['downtime'], 0)):
+                report['time'] = round(arg.at - row['offbtime'], 2)
+                break
+
+    if report['time'] is not False:
+
+        if not arg.seconds:
+            report['at'] = datetime.fromtimestamp(report['at']).strftime(arg.date_format)
+            report['time'] = time_conv(report['time'])
+
+        if not arg.csv:
+            print(str(report['at']) + '    ' + str(report['startup']) + '    ' + str(report['status']) + '    ' + str(report['time']))
+        else:
+            print('"' + str(report['at']) + '","' + str(report['startup']) + '","' + str(report['status']) + '","' + str(report['time']) + '"')
 
 
 def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
