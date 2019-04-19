@@ -1257,7 +1257,7 @@ def main():
                 logging.info('System was restarted')
 
                 offbtime_db = last_offbtime
-                downtime_db = btime - last_offbtime
+                downtime_db = btime - (last_btime + last_uptime)
                 logging.info('Recording offbtime into db = %s', str(offbtime_db))
                 logging.info('Recording downtime into db = %s', str(downtime_db))
 
