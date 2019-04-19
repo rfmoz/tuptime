@@ -987,7 +987,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
     total_downtime = 0.0
     bad_shdown = 0
     ok_shdown = 0
-    prev_shdown = False
+    prev_shdown = None
     shutdowns = 0
     kernel_cnt = []
 
