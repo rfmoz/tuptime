@@ -223,7 +223,7 @@ def get_arguments():
     if arg.power or arg.at:
         if arg.ts or arg.tu:
             # Is not possible to know if the system was running or suspended if the given
-            # timestamp is inside a uptime range.
+            # timestamp is inside a uptime range. And at specific point without btime or offbtime
             parser.error('Operator can\'t be combined with [--tsince] or [--tuntil]')
 
     logging.info('Arguments: %s', str(vars(arg)))
@@ -458,9 +458,9 @@ def control_drift(last_btime, btime, uptime, rntime, spdtime):
             # Fixed timestamp must be equal to system timestamp after drift values
 
         else:
-            if uptime < offset:
-                logging.info('Drift is bigger than uptime. Skipping')
-            if (uptime + offset) < 0:
+            if uptime <= offset:
+                logging.info('Drift is bigger or equal than uptime. Skipping')
+            if (uptime + offset) <= 0:
                 logging.info('Drift decreases uptime under 0. Skipping')
 
     return btime, uptime, rntime, spdtime
