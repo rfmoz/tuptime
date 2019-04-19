@@ -510,21 +510,13 @@ def time_conv(secs):
 
 
 
-def since_opt(db_rows, arg, last_startup_n):
+def since_opt(db_rows, arg):
     """Get rows since a given row startup number registered"""
 
     if arg.since < 0:  # Negative value start from bottom
         arg.since = db_rows[-1]['startup'] + arg.since + 1
-        if arg.since < 0:
-            logging.warning('Invalid "since" value. Reset to first.')
-            arg.since = 0
 
-    if arg.since > last_startup_n:  # Sanity check
-        logging.warning('Option "since" can not be greater than last startup register. '
-                        'Reset to: %s', str(last_startup_n))
-        arg.since = last_startup_n
-
-    # Remove row if the startup is lower
+    # Remove rows if the startup is lower
     for row in db_rows[:]:
         if arg.since > row['startup']:
             db_rows.remove(row)
@@ -532,13 +524,13 @@ def since_opt(db_rows, arg, last_startup_n):
     return db_rows, arg
 
 
-def until_opt(db_rows, arg, last_startup_n):
+def until_opt(db_rows, arg):
     """Get rows until a given row startup number registered"""
 
     if arg.until < 0:  # Negative value start from bottom
         arg.until = db_rows[-1]['startup'] + arg.until
 
-    # Remove row if the startup is lower
+    # Remove row if the startup is greter
     for row in db_rows[:]:
         if arg.until < row['startup']:
             db_rows.remove(row)
@@ -1303,8 +1295,7 @@ def main():
         conn.execute('select rowid as startup, * from tuptime')
         db_rows = conn.fetchall()
 
-        last_startup_n = db_rows[-1]['startup']  # Number of last startup by rowid number
-        if len(db_rows) != last_startup_n:  # Real startups are not equal to enumerate startups
+        if len(db_rows) != db_rows[-1]['startup']:  # Real startups are not equal to enumerate startups
             logging.info('Possible deleted rows in db')
 
     db_conn.commit()
@@ -1336,9 +1327,9 @@ def main():
 
         # Parse since until arguments
         if arg.until:
-            db_rows, arg = until_opt(db_rows, arg, last_startup_n)
+            db_rows, arg = until_opt(db_rows, arg)
         if arg.since:
-            db_rows, arg = since_opt(db_rows, arg, last_startup_n)
+            db_rows, arg = since_opt(db_rows, arg)
 
         if arg.tu is not None:
             db_rows, arg = tuntil_opt(db_rows, btime, uptime, arg)
