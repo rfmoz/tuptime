@@ -521,6 +521,9 @@ def since_opt(db_rows, arg):
         if arg.since > row['startup']:
             db_rows.remove(row)
 
+    if not db_rows:
+        db_rows = [{'kernel': None, 'uptime': False, 'rntime': False, 'spdtime': False, 'endst': False, 'offbtime': False, 'startup': 0, 'btime': False, 'downtime': False}]
+
     return db_rows, arg
 
 
@@ -534,6 +537,9 @@ def until_opt(db_rows, arg):
     for row in db_rows[:]:
         if arg.until < row['startup']:
             db_rows.remove(row)
+
+    if not db_rows:
+        db_rows = [{'kernel': None, 'uptime': False, 'rntime': False, 'spdtime': False, 'endst': False, 'offbtime': False, 'startup': 0, 'btime': False, 'downtime': False}]
 
     return db_rows, arg
 
