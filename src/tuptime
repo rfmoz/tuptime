@@ -964,10 +964,10 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
         # Get max timestamp available
         if arg.tu is not None:
             max_tstamp = arg.tu
-        elif last_btime is not False:
-            max_tstamp = last_btime + db_rows[-1]['uptime'] + db_rows[-1]['downtime']
         elif last_offbtime is not False:
-            max_tstamp = last_offbtime + db_rows[-1]['downtime']
+            max_tstamp = int(round(last_offbtime + db_rows[-1]['downtime'], 0))
+        elif last_btime is not False:
+            max_tstamp = int(round(last_btime + db_rows[-1]['uptime'], 0))
         else:
             max_tstamp = None
 
@@ -977,18 +977,9 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
         elif first_btime is not False:
             min_tstamp = first_btime
         elif first_offbtime is not False:
-            min_tstamp = first_offbtime - db_rows[0]['uptime']
+            min_tstamp = int(round(first_offbtime - db_rows[0]['uptime'], 0))
         else:
-            # If range is under any timestamp, use max_tstamp date if is possible
-            # to avoid fall into None
-            if max_tstamp is not None:
-                min_tstamp = max_tstamp
-            else:
-                min_tstamp = None
-
-        # If range is over any timestamp, use min_tstamp if is possible for avoid fall into 0
-        if max_tstamp is None:
-            max_tstamp = min_tstamp
+            min_tstamp = None
 
         return max_tstamp, min_tstamp
 
@@ -1146,7 +1137,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
     else:
         sp6 = '-'
 
-    if arg.tu or arg.until:
+    if (arg.tu or arg.until) and max_tstamp:
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp5 + 'until' + sp5 + str(max_tstamp) + sp0)
     else:
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp7)
