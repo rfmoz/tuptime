@@ -619,22 +619,21 @@ def tsince_opt(db_rows, btime, uptime, arg):
                     offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
                     db_rows[0]['btime'] = False
                     db_rows[0]['uptime'] = offset
+                # If it is equal to offbtime, finish
+                elif arg.ts == row['offbtime']:
+                    offset = 0
+                    db_rows[0]['btime'] = False
+                    db_rows[0]['uptime'] = False
+                # If it is between offbtime and next btime
+                elif arg.ts > row['offbtime'] and arg.ts < int(round(row['offbtime'] + row['downtime'], 0)):
+                    offset = round(row['offbtime'] + row['downtime'] - arg.ts, 2)
+                    db_rows[0]['btime'] = False
+                    db_rows[0]['uptime'] = False
+                    db_rows[0]['offbtime'] = False
+                    db_rows[0]['downtime'] = offset
+                # If nothing match, remove
                 else:
-                    # If it is equal to offbtime, finish
-                    if arg.ts == row['offbtime']:
-                        offset = 0
-                        db_rows[0]['btime'] = False
-                        db_rows[0]['uptime'] = False
-                    # If it is between offbtime and next btime
-                    elif arg.ts > row['offbtime'] and arg.ts < int(round(row['offbtime'] + row['downtime'], 0)):
-                        offset = round(row['offbtime'] + row['downtime'] - arg.ts, 2)
-                        db_rows[0]['btime'] = False
-                        db_rows[0]['uptime'] = False
-                        db_rows[0]['offbtime'] = False
-                        db_rows[0]['downtime'] = offset
-                    # If nothing match, remove
-                    else:
-                        db_rows.remove(row)
+                    db_rows.remove(row)
 
     # Report 0 if matches produce an empty db
     if not db_rows:
