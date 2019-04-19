@@ -858,6 +858,7 @@ def print_table(db_rows, arg):
 
 
 def print_at(db_rows, btime, uptime, arg):
+    """Report system status at specific timestamp"""
 
     # Negative value decrease actual timestamp
     if arg.at < 0:
@@ -1060,8 +1061,12 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
 
     if startups > 0:
         average_up = round((total_uptime / startups), DEC)
+        average_rn = round((total_rntime / startups), DEC)
+        average_spd = round((total_spdtime / startups), DEC)
     else:
         average_up = 0.0
+        average_rn = 0.0
+        average_spd = 0.0
 
     if shutdowns > 0:
         average_down = round((total_downtime / shutdowns), DEC)
@@ -1084,6 +1089,8 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
             min_tstamp = datetime.fromtimestamp(min_tstamp).strftime(arg.date_format)
 
         average_up = time_conv(average_up)
+        average_rn = time_conv(average_rn)
+        average_spd = time_conv(average_spd)
         average_down = time_conv(average_down)
 
         larg_up_uptime = time_conv(larg_up_uptime)
@@ -1157,8 +1164,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
     else:
         print(sp0 + 'Largest uptime' + sp2 + str(larg_up_uptime) + sp7)
     if arg.power:
-        print(sp0 + (sp8 * 7) + 'running' + sp2 + str(larg_up_rntime) + sp7)
-        print(sp0 + (sp8 * 5) + 'suspended' + sp2 + str(larg_up_spdtime) + sp7)
+        print(sp0 + (sp8 * 1) + 'run / suspend' + sp2 + str(larg_up_rntime) + sp5 + '/' + sp5 + str(larg_up_spdtime) + sp0)
     if arg.kernel:
         print(sp0 + '...with kernel' + sp2 + str(larg_up_kern) + sp0)
     if isinstance(shrt_up_btime, str) or shrt_up_btime is not False:
@@ -1166,11 +1172,12 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
     else:
         print(sp0 + 'Shortest uptime' + sp1 + str(shrt_up_uptime) + sp7)
     if arg.power:
-        print(sp0 + (sp8 * 8) + 'running' + sp2 + str(shrt_up_rntime) + sp7)
-        print(sp0 + (sp8 * 6) + 'suspended' + sp2 + str(shrt_up_spdtime) + sp7)
+        print(sp0 + (sp8 * 2) + 'run / suspend' + sp2 + str(shrt_up_rntime) + sp5 + '/' + sp5 + str(shrt_up_spdtime) + sp0)
     if arg.kernel:
         print(sp0 + sp8 + '...with kernel' + sp2 + str(shrt_up_kern) + sp0)
     print(sp0 + 'Average uptime' + sp2 + str(average_up) + sp0)
+    if arg.power:
+        print(sp0 + (sp8 * 1) + 'run / suspend' + sp2 + str(average_rn) + sp5 + '/' + sp5 + str(average_spd) + sp0)
     if not arg.csv:
         print('')
     if isinstance(larg_down_offbtime, str) or larg_down_offbtime is not False:
@@ -1191,8 +1198,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
             print('')
         print(sp0 + 'Current uptime' + sp2 + str(cuptime) + sp5 + 'since' + sp5 + str(cbtime) + sp0)
         if arg.power:
-            print(sp0 + (sp8 * 7) + 'running' + sp2 + str(crntime) + sp0)
-            print(sp0 + (sp8 * 5) + 'suspended' + sp2 + str(cspdtime) + sp0)
+            print(sp0 + (sp8 * 1) + 'run / suspend' + sp2 + str(crntime) + sp5 + '/' + sp5 + str(cspdtime) + sp0)
         if arg.kernel:
             print(sp0 + '...with kernel' + sp2 + str(kernel) + sp0)
 
