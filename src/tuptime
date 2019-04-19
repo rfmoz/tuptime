@@ -619,10 +619,6 @@ def tsince_opt(db_rows, btime, uptime, arg):
     if arg.ts < 0:
         arg.ts = btime + uptime + arg.ts
 
-    if arg.ts <= db_rows[0]['btime']:
-        logging.info('Option "tsince" lower or equal than first startup timestamp: %s'
-                     ' - Not applying.', str(db_rows[0]['btime']))
-
     else:
         # Find a match along all rows and get the offset
         offset = None
@@ -631,8 +627,8 @@ def tsince_opt(db_rows, btime, uptime, arg):
             # Stop when offset is set
             if offset is None:
 
-                # If it is equal to btime, finish
-                if arg.ts == row['btime']:
+                # If it is lower or equal to btime, finish
+                if arg.ts <= row['btime']:
                     offset = 0
                 # If it is between btime and offtime (the sum evict using False for check)
                 elif arg.ts > row['btime'] and arg.ts < int(round(row['btime'] + row['uptime'], 0)):
