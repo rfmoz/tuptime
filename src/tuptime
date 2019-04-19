@@ -537,19 +537,6 @@ def until_opt(db_rows, arg, last_startup_n):
 
     if arg.until < 0:  # Negative value start from bottom
         arg.until = db_rows[-1]['startup'] + arg.until
-        if arg.until <= 0:
-            logging.warning('Invalid "until" value. Reset to last. ')
-            arg.until = db_rows[-1]['startup']
-
-    if arg.until < arg.since:  # Sanity check
-        logging.warning('Option "until" can not be lower than "since". '
-                        'Reset to: %s', str(arg.since))
-        arg.until = arg.since
-
-    if arg.until > last_startup_n:  # Sanity check
-        logging.warning('Option "until" can not be greater than last startup register. '
-                        'Reset to: %s', str(last_startup_n))
-        arg.until = last_startup_n
 
     # Remove row if the startup is lower
     for row in db_rows[:]:
