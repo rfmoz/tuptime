@@ -976,7 +976,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
         elif first_offbtime is not False:
             min_tstamp = int(round(first_offbtime - db_rows[0]['uptime'], 0))
         else:
-            min_tstamp = None
+            min_tstamp = max_tstamp
 
         return max_tstamp, min_tstamp
 
