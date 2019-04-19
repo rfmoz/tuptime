@@ -509,7 +509,6 @@ def time_conv(secs):
         return str(human_dtm[:-1])
 
 
-
 def since_opt(db_rows, arg):
     """Get rows since a given row startup number registered"""
 
@@ -555,7 +554,7 @@ def tuntil_opt(db_rows, btime, uptime, arg):
 
     # Negative value decrease actual timestamp
     if arg.tu < 0:
-        arg.tu = btime + uptime + arg.tu
+        arg.tu = int(round(btime + uptime + arg.tu, 0))
 
     # Find a match along all rows and get the offset
     offset = None
@@ -601,40 +600,38 @@ def tsince_opt(db_rows, btime, uptime, arg):
 
     # Negative value decrease actual timestamp
     if arg.ts < 0:
-        arg.ts = btime + uptime + arg.ts
+        arg.ts = int(round(btime + uptime + arg.ts, 0))
 
-    else:
-        # Find a match along all rows and get the offset
-        offset = None
-        for row in db_rows[:]:
+    # Find a match along all rows and get the offset
+    offset = None
+    for row in db_rows[:]:
 
-            # Stop when offset is set
-            if offset is None:
+        # Stop when offset is set
+        if offset is None:
 
-                # If it is lower or equal to btime, finish
-                if arg.ts <= row['btime']:
-                    offset = 0
-                # If it is between btime and offtime (the sum evict using False for check)
-                elif arg.ts > row['btime'] and arg.ts < int(round(row['btime'] + row['uptime'], 0)):
-                    offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
-                    db_rows[0]['btime'] = False
-                    db_rows[0]['uptime'] = offset
-                else:
-                    # If it is equal to offbtime, finish
-                    if arg.ts == row['offbtime']:
-                        offset = 0
-                        db_rows[0]['btime'] = False
-                        db_rows[0]['uptime'] = False
-                    # If it is between offbtime and next btime
-                    elif arg.ts > row['offbtime'] and arg.ts < int(round(row['offbtime'] + row['downtime'], 0)):
-                        offset = round(row['offbtime'] + row['downtime'] - arg.ts, 2)
-                        db_rows[0]['btime'] = False
-                        db_rows[0]['uptime'] = False
-                        db_rows[0]['offbtime'] = False
-                        db_rows[0]['downtime'] = offset
-                    # If nothing match, remove
-                    else:
-                        db_rows.remove(row)
+            # If it is lower or equal to btime, finish
+            if arg.ts <= row['btime']:
+                offset = 0
+            # If it is between btime and offtime (the sum evict using False for check)
+            elif arg.ts > row['btime'] and arg.ts < int(round(row['btime'] + row['uptime'], 0)):
+                offset = round(row['btime'] + row['uptime'] - arg.ts, 2)
+                db_rows[0]['btime'] = False
+                db_rows[0]['uptime'] = offset
+            # If it is equal to offbtime, finish
+            elif arg.ts == row['offbtime']:
+                offset = 0
+                db_rows[0]['btime'] = False
+                db_rows[0]['uptime'] = False
+            # If it is between offbtime and next btime
+            elif arg.ts > row['offbtime'] and arg.ts < int(round(row['offbtime'] + row['downtime'], 0)):
+                offset = round(row['offbtime'] + row['downtime'] - arg.ts, 2)
+                db_rows[0]['btime'] = False
+                db_rows[0]['uptime'] = False
+                db_rows[0]['offbtime'] = False
+                db_rows[0]['downtime'] = offset
+            # If nothing match, remove
+            else:
+                db_rows.remove(row)
 
     # Report 0 if matches produce an empty db
     if not db_rows:
