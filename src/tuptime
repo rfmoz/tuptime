@@ -564,21 +564,20 @@ def tuntil_opt(db_rows, btime, uptime, arg):
         # Stop when offset is set
         if offset is None:
 
+            # If it is equal or between offbtime and next btime
+            if arg.tu >= row['offbtime'] and arg.tu < int(round(row['offbtime'] + row['downtime'], 0)):
+                offset = arg.tu - row['offbtime']
+                db_rows[ind]['downtime'] = offset
             # If it is equal or between btime and offbtime (the sum evict using False check for offbtime)
-            if arg.tu >= row['btime'] and arg.tu < int(round(row['btime'] + row['uptime'], 0)):
+            elif arg.tu >= row['btime'] and arg.tu < int(round(row['btime'] + row['uptime'], 0)):
                 offset = arg.tu - row['btime']
                 db_rows[ind]['uptime'] = offset
                 db_rows[ind]['offbtime'] = False
                 db_rows[ind]['downtime'] = False
                 db_rows[ind]['endst'] = False
-            else:
-                # If it is equal or between offbtime and nextbtime
-                if arg.tu >= row['offbtime'] and arg.tu < int(round(row['offbtime'] + row['downtime'], 0)):
-                    offset = arg.tu - row['offbtime']
-                    db_rows[ind]['downtime'] = offset
 
-                elif arg.tu < row['btime']:
-                    db_rows.remove(row)
+            elif arg.tu < row['btime']:
+                db_rows.remove(row)
 
         # If offset is set, remove rows
         else:
@@ -1144,7 +1143,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
     else:
         sp6 = '-'
 
-    if (arg.tu or arg.until) and max_tstamp:
+    if (arg.tu is not None or arg.until) and max_tstamp:
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp5 + 'until' + sp5 + str(max_tstamp) + sp0)
     else:
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp7)
