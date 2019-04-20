@@ -872,12 +872,12 @@ def print_at(db_rows, btime, uptime, arg):
             break
         elif arg.at > row['btime'] and arg.at < int(round(row['btime'] + row['uptime'], 0)):
             report['status'] = 'UP'
-            report['time'] = round(arg.at - row['btime'], 2)
+            report['time'] = arg.at - row['btime']
             break
         elif row['offbtime'] is False:
             if arg.at == int(round(row['btime'] + row['uptime'], 0)):
                 report['status'] = 'UP'
-                report['time'] = round(arg.at - row['btime'], 2)
+                report['time'] = arg.at - row['btime']
                 break
             else:
                 continue
@@ -893,7 +893,7 @@ def print_at(db_rows, btime, uptime, arg):
                 report['time'] = 0
                 break
             elif arg.at > row['offbtime'] and arg.at < int(round(row['offbtime'] + row['downtime'], 0)):
-                report['time'] = round(arg.at - row['offbtime'], 2)
+                report['time'] = arg.at - row['offbtime']
                 break
 
     if report['time'] is not False:
@@ -1227,6 +1227,7 @@ def main():
     last_btime, last_uptime = conn.fetchone()
     logging.info('Last btime from db = %s', str(last_btime))
     logging.info('Last uptime from db = %s', str(last_uptime))
+    # Last offbtime surely is None from db, so calculate it with btime and uptime
     last_offbtime = int(round((last_btime + last_uptime), 0))
     logging.info('Last offbtime from db = %s', str(last_offbtime))
 
@@ -1257,7 +1258,7 @@ def main():
                 logging.info('System was restarted')
 
                 offbtime_db = last_offbtime
-                downtime_db = btime - (last_btime + last_uptime)
+                downtime_db = round(btime - (last_btime + last_uptime), 2)
                 logging.info('Recording offbtime into db = %s', str(offbtime_db))
                 logging.info('Recording downtime into db = %s', str(downtime_db))
 
