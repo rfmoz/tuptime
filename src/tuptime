@@ -220,8 +220,10 @@ def get_arguments():
 
     if arg.power or arg.at:
         if arg.ts or arg.tu:
-            # Is not possible to know if the system was running or suspended if the given
-            # timestamp is inside a uptime range. And at specific point without btime or offbtime
+            # Power states report accumulated time across an uptime range, is not possible to
+            # know if the state was running or suspended between specific points insde it.
+            # Narrow ranges can cut the btime and offbtime info, it doesn't make sense with
+            # 'at' argument report.
             parser.error('Operator can\'t be combined with [--tsince] or [--tuntil]')
 
     logging.info('Arguments: %s', str(vars(arg)))
@@ -863,30 +865,20 @@ def print_at(db_rows, btime, uptime, arg):
         report['at'] = arg.at
         report['startup'] = row['startup']
 
-        if arg.at == row['btime']:
-            report['status'] = 'UP'
-            report['time'] = 0
-            break
-        elif arg.at > row['btime'] and arg.at < int(round(row['btime'] + row['uptime'], 0)):
+        if arg.at >= row['btime'] and arg.at <= int(round(row['btime'] + row['uptime'], 0)):
             report['status'] = 'UP'
             report['time'] = arg.at - row['btime']
             break
-        elif row['offbtime'] is False:
-            continue
-        else:
+
+        elif arg.at >= row['offbtime'] and arg.at <= int(round(row['offbtime'] + row['downtime'], 0)):
             if row['endst'] == 1:
                 report['status'] = 'DOWN-OK'
             elif row['endst'] == 0:
                 report['status'] = 'DOWN-BAD'
             else:
                 report['status'] = 'DOWN'
-
-            if arg.at == row['offbtime']:
-                report['time'] = 0
-                break
-            elif arg.at > row['offbtime'] and arg.at < int(round(row['offbtime'] + row['downtime'], 0)):
-                report['time'] = arg.at - row['offbtime']
-                break
+            report['time'] = arg.at - row['offbtime']
+            break
 
     if report['time'] is not False:
 
