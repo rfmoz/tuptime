@@ -38,7 +38,8 @@ def get_arguments():
     """Get arguments from command line"""
 
     parser = argparse.ArgumentParser()
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
         '--at',
         dest='at',
         default=None,
@@ -92,7 +93,7 @@ def get_arguments():
         default=False,
         help='print kernel information'
     )
-    parser.add_argument(
+    group.add_argument(
         '-l', '--list',
         dest='lst',
         default=False,
@@ -145,7 +146,7 @@ def get_arguments():
         type=int,
         help='restrict since this register number'
     )
-    parser.add_argument(
+    group.add_argument(
         '-t', '--table',
         dest='table',
         default=False,
@@ -216,9 +217,6 @@ def get_arguments():
             if not arg.power:
                 logging.info('Auto enable power option.')
                 arg.power = True
-
-    if arg.table and arg.lst:
-        parser.error('Operators [-t|--table] and [-l|--list] can\'t be combined together.')
 
     if arg.power or arg.at:
         if arg.ts or arg.tu:
