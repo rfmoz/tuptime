@@ -858,12 +858,12 @@ def print_at(db_rows, btime, uptime, arg):
         report['at'] = arg.at
         report['startup'] = row['startup']
 
-        if arg.at > row['btime'] and arg.at <= int(round(row['btime'] + row['uptime'], 0)):
+        if arg.at >= row['btime'] and arg.at < int(round(row['btime'] + row['uptime'], 0)):
             report['status'] = 'UP'
             report['time'] = arg.at - row['btime']
             break
 
-        elif arg.at > row['offbtime'] and arg.at <= int(round(row['offbtime'] + row['downtime'], 0)):
+        elif arg.at >= row['offbtime'] and arg.at < int(round(row['offbtime'] + row['downtime'], 0)):
             if row['endst'] == 1:
                 report['status'] = 'DOWN-OK'
             elif row['endst'] == 0:
