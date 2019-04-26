@@ -621,7 +621,7 @@ def tsince_opt(db_rows, btime, uptime, arg):
             db_rows[0]['uptime'] = False
             db_rows[0]['offbtime'] = False
             db_rows[0]['downtime'] = offset
-           
+
         elif offset is None:
             db_rows.remove(row)
 
@@ -973,7 +973,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
 
         # Count shutdowns when endst is set
         if row['endst'] is not False:
-            if row['offbtime'] is not False or row['downtime'] is not False:
+            if any((row['offbtime'], row['downtime'])):
                 if row['endst'] == 0:
                     bad_shdown += 1
                 if row['endst'] == 1:
@@ -995,11 +995,9 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
         startups = 0
     else:
         startups = len(db_rows)
-
-    # Get state of previous shutdown if filters aren't used:
-    if startups > 1:
-        if not (arg.since or arg.until):
-            if not (arg.ts or arg.tu):
+        # Get state of previous shutdown if filters aren't used:
+        if startups > 1:
+            if not any((arg.since, arg.until, arg.ts, arg.tu)):
                 prev_shdown = db_rows[-2]['endst']
 
     # Get kernel count:
