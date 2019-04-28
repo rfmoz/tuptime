@@ -885,7 +885,7 @@ def print_at(db_rows, btime, uptime, arg):
             print('"' + str(report['at']) + '","' + str(report['startup']) + '","' + str(report['status']) + '","' + str(report['time']) + '"')
 
 
-def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
+def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
     """Print values as default output"""
 
     def extract_times(db_rows, option, key):
@@ -1171,7 +1171,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, kernel, arg):
         if arg.power:
             print(sp0 + (sp8 * 1) + 'run + suspend' + sp2 + str(crntime) + sp5 + '+' + sp5 + str(cspdtime) + sp0)
         if arg.kernel:
-            print(sp0 + '...with kernel' + sp2 + str(kernel) + sp0)
+            print(sp0 + '...with kernel' + sp2 + str(ckernel) + sp0)
 
 
 def main():
