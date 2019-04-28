@@ -11,13 +11,13 @@ Source0:	https://github.com/rfrail3/tuptime/archive/%{version}.tar.gz
 %{?systemd_requires}
 # Check for EPEL Python (python34, python36)
 %if 0%{python3_pkgversion}
-Requires:       python%{python3_pkgversion}
+Requires:	python%{python3_pkgversion}
 %else
-Requires:       python3
+Requires:	python3
 %endif
-BuildRequires:  sed python3-rpm-macros python-srpm-macros
-Requires:       systemd
-Requires(pre):  shadow-utils
+BuildRequires:	sed python3-rpm-macros python-srpm-macros systemd
+Requires:	systemd
+Requires(pre):	shadow-utils
 
 
 %description
@@ -90,4 +90,4 @@ su -s /bin/sh tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 %changelog
 * Sat Jan 05 2019 Ricardo Fraile <rfraile@rfraile.eu> 4.0.0-1
 - Initial RPM release
-- More info: %{_docdir}/CHANGELOG
+- More info: %%{_docdir}/CHANGELOG

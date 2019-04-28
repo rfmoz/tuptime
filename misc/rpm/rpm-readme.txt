@@ -6,7 +6,7 @@
 1.- Install dependencies:
 
     Latest releases of Fedora, RedHat 8, Centos 8:
-        yum -y install rpmdevtools wget python3-rpm-macros python-srpm-macros
+        yum -y install rpmdevtools wget python3-rpm-macros python-srpm-macros rpmlint
 
     Older releases of Fedora, Redhat 7, CentOS 7, install from EPEL:
         yum -y install rpmdevtools wget python3-rpm-macros python-srpm-macros
