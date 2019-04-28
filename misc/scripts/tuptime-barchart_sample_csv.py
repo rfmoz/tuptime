@@ -36,11 +36,27 @@ def get_arguments():
         help='database file'
     )
     parser.add_argument(
+        '-H', '--height',
+        dest='height',
+        default=6,
+        action='store',
+        help='window height.',
+        type=int
+    )
+    parser.add_argument(
         '-p', '--pastdays',
         dest='pdays',
         default=7,
         action='store',
         help='past days before edate to plot, will be ignored if set bdate (default is 7).',
+        type=int
+    )
+    parser.add_argument(
+        '-W', '--width',
+        dest='width',
+        default=8,
+        action='store',
+        help='window width.',
         type=int
     )
     arg = parser.parse_args()
@@ -202,6 +218,7 @@ def main():
     width = 0.9
     color_list = ['green', 'grey', 'black']
 
+    plt.figure(figsize=(arg.width, arg.height))
     # Plot events from their position and rotate color
     for i in range(0, len(stack)):
         plt.bar(ind, stack[i], width, color=color_list[i % len(color_list)], linewidth=0, bottom=np.sum(stack[:i], axis=0))
@@ -212,6 +229,9 @@ def main():
     plt.margins(y=0, x=0.01)
     plt.yticks(np.arange(0, 25, 2))
     plt.grid(color='w', linestyle='--', linewidth=0.5, axis='y')
+    plt.tight_layout()
+    cfig = plt.get_current_fig_manager()
+    cfig.canvas.set_window_title("Tuptime")
     plt.show()
 
 if __name__ == "__main__":
