@@ -23,3 +23,6 @@ tuptime-barchart.py
 
 tuptime-barchart_sample_csv.py
     Graph a daily plot from tuptime csv output.
+
+tuptime-barchart_sample_csv.png
+    Default output from tuptime-barchart_sample_csv.py.
