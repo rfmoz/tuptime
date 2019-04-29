@@ -37,7 +37,7 @@
 
 
 
-Z.- For testing with "dev" branch. Replace step "2" with the following:
+Z.- For testing with "dev" branch. Install "git" on step "1" and replace step "2" with the following:
 
     cd ~
     git clone -b dev https://github.com/rfrail3/tuptime.git tuptime-4.0.0
