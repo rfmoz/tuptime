@@ -560,6 +560,8 @@ def tuntil_opt(db_rows, btime, uptime, arg):
     offset = None
     for ind, row in enumerate(db_rows[:]):
 
+        db_rows[0]['rntime'] = db_rows[0]['spdtime'] = False
+
         if offset is not None:
             db_rows.remove(row)
 
@@ -601,6 +603,8 @@ def tsince_opt(db_rows, btime, uptime, arg):
     # Find a match along all rows and get the offset
     offset = None
     for row in db_rows[:]:
+
+        db_rows[0]['rntime'] = db_rows[0]['spdtime'] = False
 
         if arg.ts <= row['btime']:
             offset = True
@@ -852,7 +856,7 @@ def print_at(db_rows, btime, uptime, arg):
     if arg.at < 0:
         arg.at = btime + uptime + arg.at
 
-    report = {'at' : False, 'startup' : False, 'status' : False, 'time' : False}
+    report = {'at': False, 'startup': False, 'status': False, 'time': False}
 
     for row in db_rows[:]:
         report['at'] = arg.at
