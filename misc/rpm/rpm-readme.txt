@@ -6,7 +6,7 @@
 1.- Install dependencies:
 
     Latest releases of Fedora, RedHat 8, Centos 8:
-        yum -y install rpmdevtools wget python3-rpm-macros python-srpm-macros rpmlint
+        dnf -y install rpmdevtools wget python3-rpm-macros python-srpm-macros rpmlint
 
     Older releases of Fedora, Redhat 7, CentOS 7, install from EPEL:
         yum -y install rpmdevtools wget python3-rpm-macros python-srpm-macros
@@ -26,7 +26,7 @@
 
 4.- As root, install and enable:
 
-    rpm -i tuptime-*.rpm
+    dnf install tuptime-*rpm   # (old way: rpm -i tuptime-*.rpm)
     systemctl enable tuptime.service && systemctl start tuptime.service
     systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
 
