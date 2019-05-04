@@ -558,8 +558,6 @@ def tuntil_opt(db_rows, btime, uptime, arg):
     offset = None
     for ind, row in enumerate(db_rows[:]):
 
-        db_rows[0]['rntime'] = db_rows[0]['spdtime'] = False
-
         if offset is not None:
             db_rows.remove(row)
 
@@ -570,6 +568,7 @@ def tuntil_opt(db_rows, btime, uptime, arg):
         elif arg.tu > row['btime'] and arg.tu <= (row['btime'] + row['uptime']):
             offset = arg.tu - row['btime']
             db_rows[ind]['uptime'] = offset
+            db_rows[ind]['rntime'] = db_rows[ind]['spdtime'] = False
             db_rows[ind]['offbtime'] = False
             db_rows[ind]['endst'] = False
             db_rows[ind]['downtime'] = False
@@ -602,8 +601,6 @@ def tsince_opt(db_rows, btime, uptime, arg):
     offset = None
     for row in db_rows[:]:
 
-        db_rows[0]['rntime'] = db_rows[0]['spdtime'] = False
-
         if arg.ts <= row['btime']:
             offset = True
 
@@ -611,16 +608,19 @@ def tsince_opt(db_rows, btime, uptime, arg):
             offset = row['btime'] + row['uptime'] - arg.ts
             db_rows[0]['btime'] = False
             db_rows[0]['uptime'] = offset
+            db_rows[0]['rntime'] = db_rows[0]['spdtime'] = False
 
         elif arg.ts == row['offbtime']:
             offset = True
             db_rows[0]['btime'] = False
             db_rows[0]['uptime'] = False
+            db_rows[0]['rntime'] = db_rows[0]['spdtime'] = False
 
         elif arg.ts > row['offbtime'] and arg.ts < (row['offbtime'] + row['downtime']):
             offset = row['offbtime'] + row['downtime'] - arg.ts
             db_rows[0]['btime'] = False
             db_rows[0]['uptime'] = False
+            db_rows[0]['rntime'] = db_rows[0]['spdtime'] = False
             db_rows[0]['offbtime'] = False
             db_rows[0]['downtime'] = offset
 
