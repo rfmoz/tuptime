@@ -111,7 +111,7 @@ def date_range(date_limits):
     # Create list with lists of two epoch dates, begin and end for each split
     reg = 1
     while reg < len(dlimit):
-        ranepo.append([dlimit[reg-1].timestamp(), dlimit[reg].timestamp()])
+        ranepo.append([int(dlimit[reg-1].timestamp()), int(dlimit[reg].timestamp())])
         xlegend.append(datetime.fromtimestamp(dlimit[reg-1].timestamp()).strftime('%Y-%m-%d'))
         reg += 1
 
