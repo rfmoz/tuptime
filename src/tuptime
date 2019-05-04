@@ -261,22 +261,22 @@ def get_os_values():
 
         try:
             # Time since some unspecified starting point. Contains suspend time on BSDs.
-            uptime = int(time.clock_gettime(time.CLOCK_MONOTONIC))
+            uptime = int(round(float(time.clock_gettime(time.CLOCK_MONOTONIC)), 0))
             if sys.platform.startswith(('darwin')):
                 # OSX > 10.12 have only UPTIME_RAW. Avoid compare it with non _RAW
                 # counters. Their reference here is CLOCK_REALTIME, so remove the raw drift:
-                uptime_raw = int(time.clock_gettime(time.CLOCK_MONOTONIC_RAW))
+                uptime_raw = int(round(float(time.clock_gettime(time.CLOCK_MONOTONIC_RAW)), 0))
                 raw_diff = uptime - uptime_raw
                 # Time the system have been running. Not contains suspend time on OSX.
-                rntime_raw = int(time.clock_gettime(time.CLOCK_UPTIME_RAW))
+                rntime_raw = int(round(float(time.clock_gettime(time.CLOCK_UPTIME_RAW)), 0))
                 rntime = rntime_raw + raw_diff
             else:
                 # Time the system have been running. Not contains suspend time on BSDs.
-                rntime = int(time.clock_gettime(time.CLOCK_UPTIME))
+                rntime = int(round(float(time.clock_gettime(time.CLOCK_UPTIME)), 0))
         except Exception as exp:
             logging.info('Old uptime/rntime assignment. %s', str(exp))
             logging.info('Power states disabled, values assigned from uptime')
-            uptime = int(time.time() - btime)
+            uptime = int(round(float(time.time() - btime), 0))
             rntime = uptime
 
         return btime, uptime, rntime
@@ -297,14 +297,14 @@ def get_os_values():
 
         try:  # uptime and rntime be toghether to avoid time mismatch between them
             # Time since some unspecified starting point. Contains suspend time on linux.
-            uptime = int(time.clock_gettime(time.CLOCK_BOOTTIME))
+            uptime = int(round(float(time.clock_gettime(time.CLOCK_BOOTTIME)), 0))
             # Time since some unspecified starting point. Not contains suspend time on linux.
-            rntime = int(time.clock_gettime(time.CLOCK_MONOTONIC))
+            rntime = int(round(float(time.clock_gettime(time.CLOCK_MONOTONIC)), 0))
         except Exception as exp:
             logging.info('Old uptime/rntime assignment. %s', str(exp))
             logging.info('Power states disabled, values assigned from uptime')
             with open('/proc/uptime') as fl1:
-                uptime = int(float(fl1.readline().split()[0]))
+                uptime = int(round(float(fl1.readline().split()[0]), 0))
             rntime = uptime
 
         return btime, uptime, rntime
