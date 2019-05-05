@@ -905,9 +905,9 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
         # Extract max/min values from the complete time rows only if
         # the dict keep 1 row or more
         if option == 'max' and dbr:
-            row = max(dbr, key=lambda x: int(x[key]))
+            row = max(dbr, key=lambda x: x[key])
         elif option == 'min' and dbr:
-            row = min(dbr, key=lambda x: int(x[key]))
+            row = min(dbr, key=lambda x: x[key])
         else:
             # If the dict is empty, report 0 values.
             row = {}
