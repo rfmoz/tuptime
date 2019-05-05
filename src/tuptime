@@ -245,7 +245,7 @@ def get_os_values():
         logging.info('BSD system')
 
         try:
-            btime = int(time.clock_gettime(time.CLOCK_REALTIME) - time.clock_gettime(time.CLOCK_MONOTONIC))
+            btime = time.clock_gettime(time.CLOCK_REALTIME) - time.clock_gettime(time.CLOCK_MONOTONIC)
         except Exception as exp:
             logging.info('Old btime assignment. %s', str(exp))
             for path in os.environ["PATH"].split(os.pathsep):
@@ -255,28 +255,28 @@ def get_os_values():
             sysctl_out = os.popen(sysctl_bin + ' -n kern.boottime').read()
             # Some BSDs report the value assigned to 'sec', others do it directly
             if 'sec' in sysctl_out:  # FreeBSD, Darwin
-                btime = int(sysctl_out.split(' sec = ')[1].split(',')[0])
+                btime = sysctl_out.split(' sec = ')[1].split(',')[0]
             else:  # OpenBSD, NetBSD
-                btime = int(sysctl_out)
+                btime = sysctl_out
 
         try:
             # Time since some unspecified starting point. Contains suspend time on BSDs.
-            uptime = int(round(float(time.clock_gettime(time.CLOCK_MONOTONIC)), 0))
+            uptime = time.clock_gettime(time.CLOCK_MONOTONIC)
             if sys.platform.startswith(('darwin')):
                 # OSX > 10.12 have only UPTIME_RAW. Avoid compare it with non _RAW
                 # counters. Their reference here is CLOCK_REALTIME, so remove the raw drift:
-                uptime_raw = int(round(float(time.clock_gettime(time.CLOCK_MONOTONIC_RAW)), 0))
+                uptime_raw = time.clock_gettime(time.CLOCK_MONOTONIC_RAW)
                 raw_diff = uptime - uptime_raw
                 # Time the system have been running. Not contains suspend time on OSX.
-                rntime_raw = int(round(float(time.clock_gettime(time.CLOCK_UPTIME_RAW)), 0))
+                rntime_raw = time.clock_gettime(time.CLOCK_UPTIME_RAW)
                 rntime = rntime_raw + raw_diff
             else:
                 # Time the system have been running. Not contains suspend time on BSDs.
-                rntime = int(round(float(time.clock_gettime(time.CLOCK_UPTIME)), 0))
+                rntime = time.clock_gettime(time.CLOCK_UPTIME)
         except Exception as exp:
             logging.info('Old uptime/rntime assignment. %s', str(exp))
             logging.info('Power states disabled, values assigned from uptime')
-            uptime = int(round(float(time.time() - btime), 0))
+            uptime = time.time() - btime
             rntime = uptime
 
         return btime, uptime, rntime
@@ -287,24 +287,24 @@ def get_os_values():
         logging.info('Linux system')
 
         try:
-            btime = int(time.clock_gettime(time.CLOCK_REALTIME) - time.clock_gettime(time.CLOCK_BOOTTIME))
+            btime = time.clock_gettime(time.CLOCK_REALTIME) - time.clock_gettime(time.CLOCK_BOOTTIME)
         except Exception as exp:
             logging.info('Old btime assignment. %s', str(exp))
             with open('/proc/stat') as fl2:
                 for line in fl2:
                     if line.startswith('btime'):
-                        btime = int(line.split()[1])
+                        btime = line.split()[1]
 
         try:  # uptime and rntime be toghether to avoid time mismatch between them
             # Time since some unspecified starting point. Contains suspend time on linux.
-            uptime = int(round(float(time.clock_gettime(time.CLOCK_BOOTTIME)), 0))
+            uptime = time.clock_gettime(time.CLOCK_BOOTTIME)
             # Time since some unspecified starting point. Not contains suspend time on linux.
-            rntime = int(round(float(time.clock_gettime(time.CLOCK_MONOTONIC)), 0))
+            rntime = time.clock_gettime(time.CLOCK_MONOTONIC)
         except Exception as exp:
             logging.info('Old uptime/rntime assignment. %s', str(exp))
             logging.info('Power states disabled, values assigned from uptime')
             with open('/proc/uptime') as fl1:
-                uptime = int(round(float(fl1.readline().split()[0]), 0))
+                uptime = fl1.readline().split()[0]
             rntime = uptime
 
         return btime, uptime, rntime
@@ -321,8 +321,10 @@ def get_os_values():
         logging.error('Operating system %s not supported.', sys.platform)
         sys.exit(-1)
 
-    ex_user = os.getuid()
-    kernel = platform.platform()
+    # All OS values as integer
+    btime = int(round(float(btime), 0))
+    uptime = int(round(float(uptime), 0))
+    rntime = int(round(float(rntime), 0))
 
     # Avoid missmatch whith elapsed time between getting counters and/or rounded values,
     # whit less than 1 seconds, values are equal
@@ -331,6 +333,9 @@ def get_os_values():
 
     # Get suspend time from runtime
     spdtime = uptime - rntime
+
+    ex_user = os.getuid()
+    kernel = platform.platform()
 
     try:
         logging.info('Current locale = %s', str(locale.getlocale()))
