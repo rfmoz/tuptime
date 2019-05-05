@@ -1024,16 +1024,16 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
         spdrate = 0.0
 
     if startups > 0:
-        average_up = int(total_uptime / startups)
-        average_rn = int(total_rntime / startups)
-        average_spd = int(total_spdtime / startups)
+        average_up = int(round(float(total_uptime / startups), 0))
+        average_rn = int(round(float(total_rntime / startups), 0))
+        average_spd = int(round(float(total_spdtime / startups), 0))
     else:
         average_up = 0
         average_rn = 0
         average_spd = 0
 
     if shutdowns > 0:
-        average_down = int(total_downtime / shutdowns)
+        average_down = int(round(float(total_downtime / shutdowns), 0))
     else:
         average_down = 0
 
