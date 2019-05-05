@@ -856,11 +856,6 @@ def print_at(db_rows, btime, uptime, arg):
             report['time'] = arg.at - row['btime']
             break
 
-        elif (arg.at == (row['btime'] + row['uptime'])) and (row['offbtime'] is False):
-            report['status'] = 'UP'
-            report['time'] = arg.at - row['btime']
-            break
-
         elif (arg.at >= row['offbtime']) and (arg.at < (row['offbtime'] + row['downtime'])):
             if row['endst'] == 1:
                 report['status'] = 'DOWN-OK'
