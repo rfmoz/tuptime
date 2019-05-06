@@ -168,7 +168,7 @@ def get_arguments():
         default=None,
         action='store',
         type=int,
-        help='restrict before this epoch timestamp'
+        help='restrict until this epoch timestamp'
     )
     parser.add_argument(
         '-U', '--until',
