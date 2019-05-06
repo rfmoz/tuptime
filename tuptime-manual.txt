@@ -381,7 +381,7 @@ These are the command line options, no configuration file is used:
 
 
 --tuntil <TIMESTAMP>
-  Restrict report just before the given epoch timestamp. Negative values allowed.
+  Restrict report until the given epoch timestamp. Negative values allowed.
   Options (-S) and (-U) have precedence over this one.
 
   Examples:
