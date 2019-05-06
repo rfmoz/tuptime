@@ -805,16 +805,10 @@ def print_table(db_rows, arg):
                     str(row_dict['kernel'])])
 
     if not arg.power:  # Delete runinng and suspend if it isnt used
-        tbl_no_power = []
-        for elx in tbl:
-            tbl_no_power.append(elx[0:3] + elx[5:])
-        tbl = tbl_no_power
+        tbl = [x[:3] + x[5:] for x in tbl]
 
     if not arg.kernel:  # Delete kernel if it isnt used
-        tbl_no_kern = []
-        for elx in tbl:
-            tbl_no_kern.append(elx[:-1])
-        tbl = tbl_no_kern
+        tbl = [x[:-1] for x in tbl]
 
     if not arg.csv:
 
