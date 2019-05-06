@@ -807,9 +807,7 @@ def print_table(db_rows, arg):
     if not arg.power:  # Delete runinng and suspend if it isnt used
         tbl_no_power = []
         for elx in tbl:
-            del elx[3]  # rntime
-            del elx[3]  # spdtime (now in 3º position)
-            tbl_no_power.append(elx)
+            tbl_no_power.append(elx[0:3] + elx[5:])
         tbl = tbl_no_power
 
     if not arg.kernel:  # Delete kernel if it isnt used
