@@ -461,8 +461,12 @@ def control_drift(last_btime, btime, uptime, rntime, spdtime):
             logging.info('Fixed btime = %s', str(btime))
             logging.info('Fixed timestamp = %s', str(btime + uptime))
             # Fixed timestamp must be equal to system timestamp after drift values
+            # Fixed btimme must be equal to last btime from db
 
         else:
+            # Keep btime from db with missaligned uptime until it can be fixed
+            btime = last_btime
+            logging.info('Keep last btime from db = %s', str(btime))
             if uptime <= offset:
                 logging.info('Drift is bigger or equal than uptime. Skipping')
             if (uptime + offset) <= 0:
