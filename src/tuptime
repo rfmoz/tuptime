@@ -535,7 +535,7 @@ def until_opt(db_rows, arg):
     if arg.until < 0:  # Negative value start from bottom
         arg.until = db_rows[-1]['startup'] + arg.until
 
-    # Remove row if the startup is greter
+    # Remove row if the startup is greater
     for row in db_rows[:]:
         if arg.until < row['startup']:
             db_rows.remove(row)
@@ -1278,11 +1278,10 @@ def main():
             db_rows[-1]['offbtime'] = False
             db_rows[-1]['downtime'] = False
         else:
-            # Convert from sqlite None to False
-            for row in db_rows:
-                for _, value in enumerate(row):
-                    if row[value] is None:
-                        row[value] = False
+            # If the db was updated, convert last line None registers to False
+            for key in db_rows[-1].keys():
+                if db_rows[-1][key] is None:
+                    db_rows[-1][key] = False
 
         # Parse since until arguments
         if arg.until:
