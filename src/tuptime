@@ -783,10 +783,6 @@ def print_list(db_rows, arg):
 def print_table(db_rows, arg):
     """Print values as a table"""
 
-    def maxwidth(table, index):
-        """Get the maximum width of the given column index"""
-        return max([len(str(row[index])) for row in table])
-
     tbl = [['No.', 'Startup Date', 'Uptime', 'Running', 'Suspended', 'Shutdown Date', 'End', 'Downtime', 'Kernel']]
     if not arg.csv:   # Add empty brake up line if csv is not used
         tbl.append([''] * len(tbl[0]))
@@ -810,24 +806,22 @@ def print_table(db_rows, arg):
     if not arg.power:  # Delete runinng and suspend if it isnt used
         tbl = [x[:3] + x[5:] for x in tbl]
 
+    # Position of columns aligned to left
+    al_left = (tbl[0].index('End'), tbl[0].index('Kernel'))
+
     if not arg.kernel:  # Delete kernel if it isnt used
         tbl = [x[:-1] for x in tbl]
 
     if not arg.csv:
         for i in range(len(tbl[0])):
-            colpad.append(maxwidth(tbl, i))
-
-        # Align 'End' and 'Kernel' columns to left
-        if arg.power:
-            to_left = (6, 8)
-        else:
-            to_left = (4, 6)
+            # Get the maximum width of the given column index
+            colpad.append(max([len(str(row[i])) for row in tbl]))
 
         # Print cols by row
         for row in tbl:
             sys.stdout.write(str(row[0]).ljust(colpad[0]))  # First col print
             for i in range(1, len(row)):
-                if i in to_left:
+                if i in al_left:  # Aligned side
                     col = (side_spaces * ' ') + str(row[i]).ljust(colpad[i])
                 else:
                     col = str(row[i]).rjust(colpad[i] + side_spaces)
