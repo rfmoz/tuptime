@@ -848,7 +848,7 @@ def print_tat(db_rows, btime, uptime, arg):
 
     report = {'at': False, 'startup': False, 'status': False, 'time': False}
 
-    for row in db_rows[:]:
+    for row in db_rows:
         report['at'] = arg.tat
         report['startup'] = row['startup']
 
