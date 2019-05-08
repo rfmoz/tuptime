@@ -4,7 +4,7 @@
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [{\-h | \-\-help}] [\-\-at=<timestamp>] [{\-c | \-\-csv}] [{\-d | \-\-date}=<date\ format>] [\-\-decp=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}={d|e|k|r|s|u}] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<number>] [{\-t | \-\-table}] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<number>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}]
+tuptime [{\-h | \-\-help}] [{\-c | \-\-csv}] [{\-d | \-\-date}=<date\ format>] [\-\-decp=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}={d|e|k|r|s|u}] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<number>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<number>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}]
 
 .SH DESCRIPTION
 .RS
@@ -52,9 +52,6 @@ l lx.
 \-h | \-\-help@T{
 Show this help message and exit
 T}
-\-\-at TIMESTAMP@T{
-Report system status at specific timestamp
-T}
 \-c | \-\-csv@T{
 Output in csv format
 T}
@@ -96,6 +93,9 @@ Restric since this register number
 T}
 \-t | \-\-table@T{
 Enumerate system life as table
+T}
+\-\-tat TIMESTAMP@T{
+Report system status at specific timestamp
 T}
 \-\-tsince TIMESTAMP@T{
 Restrict since this epoch timestamp

@@ -37,15 +37,6 @@ def get_arguments():
 
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
-    group.add_argument(
-        '--at',
-        dest='at',
-        metavar='TIMESTAMP',
-        default=None,
-        action='store',
-        type=int,
-        help='status at epoch timestamp'
-    )
     parser.add_argument(
         '-c', '--csv',
         dest='csv',
@@ -152,6 +143,15 @@ def get_arguments():
         action='store_true',
         help='enumerate system life as table'
     )
+    group.add_argument(
+        '--tat',
+        dest='tat',
+        metavar='TIMESTAMP',
+        default=None,
+        action='store',
+        type=int,
+        help='status at epoch timestamp'
+    )
     parser.add_argument(
         '--tsince',
         dest='ts',
@@ -217,7 +217,7 @@ def get_arguments():
                 logging.info('Auto enable power option.')
                 arg.power = True
 
-    if arg.power or arg.at:
+    if arg.power or arg.tat:
         if arg.ts or arg.tu:
             # Power states report accumulated time across an uptime range, is not possible to
             # know if the state was running or suspended between specific points insde it.
@@ -464,7 +464,7 @@ def control_drift(last_btime, btime, uptime, rntime, spdtime):
             # Fixed btimme must be equal to last btime from db
 
         else:
-            # Keep btime from db with missaligned uptime until it can be fixed
+            # Keep btime from db with current uptime until it can be fixed
             btime = last_btime
             logging.info('Keep last btime from db = %s', str(btime))
             if uptime <= offset:
@@ -839,32 +839,32 @@ def print_table(db_rows, arg):
             print("")
 
 
-def print_at(db_rows, btime, uptime, arg):
+def print_tat(db_rows, btime, uptime, arg):
     """Report system status at specific timestamp"""
 
     # Negative value decrease actual timestamp
-    if arg.at < 0:
-        arg.at = btime + uptime + arg.at
+    if arg.tat < 0:
+        arg.tat = btime + uptime + arg.tat
 
     report = {'at': False, 'startup': False, 'status': False, 'time': False}
 
     for row in db_rows[:]:
-        report['at'] = arg.at
+        report['at'] = arg.tat
         report['startup'] = row['startup']
 
-        if (arg.at >= row['btime']) and (arg.at < (row['btime'] + row['uptime'])):
+        if (arg.tat >= row['btime']) and (arg.tat < (row['btime'] + row['uptime'])):
             report['status'] = 'UP'
-            report['time'] = arg.at - row['btime']
+            report['time'] = arg.tat - row['btime']
             break
 
-        elif (arg.at >= row['offbtime']) and (arg.at < (row['offbtime'] + row['downtime'])):
+        elif (arg.tat >= row['offbtime']) and (arg.tat < (row['offbtime'] + row['downtime'])):
             if row['endst'] == 1:
                 report['status'] = 'DOWN-OK'
             elif row['endst'] == 0:
                 report['status'] = 'DOWN-BAD'
             else:
                 report['status'] = 'DOWN'
-            report['time'] = arg.at - row['offbtime']
+            report['time'] = arg.tat - row['offbtime']
             break
 
     if report['time'] is not False:
@@ -1303,8 +1303,8 @@ def main():
             print_list(db_rows, arg)
         elif arg.table:
             print_table(db_rows, arg)
-        elif arg.at is not None:
-            print_at(db_rows, btime, uptime, arg)
+        elif arg.tat is not None:
+            print_tat(db_rows, btime, uptime, arg)
         else:
             print_default(db_rows, btime, uptime, rntime, spdtime, kernel, arg)
 
