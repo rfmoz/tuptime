@@ -1253,60 +1253,61 @@ def main():
     else:
         logging.info('Skipping update values')
 
-    if not arg.silent:
-        # - Get all rows for calculate print values
-        conn.execute('select rowid as startup, * from tuptime')
-        db_rows = conn.fetchall()
-
-        if len(db_rows) != db_rows[-1]['startup']:  # Real startups are not equal to enumerate startups
-            logging.info('Possible deleted rows in db')
-
     db_conn.commit()
+
+    # - Exit if silent is enabled. Avoid wasting time calculating values for print
+    if arg.silent:
+        db_conn.close()
+        logging.info('Silent mode')
+        sys.exit(0)
+
+    # - Get all rows for calculate print values
+    conn.execute('select rowid as startup, * from tuptime')
+    db_rows = conn.fetchall()
+
+    if len(db_rows) != db_rows[-1]['startup']:  # Real startups are not equal to enumerate startups
+        logging.info('Possible deleted rows in db')
     db_conn.close()
 
-    if arg.silent:
-        logging.info('Silent mode')
+    # Create list of dicts from sqlite row objects to allow item allocation
+    db_rows = [dict(row) for row in db_rows]
+
+    if arg.update:
+        # If the user can only read db, the previous select return outdated numbers in last row
+        # because the db was not updated previously. The following snippet update that in memmory
+        db_rows[-1]['uptime'] = uptime
+        db_rows[-1]['rntime'] = rntime
+        db_rows[-1]['spdtime'] = spdtime
+        db_rows[-1]['endst'] = arg.endst
+        db_rows[-1]['kernel'] = kernel
+        db_rows[-1]['offbtime'] = False
+        db_rows[-1]['downtime'] = False
     else:
+        # Convert last line None sqlite registers to False
+        for key in db_rows[-1].keys():
+            if db_rows[-1][key] is None:
+                db_rows[-1][key] = False
 
-        # Create list of dicts from sqlite row objects to allow item allocation
-        db_rows = [dict(row) for row in db_rows]
+    # Parse since until arguments
+    if arg.until:
+        db_rows, arg = until_opt(db_rows, arg)
+    if arg.since:
+        db_rows, arg = since_opt(db_rows, arg)
 
-        if arg.update:
-            # If the user can only read db, the previous select return outdated numbers in last row
-            # because the db was not updated previously. The following snippet update that in memmory
-            db_rows[-1]['uptime'] = uptime
-            db_rows[-1]['rntime'] = rntime
-            db_rows[-1]['spdtime'] = spdtime
-            db_rows[-1]['endst'] = arg.endst
-            db_rows[-1]['kernel'] = kernel
-            db_rows[-1]['offbtime'] = False
-            db_rows[-1]['downtime'] = False
-        else:
-            # If the db was updated, convert last line None registers to False
-            for key in db_rows[-1].keys():
-                if db_rows[-1][key] is None:
-                    db_rows[-1][key] = False
+    if arg.tu is not None:
+        db_rows, arg = tuntil_opt(db_rows, btime, uptime, arg)
+    if arg.ts is not None:
+        db_rows, arg = tsince_opt(db_rows, btime, uptime, arg)
 
-        # Parse since until arguments
-        if arg.until:
-            db_rows, arg = until_opt(db_rows, arg)
-        if arg.since:
-            db_rows, arg = since_opt(db_rows, arg)
-
-        if arg.tu is not None:
-            db_rows, arg = tuntil_opt(db_rows, btime, uptime, arg)
-        if arg.ts is not None:
-            db_rows, arg = tsince_opt(db_rows, btime, uptime, arg)
-
-        # Print values
-        if arg.lst:
-            print_list(db_rows, arg)
-        elif arg.table:
-            print_table(db_rows, arg)
-        elif arg.tat is not None:
-            print_tat(db_rows, btime, uptime, arg)
-        else:
-            print_default(db_rows, btime, uptime, rntime, spdtime, kernel, arg)
+    # Print values
+    if arg.lst:
+        print_list(db_rows, arg)
+    elif arg.table:
+        print_table(db_rows, arg)
+    elif arg.tat is not None:
+        print_tat(db_rows, btime, uptime, arg)
+    else:
+        print_default(db_rows, btime, uptime, rntime, spdtime, kernel, arg)
 
 
 if __name__ == "__main__":
