@@ -787,8 +787,7 @@ def print_table(db_rows, arg):
         """Get the maximum width of the given column index"""
         return max([len(str(row[index])) for row in table])
 
-    tbl = []  # Initialize table plus its header
-    tbl.append(['No.', 'Startup Date', 'Uptime', 'Running', 'Suspended', 'Shutdown Date', 'End', 'Downtime', 'Kernel'])
+    tbl = [['No.', 'Startup Date', 'Uptime', 'Running', 'Suspended', 'Shutdown Date', 'End', 'Downtime', 'Kernel']]
     if not arg.csv:   # Add empty brake up line if csv is not used
         tbl.append([''] * len(tbl[0]))
     colpad = []
@@ -815,22 +814,26 @@ def print_table(db_rows, arg):
         tbl = [x[:-1] for x in tbl]
 
     if not arg.csv:
-
         for i in range(len(tbl[0])):
             colpad.append(maxwidth(tbl, i))
+
+        # Align 'End' and 'Kernel' columns to left
+        if arg.power:
+            to_left = (6, 8)
+        else:
+            to_left = (4, 6)
 
         # Print cols by row
         for row in tbl:
             sys.stdout.write(str(row[0]).ljust(colpad[0]))  # First col print
             for i in range(1, len(row)):
-                if i in (6, 8):   # 'End' and 'Kernel' columns align to left
+                if i in to_left:
                     col = (side_spaces * ' ') + str(row[i]).ljust(colpad[i])
                 else:
                     col = str(row[i]).rjust(colpad[i] + side_spaces)
                 sys.stdout.write(str('' + col))  # Other col print
             print('')
     else:
-
         for row in tbl:
             for key, value in enumerate(row):
                 sys.stdout.write('"' + value + '"')
