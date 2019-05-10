@@ -34,7 +34,7 @@ Copy rc.d file:
     # install -m 555 tuptime/src/rc.d/freebsd/tuptime /usr/local/etc/rc.d/tuptime
     # echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
-That's all, enjoy it.
+It's all done.
 
 
 
@@ -87,4 +87,61 @@ Add execution at shutdown:
 
     # echo 'su - tuptime -c "/usr/local/bin/python3 /usr/local/bin/tuptime -xg"' >> /etc/rc.shutdown
 
-That's all, enjoy it.
+It's all done.
+
+
+
+===================================
+| NetBSD manual install - Tuptime |
+===================================
+
+
+Install dependencies:
+
+    # pkg_add git python3? py3?-sqlite3
+
+Create a symlink for the Python3 interpreter:
+
+    # mkdir -p /usr/local/bin/
+    # ln -s /usr/pkg/bin/python3.? /usr/local/bin/python3
+     
+Install tls certs before clone the repo:
+
+    # pkg_add mozilla-rootcerts
+    # mozilla-rootcerts install
+
+Clone repository and copy executable file:
+
+    # git clone https://github.com/rfrail3/tuptime.git
+    # install -m 755 tuptime/src/tuptime /usr/local/bin/tuptime
+
+Execute tuptime with a privileged user for create db path:
+
+    # tuptime
+
+Add tuptime user:
+
+    # useradd -d /var/lib/tuptime -s /sbin/nologin tuptime
+
+Change owner of the db path and file:
+
+    # chown -R tuptime /var/lib/tuptime
+
+Add the cron entry, create a '/var/cron/tabs/tuptime' file with this content:
+
+    SHELL=/bin/sh
+    PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin/
+    */5       *       *       *       *       tuptime -x
+
+Set the right permissions to cron file and restart the service:
+
+    # chown tuptime /var/cron/tabs/tuptime 
+    # chmod 600 /var/cron/tabs/tuptime
+    # service cron restart
+
+Copy rc.d file:
+
+    # install -m 555 tuptime/src/rc.d/freebsd/tuptime /etc/rc.d/tuptime
+    # echo 'tuptime_enable="YES"' >> /etc/rc.conf
+
+It's all done.

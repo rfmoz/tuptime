@@ -128,7 +128,7 @@ For BSDs systems:
 
            # echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
-   + Manual install on FreeBSD, OpenBSD and derivates:
+   + Manual install on FreeBSD, OpenBSD, NetBSD and derivates:
 
        Please, read misc/bsd-manual-install.txt
 
