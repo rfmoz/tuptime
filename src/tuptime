@@ -949,10 +949,8 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
         return max_tstamp, min_tstamp
 
     # Initialize empty variables
-    total_uptime = 0
-    total_rntime = 0
-    total_spdtime = 0
-    total_downtime = 0
+    cal = {'ave': {}, 'lar': {}, 'sho': {}}  # Average, large, short
+    cal.update({'tot': {'uptime': 0, 'rntime': 0, 'spdtime': 0, 'downtime': 0}})
     bad_shdown = 0
     ok_shdown = 0
     prev_shdown = None
@@ -972,10 +970,10 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
                 shutdowns += 1
 
         # Count totals
-        total_uptime += row['uptime']
-        total_rntime += row['rntime']
-        total_spdtime += row['spdtime']
-        total_downtime += row['downtime']
+        cal['tot']['uptime'] += row['uptime']
+        cal['tot']['rntime'] += row['rntime']
+        cal['tot']['spdtime'] += row['spdtime']
+        cal['tot']['downtime'] += row['downtime']
 
         # List with kernel names
         kernel_cnt.append(row['kernel'])
@@ -996,47 +994,44 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
     kernel_cnt = len(set(filter(None, kernel_cnt)))
 
     # Get system life
-    sys_life = total_uptime + total_downtime
+    sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
 
     # Get max/min timestamp
     max_tstamp, min_tstamp = extract_max_min_tst(db_rows, arg)
 
     # Get rates and average uptime / downtime
     if sys_life > 0:
-        uprate = round((total_uptime * 100) / sys_life, arg.decp)
-        downrate = round((total_downtime * 100) / sys_life, arg.decp)
+        uprate = round((cal['tot']['uptime'] * 100) / sys_life, arg.decp)
+        downrate = round((cal['tot']['downtime'] * 100) / sys_life, arg.decp)
     else:
         uprate = 0.0
         downrate = 0.0
 
     if uprate > 0:
-        rnrate = round((total_rntime * 100) / sys_life, arg.decp)
-        spdrate = round((total_spdtime * 100) / sys_life, arg.decp)
+        rnrate = round((cal['tot']['rntime'] * 100) / sys_life, arg.decp)
+        spdrate = round((cal['tot']['spdtime'] * 100) / sys_life, arg.decp)
     else:
         rnrate = 0.0
         spdrate = 0.0
 
     if startups > 0:
-        average_up = int(round(float(total_uptime / startups), 0))
-        average_rn = int(round(float(total_rntime / startups), 0))
-        average_spd = int(round(float(total_spdtime / startups), 0))
+        cal['ave']['uptime'] = int(round(float(cal['tot']['uptime'] / startups), 0))
+        cal['ave']['rntime'] = int(round(float(cal['tot']['rntime'] / startups), 0))
+        cal['ave']['spdtime'] = int(round(float(cal['tot']['spdtime'] / startups), 0))
     else:
-        average_up = 0
-        average_rn = 0
-        average_spd = 0
+        cal['ave']['uptime'] = 0
+        cal['ave']['rntime'] = 0
+        cal['ave']['spdtime'] = 0
 
     if shutdowns > 0:
-        average_down = int(round(float(total_downtime / shutdowns), 0))
+        cal['ave']['downtime'] = int(round(float(cal['tot']['downtime'] / shutdowns), 0))
     else:
-        average_down = 0
+        cal['ave']['downtime'] = 0
 
-    larg_up_uptime, larg_up_rntime, larg_up_spdtime, larg_up_btime, larg_up_kern = extract_times(db_rows, 'max', 'uptime')
-    shrt_up_uptime, shrt_up_rntime, shrt_up_spdtime, shrt_up_btime, shrt_up_kern = extract_times(db_rows, 'min', 'uptime')
-    larg_down_downtime, larg_down_offbtime, larg_down_kern = extract_times(db_rows, 'max', 'downtime')
-    shrt_down_downtime, shrt_down_offbtime, shrt_down_kern = extract_times(db_rows, 'min', 'downtime')
-
-    total_uptime = total_uptime
-    total_downtime = total_downtime
+    cal['lar']['up_uptime'], cal['lar']['up_rntime'], cal['lar']['up_spdtime'], cal['lar']['up_btime'], cal['lar']['up_kern'] = extract_times(db_rows, 'max', 'uptime')
+    cal['sho']['up_uptime'], cal['sho']['up_rntime'], cal['sho']['up_spdtime'], cal['sho']['up_btime'], cal['sho']['up_kern'] = extract_times(db_rows, 'min', 'uptime')
+    cal['lar']['down_downtime'], cal['lar']['down_offbtime'], cal['lar']['down_kern'] = extract_times(db_rows, 'max', 'downtime')
+    cal['sho']['down_downtime'], cal['sho']['down_offbtime'], cal['sho']['down_kern'] = extract_times(db_rows, 'min', 'downtime')
 
     if not arg.seconds:  # - Human readable style
         if max_tstamp is not None:
@@ -1045,38 +1040,21 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
         if min_tstamp is not None:
             min_tstamp = datetime.fromtimestamp(min_tstamp).strftime(arg.date_format)
 
-        average_up = time_conv(average_up)
-        average_rn = time_conv(average_rn)
-        average_spd = time_conv(average_spd)
-        average_down = time_conv(average_down)
-
-        larg_up_uptime = time_conv(larg_up_uptime)
-        larg_up_rntime = time_conv(larg_up_rntime)
-        larg_up_spdtime = time_conv(larg_up_spdtime)
-        if larg_up_btime is not False:
-            larg_up_btime = datetime.fromtimestamp(larg_up_btime).strftime(arg.date_format)
-
-        shrt_up_uptime = time_conv(shrt_up_uptime)
-        shrt_up_rntime = time_conv(shrt_up_rntime)
-        shrt_up_spdtime = time_conv(shrt_up_spdtime)
-        if shrt_up_btime is not False:
-            shrt_up_btime = datetime.fromtimestamp(shrt_up_btime).strftime(arg.date_format)
-
-        larg_down_downtime = time_conv(larg_down_downtime)
-        if larg_down_offbtime is not False:
-            larg_down_offbtime = datetime.fromtimestamp(larg_down_offbtime).strftime(arg.date_format)
-        shrt_down_downtime = time_conv(shrt_down_downtime)
-        if shrt_down_offbtime is not False:
-            shrt_down_offbtime = datetime.fromtimestamp(shrt_down_offbtime).strftime(arg.date_format)
+        # Look into the keys to set right values
+        for k in cal:
+            for key in cal[k]:
+                if key in ['up_kern', 'down_kern']:
+                    continue
+                elif key in ['up_btime', 'down_offbtime']:
+                    if cal[k][key] is not False:
+                        cal[k][key] = datetime.fromtimestamp(cal[k][key]).strftime(arg.date_format)
+                else:
+                    cal[k][key] = time_conv(cal[k][key])
 
         cuptime = time_conv(cuptime)
         crntime = time_conv(crntime)
         cspdtime = time_conv(cspdtime)
         cbtime = datetime.fromtimestamp(cbtime).strftime(arg.date_format)
-        total_uptime = time_conv(total_uptime)
-        total_rntime = time_conv(total_rntime)
-        total_spdtime = time_conv(total_spdtime)
-        total_downtime = time_conv(total_downtime)
         sys_life = time_conv(sys_life)
 
     if not arg.csv:  # Define content/spaces between values
@@ -1106,50 +1084,50 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
     else:
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp7)
     print(sp0 + 'System shutdowns' + sp1 + str(ok_shdown) + sp4 + 'ok' + sp5 + sp6 + sp5 + str(bad_shdown) + sp4 + 'bad' + sp0)
-    print(sp0 + 'System uptime' + sp3 + str(uprate) + ' %' + sp5 + '-' + sp5 + str(total_uptime) + sp0)
+    print(sp0 + 'System uptime' + sp3 + str(uprate) + ' %' + sp5 + '-' + sp5 + str(cal['tot']['uptime']) + sp0)
     if arg.power:
-        print(sp0 + (sp8 * 6) + 'running' + sp3 + str(rnrate) + ' %' + sp5 + '-' + sp5 + str(total_rntime) + sp0)
-        print(sp0 + (sp8 * 4) + 'suspended' + sp3 + str(spdrate) + ' %' + sp5 + '-' + sp5 + str(total_spdtime) + sp0)
-    print(sp0 + 'System downtime' + sp2 + str(downrate) + ' %' + sp5 + '-' + sp5 + str(total_downtime) + sp0)
+        print(sp0 + (sp8 * 6) + 'running' + sp3 + str(rnrate) + ' %' + sp5 + '-' + sp5 + str(cal['tot']['rntime']) + sp0)
+        print(sp0 + (sp8 * 4) + 'suspended' + sp3 + str(spdrate) + ' %' + sp5 + '-' + sp5 + str(cal['tot']['spdtime']) + sp0)
+    print(sp0 + 'System downtime' + sp2 + str(downrate) + ' %' + sp5 + '-' + sp5 + str(cal['tot']['downtime']) + sp0)
     print(sp0 + 'System life' + sp3 + str(sys_life) + sp0)
     if arg.kernel:
         print(sp0 + 'System kernels' + sp2 + str(kernel_cnt) + sp0)
     if not arg.csv:
         print('')
-    if isinstance(larg_up_btime, str) or larg_up_btime is not False:
-        print(sp0 + 'Largest uptime' + sp2 + str(larg_up_uptime) + sp5 + 'from' + sp5 + str(larg_up_btime) + sp0)
+    if isinstance(cal['lar']['up_btime'], str) or cal['lar']['up_btime'] is not False:
+        print(sp0 + 'Largest uptime' + sp2 + str(cal['lar']['up_uptime']) + sp5 + 'from' + sp5 + str(cal['lar']['up_btime']) + sp0)
     else:
-        print(sp0 + 'Largest uptime' + sp2 + str(larg_up_uptime) + sp7)
+        print(sp0 + 'Largest uptime' + sp2 + str(cal['lar']['up_uptime']) + sp7)
     if arg.power:
-        print(sp0 + (sp8 * 1) + 'run + suspend' + sp2 + str(larg_up_rntime) + sp5 + '+' + sp5 + str(larg_up_spdtime) + sp0)
+        print(sp0 + (sp8 * 1) + 'run + suspend' + sp2 + str(cal['lar']['up_rntime']) + sp5 + '+' + sp5 + str(cal['lar']['up_spdtime']) + sp0)
     if arg.kernel:
-        print(sp0 + '...with kernel' + sp2 + str(larg_up_kern) + sp0)
-    if isinstance(shrt_up_btime, str) or shrt_up_btime is not False:
-        print(sp0 + 'Shortest uptime' + sp1 + str(shrt_up_uptime) + sp5 + 'from' + sp5 + str(shrt_up_btime) + sp0)
+        print(sp0 + '...with kernel' + sp2 + str(cal['lar']['up_kern']) + sp0)
+    if isinstance(cal['sho']['up_btime'], str) or cal['sho']['up_btime'] is not False:
+        print(sp0 + 'Shortest uptime' + sp1 + str(cal['sho']['up_uptime']) + sp5 + 'from' + sp5 + str(cal['sho']['up_btime']) + sp0)
     else:
-        print(sp0 + 'Shortest uptime' + sp1 + str(shrt_up_uptime) + sp7)
+        print(sp0 + 'Shortest uptime' + sp1 + str(cal['sho']['up_uptime']) + sp7)
     if arg.power:
-        print(sp0 + (sp8 * 2) + 'run + suspend' + sp2 + str(shrt_up_rntime) + sp5 + '+' + sp5 + str(shrt_up_spdtime) + sp0)
+        print(sp0 + (sp8 * 2) + 'run + suspend' + sp2 + str(cal['sho']['up_rntime']) + sp5 + '+' + sp5 + str(cal['sho']['up_spdtime']) + sp0)
     if arg.kernel:
-        print(sp0 + sp8 + '...with kernel' + sp2 + str(shrt_up_kern) + sp0)
-    print(sp0 + 'Average uptime' + sp2 + str(average_up) + sp0)
+        print(sp0 + sp8 + '...with kernel' + sp2 + str(cal['sho']['up_kern']) + sp0)
+    print(sp0 + 'Average uptime' + sp2 + str(cal['ave']['uptime']) + sp0)
     if arg.power:
-        print(sp0 + (sp8 * 1) + 'run + suspend' + sp2 + str(average_rn) + sp5 + '+' + sp5 + str(average_spd) + sp0)
+        print(sp0 + (sp8 * 1) + 'run + suspend' + sp2 + str(cal['ave']['rntime']) + sp5 + '+' + sp5 + str(cal['ave']['spdtime']) + sp0)
     if not arg.csv:
         print('')
-    if isinstance(larg_down_offbtime, str) or larg_down_offbtime is not False:
-        print(sp0 + 'Largest downtime' + sp1 + str(larg_down_downtime) + sp5 + 'from' + sp5 + str(larg_down_offbtime) + sp0)
+    if isinstance(cal['lar']['down_offbtime'], str) or cal['lar']['down_offbtime'] is not False:
+        print(sp0 + 'Largest downtime' + sp1 + str(cal['lar']['down_downtime']) + sp5 + 'from' + sp5 + str(cal['lar']['down_offbtime']) + sp0)
     else:
-        print(sp0 + 'Largest downtime' + sp1 + str(larg_down_downtime) + sp7)
+        print(sp0 + 'Largest downtime' + sp1 + str(cal['lar']['down_downtime']) + sp7)
     if arg.kernel:
-        print(sp0 + (sp8 * 2) + '...with kernel' + sp2 + str(larg_down_kern) + sp0)
-    if isinstance(shrt_down_offbtime, str) or shrt_down_offbtime is not False:
-        print(sp0 + 'Shortest downtime' + sp1 + str(shrt_down_downtime) + sp5 + 'from' + sp5 + str(shrt_down_offbtime) + sp0)
+        print(sp0 + (sp8 * 2) + '...with kernel' + sp2 + str(cal['lar']['down_kern']) + sp0)
+    if isinstance(cal['sho']['down_offbtime'], str) or cal['sho']['down_offbtime'] is not False:
+        print(sp0 + 'Shortest downtime' + sp1 + str(cal['sho']['down_downtime']) + sp5 + 'from' + sp5 + str(cal['sho']['down_offbtime']) + sp0)
     else:
-        print(sp0 + 'Shortest downtime' + sp1 + str(shrt_down_downtime) + sp7)
+        print(sp0 + 'Shortest downtime' + sp1 + str(cal['sho']['down_downtime']) + sp7)
     if arg.kernel:
-        print(sp0 + (sp8 * 3) + '...with kernel' + sp2 + str(shrt_down_kern) + sp0)
-    print(sp0 + 'Average downtime' + sp2 + str(average_down) + sp0)
+        print(sp0 + (sp8 * 3) + '...with kernel' + sp2 + str(cal['sho']['down_kern']) + sp0)
+    print(sp0 + 'Average downtime' + sp2 + str(cal['ave']['downtime']) + sp0)
     if arg.update:
         if not arg.csv:
             print('')
