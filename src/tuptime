@@ -1028,8 +1028,12 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
     else:
         cal['ave']['downtime'] = 0
 
-    cal['lar']['up_uptime'], cal['lar']['up_rntime'], cal['lar']['up_spdtime'], cal['lar']['up_btime'], cal['lar']['up_kern'] = extract_times(db_rows, 'max', 'uptime')
-    cal['sho']['up_uptime'], cal['sho']['up_rntime'], cal['sho']['up_spdtime'], cal['sho']['up_btime'], cal['sho']['up_kern'] = extract_times(db_rows, 'min', 'uptime')
+    cal['lar']['up_uptime'], cal['lar']['up_rntime'], cal['lar']['up_spdtime'], \
+    cal['lar']['up_btime'], cal['lar']['up_kern'] = extract_times(db_rows, 'max', 'uptime')
+
+    cal['sho']['up_uptime'], cal['sho']['up_rntime'], cal['sho']['up_spdtime'], \
+    cal['sho']['up_btime'], cal['sho']['up_kern'] = extract_times(db_rows, 'min', 'uptime')
+
     cal['lar']['down_downtime'], cal['lar']['down_offbtime'], cal['lar']['down_kern'] = extract_times(db_rows, 'max', 'downtime')
     cal['sho']['down_downtime'], cal['sho']['down_offbtime'], cal['sho']['down_kern'] = extract_times(db_rows, 'min', 'downtime')
 
