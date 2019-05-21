@@ -953,7 +953,6 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
     cal.update({'tot': {'uptime': 0, 'rntime': 0, 'spdtime': 0, 'downtime': 0}})
     bad_shdown = 0
     ok_shdown = 0
-    prev_shdown = None
     shutdowns = 0
     kernel_cnt = []
 
@@ -984,10 +983,6 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
         startups = 0
     else:
         startups = len(db_rows)
-        # Get state of previous shutdown if filters aren't used:
-        if startups > 1:
-            if not any((arg.since, arg.until, arg.ts, arg.tu)):
-                prev_shdown = db_rows[-2]['endst']
 
     # Get kernel count:
     #   Remove duplicate and empty elements
@@ -1075,19 +1070,11 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
         sp7 = '","",""'
         sp8 = ''
 
-    # Set how was previous shutdown
-    if prev_shdown == 1:
-        sp6 = '<-'
-    elif prev_shdown == 0:
-        sp6 = '->'
-    else:
-        sp6 = '-'
-
     if (arg.tu is not None or arg.until) and max_tstamp:
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp5 + 'until' + sp5 + str(max_tstamp) + sp0)
     else:
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp7)
-    print(sp0 + 'System shutdowns' + sp1 + str(ok_shdown) + sp4 + 'ok' + sp5 + sp6 + sp5 + str(bad_shdown) + sp4 + 'bad' + sp0)
+    print(sp0 + 'System shutdowns' + sp1 + str(ok_shdown) + sp4 + 'ok' + sp5 + '-' + sp5 + str(bad_shdown) + sp4 + 'bad' + sp0)
     print(sp0 + 'System uptime' + sp3 + str(uprate) + ' %' + sp5 + '-' + sp5 + str(cal['tot']['uptime']) + sp0)
     if arg.power:
         print(sp0 + (sp8 * 6) + 'running' + sp3 + str(rnrate) + ' %' + sp5 + '-' + sp5 + str(cal['tot']['rntime']) + sp0)
