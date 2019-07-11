@@ -2,8 +2,8 @@ Source: tuptime
 Section: utils
 Priority: optional
 Maintainer: Ricardo Fraile <rfraile@rfraile.eu>
-Build-Depends: debhelper (>= 11~)
-Standards-Version: 4.3.0
+Build-Depends: debhelper-compat (= 12)
+Standards-Version: 4.4.0
 Homepage: https://github.com/rfrail3/tuptime
 
 Package: tuptime
