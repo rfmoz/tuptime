@@ -1,11 +1,11 @@
 tuptime (4.0.0) unstable; urgency=low
 
   * Adding support for running and suspended time. (-p, --power)
-  * Adding --tat to report system state at specifit timestamp.
+  * Adding --tat to report system state at specific timestamp.
   * Change database specs. Add rntime and spdtime columns.
   * Update .deb package
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Thu, 11 Jul 2019 20:45:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 28 Jul 2019 20:12:00 +0100
 
 tuptime (3.5.0) unstable; urgency=low
 

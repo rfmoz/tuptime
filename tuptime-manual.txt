@@ -3,7 +3,7 @@
                          ----------------------
                               version 4.0.0
                                 Ricardo F.
-                               27/Mar/2019
+                               28/Jul/2019
 
 
 
@@ -582,7 +582,7 @@ the system may change. A slightly drift is compensate over the uptime value, but
 very high drift can cause inconsistent registers and output, for example, Raspberry
 Pi don't have any clock and initializes from 1 January 1970.
 
-For avoid that problem the systemd unit have the time-sync.target requirement, but
+To avoid that problem the systemd unit have the time-sync.target requirement, but
 for now it have a bug (https://github.com/systemd/systemd/issues/5097) and not work
 as expected.
 
@@ -686,7 +686,7 @@ A basic sample web wrapper is available under misc/web/. It is made in php and
 can be useful as a starting template to any other particular use case.
 
 If the system have configured a time zone with daylight saving time (DST),
-for avoid problems when the time change, the real time clock (RTC) should have
+to avoid problems when the time change, the real time clock (RTC) should have
 set to universal time coordinated (UTC), not local time. Check it with 
 'timedatectl' command.  Reports matching DST changes are completely right.
 https://tldp.org/HOWTO/Clock-2.html

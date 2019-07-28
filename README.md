@@ -115,7 +115,7 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 - Its main purpose is tracking all the system startups/shutdowns and present that information to the user in a more understandable way. Don't have mail alerts when a milestones are reached or the limitation of keep the last n records.
 
-- Its written for avoid false startups registers, actually there are some issues with other alternatives related to that. This is an issue that sometimes happens on virtualized enviroments, servers with high load or when ntp are running.
+- Its written to avoid false startups registers, actually there are some issues with other alternatives related to that. This is an issue that sometimes happens on virtualized enviroments, servers with high load or when ntp are running.
 
 - It can report the whole life of the system or only a part of that life, closing the range between startups/shutdowns or timestamps. Also, it reports the accumulated running and suspended time.
 
