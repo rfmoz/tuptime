@@ -17,12 +17,9 @@ uptimed-to-tuptime.py
     Migrate Uptimed records to Tuptime.
 
 
-tuptime-barchart.py
+tuptime-barchart_from_db.py
     Graph a daily plot reading directly from tuptime database.
 
 
-tuptime-barchart_sample_csv.py
+tuptime-barchart_from_csv.py
     Graph a daily plot from tuptime csv output.
-
-tuptime-barchart_sample_csv.png
-    Default output from tuptime-barchart_sample_csv.py.
