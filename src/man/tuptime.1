@@ -1,4 +1,4 @@
-.TH TUPTIME 1 "Mar 2019" "4.0.0" "Linux Manual"
+.TH TUPTIME 1 "Jul 2019" "4.0.0" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
@@ -9,7 +9,7 @@ tuptime [{\-h | \-\-help}] [{\-c | \-\-csv}] [{\-d | \-\-date}=<date\ format>] [
 .SH DESCRIPTION
 .RS
 .RE
-Tuptime is a tool for report the historical and statistical real time of 
+Tuptime report historical and statistical real time of 
 the system, keeping it between restarts. Indeed, it can:
 .RS
 - Count system startups
@@ -24,19 +24,16 @@ the system, keeping it between restarts. Indeed, it can:
 - Uptime and downtime percentage since first boot time
 .RS
 .RE
-- Accumulated system uptime, downtime and total
-.RS
-.RE
-- Largest, shortest and average uptime and downtime
+- Accumulated system uptime (running and suspended), downtime and total
 .RS
 .RE
 - Current uptime
 .RS
 .RE
-- Print formatted table or list with most of the previous values
+- Register used kernels
 .RS
 .RE
-- Register used kernels
+- Print formatted table or list with most of the previous values
 .RS
 .RE
 - Narrow reports since and/or until a given startup or timestamp
