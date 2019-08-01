@@ -6,7 +6,7 @@
 1.- Install dependencies:
 
     Latest releases of Fedora, RedHat 8, Centos 8:
-        yum -y install rpmdevtools wget python3-rpm-macros python-srpm-macros
+        dnf -y install rpmdevtools wget python3-rpm-macros python-srpm-macros rpmlint
 
     Older releases of Fedora, Redhat 7, CentOS 7, install from EPEL:
         yum -y install rpmdevtools wget python3-rpm-macros python-srpm-macros
@@ -26,7 +26,7 @@
 
 4.- As root, install and enable:
 
-    rpm -i tuptime-*.rpm
+    dnf install tuptime-*rpm   # (old way: rpm -i tuptime-*.rpm)
     systemctl enable tuptime.service && systemctl start tuptime.service
     systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
 
@@ -37,12 +37,12 @@
 
 
 
-Z.- For testing with "dev" branch. Replace step "2" with the following:
+Z.- For testing with "dev" branch. Install "git" on step "1" and replace step "2" with the following:
 
     cd ~
-    git clone -b dev https://github.com/rfrail3/tuptime.git tuptime-3.5.0
+    git clone -b dev https://github.com/rfrail3/tuptime.git tuptime-4.0.0
     rpmdev-setuptree
     cd ~/rpmbuild/SPECS/
-    cp ../../tuptime-3.5.0/misc/rpm/tuptime.spec .
-    tar -czvf ../SOURCES/3.5.0.tar.gz ../../tuptime-3.5.0
+    cp ../../tuptime-4.0.0/misc/rpm/tuptime.spec .
+    tar -czvf ../SOURCES/4.0.0.tar.gz ../../tuptime-4.0.0
     rpmbuild -ba --target=noarch tuptime.spec

@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 3.5.0
+                              version 4.0.0
                                 Ricardo F.
-                               20/Feb/2019
+                               28/Jul/2019
 
 
 
@@ -18,11 +18,10 @@ Indeed, it can:
   - Register first boot time (a.k.a. installation time)
   - Count nicely and accidentally shutdowns 
   - Uptime and downtime percentage since first boot time
-  - Accumulated system uptime, downtime and total
-  - Largest, shortest and average uptime and downtime
+  - Accumulated system uptime (running and suspended), downtime and total
   - Current uptime
-  - Print formatted table or list with most of the previous values
   - Register used kernels
+  - Print formatted table or list with most of the previous values
   - Narrow reports since and/or until a given startup or timestamp
   - Reports in csv
 
@@ -129,7 +128,7 @@ For BSDs systems:
 
            # echo 'tuptime_enable="YES"' >> /etc/rc.conf
 
-   + Manual install on FreeBSD, OpenBSD and derivates:
+   + Manual install on FreeBSD, OpenBSD, NetBSD and derivates:
 
        Please, read misc/bsd-manual-install.txt
 
@@ -155,26 +154,28 @@ These are the command line options, no configuration file is used:
 
   -h, --help            show this help message and exit
   -c, --csv             csv output
-  -d DATE_FORMAT, --date=DATE_FORMAT
+  -d DATE_FORMAT, --date DATE_FORMAT
                         date format output
   --decp DECIMALS       number of decimals in percentages
-  -f FILE, --filedb=FILE
+  -f FILE, --filedb FILE
                         database file
   -g, --graceful        register a graceful shutdown
   -k, --kernel          print kernel information
   -l, --list            enumerate system life as list
   -n, --noup            avoid update values
-  -o TYPE, --order=TYPE
-                        order enumerate by [<e|d|k|u>]
+  -o TYPE, --order TYPE
+                        order enumerate by [<e|d|k|u|r|s>]
+  -p, --power           print power states run/suspend
   -r, --reverse         reverse order
   -s, --seconds         output time in seconds and epoch
-  -S SINCE, --since=SINCE
-                        restric since this register number
+  -S SINCE, --since SINCE
+                        restrict from this register number
   -t, --table           enumerate system life as table
-  --tsince=TIMESTAMP    restrict since this epoch timestamp
-  --tuntil=TIMESTAMP    restrict until this epoch timestamp
-  -U UNTIL, --until=UNTIL
-                        restrict until this register number
+  --tat TIMESTAMP       status at epoch timestamp
+  --tsince TIMESTAMP    restrict from this epoch timestamp
+  --tuntil TIMESTAMP    restrict until this epoch timestamp
+  -U UNTIL, --until UNTIL
+                        restrict up until this register number
   -v, --verbose         verbose output
   -V, --version         show version
   -x, --silent          update values into db without output
@@ -295,11 +296,13 @@ These are the command line options, no configuration file is used:
          tuptime --noup
 
 
--o [<e|d|k|u>], --order=[<e|d|k|u>]
+-o [<d|e|k|r|s|u>], --order=[<d|e|k|r|s|u>]
   Order enumerate output from table or list by:
-    <e>  end status
     <d>  downtime
+    <e>  end status
     <k>  kernel
+    <r>  runtime
+    <s>  suspend time
     <u>  uptime
   Therefore, only works in conjunction with (-t) or (-l) options.
 
@@ -308,6 +311,17 @@ These are the command line options, no configuration file is used:
          tuptime -l -o k
          tuptime -t --order u
          tuptime -l --order d
+
+
+-p, --power
+  Add the running and suspended accumulated time for the correspondent uptime slot.
+  Note that only Python >= 3.6 can register this values.
+
+  Examples:
+         tuptime -p
+         tuptime --power
+         tuptime -tp
+         tuptime -l --power
 
 
 -r, --reverse
@@ -331,7 +345,7 @@ These are the command line options, no configuration file is used:
 
 
 -S <SINCE>, --since <SINCE>
-  Restrict values only since this startup number. Take it from (-t) table or
+  Restrict values only from this startup number. Take it from (-t) table or
   (-l) list reports. Negative values allowed.
 
   Examples:
@@ -349,8 +363,16 @@ These are the command line options, no configuration file is used:
          tuptime --table
 
 
+--tat
+  Report system status at specific timestamp.
+
+  Examples:
+         tuptime --tat 1555280149
+         tuptime -cs --tat 1555281311
+
+
 --tsince <TIMESTAMP>
-  Restrict report since the given epoch timestamp. Negative values allowed.
+  Restrict report from the given epoch timestamp. Negative values allowed.
   Options (-S) and (-U) have precedence over this one.
 
   Examples:
@@ -368,7 +390,7 @@ These are the command line options, no configuration file is used:
 
 
 -U <UNTIL>, --until <UNTIL>
-  Restrict values only until this startup number. Take it from (-t) table or
+  Restrict values only up until this startup number. Take it from (-t) table or
   (-l) list reports. Negative values allowed.
 
   Examples:
@@ -448,8 +470,7 @@ System startups:
  is used in a narrow range.
 
 System shutdowns:
-  Total number of shutdowns done correctly or incorrectly. The separator 
-  points to the state of last shutdown (<-) ok, (->) bad if any filter is used.
+  Total number of shutdowns done correctly or incorrectly.
 
 System uptime:
   Percentage of uptime and time counter.
@@ -475,26 +496,34 @@ Current uptime:
 
 
 
-=============================================
-| DB format changes from 2.x to 3.x version |
-=============================================
+======================================
+| DB format changes between versions |
+======================================
 
-If this error appears:
-
-...(a few lines)...
-sqlite3.OperationalError: no such column: endst
-
-or:
-
-...(a few lines)...
-    db_rows[-1][4] = opt.endst
-IndexError: list assignment index out of range
-
-Is because the database have the format of the 2.x release. For migrate it, 
-please, execute the script "db-tuptime-migrate.sh" which is located at:
-
-https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate.sh
+From 2.x to 3.x:
+    If this error appears:
+    
+    ...(a few lines)...
+    sqlite3.OperationalError: no such column: endst
+    
+    or:
+    
+    ...(a few lines)...
+        db_rows[-1][4] = opt.endst
+    IndexError: list assignment index out of range
+    
+    It is because the database have the format of the 2.x release. Please, execute the
+    following scripts for the migration: 
+    
+    https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate.sh
+    https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate-3.0-to-3.1.sh
  
+From 3.x to 4.x:
+    DB registers uptime, rntime, spdtime, downtime are now integers.
+    The migrations is done automatically from Tuptime. Also, the migration script
+    is located at:
+
+    https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate-3.1-to-4.0.sh
  
 
 ==================
@@ -505,14 +534,18 @@ Tuptime use a sqlite3 database located in "/var/lib/tuptime/tuptime.db" with
 the following format:
 
 tuptime (btime integer, 
-         uptime real, 
+         uptime integer, 
+         rntime integer,
+         spdtime integer,
          offbtime integer, 
          endst integer, 
-         downtime real, 
+         downtime integer, 
          kernel text)
 
 btime    Startup date in epoch
 uptime   Uptime seconds  
+rntime   Running time seconds
+spdtime  Suspend time seconds
 offbtime Shutdown date in epoch
 endst    Type of shutdown [1 ok | 0 bad]
 downtime Downtime seconds
@@ -549,7 +582,7 @@ the system may change. A slightly drift is compensate over the uptime value, but
 very high drift can cause inconsistent registers and output, for example, Raspberry
 Pi don't have any clock and initializes from 1 January 1970.
 
-For avoid that problem the systemd unit have the time-sync.target requirement, but
+To avoid that problem the systemd unit have the time-sync.target requirement, but
 for now it have a bug (https://github.com/systemd/systemd/issues/5097) and not work
 as expected.
 
@@ -644,20 +677,16 @@ Note the filesystem cache on which the files resides for a while before being
 flushing into disk. If things go wrong, like a kernel panic, maybe the last 
 updates of the db already written into the file can be lost.
 
-The time passed on suspend and hibernate are considered uptime. When the kernel
-recovers from any of those power states, it doesn't reset the 'uptime' and
-'btime' values, wich are the main source information for Tuptime. The uptime
-reference is linked with the wall clock time elapsed since boot, not the
-running efective time.
-
-That is because both are referenced in the kernel with the wall clock time and
-none of these values are reset when the power state of the system reaches
+The uptime reference is linked with the wall clock time elapsed since boot, not
+the running efective time. Running (efective time) and hibernate power states
+are childs of the uptime and report accumulated values inside their time range,
+which counts since the startup until the shutdown.
 
 A basic sample web wrapper is available under misc/web/. It is made in php and
 can be useful as a starting template to any other particular use case.
 
 If the system have configured a time zone with daylight saving time (DST),
-for avoid problems when the time change, the real time clock (RTC) should have
+to avoid problems when the time change, the real time clock (RTC) should have
 set to universal time coordinated (UTC), not local time. Check it with 
 'timedatectl' command.  Reports matching DST changes are completely right.
 https://tldp.org/HOWTO/Clock-2.html
