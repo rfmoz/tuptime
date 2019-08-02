@@ -32,7 +32,8 @@ Add the cron entry and restart the service:
 Copy rc.d file:
 
     # install -m 555 tuptime/src/rc.d/freebsd/tuptime /usr/local/etc/rc.d/tuptime
-    # echo 'tuptime_enable="YES"' >> /etc/rc.conf
+    # sysrc tuptime_enable=YES
+    # service tuptime start
 
 It's all done.
 
