@@ -1072,21 +1072,21 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
         sp8 = ''
 
     if arg.power:
-        pw1a = ' (r:' + str(rnrate) + '% + s:' + str(spdrate)  + '%)'
-        pw1b = ' (r:' + str(cal['tot']['rntime']) + ' + s:' + str(cal['tot']['spdtime']) + ')'
-        pw2 = ' (r:' + str(cal['lar']['up_rntime']) + ' + s:' + str(cal['lar']['up_spdtime']) + ')'
-        pw3 = ' (r:' + str(cal['sho']['up_rntime']) + ' + s:' + str(cal['sho']['up_spdtime']) + ')'
-        pw4 = ' (r:' + str(cal['ave']['rntime']) + ' + s:' + str(cal['ave']['spdtime']) + ')'
-        pw5 = ' (r:' + str(crntime) + ' + s:' + str(cspdtime) + ')'
+        pw1 = ' (r:' + str(cal['lar']['up_rntime']) + ' + s:' + str(cal['lar']['up_spdtime']) + ')'
+        pw2 = ' (r:' + str(cal['sho']['up_rntime']) + ' + s:' + str(cal['sho']['up_spdtime']) + ')'
+        pw3 = ' (r:' + str(cal['ave']['rntime']) + ' + s:' + str(cal['ave']['spdtime']) + ')'
+        pw4 = ' (r:' + str(crntime) + ' + s:' + str(cspdtime) + ')'
     else:
-        pw1a = pw1b = pw2 = pw3 = pw4 = pw5 = ''
+        pw1 = pw2 = pw3 = pw4 = ''
 
     if (arg.tu is not None or arg.until) and max_tstamp:
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp5 + 'until' + sp5 + str(max_tstamp) + sp0)
     else:
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp7)
     print(sp0 + 'System shutdowns' + sp1 + str(ok_shdown) + sp4 + 'ok' + sp5 + '-' + sp5 + str(bad_shdown) + sp4 + 'bad' + sp0)
-    print(sp0 + 'System uptime' + sp3 + str(uprate) + '%' + pw1a + sp5 + '-' + sp5 + str(cal['tot']['uptime']) + pw1b + sp0)
+    print(sp0 + 'System uptime' + sp3 + str(uprate) + '%' + sp5 + '-' + sp5 + str(cal['tot']['uptime']) + sp0)
+    if arg.power:
+        print(sp0 + 'System power state' + sp1 + 'r:' + str(rnrate) + '% + s:' + str(spdrate)  + '%' + sp5 + '-' + sp5 + 'r:' + str(cal['tot']['rntime']) + ' + s:' + str(cal['tot']['spdtime']) + sp0)
     print(sp0 + 'System downtime' + sp2 + str(downrate) + '%' + sp5 + '-' + sp5 + str(cal['tot']['downtime']) + sp0)
     print(sp0 + 'System life' + sp3 + str(sys_life) + sp0)
     if arg.kernel:
@@ -1095,19 +1095,19 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
         print('')
 
     if isinstance(cal['lar']['up_btime'], str) or cal['lar']['up_btime'] is not False:
-        print(sp0 + 'Largest uptime' + sp2 + str(cal['lar']['up_uptime']) + pw2 + sp5 + 'from' + sp5 + str(cal['lar']['up_btime']) + sp0)
+        print(sp0 + 'Largest uptime' + sp2 + str(cal['lar']['up_uptime']) + pw1 + sp5 + 'from' + sp5 + str(cal['lar']['up_btime']) + sp0)
     else:
-        print(sp0 + 'Largest uptime' + sp2 + str(cal['lar']['up_uptime']) + pw2 + sp7)
+        print(sp0 + 'Largest uptime' + sp2 + str(cal['lar']['up_uptime']) + pw1 + sp7)
     if arg.kernel:
         print(sp0 + '...with kernel' + sp2 + str(cal['lar']['up_kern']) + sp0)
 
     if isinstance(cal['sho']['up_btime'], str) or cal['sho']['up_btime'] is not False:
-        print(sp0 + 'Shortest uptime' + sp1 + str(cal['sho']['up_uptime']) + pw3 + sp5 + 'from' + sp5 + str(cal['sho']['up_btime']) + sp0)
+        print(sp0 + 'Shortest uptime' + sp1 + str(cal['sho']['up_uptime']) + pw2 + sp5 + 'from' + sp5 + str(cal['sho']['up_btime']) + sp0)
     else:
-        print(sp0 + 'Shortest uptime' + sp1 + str(cal['sho']['up_uptime']) + pw3 + sp7)
+        print(sp0 + 'Shortest uptime' + sp1 + str(cal['sho']['up_uptime']) + pw2 + sp7)
     if arg.kernel:
         print(sp0 + sp8 + '...with kernel' + sp2 + str(cal['sho']['up_kern']) + sp0)
-    print(sp0 + 'Average uptime' + sp2 + str(cal['ave']['uptime']) + pw4 + sp0)
+    print(sp0 + 'Average uptime' + sp2 + str(cal['ave']['uptime']) + pw3 + sp0)
     if not arg.csv:
         print('')
 
@@ -1127,7 +1127,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
     if arg.update:
         if not arg.csv:
             print('')
-        print(sp0 + 'Current uptime' + sp2 + str(cuptime) + pw5 + sp5 + 'since' + sp5 + str(cbtime) + sp0)
+        print(sp0 + 'Current uptime' + sp2 + str(cuptime) + pw4 + sp5 + 'since' + sp5 + str(cbtime) + sp0)
         if arg.kernel:
             print(sp0 + '...with kernel' + sp2 + str(ckernel) + sp0)
 
