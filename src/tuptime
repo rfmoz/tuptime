@@ -112,7 +112,7 @@ def get_arguments():
         dest='power',
         default=False,
         action='store_true',
-        help='print power states run/suspend'
+        help='print power states run + suspend'
     )
     parser.add_argument(
         '-r', '--reverse',

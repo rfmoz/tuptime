@@ -165,7 +165,7 @@ These are the command line options, no configuration file is used:
   -n, --noup            avoid update values
   -o TYPE, --order TYPE
                         order enumerate by [<e|d|k|u|r|s>]
-  -p, --power           print power states run/suspend
+  -p, --power           print power states run + suspend
   -r, --reverse         reverse order
   -s, --seconds         output time in seconds and epoch
   -S SINCE, --since SINCE
