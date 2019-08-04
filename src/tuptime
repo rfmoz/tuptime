@@ -1072,10 +1072,10 @@ def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):
         sp8 = ''
 
     if arg.power:
-        pw1 = ' (r:' + str(cal['lar']['up_rntime']) + ' + s:' + str(cal['lar']['up_spdtime']) + ')'
-        pw2 = ' (r:' + str(cal['sho']['up_rntime']) + ' + s:' + str(cal['sho']['up_spdtime']) + ')'
-        pw3 = ' (r:' + str(cal['ave']['rntime']) + ' + s:' + str(cal['ave']['spdtime']) + ')'
-        pw4 = ' (r:' + str(crntime) + ' + s:' + str(cspdtime) + ')'
+        pw1 = sp4 + '(r:' + str(cal['lar']['up_rntime']) + ' + s:' + str(cal['lar']['up_spdtime']) + ')'
+        pw2 = sp4 + '(r:' + str(cal['sho']['up_rntime']) + ' + s:' + str(cal['sho']['up_spdtime']) + ')'
+        pw3 = sp4 + '(r:' + str(cal['ave']['rntime']) + ' + s:' + str(cal['ave']['spdtime']) + ')'
+        pw4 = sp4 + '(r:' + str(crntime) + ' + s:' + str(cspdtime) + ')'
     else:
         pw1 = pw2 = pw3 = pw4 = ''
 
