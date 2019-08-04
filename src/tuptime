@@ -203,7 +203,7 @@ def get_arguments():
     # - Check enable verbose
     if arg.verbose:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-        logging.info('Version: ' + (__version__))
+        logging.info('Version: %s', (__version__))
 
     # - Check combination of operator requirements
     if arg.reverse or arg.order:
