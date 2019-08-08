@@ -65,7 +65,7 @@ def get_arguments():
         dest='db_file',
         default=DB_FILE,
         action='store',
-        help='database file',
+        help='database file (' + DB_FILE + ')',
         metavar='FILE'
     )
     parser.add_argument(
