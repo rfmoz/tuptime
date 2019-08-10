@@ -42,8 +42,9 @@ def get_arguments():
         dest='at',
         default=None,
         action='store',
+        metavar='STARTUP',
         type=int,
-        help='restrict at this register number'
+        help='restrict at this startup number'
     )
     parser.add_argument(
         '-c', '--csv',
@@ -141,8 +142,9 @@ def get_arguments():
         dest='since',
         default=0,
         action='store',
+        metavar='STARTUP',
         type=int,
-        help='restrict from this register number'
+        help='restrict from this startup number'
     )
     group.add_argument(
         '-t', '--table',
@@ -183,8 +185,9 @@ def get_arguments():
         dest='until',
         default=0,
         action='store',
+        metavar='STARTUP',
         type=int,
-        help='restrict up until this register number'
+        help='restrict up until this startup number'
     )
     parser.add_argument(
         '-v', '--verbose',
