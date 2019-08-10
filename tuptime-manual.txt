@@ -152,6 +152,7 @@ Note about Python 2.7:
 
 These are the command line options, no configuration file is used:
 
+  -A AT, --at AT        restrict to this register number
   -h, --help            show this help message and exit
   -c, --csv             csv output
   -d DATE_FORMAT, --date DATE_FORMAT
@@ -179,6 +180,16 @@ These are the command line options, no configuration file is used:
   -v, --verbose         verbose output
   -V, --version         show version
   -x, --silent          update values into db without output
+
+
+-A <AT>, --at <AT>
+  Restrict values only to this startup number. Take it from (-t) table or
+  (-l) list reports. Negative values allowed.
+
+  Examples:
+          tuptime -A 34
+          tuptime --at 22
+          tuptime -l -A -1  # List last register
 
 
 -h, --help
@@ -364,7 +375,8 @@ These are the command line options, no configuration file is used:
 
 
 --tat
-  Report system status at specific timestamp.
+  Report system status at specific timestamp. Output is:
+  defined date + match startup number + status + time passed in that status
 
   Examples:
          tuptime --tat 1555280149
