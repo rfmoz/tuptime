@@ -128,7 +128,7 @@ def get_arguments():
         dest='reverse',
         default=False,
         action='store_true',
-        help='reverse order'
+        help='reverse order in list or table output'
     )
     parser.add_argument(
         '-s', '--seconds',
