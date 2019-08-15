@@ -40,8 +40,8 @@ Sample output after install:
 
 	System startups:	1   since   21:54:09 24/09/15
 	System shutdowns:	0 ok   -   0 bad
-	System uptime: 		100.0 %   -   21 minutes, 30 seconds
-	System downtime: 	0.0 %   -   0 seconds
+	System uptime: 		100.0%   -   21 minutes, 30 seconds
+	System downtime: 	0.0%   -   0 seconds
 	System life: 		21 minutes, 30 seconds
 
 	Largest uptime:		21 minutes, 30 seconds   from   21:54:09 24/09/15
@@ -57,9 +57,9 @@ Sample output after install:
 If you do the same a few days after, the output may will be more similar to this:
 
 	System startups:	110   since   10:15:27 08/08/15
-	System shutdowns:	107 ok  <-   2 bad
-	System uptime: 		4.04 %   -   1 days, 22 hours, 4 minutes, 44 seconds
-	System downtime: 	95.96 %   -   45 days, 13 hours, 57 minutes, 30 seconds
+	System shutdowns:	107 ok  -   2 bad
+	System uptime: 		4.04%   -   1 days, 22 hours, 4 minutes, 44 seconds
+	System downtime: 	95.96%   -   45 days, 13 hours, 57 minutes, 30 seconds
 	System life: 		47 days, 12 hours, 2 minutes, 15 seconds
 
 	Largest uptime:		2 hours, 10 minutes, 44 seconds   from   20:49:17 09/08/15
@@ -117,7 +117,7 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 - Its written to avoid false startups registers, actually there are some issues with other alternatives related to that. This is an issue that sometimes happens on virtualized enviroments, servers with high load or when ntp are running.
 
-- It can report the whole life of the system or only a part of that life, closing the range between startups/shutdowns or timestamps. Also, it reports the accumulated running and suspended time.
+- It can report the whole life of the system or only a part of that life, closing the range between startups/shutdowns or timestamps. Also, it have optiron to swich the output to report the accumulated running and suspended time or know the system state at specific point in time.
 
 
 ### More information

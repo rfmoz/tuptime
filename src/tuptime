@@ -862,7 +862,7 @@ def print_tat(db_rows, btime, uptime, arg):
     if arg.tat < 0:
         arg.tat = btime + uptime + arg.tat
 
-    report = {'at': False, 'startup': False, 'status': False, 'time': False}
+    report = {'at': False, 'startup': False, 'status': False, 'time': False, 'time_fwd': False, 'time_total': False}
 
     for row in db_rows:
         report['at'] = arg.tat
@@ -871,28 +871,40 @@ def print_tat(db_rows, btime, uptime, arg):
         if (arg.tat >= row['btime']) and (arg.tat < (row['btime'] + row['uptime'])):
             report['status'] = 'UP'
             report['time'] = arg.tat - row['btime']
+            report['time_fwd'] = row['uptime'] - report['time']
+            report['time_total'] = row['uptime']
             break
 
         elif (arg.tat >= row['offbtime']) and (arg.tat < (row['offbtime'] + row['downtime'])):
+            report['time'] = arg.tat - row['offbtime']
+            report['time_fwd'] = row['downtime'] - report['time']
             if row['endst'] == 1:
                 report['status'] = 'DOWN-OK'
             elif row['endst'] == 0:
                 report['status'] = 'DOWN-BAD'
             else:
                 report['status'] = 'DOWN'
-            report['time'] = arg.tat - row['offbtime']
+            report['time_total'] = row['downtime']
             break
 
     if report['time'] is not False:
 
+        perctg_1 = round(report['time'] * 100 / report['time_total'], arg.decp)
+        perctg_2 = round(report['time_fwd'] * 100 / report['time_total'], arg.decp)
+
         if not arg.seconds:
             report['at'] = datetime.fromtimestamp(report['at']).strftime(arg.date_format)
             report['time'] = time_conv(report['time'])
+            report['time_fwd'] = time_conv(report['time_fwd'])
 
-        if not arg.csv:
-            print(str(report['at']) + '    ' + str(report['startup']) + '    ' + str(report['status']) + '    ' + str(report['time']))
+        if not arg.csv:  # Define content/spaces between values
+            sp0, sp2, sp5, sp8 = '', ':\t\t', '   ', ' '
         else:
-            print('"' + str(report['at']) + '","' + str(report['startup']) + '","' + str(report['status']) + '","' + str(report['time']) + '"')
+            sp0, sp2, sp5, sp8 = '"', '","', '","', ''
+
+        print(sp0 + 'Target status' + sp2  + str(report['status']) + sp5 + 'at' + sp5 + str(report['at']) + sp5 + 'on' + sp5 + str(report['startup']) + sp0)
+        print(sp0 + (sp8 * 3) + 'elapsed in' + sp2 + str(perctg_1) + '%' + sp5 + '-' + sp5 + str(report['time']) + sp0)
+        print(sp0 + sp8 + 'remaining in' + sp2 + str(perctg_2) + '%' + sp5 + '-' + sp5 + str(report['time_fwd']) + sp0)
 
 
 def print_default(db_rows, cbtime, cuptime, crntime, cspdtime, ckernel, arg):

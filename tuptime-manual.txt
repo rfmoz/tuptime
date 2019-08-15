@@ -376,8 +376,8 @@ These are the command line options, no configuration file is used:
 
 
 --tat
-  Report system status at specific timestamp. Output is:
-  defined date + match startup number + status + time passed in that status
+  Report system status at specific timestamp, register number enclosed and time
+  elapsed and remaining in that matched status.
 
   Examples:
          tuptime --tat 1555280149
