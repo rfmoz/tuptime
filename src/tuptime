@@ -1196,10 +1196,10 @@ def main():
 
     # - Test if system was resterted
     # How tuptime does it:
-    #    Checking if:
-    #        value from last_btime plus last_uptime (both saved into db) is lower than actual btime
-    #        or (to catch shutdowns lower than a second)
-    #        value from last_btime plus last_uptime is equal to btime and btime is lower than last_btime
+    #    Checking if the value resultant from last_btime plus last_uptime (both saved into db) is...
+    #        ...lower than current btime
+    #           or (to catch shutdowns lower than a second)
+    #        ...equal to current btime and current uptime is lower than last_uptime
     #
     # In some particular cases the btime value from /proc/stat or from the system clock functions may change.
     # It is affected by discontinuous jumps in the system time (e.g., if the system administrator
@@ -1219,8 +1219,7 @@ def main():
     # than the difference between last_offbtime and the new btime.
     if arg.update:
         try:
-            if (last_offbtime < btime) or \
-               ((last_offbtime == btime) and (btime < last_btime)):
+            if (last_offbtime < btime) or (last_offbtime == btime and uptime < last_uptime):
                 logging.info('System was restarted')
 
                 offbtime_db = last_offbtime
