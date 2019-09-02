@@ -466,13 +466,13 @@ def control_drift(last_btime, btime, uptime, rntime, spdtime):
             logging.info('Fixed uptime = %s', str(uptime))
 
             rntime = rntime + offset
-            if rntime < 0:
+            if rntime < 1:
                 spdtime = spdtime + rntime
                 if spdtime < 0:
                     logging.info('Drift decrease spdtime under 0. Impossible')
                     spdtime = 0
                 logging.info('Drift decrease rntime under 0. Impossible')
-                rntime = 0
+                rntime = 1
             logging.info('Fixed rntime = %s', str(rntime))
             logging.info('Fixed spdtime = %s', str(spdtime))
 
@@ -489,7 +489,7 @@ def control_drift(last_btime, btime, uptime, rntime, spdtime):
             if uptime <= offset:
                 logging.info('Drift is bigger or equal than uptime. Skipping')
             if (uptime + offset) <= 0:
-                logging.info('Drift decreases uptime under 0. Skipping')
+                logging.info('Drift decreases uptime under 1. Skipping')
 
     return btime, uptime, rntime, spdtime
 
