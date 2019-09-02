@@ -471,7 +471,7 @@ def control_drift(last_btime, btime, uptime, rntime, spdtime):
                 if spdtime < 0:
                     logging.info('Drift decrease spdtime under 0. Impossible')
                     spdtime = 0
-                logging.info('Drift decrease rntime under 0. Impossible')
+                logging.info('Drift decrease rntime under 1. Impossible')
                 rntime = 1
             logging.info('Fixed rntime = %s', str(rntime))
             logging.info('Fixed spdtime = %s', str(spdtime))
@@ -1214,9 +1214,9 @@ def main():
     #    http://man7.org/linux/man-pages/man2/clock_gettime.2.html
     #    http://unix.stackexchange.com/questions/118631/how-can-i-measure-and-prevent-clock-drift
     #
-    # To avoid problems, please be sure that the system have time sync enabled, the init/systemd script and
-    # the cron line works as expected. A uptime record can be lost if the btime value goes backward more
-    # than the difference between last_offbtime and the new btime.
+    # To avoid lost an uptime record, please be sure that the system have time sync enabled, the init/systemd
+    # script and the cron tasks works as expected.
+
     if arg.update:
         try:
             if (last_offbtime < btime) or (last_offbtime == btime and uptime < last_uptime):
