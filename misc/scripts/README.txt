@@ -1,5 +1,18 @@
 #### Scripts #####
 
+
+
+
+____Tools____
+
+tuptime_dbcheck.py
+    Test database integrity. Catch and fix inconsistencies.
+
+
+
+
+____DB migrations____
+
 db-tuptime-migrate.sh
     Update tuptime database format from versions previous than 3.0.00.
 
@@ -16,6 +29,10 @@ db-tuptime-migrate-3.1-to-4.0.sh
 uptimed-to-tuptime.py
     Migrate Uptimed records to Tuptime.
 
+
+
+
+____Plots____
 
 tuptime-barchart_from_db.py
     Graph a daily plot reading directly from tuptime database.
