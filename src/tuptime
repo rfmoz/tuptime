@@ -345,10 +345,6 @@ def get_os_values():
     uptime = int(round(float(uptime), 0))
     rntime = int(round(float(rntime), 0))
 
-    # An uptime and rntime equal to 0 is upgraded to 1
-    if uptime == 0: uptime = 1
-    if rntime == 0: rntime = 1
-
     # Avoid missmatch whith elapsed time between getting counters and/or rounded values,
     # whit less than 1 seconds, values are equal
     if (uptime - 1) <= rntime <= (uptime + 1):
