@@ -133,10 +133,10 @@ def test4(arg, row, conn):
 
 
 def test5(arg, row, conn):
-    if row['rntime'] + row['spdtime'] > row['uptime']:
+    if row['rntime'] + row['spdtime'] != row['uptime']:
         print(row['startup'])
-        print(' rntime + spdtime > uptime')
-        print(' ' + str(row['rntime']) + ' + ' + str(row['spdtime']) + ' > ' + str(row['uptime']))
+        print(' rntime + spdtime != uptime')
+        print(' ' + str(row['rntime']) + ' + ' + str(row['spdtime']) + ' != ' + str(row['uptime']))
 
         if arg.fix:
             fixed = row['rntime'] + row['spdtime'] - row['uptime']
