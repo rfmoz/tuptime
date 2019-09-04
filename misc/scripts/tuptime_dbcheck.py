@@ -9,6 +9,7 @@ import sys, argparse, locale, signal, logging, sqlite3
 
 __version__ = '1.0.0'
 DB_FILE = '/var/lib/tuptime/tuptime.db'
+fixcnt = 0
 
 # List of tests to auto-execute
 TESTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -64,6 +65,11 @@ def get_arguments():
     return arg
 
 
+def fix_cnt():
+    global fixcnt
+    fixcnt += 1
+
+
 def test0(arg, db_rows, conn):
     if len(db_rows) != db_rows[-1]['startup']:
         print(' Possible deleted rows in db. Real startups are not equal to enumerate startups')
@@ -71,6 +77,7 @@ def test0(arg, db_rows, conn):
         if arg.fix:
             conn.execute('vacuum')
             print(' FIXED: vacuum')
+            fix_cnt()
 
 
 def test1(arg, row, conn):
@@ -83,6 +90,7 @@ def test1(arg, row, conn):
         if arg.fix:
             conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
             print(' FIXED: delete row = ' + str(row['startup']))
+            fix_cnt()
 
 
 def test2(arg, row, conn, prev_row):
@@ -94,6 +102,7 @@ def test2(arg, row, conn, prev_row):
         if arg.fix:
             conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
             print(' FIXED: delete row = ' + str(row['startup']))
+            fix_cnt()
 
 
 def test3(arg, row, conn, prev_row):
@@ -106,6 +115,7 @@ def test3(arg, row, conn, prev_row):
             fixed = row['btime'] - prev_row['offbtime']
             conn.execute('update tuptime set downtime = ' + str(fixed) + ' where rowid = ' + str(row['startup'] - 1))
             print(' FIXED: prev_row downtime = ' + str(fixed))
+            fix_cnt()
 
 
 def test4(arg, row, conn):
@@ -119,6 +129,7 @@ def test4(arg, row, conn):
             fixed = row['offbtime'] - row['btime']
             conn.execute('update tuptime set uptime = ' + str(fixed) + ' where rowid = ' + str(row['startup']))
             print(' FIXED: uptime = ' + str(fixed))
+            fix_cnt()
 
 
 def test5(arg, row, conn):
@@ -137,6 +148,7 @@ def test5(arg, row, conn):
                 fixed2 = row['spdtime'] - fixed
                 conn.execute('update tuptime set spdtime = ' + str(fixed2) + ' where rowid = ' + str(row['startup']))
                 print(' FIXED: spdtime = ' + str(fixed2))
+            fix_cnt()
 
 
 def test6(arg, row, conn):
@@ -148,6 +160,7 @@ def test6(arg, row, conn):
         if arg.fix:
             conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
             print(' FIXED: delete row = ' + str(row['startup']))
+            fix_cnt()
 
 
 def test7(arg, row, conn):
@@ -159,6 +172,7 @@ def test7(arg, row, conn):
         if arg.fix:
             conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
             print(' FIXED: delete row = ' + str(row['startup']))
+            fix_cnt()
 
 
 def test8(arg, row, conn):
@@ -170,6 +184,7 @@ def test8(arg, row, conn):
         if arg.fix:
             conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
             print(' FIXED: delete row = ' + str(row['startup']))
+            fix_cnt()
 
 
 def test9(arg, row, conn):
@@ -182,6 +197,7 @@ def test9(arg, row, conn):
         if arg.fix:
             conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
             print(' FIXED: delete row = ' + str(row['startup']))
+            fix_cnt()
 
 
 
@@ -199,7 +215,7 @@ def main():
         logging.error('DB format outdated')
         sys.exit(-1)
 
-    print('Processing...')
+    print('Processing ' + str(arg.db_file) + ' --->')
 
     for i in arg.test:
         print('\n### ' + str(i) + ' ###')
@@ -252,7 +268,9 @@ def main():
 
     db_conn.close()
 
-    print('\nDone')
+    print('\n' + '-' * 25)
+    print('Fixed: ' + str(fixcnt))
+    print('Done.')
 
 
 if __name__ == "__main__":
