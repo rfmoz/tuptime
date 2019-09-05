@@ -105,19 +105,36 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 
 
-### What offer tuptime different than other alternatives like uptimed and downtimed
+### Highlights about Tuptime internals
 
 - It doesn't run as a daemon, at least, it only need execution when the init manager startup and shutdown the system. To avoid issues with a switch off without a proper shutdown, like power failures, a cron job and a .timer unit are shipped with the project to update the registers each n minutes. As a system administrator, you can easily choose the best number for your particular system requirements.
 
 - It is written in Python using common modules and as few as possible, easy to see what is inside it, and modify it for fit for your particular use case.
 
-- It registers the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it has the option to output the registers in seconds and epoch (-s) or/and in csv format, easy to pipe it to other commands.
+- It registers the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it has the option to output the registers in seconds and epoch or/and in csv format, easy to pipe it to other commands.
 
 - Its main purpose is tracking all the system startups/shutdowns and present that information to the user in a more understandable way. Don't have mail alerts when a milestones are reached or the limitation of keep the last n records.
 
-- Its written to avoid false startups registers, actually there are some issues with other alternatives related to that. This is an issue that sometimes happens on virtualized enviroments, servers with high load or when ntp are running.
+- Its written to avoid false startups registers. This is an issue that sometimes happens on virtualized enviroments, servers with high load or when ntp are running.
 
-- It can report the whole life of the system or only a part of that life, closing the range between startups/shutdowns or timestamps. Also, it have optiron to swich the output to report the accumulated running and suspended time or know the system state at specific point in time.
+- It can report:
+  - Registers as a table or list ordering by any label.
+  - The whole life of the system or only a part of it, closing the range between startups/shutdowns or timestamps.
+  - The accumulated running and suspended time.
+  - The system state at specific point in time.
+  - The kernel version used.
+
+
+### Alternatives
+
+uptimed - Is an uptime record daemon keeping track of the highest uptimes a computer system ever had. It uses the system boot time to keep sessions apart from each other.
+https://github.com/rpodgorny/uptimed
+
+downtimed - Is a program for monitoring operating system downtime, uptime, shutdowns and crashes and for keeping record of such events.
+https://dist.epipe.com/downtimed/
+
+lastwake - Analyzes the system journal and prints out wake-up and sleep timestamps; for each cycle it tells whether the system was suspended to RAM or to disk (hibernated).
+https://github.com/arigit/lastwake.py
 
 
 ### More information
