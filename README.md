@@ -136,6 +136,9 @@ https://dist.epipe.com/downtimed/
 lastwake - Analyzes the system journal and prints out wake-up and sleep timestamps; for each cycle it tells whether the system was suspended to RAM or to disk (hibernated).
 https://github.com/arigit/lastwake.py
 
+(bonus) dateutils - Not an alternative, but nifty collection of tools to work with dates.
+https://github.com/hroptatyr/dateutils
+
 
 ### More information
 
