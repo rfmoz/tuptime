@@ -115,14 +115,14 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 - Its main purpose is tracking all the system startups/shutdowns and present that information to the user in a more understandable way. Don't have mail alerts when a milestones are reached or the limitation of keep the last n records.
 
-- Its written to avoid false startups registers. This is an issue that sometimes happens on virtualized enviroments, servers with high load or when ntp are running.
+- Its written to avoid false startups registers. This is an issue that sometimes happens when the NTP adjust the system clock, on virtualized enviroments, on servers with high load, when the system resynchronized with their RTC clock after a resume from suspend...
 
 - It can report:
   - Registers as a table or list ordering by any label.
   - The whole life of the system or only a part of it, closing the range between startups/shutdowns or timestamps.
-  - The accumulated running and suspended time.
-  - The system state at specific point in time.
+  - Accumulated running and suspended time over an uptime.
   - The kernel version used.
+  - The system state at specific point in time.
 
 
 ### Alternatives
