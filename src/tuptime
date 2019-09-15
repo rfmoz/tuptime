@@ -29,7 +29,10 @@ __version__ = '4.0.1'
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
 # Set locale to the user’s default settings (LANG env. var)
-locale.setlocale(locale.LC_ALL, '')
+try:
+    locale.setlocale(locale.LC_ALL, '')
+except Exception:
+    pass  # Fast than locale.setlocale(locale.LC_ALL, 'C')
 
 
 def get_arguments():
