@@ -11,7 +11,7 @@
 # Change the db origin:
 #      btime integer, uptime real, offbtime integer, endst integer, downtime real, kernel text
 # to:
-#      btime integer, uptime real, rntime real, spdtime real, offbtime integer, endst integer, downtime real, kernel text
+#      btime integer, uptime real, rntime real, slptime real, offbtime integer, endst integer, downtime real, kernel text
 
 SOURCE_DB='/var/lib/tuptime/tuptime.db'
 USER_DB=$(stat -c '%U' ${SOURCE_DB})
@@ -41,13 +41,13 @@ if [ $? -ne 0 ]; then
 fi
 
 # Adding new columns
-sqlite3 ${TMP_DBF} "CREATE TABLE tuptimeNew (btime integer, uptime integer, rntime integer, spdtime integer, offbtime integer, endst integer, downtime integer, kernel text);" && \
+sqlite3 ${TMP_DBF} "CREATE TABLE tuptimeNew (btime integer, uptime integer, rntime integer, slptime integer, offbtime integer, endst integer, downtime integer, kernel text);" && \
 sqlite3 ${TMP_DBF} "UPDATE tuptime SET offbtime = cast(round(offbtime) as int);" && \
 sqlite3 ${TMP_DBF} "UPDATE tuptime SET uptime = cast(round(uptime) as int);" && \
 sqlite3 ${TMP_DBF} "UPDATE tuptime SET downtime = cast(round(downtime) as int);" && \
 sqlite3 ${TMP_DBF} "INSERT INTO tuptimeNew(btime, uptime, offbtime, endst, downtime, kernel) SELECT btime, uptime, offbtime, endst, downtime, kernel FROM tuptime;" && \
 sqlite3 ${TMP_DBF} "UPDATE tuptimeNew SET rntime = uptime;" && \
-sqlite3 ${TMP_DBF} "UPDATE tuptimeNew SET spdtime = 0;" && \
+sqlite3 ${TMP_DBF} "UPDATE tuptimeNew SET slptime = 0;" && \
 sqlite3 ${TMP_DBF} "DROP TABLE tuptime;" && \
 sqlite3 ${TMP_DBF} "ALTER TABLE tuptimeNew RENAME TO tuptime;" 
 if [ $? -ne 0 ]; then

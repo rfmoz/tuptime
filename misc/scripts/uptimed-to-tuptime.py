@@ -41,13 +41,13 @@ def insert_row(row):
     conn = sqlite3.connect(TUPT_TMP_DBF)
     uptime = row[0]
     rntime = row[0]
-    spdtime = 0.0
+    slptime = 0.0
     btime = row[1]
     kernel = row[2]
     _offbtime = row[3]
     downtime = row[4]
     endst = row[5]
-    params = [btime, uptime, rntime, spdtime, _offbtime, endst, downtime, kernel]
+    params = [btime, uptime, rntime, slptime, _offbtime, endst, downtime, kernel]
     print(str(params))
 
     conn.execute("INSERT INTO tuptime VALUES (?,?,?,?,?,?,?,?)", params)
@@ -68,7 +68,7 @@ def create_db(db_file):
     db_conn = sqlite3.connect(db_file)
     conn = db_conn.cursor()
     conn.execute('create table if not exists tuptime'
-                 '(btime integer, uptime real, rntime real, spdtime real,'
+                 '(btime integer, uptime real, rntime real, slptime real,'
                  'offbtime integer, endst integer, downtime real, kernel text)')
     db_conn.commit()
     db_conn.close()

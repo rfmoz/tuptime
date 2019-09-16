@@ -133,21 +133,21 @@ def test4(arg, row, conn):
 
 
 def test5(arg, row, conn):
-    if row['rntime'] + row['spdtime'] != row['uptime']:
+    if row['rntime'] + row['slptime'] != row['uptime']:
         print(row['startup'])
-        print(' rntime + spdtime != uptime')
-        print(' ' + str(row['rntime']) + ' + ' + str(row['spdtime']) + ' != ' + str(row['uptime']))
+        print(' rntime + slptime != uptime')
+        print(' ' + str(row['rntime']) + ' + ' + str(row['slptime']) + ' != ' + str(row['uptime']))
 
         if arg.fix:
-            fixed = row['rntime'] + row['spdtime'] - row['uptime']
-            if row['rntime'] >= row['spdtime']:
+            fixed = row['rntime'] + row['slptime'] - row['uptime']
+            if row['rntime'] >= row['slptime']:
                 fixed2 = row['rntime'] - fixed
                 conn.execute('update tuptime set rntime = ' + str(fixed2) + ' where rowid = ' + str(row['startup']))
                 print(' FIXED: rntime = ' + str(fixed2))
             else:
-                fixed2 = row['spdtime'] - fixed
-                conn.execute('update tuptime set spdtime = ' + str(fixed2) + ' where rowid = ' + str(row['startup']))
-                print(' FIXED: spdtime = ' + str(fixed2))
+                fixed2 = row['slptime'] - fixed
+                conn.execute('update tuptime set slptime = ' + str(fixed2) + ' where rowid = ' + str(row['startup']))
+                print(' FIXED: slptime = ' + str(fixed2))
             fix_cnt()
 
 
@@ -176,10 +176,10 @@ def test7(arg, row, conn):
 
 
 def test8(arg, row, conn):
-    if row['spdtime'] < 0:
+    if row['slptime'] < 0:
         print(row['startup'])
-        print(' spdtime < 0')
-        print(' ' + str(row['spdtime']) + ' < 0')
+        print(' slptime < 0')
+        print(' ' + str(row['slptime']) + ' < 0')
 
         if arg.fix:
             conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
@@ -211,7 +211,7 @@ def main():
 
     # Check if DB have the old format
     columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'spdtime' not in columns:
+    if 'rntime' and 'slptime' not in columns:
         logging.error('DB format outdated')
         sys.exit(-1)
 

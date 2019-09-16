@@ -24,7 +24,7 @@ the system, keeping it between restarts. Indeed, it can:
 - Uptime and downtime percentage since first boot time
 .RS
 .RE
-- Accumulated system uptime (running and suspended), downtime and total
+- Accumulated system uptime (running and sleeping), downtime and total
 .RS
 .RE
 - Current uptime
@@ -77,13 +77,13 @@ T}
 Avoid update values
 T}
 \-o | \-\-order TYPE@T{
-Order enumerate by [<d|e|k|r|s|u>] d = downtime | e = end status | k = kernel | r = runtime | s = suspend time | u = uptime
+Order enumerate by [<d|e|k|r|s|u>] d = downtime | e = end status | k = kernel | r = runtime | s = sleep time | u = uptime
 T}
 \-r | \-\-reverse@T{
 Reverse order in list or table output
 T}
 \-p | \-\-power@T{
-Print power states run + suspended
+Print power states run + sleep
 T}
 \-s | \-\-seconds@T{
 Output time in seconds and epoch
