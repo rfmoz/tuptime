@@ -459,7 +459,7 @@ def control_drift(last_btime, btime, uptime, rntime, spdtime):
 
     # If previous btime doesn't match
     if last_btime != btime:
-        logging.info('Correcting drift...')
+        logging.info('Setting straight drift...')
 
         # Apply offset to uptime and btime
         if uptime > offset and (uptime + offset) > 0:
@@ -1236,17 +1236,20 @@ def main():
                 # Create entry for new boot
                 conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?)',
                              (str(btime), str(uptime), str(rntime), str(spdtime), None, str(arg.endst), None, str(kernel)))
+                logging.info('DB info = insert OK')
+
             else:
                 # Adjust time drift. Check only when system wasn't restarted
                 btime, uptime, rntime, spdtime = control_drift(last_btime, btime, uptime, rntime, spdtime)
 
-                logging.info('System wasn\'t restarted. Updating db values...')
+                logging.info('System wasn\'t restarted.')
                 conn.execute('update tuptime set uptime = ' + str(uptime) + ', rntime = ' + str(rntime) +
                              ', spdtime = ' + str(spdtime) + ', endst = ' + str(arg.endst) + ', kernel = \'' + str(kernel) +
                              '\' where rowid = (select max(rowid) from tuptime)')
+                logging.info('DB info = update OK')
 
         except sqlite3.OperationalError:
-            logging.info('Values not saved into db')
+            logging.info('DB info = write PASS')
 
             if 'offbtime_db' in locals() and 'downtime_db' in locals():
                 # If you see this error, maybe the systemd script isn't executed at startup
@@ -1255,7 +1258,7 @@ def main():
                 logging.error('Tuptime execution user can\'t write into db file: %s', str(arg.db_file))
                 sys.exit(-1)
     else:
-        logging.info('Skipping update values')
+        logging.info('DB info = write SKIP')
 
     db_conn.commit()
 
