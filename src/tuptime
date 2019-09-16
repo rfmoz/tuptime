@@ -217,7 +217,7 @@ def get_arguments():
     # - Check enable verbose
     if arg.verbose:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
-        logging.info('Version: %s', (__version__))
+        logging.info('Version = %s', (__version__))
 
     # - Check combination of operator requirements
     if arg.reverse or arg.order:
@@ -225,11 +225,11 @@ def get_arguments():
             parser.error('Used operators must be combined with [-t|--table] or [-l|--list].')
         if arg.order == 'k':
             if not arg.kernel:
-                logging.info('Auto enable kernel option.')
+                logging.info('Auto enable option = kernel')
                 arg.kernel = True
         if arg.order == 'r' or arg.order == 's':
             if not arg.power:
-                logging.info('Auto enable power option.')
+                logging.info('Auto enable option = power')
                 arg.power = True
 
     # - Wrap 'at' over since and until
@@ -247,7 +247,7 @@ def get_arguments():
             # 'at' argument report.
             parser.error('Operator can\'t be combined with [--tsince] or [--tuntil]')
 
-    logging.info('Arguments: %s', str(vars(arg)))
+    logging.info('Arguments = %s', str(vars(arg)))
     return arg
 
 
@@ -264,7 +264,7 @@ def get_os_values():
     def os_bsd(btime, uptime, rntime):
         """Get values from BSD"""
 
-        logging.info('BSD system')
+        logging.info('System = BSD')
 
         try:
             btime = time.clock_gettime(time.CLOCK_REALTIME) - time.clock_gettime(time.CLOCK_MONOTONIC)
@@ -306,7 +306,7 @@ def get_os_values():
     def os_linux(btime, uptime, rntime):
         """Get values from Linux"""
 
-        logging.info('Linux system')
+        logging.info('System = Linux')
 
         try:
             btime = time.clock_gettime(time.CLOCK_REALTIME) - time.clock_gettime(time.CLOCK_BOOTTIME)
@@ -340,7 +340,7 @@ def get_os_values():
     # elif:
     #     other_os()
     else:
-        logging.error('Operating system %s not supported.', sys.platform)
+        logging.error('System = %s not supported', sys.platform)
         sys.exit(-1)
 
     # All OS values as integer
@@ -424,7 +424,7 @@ def upgrade_db(db_conn, conn, arg):
     """Upgrade db to from 3.x to 4.x format"""
 
     if not os.access(arg.db_file, os.W_OK):
-        logging.error('"%s" file not writable by execution user', str(arg.db_file))
+        logging.error('"%s" file not writable by execution user.', str(arg.db_file))
         sys.exit(-1)
     logging.warning('Upgrading DB file = %s', str(arg.db_file))
 
@@ -459,7 +459,7 @@ def control_drift(last_btime, btime, uptime, rntime, spdtime):
 
     # If previous btime doesn't match
     if last_btime != btime:
-        logging.info('Setting straight drift...')
+        logging.info('Fixing drift...')
 
         # Apply offset to uptime and btime
         if uptime > offset and (uptime + offset) > 0:
@@ -1223,7 +1223,7 @@ def main():
     if arg.update:
         try:
             if (last_offbtime < btime) or (last_offbtime == btime and uptime < last_uptime):
-                logging.info('System was restarted')
+                logging.info('System restarted = True')
 
                 offbtime_db = last_offbtime
                 downtime_db = btime - last_offbtime
@@ -1242,7 +1242,7 @@ def main():
                 # Adjust time drift. Check only when system wasn't restarted
                 btime, uptime, rntime, spdtime = control_drift(last_btime, btime, uptime, rntime, spdtime)
 
-                logging.info('System wasn\'t restarted.')
+                logging.info('System restarted = False')
                 conn.execute('update tuptime set uptime = ' + str(uptime) + ', rntime = ' + str(rntime) +
                              ', spdtime = ' + str(spdtime) + ', endst = ' + str(arg.endst) + ', kernel = \'' + str(kernel) +
                              '\' where rowid = (select max(rowid) from tuptime)')
@@ -1258,7 +1258,7 @@ def main():
                 logging.error('Tuptime execution user can\'t write into db file: %s', str(arg.db_file))
                 sys.exit(-1)
     else:
-        logging.info('DB info = write SKIP')
+        logging.info('DB info = write SKIP by option')
 
     db_conn.commit()
 
