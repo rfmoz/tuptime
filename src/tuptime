@@ -370,11 +370,22 @@ def get_os_values():
     logging.info('Kernel = %s', str(kernel))
     logging.info('Execution user = %s', str(ex_user))
 
-    # Check right allocation of system variables before continue
+    # Check right allocation of variables before continue and fix when possible
     for osvarkey, osvarvalue in {'btime': btime, 'uptime': uptime, 'rntime': rntime, 'slptime': slptime, 'ex_user': ex_user, 'kernel': kernel}.items():
         if osvarvalue is None:
             logging.error('%s value unallocate from system. Can\'t continue.', str(osvarkey))
             sys.exit(-1)
+        if osvarkey in {'uptime', 'rntime', 'slptime'} and osvarvalue < 0:
+            logging.warning('Invalid %s value \"%s\". Reset to \"0\"', str(osvarkey), str(osvarvalue))
+            if osvarkey is 'uptime': uptime = 0
+            if osvarkey is 'rntime': rntime = 0
+            if osvarkey is 'slptime': slptime = 0
+
+    # Avoid executing when clock is too out of phase
+    if btime < 946684800:   # 01/01/2000 00:00
+        logging.error('Epoch boot time value is too old \'%s\'. Check system clock sync.', str(btime))
+        logging.error('Tuptime execution can\'t continue.')
+        sys.exit(-1)
 
     return btime, uptime, rntime, slptime, kernel
 
@@ -1172,11 +1183,6 @@ def main():
 
     btime, uptime, rntime, slptime, kernel = get_os_values()
 
-    if btime < 946684800:   # 01/01/2000 00:00
-        logging.error('Epoch boot time value is too old \'%s\'. Check system clock sync.', str(btime))
-        logging.error('Tuptime execution can\'t continue.')
-        sys.exit(-1)
-
     assure_state_db(btime, uptime, rntime, slptime, kernel, arg)
 
     db_conn = sqlite3.connect(arg.db_file)
@@ -1262,13 +1268,13 @@ def main():
 
     db_conn.commit()
 
-    # - Exit if silent is enabled. Avoid wasting time calculating values for print
+    # - Exit if silent is enabled. Avoid wasting time in print operations
     if arg.silent:
         db_conn.close()
         logging.info('Silent mode')
         sys.exit(0)
 
-    # - Get all rows for calculate print values
+    # - Get all rows to determine print values
     conn.execute('select rowid as startup, * from tuptime')
     db_rows = conn.fetchall()
 
