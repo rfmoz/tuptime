@@ -3,6 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Ricardo Fraile <rfraile@rfraile.eu>
 Build-Depends: debhelper-compat (= 12)
+Rules-Requires-Root: no
 Standards-Version: 4.4.0
 Homepage: https://github.com/rfrail3/tuptime
 
