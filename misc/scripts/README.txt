@@ -6,7 +6,10 @@
 ____Tools____
 
 tuptime_dbcheck.py
-    Test database integrity. Catch and fix inconsistencies.
+    Test database integrity. Catch and fix errors.
+
+tuptime_join.py
+    Join two tuptime db files into an other one.
 
 
 

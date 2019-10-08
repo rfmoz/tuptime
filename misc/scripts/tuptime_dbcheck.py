@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Test database integrity. Try to catch weird behavious to know and fix them.
+Test database integrity. Try to catch weird errors and fix them.
 '''
 
 import sys, argparse, locale, signal, logging, sqlite3
