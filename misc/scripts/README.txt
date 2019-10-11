@@ -11,6 +11,10 @@ tuptime_dbcheck.py
 tuptime_join.py
     Join two tuptime db files into an other one.
 
+tuptime_modify.py
+    Modify a register startup or shutdown date keeping nearest values in sync.
+
+
 
 
 
