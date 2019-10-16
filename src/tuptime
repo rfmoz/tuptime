@@ -1200,9 +1200,8 @@ def main():
     last_btime, last_uptime = conn.fetchone()
     logging.info('Last btime from db = %s', str(last_btime))
     logging.info('Last uptime from db = %s', str(last_uptime))
-    # Last offbtime surely is None from db, so calculate it with btime and uptime
-    last_offbtime = last_btime + last_uptime
-    logging.info('Last offbtime from db = %s', str(last_offbtime))
+    last_buptime = last_btime + last_uptime
+    logging.info('Last buptime from db = %s', str(last_buptime))
 
     # - Test if system was resterted
     # How tuptime does it:
@@ -1229,11 +1228,11 @@ def main():
 
     if arg.update:
         try:
-            if (last_offbtime < btime) or (last_offbtime == btime and uptime < last_uptime):
+            if (last_buptime < btime) or (last_buptime == btime and uptime < last_uptime):
                 logging.info('System restarted = True')
 
-                offbtime_db = last_offbtime
-                downtime_db = btime - last_offbtime
+                offbtime_db = last_buptime
+                downtime_db = btime - last_buptime
                 logging.info('Recording offbtime into db = %s', str(offbtime_db))
                 logging.info('Recording downtime into db = %s', str(downtime_db))
 
