@@ -358,6 +358,7 @@ def get_os_values():
 
     ex_user = os.getuid()
     kernel = platform.platform()
+    logging.info('Python = %s', str(platform.python_version()))
 
     try:
         logging.info('Current locale = %s', str(locale.getlocale()))
@@ -494,7 +495,7 @@ def control_drift(last_btime, btime, uptime, rntime, slptime):
             logging.info('Fixed btime = %s', str(btime))
             logging.info('Fixed timestamp = %s', str(btime + uptime))
             # Fixed timestamp must be equal to system timestamp after drift values
-            # Fixed btimme must be equal to last btime from db
+            # Fixed btime must be equal to last btime from db
 
         else:
             # Keep btime from db with current uptime until it can be fixed
