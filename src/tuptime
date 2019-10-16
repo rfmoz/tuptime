@@ -378,9 +378,9 @@ def get_os_values():
             sys.exit(-1)
         if osvarkey in {'uptime', 'rntime', 'slptime'} and osvarvalue < 0:
             logging.warning('Invalid %s value \"%s\". Reset to \"0\"', str(osvarkey), str(osvarvalue))
-            if osvarkey is 'uptime': uptime = 0
-            if osvarkey is 'rntime': rntime = 0
-            if osvarkey is 'slptime': slptime = 0
+            if osvarkey == 'uptime': uptime = 0
+            if osvarkey == 'rntime': rntime = 0
+            if osvarkey == 'slptime': slptime = 0
 
     # Avoid executing when clock is too out of phase
     if btime < 946684800:   # 01/01/2000 00:00
