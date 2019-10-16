@@ -466,8 +466,13 @@ TUPTIME_DBF
 It's important to have a schedule execution. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
 shutdown, but if the system fails, hangs or whatever, the uptime time will
-be lost. Be sure that the cron entry or systemd tuptime-cron.[timer|service]
-units are installed as expected.
+be lost. Be sure that the cron entry or, in other case, the systemd
+tuptime-cron.[timer|service] units are installed as expected.
+
+Why it's needed the use of an other .service file with the name tuptime-cron?
+The default tuptime.service file uses the option 'RemainAfterExit=true' and
+nowadays the systemd timer can't restart an already running service, so, there
+is no way to restart it.
 
 By default, both have a 5 minutes scheduled execution. Feel free to lower 
 that value if your requirements are narrow.
