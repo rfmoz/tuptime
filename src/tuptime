@@ -1042,17 +1042,14 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
     # Get rates and average uptime / downtime
     if sys_life > 0:
         uprate = round((cal['tot']['uptime'] * 100) / sys_life, arg.decp)
+        rnrate = round((cal['tot']['rntime'] * 100) / sys_life, arg.decp)
+        spdrate = round((cal['tot']['slptime'] * 100) / sys_life, arg.decp)
         downrate = round((cal['tot']['downtime'] * 100) / sys_life, arg.decp)
     else:
         uprate = 0.0
-        downrate = 0.0
-
-    if uprate > 0:
-        rnrate = round((cal['tot']['rntime'] * 100) / sys_life, arg.decp)
-        spdrate = round((cal['tot']['slptime'] * 100) / sys_life, arg.decp)
-    else:
         rnrate = 0.0
         spdrate = 0.0
+        downrate = 0.0
 
     if startups > 0:
         cal['ave']['uptime'] = int(round(float(cal['tot']['uptime'] / startups), 0))
