@@ -1025,10 +1025,9 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
 
     # Get startups count:
     #   Each row is an startup unless startup register indicate empty values
-    if db_rows[0]['startup'] == 0:
+    startups = len(db_rows)
+    if startups == 1 and db_rows[0]['startup'] == 0:
         startups = 0
-    else:
-        startups = len(db_rows)
 
     # Get kernel count:
     #   Remove duplicate and empty elements
