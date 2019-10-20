@@ -994,30 +994,30 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
     shutdowns = 0
     kernel_cnt = []
 
-    # Parse rows getting counters
-    for row in db_rows:
+    # Unless startup register indicate empty
+    if db_rows[0]['startup']:
+        for row in db_rows:
 
-        # Count startups unless startup register indicate empty
-        if row['startup'] != 0:
+            # Count startups
             startups += 1
 
-        # Count shutdowns when endst is set
-        if row['endst'] is not False:
-            if any((row['offbtime'], row['downtime'])):
-                if row['endst'] == 0:
-                    shdown['bad'] += 1
-                if row['endst'] == 1:
-                    shdown['ok'] += 1
-                shutdowns += 1
+            # Count shutdowns when endst is set
+            if row['endst'] is not False:
+                if any((row['offbtime'], row['downtime'])):
+                    if row['endst'] == 0:
+                        shdown['bad'] += 1
+                    if row['endst'] == 1:
+                        shdown['ok'] += 1
+                    shutdowns += 1
 
-        # Count totals
-        cal['tot']['uptime'] += row['uptime']
-        cal['tot']['rntime'] += row['rntime']
-        cal['tot']['slptime'] += row['slptime']
-        cal['tot']['downtime'] += row['downtime']
+            # Count totals
+            cal['tot']['uptime'] += row['uptime']
+            cal['tot']['rntime'] += row['rntime']
+            cal['tot']['slptime'] += row['slptime']
+            cal['tot']['downtime'] += row['downtime']
 
-        # List with kernel names
-        kernel_cnt.append(row['kernel'])
+            # List with kernel names
+            kernel_cnt.append(row['kernel'])
 
     # Get kernel count:
     #   Remove duplicate and empty elements
