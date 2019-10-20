@@ -550,7 +550,7 @@ def time_conv(secs):
         return str(human_dtm[:-1])
 
 
-def since_opt(db_rows, arg):
+def since_opt(db_rows, empty_row, arg):
     """Get rows since a given row startup number registered"""
 
     if arg.since < 0:  # Negative value start from bottom
@@ -562,12 +562,12 @@ def since_opt(db_rows, arg):
             db_rows.remove(row)
 
     if not db_rows:
-        db_rows = [{'kernel': None, 'uptime': False, 'rntime': False, 'slptime': False, 'endst': False, 'offbtime': False, 'startup': 0, 'btime': False, 'downtime': False}]
+        db_rows = empty_row
 
     return db_rows, arg
 
 
-def until_opt(db_rows, arg):
+def until_opt(db_rows, empty_row, arg):
     """Get rows until a given row startup number registered"""
 
     if arg.until < 0:  # Negative value start from bottom
@@ -579,12 +579,12 @@ def until_opt(db_rows, arg):
             db_rows.remove(row)
 
     if not db_rows:
-        db_rows = [{'kernel': None, 'uptime': False, 'rntime': False, 'slptime': False, 'endst': False, 'offbtime': False, 'startup': 0, 'btime': False, 'downtime': False}]
+        db_rows = empty_row
 
     return db_rows, arg
 
 
-def tuntil_opt(db_rows, btime, uptime, arg):
+def tuntil_opt(db_rows, empty_row, btime, uptime, arg):
     """Split and report rows until a given timestamp
 
     Conventions:
@@ -621,12 +621,12 @@ def tuntil_opt(db_rows, btime, uptime, arg):
 
     # Report 0 if matches produce an empty db
     if not db_rows:
-        db_rows = [{'kernel': None, 'uptime': False, 'rntime': False, 'slptime': False, 'endst': False, 'offbtime': False, 'startup': 0, 'btime': False, 'downtime': False}]
+        db_rows = empty_row
 
     return db_rows, arg
 
 
-def tsince_opt(db_rows, btime, uptime, arg):
+def tsince_opt(db_rows, empty_row, btime, uptime, arg):
     """Split and report rows since a given timestamp
 
     Conventions:
@@ -670,7 +670,7 @@ def tsince_opt(db_rows, btime, uptime, arg):
 
     # Report 0 if matches produce an empty db
     if not db_rows:
-        db_rows = [{'kernel': None, 'uptime': False, 'rntime': False, 'slptime': False, 'endst': False, 'offbtime': False, 'startup': 0, 'btime': False, 'downtime': False}]
+        db_rows = empty_row
 
     return db_rows, arg
 
@@ -1254,6 +1254,7 @@ def main():
 
     # Create list of dicts from sqlite row objects to allow item allocation
     db_rows = [dict(row) for row in db_rows]
+    empty_row = [{'kernel': None, 'uptime': False, 'rntime': False, 'slptime': False, 'endst': False, 'offbtime': False, 'startup': 0, 'btime': False, 'downtime': False}]
 
     if arg.update:
         # If the user can only read db, the previous select return outdated numbers in last row
@@ -1273,14 +1274,14 @@ def main():
 
     # Parse since until arguments
     if arg.until:
-        db_rows, arg = until_opt(db_rows, arg)
+        db_rows, arg = until_opt(db_rows, empty_row, arg)
     if arg.since:
-        db_rows, arg = since_opt(db_rows, arg)
+        db_rows, arg = since_opt(db_rows, empty_row, arg)
 
     if arg.tu is not None:
-        db_rows, arg = tuntil_opt(db_rows, btime, uptime, arg)
+        db_rows, arg = tuntil_opt(db_rows, empty_row, btime, uptime, arg)
     if arg.ts is not None:
-        db_rows, arg = tsince_opt(db_rows, btime, uptime, arg)
+        db_rows, arg = tsince_opt(db_rows, empty_row, btime, uptime, arg)
 
     # Print values
     if arg.lst:
