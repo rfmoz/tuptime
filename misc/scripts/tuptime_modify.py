@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 '''
-This script modify the 'Startup Date' and 'Shutdown Date' on Tuptime database
-keeping the other values around in sync.
+This script modify the 'Startup Date', 'Shutdown Date' and "End Status" on
+Tuptime database keeping the other values around in sync.
 
 Increase 60 secs the startup date on register number 1:
     tuptime_modify.py -c startup -r 1 -s 60
@@ -17,6 +17,8 @@ Increase 30 secs the shutdown date on register number 12:
 Decrease 300 secs the shutdown date on register number 47 with verbose:
     tuptime_modify.py -c shutdown -r 47 -s -300 -v
 
+Swich end status value on register 54:
+    tuptime_modify.py -c endst -r 54
 '''
 
 import sys, argparse, locale, signal, logging, sqlite3, tempfile
@@ -44,8 +46,8 @@ def get_arguments():
         action='store',
         type=str,
         required=True,
-        choices=['startup', 'shutdown'],
-        help='change startup or shutdown date time [<startup|shutdown>]'
+        choices=['startup', 'shutdown', 'endst'],
+        help='change startup or shutdown date time [<startup|shutdown|endst>]'
     )
     parser.add_argument(
         '-f', '--filedb',
@@ -77,7 +79,6 @@ def get_arguments():
         default=0,
         action='store',
         type=int,
-        required=True,
         help='seconds to add or remove (+/-)'
     )
     parser.add_argument(
@@ -92,6 +93,9 @@ def get_arguments():
     if arg.verbose:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
         logging.info('Version: %s', (__version__))
+
+    if arg.change == 'endst' and arg.seconds:
+        parser.error('Operator \"seconds\" can\'t be combined with \"endst\"')
 
     logging.info('Arguments: %s', str(vars(arg)))
     return arg
@@ -108,6 +112,17 @@ def backup_dbf(arg):
     except Exception as exp:
         logging.error('Can\'t create backup file. %s', str(exp))
         sys.exit(-1)
+
+
+def fix_endst(arg, reg, conn, modt, orgt):
+    """Modify end status register"""
+
+    modt['endst'] = 1 - orgt['endst']
+
+    print('\t   modified\tendst ' + str(modt['endst']))
+
+    # Update values
+    conn.execute('update tuptime set endst = ' + str(modt['endst']) + ' where rowid = ' + str(reg['target']))
 
 
 def fix_shutdown(arg, reg, conn, modt, orgt):
@@ -219,18 +234,26 @@ def main():
         sys.exit(-1)
 
     # Get values from target row
-    conn.execute('select btime, uptime, rntime, offbtime, downtime from tuptime where rowid = ' + str(reg['target']))
-    orgt['btime'], orgt['uptime'], orgt['rntime'], orgt['offbtime'], orgt['downtime'] = conn.fetchone()
+    conn.execute('select btime, uptime, rntime, offbtime, endst, downtime from tuptime where rowid = ' + str(reg['target']))
+    orgt['btime'], orgt['uptime'], orgt['rntime'], orgt['offbtime'], orgt['endst'], orgt['downtime'] = conn.fetchone()
 
     print('\nValues:')
     print('\tTarget row   (startup: ' + str(reg['target']) + ')')
-    print('\t   original\tbtime: ' + str(orgt['btime']) + ' | uptime: ' + str(orgt['uptime']) + ' | rntime: ' + str(orgt['rntime']) + ' | offbtime: ' + str(orgt['offbtime']) + ' | downtime: ' + str(orgt['downtime']))
 
-    # Modify startup or shutdown date
-    if arg.change == 'startup':
-        fix_startup(arg, reg, conn, modt, orgt, modp, orgp)
-    if arg.change == 'shutdown':
-        fix_shutdown(arg, reg, conn, modt, orgt)
+    # Choose value to modify: endst / startup / shutdown
+    if arg.change == 'endst':
+
+        print('\t   original\tendst ' + str(orgt['endst']))
+        fix_endst(arg, reg, conn, modt, orgt)
+
+    else:
+
+        print('\t   original\tbtime: ' + str(orgt['btime']) + ' | uptime: ' + str(orgt['uptime']) + ' | rntime: ' + str(orgt['rntime']) + ' | offbtime: ' + str(orgt['offbtime']) + ' | downtime: ' + str(orgt['downtime']))
+
+        if arg.change == 'startup':
+            fix_startup(arg, reg, conn, modt, orgt, modp, orgp)
+        if arg.change == 'shutdown':
+            fix_shutdown(arg, reg, conn, modt, orgt)
 
     db_conn.commit()
 
