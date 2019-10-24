@@ -115,11 +115,12 @@ def backup_dbf(arg):
 
 
 def fix_endst(arg, reg, conn, modt, orgt):
-    """Modify end status register"""
+    """Swich end status register"""
 
+    # Swich between values 1 to 0 and 0 to 1
     modt['endst'] = 1 - orgt['endst']
 
-    print('\t   modified\tendst ' + str(modt['endst']))
+    print('\t   modified\tendst: ' + str(modt['endst']))
 
     # Update values
     conn.execute('update tuptime set endst = ' + str(modt['endst']) + ' where rowid = ' + str(reg['target']))
@@ -177,7 +178,7 @@ def fix_startup(arg, reg, conn, modt, orgt, modp, orgp):
 
         modp['downtime'] = orgp['downtime'] + arg.seconds
 
-        print('\tTarget row-1 (startup: ' + str(reg['prev']) + ')')
+        print('\tTarget row-1 \'' + str(reg['prev']) + '\':')
         print('\t   original\tdowntime: ' + str(orgp['downtime']))
         print('\t   modified\tdowntime: ' + str(modp['downtime']))
 
@@ -238,12 +239,12 @@ def main():
     orgt['btime'], orgt['uptime'], orgt['rntime'], orgt['offbtime'], orgt['endst'], orgt['downtime'] = conn.fetchone()
 
     print('\nValues:')
-    print('\tTarget row   (startup: ' + str(reg['target']) + ')')
+    print('\tTarget row \'' + str(reg['target']) + '\':')
 
     # Choose value to modify: endst / startup / shutdown
     if arg.change == 'endst':
 
-        print('\t   original\tendst ' + str(orgt['endst']))
+        print('\t   original\tendst: ' + str(orgt['endst']))
         fix_endst(arg, reg, conn, modt, orgt)
 
     else:
