@@ -114,12 +114,12 @@ def fix_shutdown(arg, reg, conn, modt, orgt):
     """Modify shutdown date register"""
 
     # Last row have None values
-    if orgt['offbtime'] is not None and orgt['downtime'] is not None:
-        modt['offbtime'] = orgt['offbtime'] + arg.seconds
-        modt['downtime'] = orgt['downtime'] - arg.seconds
-    else:
+    if orgt['offbtime'] is None and orgt['downtime'] is None:
         modt['offbtime'] = None
         modt['downtime'] = None
+    else:
+        modt['offbtime'] = orgt['offbtime'] + arg.seconds
+        modt['downtime'] = orgt['downtime'] - arg.seconds
     modt['uptime'] = orgt['uptime'] + arg.seconds
     modt['rntime'] = orgt['rntime'] + arg.seconds
 
