@@ -140,17 +140,16 @@ def test5(arg, row, conn):
 
         if arg.fix:
             fixed = row['rntime'] + row['slptime'] - row['uptime']
-            if row['rntime'] - fixed > 0:
+            if row['rntime'] > row['slptime'] and row['rntime'] - fixed > 0:
                 fixed2 = row['rntime'] - fixed
                 conn.execute('update tuptime set rntime = ' + str(fixed2) + ' where rowid = ' + str(row['startup']))
                 print(' FIXED: rntime = ' + str(fixed2))
-            elif row['slptime'] - fixed > 0:
+            elif row['slptime'] > row['rntime'] and row['slptime'] - fixed > 0:
                 fixed2 = row['slptime'] - fixed
                 conn.execute('update tuptime set slptime = ' + str(fixed2) + ' where rowid = ' + str(row['startup']))
                 print(' FIXED: slptime = ' + str(fixed2))
             else:
-                conn.execute('update tuptime set rntime = ' + str(row['uptime']) + ' where rowid = ' + str(row['startup']))
-                conn.execute('update tuptime set slptime = 0 where rowid = ' + str(row['startup']))
+                conn.execute('update tuptime set rntime = ' + str(row['uptime']) + ', slptime = 0 where rowid = ' + str(row['startup']))
                 print(' FIXED: rntime = ' + str(row['uptime']))
                 print(' FIXED: slptime = 0')
             fix_cnt()

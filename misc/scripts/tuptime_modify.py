@@ -137,20 +137,30 @@ def fix_shutdown(arg, reg, conn, modt, orgt):
         modt['offbtime'] = orgt['offbtime'] + arg.seconds
         modt['downtime'] = orgt['downtime'] - arg.seconds
     modt['uptime'] = orgt['uptime'] + arg.seconds
-    modt['rntime'] = orgt['rntime'] + arg.seconds
+    
+    if orgt['rntime'] + arg.seconds > 0:
+        modt['rntime'] = orgt['rntime'] + arg.seconds
+        modt['slptime'] = orgt['slptime']
+    elif orgt['slptime'] + arg.seconds > 0:
+        modt['rntime'] = orgt['rntime']
+        modt['slptime'] = orgt['slptime'] + arg.seconds
+    else:
+        modt['rntime'] = modt['uptime']
+        modt['slptime'] = 0
 
-    print('\t   modified\tbtime:    n/a     | uptime: ' + str(modt['uptime']) + ' | rntime: ' + str(modt['rntime']) + ' | offbtime: ' + str(modt['offbtime']) + ' | downtime: ' + str(modt['downtime']))
+    print('\t   modified\tbtime:    n/a     | uptime: ' + str(modt['uptime']) + ' | rntime: ' + str(modt['rntime']) + ' | slptime: ' + str(modt['slptime']) + ' | offbtime: ' + str(modt['offbtime']) + ' | downtime: ' + str(modt['downtime']))
 
     # Limit check
-    if modt['downtime'] is None or modt['downtime'] <= 0 or \
-       modt['offbtime'] is None or modt['offbtime'] <= 0 or \
-       modt['uptime'] <= 0 or modt['rntime'] <= 0:
-        logging.error('modified values can\'t be None or lower than 1')
+    if modt['downtime'] is None or modt['downtime'] < 0 or \
+       modt['offbtime'] is None or modt['offbtime'] < 0 or \
+       modt['uptime'] < 0 or modt['rntime'] < 0 or modt['slptime'] < 0:
+        logging.error('modified values can\'t be None or lower than 0')
         sys.exit(-1)
 
     # Update values
     conn.execute('update tuptime set uptime = ' + str(modt['uptime']) + ' where rowid = ' + str(reg['target']))
     conn.execute('update tuptime set rntime = ' + str(modt['rntime']) + ' where rowid = ' + str(reg['target']))
+    conn.execute('update tuptime set slptime = ' + str(modt['slptime']) + ' where rowid = ' + str(reg['target']))
     conn.execute('update tuptime set downtime = ' + str(modt['downtime']) + ' where rowid = ' + str(reg['target']))
     conn.execute('update tuptime set offbtime = ' + str(modt['offbtime']) + ' where rowid = ' + str(reg['target']))
 
@@ -160,13 +170,22 @@ def fix_startup(arg, reg, conn, modt, orgt, modp, orgp):
 
     modt['btime'] = orgt['btime'] + arg.seconds
     modt['uptime'] = orgt['uptime'] - arg.seconds
-    modt['rntime'] = orgt['rntime'] - arg.seconds
 
-    print('\t   modified\tbtime: ' + str(modt['btime']) + ' | uptime: ' + str(modt['uptime']) + ' | rntime: ' + str(modt['rntime']) + ' | offbtime: ----n/a--- | downtime: --n/a-- ')
+    if orgt['rntime'] - arg.seconds > 0:
+        modt['rntime'] = orgt['rntime'] - arg.seconds
+        modt['slptime'] = orgt['slptime']
+    elif orgt['slptime'] - arg.seconds > 0:
+        modt['rntime'] = orgt['rntime']
+        modt['slptime'] = orgt['slptime'] - arg.seconds
+    else:
+        modt['rntime'] = modt['uptime']
+        modt['slptime'] = 0
+
+    print('\t   modified\tbtime: ' + str(modt['btime']) + ' | uptime: ' + str(modt['uptime']) + ' | rntime: ' + str(modt['rntime']) + ' | slptime: ' + str(modt['slptime']) + ' | offbtime: ----n/a--- | downtime: --n/a-- ')
 
     # Limit check
-    if modt['uptime'] <= 0 or modt['rntime'] <= 0:
-        logging.error('modified values can\'t be lower than 1')
+    if modt['uptime'] < 0 or modt['rntime'] < 0 or modt['slptime'] < 0:
+        logging.error('modified values can\'t be lower than 0')
         sys.exit(-1)
 
     # First row don't have previous register to modify
@@ -183,8 +202,8 @@ def fix_startup(arg, reg, conn, modt, orgt, modp, orgp):
         print('\t   modified\tdowntime: ' + str(modp['downtime']))
 
         # Limit check
-        if modp['downtime'] <= 0:
-            logging.error('downtime can\'t be lower than 1')
+        if modp['downtime'] < 0:
+            logging.error('downtime can\'t be lower than 0')
             sys.exit(-1)
 
         conn.execute('update tuptime set downtime = ' + str(modp['downtime']) + ' where rowid = ' + str(reg['prev']))
@@ -193,6 +212,7 @@ def fix_startup(arg, reg, conn, modt, orgt, modp, orgp):
     conn.execute('update tuptime set btime = ' + str(modt['btime']) + ' where rowid = ' + str(reg['target']))
     conn.execute('update tuptime set uptime = ' + str(modt['uptime']) + ' where rowid = ' + str(reg['target']))
     conn.execute('update tuptime set rntime = ' + str(modt['rntime']) + ' where rowid = ' + str(reg['target']))
+    conn.execute('update tuptime set slptime = ' + str(modt['slptime']) + ' where rowid = ' + str(reg['target']))
 
 
 def main():
@@ -235,8 +255,8 @@ def main():
         sys.exit(-1)
 
     # Get values from target row
-    conn.execute('select btime, uptime, rntime, offbtime, endst, downtime from tuptime where rowid = ' + str(reg['target']))
-    orgt['btime'], orgt['uptime'], orgt['rntime'], orgt['offbtime'], orgt['endst'], orgt['downtime'] = conn.fetchone()
+    conn.execute('select btime, uptime, rntime, slptime, offbtime, endst, downtime from tuptime where rowid = ' + str(reg['target']))
+    orgt['btime'], orgt['uptime'], orgt['rntime'], orgt['slptime'], orgt['offbtime'], orgt['endst'], orgt['downtime'] = conn.fetchone()
 
     print('\nValues:')
     print('\tTarget row \'' + str(reg['target']) + '\':')
@@ -249,7 +269,7 @@ def main():
 
     else:
 
-        print('\t   original\tbtime: ' + str(orgt['btime']) + ' | uptime: ' + str(orgt['uptime']) + ' | rntime: ' + str(orgt['rntime']) + ' | offbtime: ' + str(orgt['offbtime']) + ' | downtime: ' + str(orgt['downtime']))
+        print('\t   original\tbtime: ' + str(orgt['btime']) + ' | uptime: ' + str(orgt['uptime']) + ' | rntime: ' + str(orgt['rntime']) + ' | slptime: ' + str(orgt['slptime']) + ' | offbtime: ' + str(orgt['offbtime']) + ' | downtime: ' + str(orgt['downtime']))
 
         if arg.change == 'startup':
             fix_startup(arg, reg, conn, modt, orgt, modp, orgp)
