@@ -10,6 +10,7 @@ import sys, argparse, locale, signal, logging, sqlite3
 __version__ = '1.0.0'
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 fixcnt = 0
+errcnt = 0
 
 # List of tests to auto-execute
 TESTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -65,9 +66,12 @@ def get_arguments():
     return arg
 
 
-def fix_cnt():
+def err_cnt(arg):
+    global errcnt
     global fixcnt
-    fixcnt += 1
+    if arg.fix:
+        fixcnt += 1
+    errcnt += 1
 
 
 def test0(arg, db_rows, conn):
@@ -77,7 +81,7 @@ def test0(arg, db_rows, conn):
         if arg.fix:
             conn.execute('vacuum')
             print(' FIXED: vacuum')
-            fix_cnt()
+        err_cnt(arg)
 
 
 def test1(arg, row, conn):
@@ -90,7 +94,7 @@ def test1(arg, row, conn):
         if arg.fix:
             conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
             print(' FIXED: delete row = ' + str(row['startup']))
-            fix_cnt()
+        err_cnt(arg)
 
 
 def test2(arg, row, conn, prev_row):
@@ -102,7 +106,7 @@ def test2(arg, row, conn, prev_row):
         if arg.fix:
             conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
             print(' FIXED: delete row = ' + str(row['startup']))
-            fix_cnt()
+        err_cnt(arg)
 
 
 def test3(arg, row, conn, prev_row):
@@ -115,7 +119,7 @@ def test3(arg, row, conn, prev_row):
             fixed = row['btime'] - prev_row['offbtime']
             conn.execute('update tuptime set downtime = ' + str(fixed) + ' where rowid = ' + str(row['startup'] - 1))
             print(' FIXED: prev_row downtime = ' + str(fixed))
-            fix_cnt()
+        err_cnt(arg)
 
 
 def test4(arg, row, conn):
@@ -129,7 +133,7 @@ def test4(arg, row, conn):
             fixed = row['offbtime'] - row['btime']
             conn.execute('update tuptime set uptime = ' + str(fixed) + ' where rowid = ' + str(row['startup']))
             print(' FIXED: uptime = ' + str(fixed))
-            fix_cnt()
+        err_cnt(arg)
 
 
 def test5(arg, row, conn):
@@ -152,7 +156,7 @@ def test5(arg, row, conn):
                 conn.execute('update tuptime set rntime = ' + str(row['uptime']) + ', slptime = 0 where rowid = ' + str(row['startup']))
                 print(' FIXED: rntime = ' + str(row['uptime']))
                 print(' FIXED: slptime = 0')
-            fix_cnt()
+        err_cnt(arg)
 
 
 def test6(arg, row, conn):
@@ -164,7 +168,7 @@ def test6(arg, row, conn):
         if arg.fix:
             conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
             print(' FIXED: delete row = ' + str(row['startup']))
-            fix_cnt()
+        err_cnt(arg)
 
 
 def test7(arg, row, conn):
@@ -176,7 +180,7 @@ def test7(arg, row, conn):
         if arg.fix:
             conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
             print(' FIXED: delete row = ' + str(row['startup']))
-            fix_cnt()
+        err_cnt(arg)
 
 
 def test8(arg, row, conn):
@@ -188,7 +192,7 @@ def test8(arg, row, conn):
         if arg.fix:
             conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
             print(' FIXED: delete row = ' + str(row['startup']))
-            fix_cnt()
+        err_cnt(arg)
 
 
 def test9(arg, row, conn):
@@ -201,7 +205,7 @@ def test9(arg, row, conn):
         if arg.fix:
             conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
             print(' FIXED: delete row = ' + str(row['startup']))
-            fix_cnt()
+        err_cnt(arg)
 
 
 
@@ -222,7 +226,7 @@ def main():
     print('Processing ' + str(arg.db_file) + ' --->')
 
     for i in arg.test:
-        print('\n### ' + str(i) + ' ###')
+        print('\n### Test ' + str(i) + ' ###')
 
         conn.execute('select rowid as startup, * from tuptime')
         db_rows = conn.fetchall()
@@ -273,8 +277,9 @@ def main():
     db_conn.close()
 
     print('\n' + '-' * 25)
+    print('Errors: ' + str(errcnt))
     print('Fixed: ' + str(fixcnt))
-    print('Done.')
+    print('')
 
 
 if __name__ == "__main__":
