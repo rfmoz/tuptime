@@ -3,7 +3,7 @@
                          ----------------------
                               version 4.0.1
                                 Ricardo F.
-                               28/Jul/2019
+                               25/Oct/2019
 
 
 
@@ -600,12 +600,13 @@ the system may change. A slightly drift is compensate over the uptime value, but
 very high drift can cause inconsistent registers and output, for example, Raspberry
 Pi don't have any clock and initializes from 1 January 1970.
 
-To avoid that problem the systemd unit have the time-sync.target requirement, but
-for now it have a bug (https://github.com/systemd/systemd/issues/5097) and not work
-as expected.
+To avoid that problem the systemd unit have the time-sync.target requirement, it
+delay the first execution after boot until the time is synchronized and the clock
+is accurate. But check that you don't fall into the following bug already opened:
+https://github.com/systemd/systemd/issues/5097
 
-Tuptime report the drift when it is executed in verbose mode "tuptime -v" in the
-line "INFO:Drift over btime". Values around +-1 are very common and can be
+The drift value that Tuptime have reference is reported in verbose mode "tuptime -v"
+in the line "INFO:Drift over btime". Values around +-1 are very common and can be
 considered as normal.
 
 A few recomendations / workarounds are:
