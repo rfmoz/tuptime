@@ -214,12 +214,12 @@ def get_arguments():
     )
     arg = parser.parse_args()
 
-    # - Check enable verbose
+    # Check enable verbose
     if arg.verbose:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
         logging.info('Version = %s', (__version__))
 
-    # - Check combination of operator requirements
+    # Check combination of operator requirements
     if arg.reverse or arg.order:
         if not arg.table and not arg.lst:
             parser.error('Used operators must be combined with [-t|--table] or [-l|--list].')
@@ -232,7 +232,7 @@ def get_arguments():
                 logging.info('Auto enable option = power')
                 arg.power = True
 
-    # - Wrap 'at' over since and until
+    # Wrap 'at' over since and until
     if arg.at is not None:
         if arg.at < 0:
             arg.at = arg.at + 1
@@ -1053,7 +1053,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
     cal['lar']['down_downtime'], cal['lar']['down_offbtime'], cal['lar']['down_kern'] = extract_times(db_rows, 'max', 'downtime')
     cal['sho']['down_downtime'], cal['sho']['down_offbtime'], cal['sho']['down_kern'] = extract_times(db_rows, 'min', 'downtime')
 
-    if not arg.seconds:  # - Human readable style
+    if not arg.seconds:  # Human readable style
         if max_tstamp is not None:
             max_tstamp = datetime.fromtimestamp(max_tstamp).strftime(arg.date_format)
 
@@ -1238,13 +1238,13 @@ def main():
 
     db_conn.commit()
 
-    # - Exit if silent is enabled. Avoid wasting time in print operations
+    # Exit if silent is enabled. Avoid wasting time in print operations
     if arg.silent:
         db_conn.close()
         logging.info('Silent mode')
         sys.exit(0)
 
-    # - Get all rows to determine print values
+    # Get all rows to determine print values
     conn.execute('select rowid as startup, * from tuptime')
     db_rows = conn.fetchall()
 
