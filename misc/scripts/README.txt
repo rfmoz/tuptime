@@ -13,7 +13,7 @@ tuptime_join.py
 
 tuptime_modify.py
     Modify registers keeping nearest values in sycn.
-    Allow 'end status', 'startup date' and 'shutdown date'.
+    Allow change 'end status', 'startup date' and 'shutdown date'.
 
 
 

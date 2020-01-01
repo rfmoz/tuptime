@@ -107,7 +107,7 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 ### Highlights about Tuptime internals
 
-- It doesn't run as a daemon, at least, it only need execution when the init manager startup and shutdown the system. To avoid issues with a switch off without a proper shutdown, like power failures, a cron job and a .timer unit are shipped with the project to update the registers each n minutes. As a system administrator, you can easily choose the best number for your particular system requirements.
+- It doesn't run as a daemon, at least, it only needs execution when the init manager startup and shutdown the system. To avoid issues with a switch off without a proper shutdown, like power failures, a cron job and a .timer unit are shipped with the project to update the registers each n minutes. As a system administrator, you can easily choose the best number for your particular system requirements.
 
 - It is written in Python using common modules and as few as possible, easy to see what is inside it, and modify it for fit for your particular use case.
 
@@ -115,7 +115,7 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 - Its main purpose is tracking all the system startups/shutdowns and present that information to the user in a more understandable way. Don't have mail alerts when a milestones are reached or the limitation of keep the last n records.
 
-- Its written to avoid false startups registers. This is an issue that sometimes happens when the NTP adjust the system clock, on virtualized enviroments, on servers with high load, when the system resynchronized with their RTC clock after a suspend and resume cycle...
+- It's written to avoid false startups registers. This is an issue that sometimes happens when the NTP adjust the system clock, on virtualized enviroments, on servers with high load, when the system resynchronized with their RTC clock after a suspend and resume cycle...
 
 - It can report:
   - Registers as a table or list ordering by any label.

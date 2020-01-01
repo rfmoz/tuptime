@@ -1,11 +1,11 @@
-tuptime (4.0.1) unstable; urgency=low
+tuptime (4.1.0) unstable; urgency=low
 
   * Register shutdowns lower than a second
   * Adding option -A --at
   * Refactoring --tat output
   * Rename suspend time to sleep time
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 24 Aug 2019 19:41:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Wed, 01 Jan 2020 17:03:00 +0100
 
 tuptime (4.0.0) unstable; urgency=low
 
@@ -51,7 +51,7 @@ tuptime (3.4.0) unstable; urgency=low
   * Fixed equal number of values per line in csv output
   * Fix right termination when SIGPIPE signal is received
   * Upgrade timer unit with tuptime-cron.timer and tuptime-cron.service
-  * Adding OpenRC init script 
+  * Adding OpenRC init script
   * Tuptime user without /bin/sh shell
   * Support environmental variable with DB file path
 
@@ -74,13 +74,13 @@ tuptime (3.3.2) unstable; urgency=low
 
   * Fix print kernel in list and table outputs in partial registers
   * Consistent decimals output when seconds are used in table and list
-  * Accurate report in largest/shortest uptime/downtime with partial 
+  * Accurate report in largest/shortest uptime/downtime with partial
     registers in narrow ranges
   * Avoid import subprocess module
   * Report in default output the state of last shutdown
   * Adding systemd .timer as alternative to cron schedule
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 21 Jan 2017 19:46:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 21 Jan 2017 19:43:00 +0100
 
 tuptime (3.3.1) unstable; urgency=medium
 
@@ -186,7 +186,7 @@ tuptime (2.4.26) stable; urgency=low
 
 tuptime (2.4.10) stable; urgency=low
 
-  * Fix false wrong shutdown bug when some kernels rarely report +1 or -1 
+  * Fix false wrong shutdown bug when some kernels rarely report +1 or -1
     second inside /proc/stat btime variable
 
  -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 26 Jul 2015 10:00:00 -0400

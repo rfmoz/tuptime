@@ -1,11 +1,11 @@
-tuptime (4.0.1) unstable; urgency=low
+tuptime (4.1.0) unstable; urgency=low
 
   * Register shutdowns lower than a second
   * Adding option -A --at
   * Refactoring --tat output
   * Rename suspend time to sleep time
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 24 Aug 2019 19:41:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Wed, 01 Jan 2020 17:03:00 +0100
 
 tuptime (4.0.0) unstable; urgency=low
 
@@ -107,9 +107,17 @@ tuptime (3.3.0-1) unstable; urgency=medium
 
 tuptime (3.3.0) unstable; urgency=low
 
-  * Release new version.
+  * Refactoring code
+  * Adding -S --since option
+  * Adding -U --until option
+  * Adding --tsince option
+  * Adding --tuntil option
+  * Adding -n --noup option
+  * Adding --csv option
+  * Fix inconsistencies with seconds reports due rounded decimals
+  * Fix inconsistencies when system clock drift
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Mon, 11 Apr 2016 09:59:43 -0500
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 12 Mar 2016 10:51:00 +0100
 
 tuptime (3.2.3) unstable; urgency=low
 
