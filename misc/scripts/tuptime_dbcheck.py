@@ -47,7 +47,7 @@ def get_arguments():
         nargs='+',
         type=int,
         default=TESTS,
-        help='list of test to execute'
+        help='execute only this test'
     )
     parser.add_argument(
         '-v', '--verbose',
