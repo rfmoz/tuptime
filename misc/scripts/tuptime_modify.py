@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-This script modify the 'Startup Date', 'Shutdown Date' and "End Status" on
+This script modify the "Startup Date", "Shutdown Date" and "End Status" on
 Tuptime database keeping the other values around in sync.
 
 Increase 60 secs the startup date on register number 1:
