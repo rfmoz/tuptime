@@ -1,10 +1,10 @@
-.TH TUPTIME 1 "Jul 2019" "4.0.0" "Linux Manual"
+.TH TUPTIME 1 "Jan 2020" "4.1.0" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [{\-h | \-\-help}] [{\-c | \-\-csv}] [{\-d | \-\-date}=<date\ format>] [\-\-decp=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}={d|e|k|r|s|u}] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<number>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<number>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}]
+tuptime [{\-h | \-\-help}] [{\-A | \-\-at}=<startup>] [{\-c | \-\-csv}] [{\-d | \-\-date}=<date\ format>] [\-\-decp=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}={d|e|k|r|s|u}] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<startup>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<startup>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}]
 
 .SH DESCRIPTION
 .RS
@@ -24,7 +24,7 @@ the system, keeping it between restarts. Indeed, it can:
 - Uptime and downtime percentage since first boot time
 .RS
 .RE
-- Accumulated system uptime (running and suspended), downtime and total
+- Accumulated system uptime (running and sleeping), downtime and total
 .RS
 .RE
 - Current uptime
@@ -48,6 +48,9 @@ tab (@);
 l lx.
 \-h | \-\-help@T{
 Show this help message and exit
+T}
+\-A | \-\-at STARTUP@T{
+Restrict at this startup number
 T}
 \-c | \-\-csv@T{
 Output in csv format
@@ -74,19 +77,19 @@ T}
 Avoid update values
 T}
 \-o | \-\-order TYPE@T{
-Order enumerate by [<d|e|k|r|s|u>] d = downtime | e = end status | k = kernel | r = runtime | s = suspend time | u = uptime
+Order enumerate by [<d|e|k|r|s|u>] d = downtime | e = end status | k = kernel | r = runtime | s = sleep time | u = uptime
 T}
 \-r | \-\-reverse@T{
-Reverse order
+Reverse order in list or table output
 T}
 \-p | \-\-power@T{
-Print power states run/suspended
+Print power states run + sleep
 T}
 \-s | \-\-seconds@T{
 Output time in seconds and epoch
 T}
-\-S | \-\-since SINCE@T{
-Restric since this register number
+\-S | \-\-since STARTUP@T{
+Restric since this startup number
 T}
 \-t | \-\-table@T{
 Enumerate system life as table
@@ -100,8 +103,8 @@ T}
 \-\-tuntil TIMESTAMP@T{
 Restrict until this epoch timestamp
 T}
-\-U | \-\-until UNTIL@T{
-Restrict up until this register number
+\-U | \-\-until STARTUP@T{
+Restrict up until this startup number
 T}
 \-v | \-\-verbose@T{
 Verbose output
@@ -244,7 +247,7 @@ Ricardo Fraile <rfraile@rfraile.eu>
 
 .SH "COPYRIGHT"
 .PP
-Copyright (C) 2019 by Ricardo F. All Rights Reserved.
+Copyright (C) 2020 by Ricardo F. All Rights Reserved.
 
 This product is distributed in the hope that it will be useful, but
 WITHOUT any warranty; without even the implied warranty of 

@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 4.0.0
+                              version 4.1.0
                                 Ricardo F.
-                               28/Jul/2019
+                               01/Jan/2020
 
 
 
@@ -18,7 +18,7 @@ Indeed, it can:
   - Register first boot time (a.k.a. installation time)
   - Count nicely and accidentally shutdowns 
   - Uptime and downtime percentage since first boot time
-  - Accumulated system uptime (running and suspended), downtime and total
+  - Accumulated system uptime (running and sleeping), downtime and total
   - Current uptime
   - Register used kernels
   - Print formatted table or list with most of the previous values
@@ -153,6 +153,8 @@ Note about Python 2.7:
 These are the command line options, no configuration file is used:
 
   -h, --help            show this help message and exit
+  -A STARTUP, --at STARTUP
+                        restrict to this startup number
   -c, --csv             csv output
   -d DATE_FORMAT, --date DATE_FORMAT
                         date format output
@@ -165,20 +167,30 @@ These are the command line options, no configuration file is used:
   -n, --noup            avoid update values
   -o TYPE, --order TYPE
                         order enumerate by [<e|d|k|u|r|s>]
-  -p, --power           print power states run/suspend
+  -p, --power           print power states run + sleep
   -r, --reverse         reverse order
   -s, --seconds         output time in seconds and epoch
-  -S SINCE, --since SINCE
-                        restrict from this register number
+  -S STARTUP, --since STARTUP
+                        restrict from this startup number
   -t, --table           enumerate system life as table
   --tat TIMESTAMP       status at epoch timestamp
   --tsince TIMESTAMP    restrict from this epoch timestamp
   --tuntil TIMESTAMP    restrict until this epoch timestamp
-  -U UNTIL, --until UNTIL
-                        restrict up until this register number
+  -U STARTUP, --until STARTUP
+                        restrict up until this startup number
   -v, --verbose         verbose output
   -V, --version         show version
   -x, --silent          update values into db without output
+
+
+-A <STARTUP>, --at <STARTUP>
+  Restrict values only to this startup number. Take it from (-t) table or
+  (-l) list reports. Negative values allowed.
+
+  Examples:
+          tuptime -A 34
+          tuptime --at 22
+          tuptime -l -A -1  # List last register
 
 
 -h, --help
@@ -302,7 +314,7 @@ These are the command line options, no configuration file is used:
     <e>  end status
     <k>  kernel
     <r>  runtime
-    <s>  suspend time
+    <s>  sleep time
     <u>  uptime
   Therefore, only works in conjunction with (-t) or (-l) options.
 
@@ -314,7 +326,7 @@ These are the command line options, no configuration file is used:
 
 
 -p, --power
-  Add the running and suspended accumulated time for the correspondent uptime slot.
+  Add the running and sleeping accumulated time for the correspondent uptime slot.
   Note that only Python >= 3.6 can register this values.
 
   Examples:
@@ -344,7 +356,7 @@ These are the command line options, no configuration file is used:
          tuptime --seconds
 
 
--S <SINCE>, --since <SINCE>
+-S <STARTUP>, --since <STARTUP>
   Restrict values only from this startup number. Take it from (-t) table or
   (-l) list reports. Negative values allowed.
 
@@ -364,7 +376,8 @@ These are the command line options, no configuration file is used:
 
 
 --tat
-  Report system status at specific timestamp.
+  Report system status at specific timestamp, register number enclosed and time
+  elapsed and remaining in that matched status.
 
   Examples:
          tuptime --tat 1555280149
@@ -389,7 +402,7 @@ These are the command line options, no configuration file is used:
          tuptime --tuntil -2592000  # Until one month ago
 
 
--U <UNTIL>, --until <UNTIL>
+-U <STARTUP>, --until <STARTUP>
   Restrict values only up until this startup number. Take it from (-t) table or
   (-l) list reports. Negative values allowed.
 
@@ -453,8 +466,13 @@ TUPTIME_DBF
 It's important to have a schedule execution. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
 shutdown, but if the system fails, hangs or whatever, the uptime time will
-be lost. Be sure that the cron entry or systemd tuptime-cron.[timer|service]
-units are installed as expected.
+be lost. Be sure that the cron entry or, in other case, the systemd
+tuptime-cron.[timer|service] units are installed as expected.
+
+Why it's needed the use of an other .service file with the name tuptime-cron?
+The default tuptime.service file uses the option 'RemainAfterExit=true' and
+nowadays the systemd timer can't restart an already running service, so, there
+is no way to restart it.
 
 By default, both have a 5 minutes scheduled execution. Feel free to lower 
 that value if your requirements are narrow.
@@ -519,7 +537,7 @@ From 2.x to 3.x:
     https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate-3.0-to-3.1.sh
  
 From 3.x to 4.x:
-    DB registers uptime, rntime, spdtime, downtime are now integers.
+    Added rntime and slptime registers, also uptime, rntime, slptime, downtime are now integers.
     The migrations is done automatically from Tuptime. Also, the migration script
     is located at:
 
@@ -536,7 +554,7 @@ the following format:
 tuptime (btime integer, 
          uptime integer, 
          rntime integer,
-         spdtime integer,
+         slptime integer,
          offbtime integer, 
          endst integer, 
          downtime integer, 
@@ -545,7 +563,7 @@ tuptime (btime integer,
 btime    Startup date in epoch
 uptime   Uptime seconds  
 rntime   Running time seconds
-spdtime  Suspend time seconds
+slptime  Sleeping time seconds
 offbtime Shutdown date in epoch
 endst    Type of shutdown [1 ok | 0 bad]
 downtime Downtime seconds
@@ -582,12 +600,13 @@ the system may change. A slightly drift is compensate over the uptime value, but
 very high drift can cause inconsistent registers and output, for example, Raspberry
 Pi don't have any clock and initializes from 1 January 1970.
 
-To avoid that problem the systemd unit have the time-sync.target requirement, but
-for now it have a bug (https://github.com/systemd/systemd/issues/5097) and not work
-as expected.
+To avoid that problem the systemd unit have the time-sync.target requirement, it
+delay the first execution after boot until the time is synchronized and the clock
+is accurate. But check that you don't fall into the following bug already opened:
+https://github.com/systemd/systemd/issues/5097
 
-Tuptime report the drift when it is executed in verbose mode "tuptime -v" in the
-line "INFO:Drift over btime". Values around +-1 are very common and can be
+The drift value that Tuptime have reference is reported in verbose mode "tuptime -v"
+in the line "INFO:Drift over btime". Values around +-1 are very common and can be
 considered as normal.
 
 A few recomendations / workarounds are:

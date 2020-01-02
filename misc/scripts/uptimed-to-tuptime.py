@@ -16,7 +16,8 @@ from shutil import which, copyfile
 # V1.0: Gustavo Panizzo 2018-11-18
 # V1.1: Ricardo Fraile 2018-11-21
 # V1.2: Ricardo Fraile 2019-03-24
-__version__ = '1.2'
+# V1.3: Ricardo Fraile 2019-10-19
+__version__ = '1.3'
 
 # Default Tuptime db location
 TUPT_DBF = '/var/lib/tuptime/tuptime.db'
@@ -39,15 +40,21 @@ def insert_row(row):
     """ inserts a uptimed record as a row """
 
     conn = sqlite3.connect(TUPT_TMP_DBF)
-    uptime = row[0]
-    rntime = row[0]
-    spdtime = 0.0
-    btime = row[1]
-    kernel = row[2]
-    _offbtime = row[3]
-    downtime = row[4]
-    endst = row[5]
-    params = [btime, uptime, rntime, spdtime, _offbtime, endst, downtime, kernel]
+    _uptime = int(round(float(row[0]), 0))
+    _rntime = int(round(float(row[0]), 0))
+    _slptime = int(0)
+    _btime = int(round(float(row[1]), 0))
+    _kernel = row[2]
+    if row[3]:
+        _offbtime = int(round(float(row[3]), 0))
+    else:
+        _offbtime = None
+    if row[4]:
+        _downtime = int(round(float(row[4]), 0))
+    else:
+        _downtime = None
+    _endst = int(row[5])
+    params = [_btime, _uptime, _rntime, _slptime, _offbtime, _endst, _downtime, _kernel]
     print(str(params))
 
     conn.execute("INSERT INTO tuptime VALUES (?,?,?,?,?,?,?,?)", params)
@@ -68,8 +75,8 @@ def create_db(db_file):
     db_conn = sqlite3.connect(db_file)
     conn = db_conn.cursor()
     conn.execute('create table if not exists tuptime'
-                 '(btime integer, uptime real, rntime real, spdtime real,'
-                 'offbtime integer, endst integer, downtime real, kernel text)')
+                 '(btime integer, uptime integer, rntime integer, slptime integer,'
+                 'offbtime integer, endst integer, downtime integer, kernel text)')
     db_conn.commit()
     db_conn.close()
 
@@ -145,8 +152,8 @@ def uptimed_to_tuptime(uptimed):
         newrecords.append(line)
 
     # Reset last line
-    newrecords[-1][3] = '-1'  # offbtime
-    newrecords[-1].append('0.0')  # downtime
+    newrecords[-1][3] = False  # offbtime
+    newrecords[-1].append(False)  # downtime
     newrecords[-1].append('1')  # endst
 
     if not len(newrecords):
