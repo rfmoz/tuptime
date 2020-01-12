@@ -910,7 +910,7 @@ def print_tat(db_rows, btime, uptime, arg):
             report['time_fwd'] = time_conv(report['time_fwd'])
 
         if not arg.csv:  # Define content/spaces between values
-            sp0, sp2, sp5, sp8 = '', ':\t\t', '   ', ' '
+            sp0, sp2, sp5, sp8 = '', ':\t', '   ', ' '
         else:
             sp0, sp2, sp5, sp8 = '"', '","', '","', ''
 
