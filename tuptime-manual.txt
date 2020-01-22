@@ -692,9 +692,9 @@ Kernel name is registered each time that tuptime update values. If ksplice is
 used to update the kernel, last kernel will have the whole time assignment
 since the last system start.
 
-Note the filesystem cache on which the files resides for a while before being 
-flushing into disk. If things go wrong, like a kernel panic, maybe the last 
-updates of the db already written into the file can be lost.
+Tuptime is backed by a SQLite dabase. It is highly resilient but fails can
+occur in any software and hardware level producing a database corruption. Here
+is an excellent documentation about it https://www.sqlite.org/howtocorrupt.html
 
 The uptime reference is linked with the wall clock time elapsed since boot, not
 the running efective time. Running (efective time) and hibernate power states
