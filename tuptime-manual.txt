@@ -381,6 +381,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime --tat 1555280149
+         tuptime --tat `date --date="1 day ago" +%s`
          tuptime -cs --tat 1555281311
 
 
@@ -390,6 +391,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime --tsince 1454998872
+         tuptime --tsince `date --date="20-JAN-18" +%s`
          tuptime --tsince -31536000  # Since one year ago
 
 
@@ -399,6 +401,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime --tuntil 1454999619
+         tuptime --tuntil `date --date="2018-01-20 16:21:42" +%s`
          tuptime --tuntil -2592000  # Until one month ago
 
 
