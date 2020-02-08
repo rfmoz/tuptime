@@ -1,3 +1,9 @@
+tuptime (4.1.1) unstable; urgency=low
+
+  * Mitigate overlapping a graceful shutdown register
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 08 Feb 2020 16:49:00 +0100
+
 tuptime (4.1.0) unstable; urgency=low
 
   * Register shutdowns lower than a second

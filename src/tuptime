@@ -1166,12 +1166,13 @@ def main():
         logging.warning('DB format outdated')
         upgrade_db(db_conn, conn, arg)
 
-    conn.execute('select btime, uptime from tuptime where rowid = (select max(rowid) from tuptime)')
-    last_btime, last_uptime = conn.fetchone()
+    conn.execute('select btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
+    last_btime, last_uptime, last_endst = conn.fetchone()
     logging.info('Last btime from db = %s', str(last_btime))
     logging.info('Last uptime from db = %s', str(last_uptime))
     last_buptime = last_btime + last_uptime
     logging.info('Last buptime from db = %s', str(last_buptime))
+    logging.info('Last endst from db = %s', str(last_endst))
 
     # - Test if system was resterted
     # How tuptime does it:
@@ -1194,7 +1195,7 @@ def main():
     #    http://unix.stackexchange.com/questions/118631/how-can-i-measure-and-prevent-clock-drift
     #
     # To avoid lost an uptime record, please be sure that the system have time sync enabled, the init/systemd
-    # script and the cron tasks works as expected.
+    # script and the cron task works as expected.
 
     if arg.update:
         try:
@@ -1209,20 +1210,27 @@ def main():
                 # Save downtimes for previous boot
                 conn.execute('update tuptime set offbtime = ' + str(offbtime_db) + ', downtime = ' + str(downtime_db) +
                              ' where rowid = (select max(rowid) from tuptime)')
-                # Create entry for new boot
+                # Create a new boot register
                 conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?)',
                              (str(btime), str(uptime), str(rntime), str(slptime), None, str(arg.endst), None, str(kernel)))
                 logging.info('DB info = insert OK')
 
             else:
+                logging.info('System restarted = False')
+
                 # Adjust time drift. Check only when system wasn't restarted
                 btime, uptime, rntime, slptime = control_drift(last_btime, btime, uptime, rntime, slptime)
 
-                logging.info('System restarted = False')
-                conn.execute('update tuptime set uptime = ' + str(uptime) + ', rntime = ' + str(rntime) +
-                             ', slptime = ' + str(slptime) + ', endst = ' + str(arg.endst) + ', kernel = \'' + str(kernel) +
-                             '\' where rowid = (select max(rowid) from tuptime)')
-                logging.info('DB info = update OK')
+                # If a graceful shutdown was just registered before, let 5 seconds to next update to avoid being overlaped
+                # with regular schedule execution (it can happen at shutdown)
+                if (last_endst and ((last_uptime + 5) > uptime) and not arg.endst):
+                    logging.info('DB info = graceful PASS')
+                else:
+                    # Update current boot records
+                    conn.execute('update tuptime set uptime = ' + str(uptime) + ', rntime = ' + str(rntime) +
+                                 ', slptime = ' + str(slptime) + ', endst = ' + str(arg.endst) + ', kernel = \'' + str(kernel) +
+                                 '\' where rowid = (select max(rowid) from tuptime)')
+                    logging.info('DB info = update OK')
 
         except sqlite3.OperationalError:
             logging.info('DB info = write PASS')
