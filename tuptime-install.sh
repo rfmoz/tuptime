@@ -13,7 +13,7 @@
 D_BIN='/usr/bin'
 
 # PID 1 process
-PID1=`grep 'Name' /proc/1/status | cut -f2`
+PID1=$(grep 'Name' /proc/1/status | cut -f2)
 
 # Swich dev branch
 DEV=0
@@ -48,19 +48,19 @@ if [ $? -ne 0 ]; then
 fi
 
 # Test if python is installed
-pyver=`python3 --version 2> /dev/null`
+pyver=$(python3 --version 2> /dev/null)
 if [ $? -ne 0 ]; then
         echo "ERROR: Python not available"
         echo "Please, install version 3 or greater"; exit 1
 else
 	# Test if version 3 or avobe of python is installed
-        pynum=`echo ${pyver} | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2`
+	pynum=$(echo ${pyver} | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2)
         if [ $pynum -lt 30 ] ; then
                 echo "ERROR: Its needed Python version 3, not ${pyver}"
                 echo "Please, upgrade it."; exit 1
         else
 		# Test if all modules needed are available
-		pymod=`python3 -c "import sys, os, argparse, locale, platform, signal, logging, sqlite3, datetime"`
+		pymod=$(python3 -c "import sys, os, argparse, locale, platform, signal, logging, sqlite3, datetime")
                 if [ $? -ne 0 ]; then
                         echo "ERROR: Please, ensure that these Python modules are available in the local system:"
                         echo "sys, os, optparse, sqlite3, locale, platform, datetime, logging"; exit 1
@@ -76,7 +76,7 @@ else
 fi
 
 # Set Selinux swich
-SELX=`getenforce 2> /dev/null`
+SELX=$(getenforce 2> /dev/null)
 if [ "${SELX}" = 'Enforcing' ]; then
         echo "Selinux enabled in Enforcing"
 	SELX='true'
@@ -85,7 +85,7 @@ else
 fi
 
 # Temporary dir for clone repo into it
-F_TMP1=`mktemp -d`
+F_TMP1=$(mktemp -d)
 
 echo ""
 echo "++ Tuptime installation script ++"
