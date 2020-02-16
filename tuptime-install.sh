@@ -35,7 +35,7 @@ while test $# -gt 0; do
 done
 
 # Test if it is a linux system
-if [ "$(expr substr $(uname -s) 1 5)" != "Linux" ]; then
+if [ "$(expr substr "$(uname -s)" 1 5)" != "Linux" ]; then
 	echo "Sorry, only for Linux systems"
 	exit 1
 fi
@@ -54,8 +54,8 @@ if [ $? -ne 0 ]; then
         echo "Please, install version 3 or greater"; exit 1
 else
 	# Test if version 3 or avobe of python is installed
-	pynum=$(echo ${pyver} | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2)
-        if [ $pynum -lt 30 ] ; then
+	pynum=$(echo "$pyver" | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2)
+        if [ "$pynum" -lt 30 ] ; then
                 echo "ERROR: Its needed Python version 3, not ${pyver}"
                 echo "Please, upgrade it."; exit 1
         else
