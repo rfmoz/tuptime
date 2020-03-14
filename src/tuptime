@@ -366,7 +366,7 @@ def get_os_values():
         pass
     logging.info('Uptime = %s', str(uptime))
     logging.info('Rntime = %s', str(rntime))
-    logging.info('Spdtime = %s', str(slptime))
+    logging.info('Slptime = %s', str(slptime))
     logging.info('Btime = %s', str(btime))
     logging.info('Kernel = %s', str(kernel))
     logging.info('Execution user = %s', str(ex_user))
@@ -409,7 +409,7 @@ def assure_state_db(btime, uptime, rntime, slptime, kernel, arg):
             logging.info('Creating path = %s', str(os.path.dirname(arg.db_file)))
             os.makedirs(os.path.dirname(arg.db_file))
     except Exception as exp_path:
-        logging.error('Checking db path "%s": %s', str(os.path.dirname(arg.db_file)), str(exp_path))
+        logging.error('Checking DB path "%s": %s', str(os.path.dirname(arg.db_file)), str(exp_path))
         sys.exit(-1)
 
     # Test and create db with the initial values
@@ -428,7 +428,7 @@ def assure_state_db(btime, uptime, rntime, slptime, kernel, arg):
             db_conn.commit()
             db_conn.close()
     except Exception as exp_file:
-        logging.error('Checking db file "%s": %s', str(arg.db_file), str(exp_file))
+        logging.error('Checking DB file "%s": %s', str(arg.db_file), str(exp_file))
         sys.exit(-1)
 
 
@@ -500,7 +500,7 @@ def control_drift(last_btime, btime, uptime, rntime, slptime):
         else:
             # Keep btime from db with current uptime until it can be fixed
             btime = last_btime
-            logging.info('Keep last btime from db = %s', str(btime))
+            logging.info('Keep last btime from DB = %s', str(btime))
             if uptime <= offset:
                 logging.info('Drift is bigger or equal than uptime. Skipping')
             if (uptime + offset) <= 0:
@@ -1168,11 +1168,11 @@ def main():
 
     conn.execute('select btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
     last_btime, last_uptime, last_endst = conn.fetchone()
-    logging.info('Last btime from db = %s', str(last_btime))
-    logging.info('Last uptime from db = %s', str(last_uptime))
+    logging.info('Last btime from DB = %s', str(last_btime))
+    logging.info('Last uptime from DB = %s', str(last_uptime))
     last_buptime = last_btime + last_uptime
-    logging.info('Last buptime from db = %s', str(last_buptime))
-    logging.info('Last endst from db = %s', str(last_endst))
+    logging.info('Last buptime from DB = %s', str(last_buptime))
+    logging.info('Last endst from DB = %s', str(last_endst))
 
     # - Test if system was resterted
     # How tuptime does it:
@@ -1204,8 +1204,8 @@ def main():
 
                 offbtime_db = last_buptime
                 downtime_db = btime - last_buptime
-                logging.info('Recording offbtime into db = %s', str(offbtime_db))
-                logging.info('Recording downtime into db = %s', str(downtime_db))
+                logging.info('Recording offbtime into DB = %s', str(offbtime_db))
+                logging.info('Recording downtime into DB = %s', str(downtime_db))
 
                 # Save downtimes for previous boot
                 conn.execute('update tuptime set offbtime = ' + str(offbtime_db) + ', downtime = ' + str(downtime_db) +
@@ -1213,7 +1213,7 @@ def main():
                 # Create a new boot register
                 conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?)',
                              (str(btime), str(uptime), str(rntime), str(slptime), None, str(arg.endst), None, str(kernel)))
-                logging.info('DB info = insert OK')
+                logging.info('DB info = insert ok')
 
             else:
                 logging.info('System restarted = False')
@@ -1224,25 +1224,25 @@ def main():
                 # If a graceful shutdown was just registered before, let 5 seconds to next update to avoid being overlaped
                 # with regular schedule execution (it can happen at shutdown)
                 if (last_endst and ((last_uptime + 5) > uptime) and not arg.endst):
-                    logging.info('DB info = graceful PASS')
+                    logging.info('DB info = graceful pass')
                 else:
                     # Update current boot records
                     conn.execute('update tuptime set uptime = ' + str(uptime) + ', rntime = ' + str(rntime) +
                                  ', slptime = ' + str(slptime) + ', endst = ' + str(arg.endst) + ', kernel = \'' + str(kernel) +
                                  '\' where rowid = (select max(rowid) from tuptime)')
-                    logging.info('DB info = update OK')
+                    logging.info('DB info = update ok')
 
         except sqlite3.OperationalError:
-            logging.info('DB info = write PASS')
+            logging.info('DB info = write pass')
 
             if 'offbtime_db' in locals() and 'downtime_db' in locals():
                 # If you see this error, maybe the systemd script isn't executed at startup
                 # or the db file (DB_FILE) have wrong permissions.
-                logging.error('Detected a new system startup but the values are not saved into db.')
-                logging.error('Tuptime execution user can\'t write into db file: %s', str(arg.db_file))
+                logging.error('Detected a new system startup but the values have not been saved into DB.')
+                logging.error('Tuptime execution user can\'t write into DB file: %s', str(arg.db_file))
                 sys.exit(-1)
     else:
-        logging.info('DB info = write SKIP by option')
+        logging.info('DB info = write skip by option')
 
     db_conn.commit()
 
@@ -1257,7 +1257,7 @@ def main():
     db_rows = conn.fetchall()
 
     if len(db_rows) != db_rows[-1]['startup']:  # Real startups are not equal to enumerate startups
-        logging.info('Possible deleted rows in db')
+        logging.info('Possible deleted rows in DB')
     db_conn.close()
 
     # Create list of dicts from sqlite row objects to allow item allocation
