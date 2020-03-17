@@ -23,7 +23,7 @@ from datetime import datetime
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATE_FORMAT = '%X %x'
-__version__ = '4.1.1'
+__version__ = '5.0.0'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -48,6 +48,13 @@ def get_arguments():
         metavar='STARTUP',
         type=int,
         help='restrict at this startup number'
+    )
+    parser.add_argument(
+        '-b', '--bootid',
+        dest='bootid',
+        action='store_true',
+        default=False,
+        help='print boot identifier information'
     )
     parser.add_argument(
         '-c', '--csv',
@@ -255,6 +262,7 @@ def get_os_values():
     """Get values from each type of operating system"""
 
     btime = None
+    bootid = None
     uptime = None
     rntime = None
     slptime = None
@@ -303,7 +311,7 @@ def get_os_values():
 
         return btime, uptime, rntime
 
-    def os_linux(btime, uptime, rntime):
+    def os_linux(btime, uptime, rntime, bootid):
         """Get values from Linux"""
 
         logging.info('System = Linux')
@@ -329,11 +337,17 @@ def get_os_values():
                 uptime = fl1.readline().split()[0]
             rntime = uptime
 
-        return btime, uptime, rntime
+        try:
+            with open('/proc/sys/kernel/random/boot_id') as fl3:
+                bootid = fl3.readline().split()[0]
+        except Exception as exp:
+            logging.info('Linux boot_id not assigned')
+
+        return btime, uptime, rntime, bootid
 
     # Linux
     if sys.platform.startswith(('linux')):
-        btime, uptime, rntime = os_linux(btime, uptime, rntime)
+        btime, uptime, rntime, bootid = os_linux(btime, uptime, rntime, bootid)
     # BSDs
     elif sys.platform.startswith(('freebsd', 'darwin', 'dragonfly', 'openbsd', 'netbsd')):
         btime, uptime, rntime = os_bsd(btime, uptime, rntime)
@@ -364,6 +378,7 @@ def get_os_values():
         logging.info('Current locale = %s', str(locale.getlocale()))
     except Exception:
         pass
+    logging.info('Boot ID = %s', str(bootid))
     logging.info('Uptime = %s', str(uptime))
     logging.info('Rntime = %s', str(rntime))
     logging.info('Slptime = %s', str(slptime))
@@ -382,16 +397,16 @@ def get_os_values():
             if osvarkey == 'rntime': rntime = 0
             if osvarkey == 'slptime': slptime = 0
 
-    # Avoid executing when clock is too out of phase
+    # Avoid executing when OS clock is too out of phase
     if btime < 946684800:   # 01/01/2000 00:00
         logging.error('Epoch boot time value is too old \'%s\'. Check system clock sync.', str(btime))
         logging.error('Tuptime execution can\'t continue.')
         sys.exit(-1)
 
-    return btime, uptime, rntime, slptime, kernel
+    return bootid, btime, uptime, rntime, slptime, kernel
 
 
-def assure_state_db(btime, uptime, rntime, slptime, kernel, arg):
+def assure_state_db(bootid, btime, uptime, rntime, slptime, kernel, arg):
     """Assure state of db file and related directories"""
 
     if arg.db_file == DB_FILE:  # If db_file keeps default value
@@ -421,10 +436,10 @@ def assure_state_db(btime, uptime, rntime, slptime, kernel, arg):
             db_conn = sqlite3.connect(arg.db_file)
             conn = db_conn.cursor()
             conn.execute('create table if not exists tuptime'
-                         '(btime integer, uptime integer, rntime integer, slptime integer,'
+                         '(bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
                          'offbtime integer, endst integer, downtime integer, kernel text)')
-            conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?)',
-                         (str(btime), str(uptime), str(rntime), str(slptime), None, str(arg.endst), None, str(kernel)))
+            conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
+                         (str(bootid), str(btime), str(uptime), str(rntime), str(slptime), None, str(arg.endst), None, str(kernel)))
             db_conn.commit()
             db_conn.close()
     except Exception as exp_file:
@@ -432,8 +447,8 @@ def assure_state_db(btime, uptime, rntime, slptime, kernel, arg):
         sys.exit(-1)
 
 
-def upgrade_db(db_conn, conn, arg):
-    """Upgrade db to from 3.x to 4.x format"""
+def upgrade_db(db_conn, conn, columns, arg):
+    """Upgrade db to current format"""
 
     if not os.access(arg.db_file, os.W_OK):
         logging.error('"%s" file not writable by execution user.', str(arg.db_file))
@@ -441,21 +456,38 @@ def upgrade_db(db_conn, conn, arg):
     logging.warning('Upgrading DB file = %s', str(arg.db_file))
 
     try:
-        conn.execute('create table if not exists tuptimeNew'
-                     '(btime integer, uptime integer, rntime integer, slptime integer,'
-                     'offbtime integer, endst integer, downtime integer, kernel text)')
-        conn.execute('update tuptime set uptime = cast(round(uptime) as int)')
-        conn.execute('update tuptime set offbtime = cast(round(offbtime) as int)')
-        conn.execute('update tuptime set downtime = cast(round(downtime) as int)')
-        conn.execute('insert into tuptimeNew '
-                     '(btime, uptime, offbtime, endst, downtime, kernel) '
-                     'SELECT btime, uptime, offbtime, endst, downtime, kernel '
-                     'FROM tuptime')
-        conn.execute('update tuptimeNew set rntime = uptime')
-        conn.execute('update tuptimeNew set slptime = 0')
-        conn.execute('drop table tuptime')
-        conn.execute('alter table tuptimeNew RENAME TO tuptime')
-        db_conn.commit()
+
+        if 'rntime' and 'slptime' not in columns:  # tuptime v4
+            logging.warning('Upgrading DB with power states')
+            conn.execute('create table if not exists tuptimeNew'
+                         '(btime integer, uptime integer, rntime integer, slptime integer,'
+                         'offbtime integer, endst integer, downtime integer, kernel text)')
+            conn.execute('update tuptime set uptime = cast(round(uptime) as int)')
+            conn.execute('update tuptime set offbtime = cast(round(offbtime) as int)')
+            conn.execute('update tuptime set downtime = cast(round(downtime) as int)')
+            conn.execute('insert into tuptimeNew '
+                         '(btime, uptime, offbtime, endst, downtime, kernel) '
+                         'SELECT btime, uptime, offbtime, endst, downtime, kernel '
+                         'FROM tuptime')
+            conn.execute('update tuptimeNew set rntime = uptime')
+            conn.execute('update tuptimeNew set slptime = 0')
+            conn.execute('drop table tuptime')
+            conn.execute('alter table tuptimeNew RENAME TO tuptime')
+            db_conn.commit()
+
+        if 'bootid' not in columns:  # tuptime v5
+            logging.warning('Upgrading DB with boot ID')
+            conn.execute('create table if not exists tuptimeNew'
+                         '(bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
+                         'offbtime integer, endst integer, downtime integer, kernel text)')
+            conn.execute('insert into tuptimeNew '
+                         '(btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel) '
+                         'SELECT btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel '
+                         'FROM tuptime')
+            conn.execute('drop table tuptime')
+            conn.execute('alter table tuptimeNew RENAME TO tuptime')
+            db_conn.commit()
+
     except Exception as exp_db:
         logging.error('Upgrading DB format failed. "%s"', str(exp_db))
         sys.exit(-1)
@@ -588,7 +620,7 @@ def tuntil_opt(db_rows, empty_row, btime, uptime, arg):
     """Split and report rows until a given timestamp
 
     Conventions:
-        - Each row keeps its startup number
+        - Each row keeps its startup number and boot ID
         - Empty values are False
     """
 
@@ -630,7 +662,7 @@ def tsince_opt(db_rows, empty_row, btime, uptime, arg):
     """Split and report rows since a given timestamp
 
     Conventions:
-        - Each row keeps its startup number
+        - Each row keeps its startup number and boot ID
         - Empty values are False
     """
 
@@ -709,6 +741,9 @@ def for_print(db_rows, arg):
     # Based if the value is False or not, set the right content format
     for row in db_rows:
 
+        if row['bootid'] is None:
+            row['bootid'] = ''
+
         if row['btime'] is not False:
             if not arg.seconds:
                 row['btime'] = datetime.fromtimestamp(row['btime']).strftime(arg.date_format)
@@ -783,6 +818,9 @@ def print_list(db_rows, arg):
             else:  # Consistent csv output, always with the same number of values
                 print(sp0 + 'Startup' + sp3 + str(row_dict['startup']) + sp1 + '' + sp1 + '' + sp0)
 
+        if arg.bootid and row_dict['bootid']:
+            print(sp0 + 'Boot ID' + sp3 + str(row_dict['bootid']) + sp0)
+
         if row_dict['uptime']:
             print(sp0 + 'Uptime' + sp4 + str(row_dict['uptime']) + sp0)
 
@@ -812,7 +850,20 @@ def print_list(db_rows, arg):
 def print_table(db_rows, arg):
     """Print values as a table"""
 
-    tbl = [['No.', 'Startup Date', 'Uptime', 'Running', 'Sleeping', 'Shutdown Date', 'End', 'Downtime', 'Kernel']]
+    # Populate table with values to print
+    tbl = [['No.', 'Boot ID', 'Startup Date', 'Uptime', 'Running', 'Sleeping', 'Shutdown Date', 'End', 'Downtime', 'Kernel']]
+    al_left = [tbl[0].index('End'), tbl[0].index('Kernel')]  # Aligned to left
+
+    if not arg.bootid:
+        tbl[0].remove('Boot ID')
+
+    if not arg.power:
+        tbl[0].remove('Running')
+        tbl[0].remove('Sleeping')
+
+    if not arg.kernel:
+        tbl[0].remove('Kernel')
+
     if not arg.csv:   # Add empty brake up line if csv is not used
         tbl.append([''] * len(tbl[0]))
     colpad = []
@@ -822,24 +873,20 @@ def print_table(db_rows, arg):
 
     # Build table for print
     for row_dict in for_print(db_rows, arg):
-        tbl.append([str(row_dict['startup']),
-                    str(row_dict['btime']),
-                    str(row_dict['uptime']),
-                    str(row_dict['rntime']),
-                    str(row_dict['slptime']),
-                    str(row_dict['offbtime']),
-                    str(row_dict['endst']),
-                    str(row_dict['downtime']),
-                    str(row_dict['kernel'])])
+        rowd = ([str(row_dict['startup']), str(row_dict['btime']), str(row_dict['uptime']),
+                 str(row_dict['offbtime']), str(row_dict['endst']), str(row_dict['downtime'])])
 
-    if not arg.power:  # Delete runinng and sleep if it isnt used
-        tbl = [x[:3] + x[5:] for x in tbl]
+        if 'Boot ID' in tbl[0]:
+            rowd.insert(tbl[0].index('Boot ID'), str(row_dict['bootid']))
 
-    # Position of columns aligned to left
-    al_left = (tbl[0].index('End'), tbl[0].index('Kernel'))
+        if 'Running' in tbl[0]:
+            rowd.insert(tbl[0].index('Running'), str(row_dict['rntime']))
+            rowd.insert(tbl[0].index('Sleeping'), str(row_dict['slptime']))
 
-    if not arg.kernel:  # Delete kernel if it isnt used
-        tbl = [x[:-1] for x in tbl]
+        if 'Kernel' in tbl[0]:
+            rowd.append(str(row_dict['kernel']))
+
+        tbl.append(rowd)
 
     if not arg.csv:
         for i in range(len(tbl[0])):
@@ -919,7 +966,7 @@ def print_tat(db_rows, btime, uptime, arg):
         print(sp0 + (sp8 * 4) + 'remaining in' + sp2 + str(perctg_2) + '%' + sp5 + '-' + sp5 + str(report['time_fwd']) + sp0)
 
 
-def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
+def print_default(db_rows, cbootid, cbtime, cuptime, crntime, cslptime, ckernel, arg):
     """Print values as default output"""
 
     def extract_times(db_rows, option, key):
@@ -946,13 +993,13 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
             row = min(dbr, key=lambda x: x[key])
         else:
             # If the dict is empty, report nothing
-            row = {'btime': False, 'uptime': 0, 'rntime': 0, 'slptime': 0, 'offbtime': False, 'downtime': 0, 'kernel': None}
+            row = {'bootid': None, 'btime': False, 'uptime': 0, 'rntime': 0, 'slptime': 0, 'offbtime': False, 'downtime': 0, 'kernel': None}
 
         # Report based on the key requested
         if key == 'uptime':
-            return row['uptime'], row['rntime'], row['slptime'], row['btime'], row['kernel']
+            return row['uptime'], row['bootid'], row['rntime'], row['slptime'], row['btime'], row['kernel']
 
-        return row['downtime'], row['offbtime'], row['kernel']
+        return row['downtime'], row['bootid'], row['offbtime'], row['kernel']
 
     def extract_max_min_tst(db_rows, arg):
         """Extract max and min timestamps values available"""
@@ -993,6 +1040,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
     startups = 0
     shutdowns = 0
     kernel_cnt = []
+    bootid_cnt = []
 
     # Unless startup register indicate empty
     if db_rows[0]['startup']:
@@ -1016,12 +1064,14 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
             cal['tot']['slptime'] += row['slptime']
             cal['tot']['downtime'] += row['downtime']
 
-            # List with kernel names
+            # Lists with kernel names and boot_id identifiers
             kernel_cnt.append(row['kernel'])
+            bootid_cnt.append(row['bootid'])
 
-    # Get kernel count:
+    # Get kernel and boot_id counters:
     #   Remove duplicate and empty elements
     kernel_cnt = len(set(filter(None, kernel_cnt)))
+    bootid_cnt = len(set(filter(None, bootid_cnt)))
 
     # Get system life
     sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
@@ -1044,14 +1094,17 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
     if shutdowns > 0:
         cal['ave']['downtime'] = int(round(float(cal['tot']['downtime'] / shutdowns), 0))
 
-    cal['lar']['up_uptime'], cal['lar']['up_rntime'], cal['lar']['up_slptime'], \
-    cal['lar']['up_btime'], cal['lar']['up_kern'] = extract_times(db_rows, 'max', 'uptime')
+    cal['lar']['up_uptime'], cal['lar']['up_bootid'], cal['lar']['up_rntime'], \
+    cal['lar']['up_slptime'], cal['lar']['up_btime'], cal['lar']['up_kern'] = extract_times(db_rows, 'max', 'uptime')
 
-    cal['sho']['up_uptime'], cal['sho']['up_rntime'], cal['sho']['up_slptime'], \
-    cal['sho']['up_btime'], cal['sho']['up_kern'] = extract_times(db_rows, 'min', 'uptime')
+    cal['sho']['up_uptime'], cal['sho']['up_bootid'], cal['sho']['up_rntime'], \
+    cal['sho']['up_slptime'], cal['sho']['up_btime'], cal['sho']['up_kern'] = extract_times(db_rows, 'min', 'uptime')
 
-    cal['lar']['down_downtime'], cal['lar']['down_offbtime'], cal['lar']['down_kern'] = extract_times(db_rows, 'max', 'downtime')
-    cal['sho']['down_downtime'], cal['sho']['down_offbtime'], cal['sho']['down_kern'] = extract_times(db_rows, 'min', 'downtime')
+    cal['lar']['down_downtime'], cal['lar']['down_bootid'], cal['lar']['down_offbtime'], \
+    cal['lar']['down_kern'] = extract_times(db_rows, 'max', 'downtime')
+
+    cal['sho']['down_downtime'], cal['sho']['down_bootid'], cal['sho']['down_offbtime'], \
+    cal['sho']['down_kern'] = extract_times(db_rows, 'min', 'downtime')
 
     if not arg.seconds:  # Human readable style
         if max_tstamp is not None:
@@ -1063,7 +1116,7 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
         # Look into the keys to set right values
         for k in cal:
             for key in cal[k]:
-                if key in ['up_kern', 'down_kern']:
+                if key in ['up_kern', 'down_kern', 'up_bootid', 'down_bootid']:
                     continue
                 elif key in ['up_btime', 'down_offbtime']:
                     if cal[k][key] is not False:
@@ -1104,6 +1157,8 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
         print(sp0 + 'System power state' + sp1 + 'r:' + str(rate['rn']) + '% + s:' + str(rate['spd'])  + '%' + sp5 + '-' + sp5 + 'r:' + str(cal['tot']['rntime']) + ' + s:' + str(cal['tot']['slptime']) + sp0)
     print(sp0 + 'System downtime' + sp2 + str(rate['down']) + '%' + sp5 + '-' + sp5 + str(cal['tot']['downtime']) + sp0)
     print(sp0 + 'System life' + sp3 + str(sys_life) + sp0)
+    if arg.bootid:
+        print(sp0 + 'System boot IDs' + sp2 + str(bootid_cnt) + sp0)
     if arg.kernel:
         print(sp0 + 'System kernels' + sp2 + str(kernel_cnt) + sp0)
     if not arg.csv:
@@ -1113,6 +1168,8 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
         print(sp0 + 'Largest uptime' + sp2 + str(cal['lar']['up_uptime']) + pw1 + sp5 + 'from' + sp5 + str(cal['lar']['up_btime']) + sp0)
     else:
         print(sp0 + 'Largest uptime' + sp2 + str(cal['lar']['up_uptime']) + pw1 + sp7)
+    if arg.bootid:
+        print(sp0 + (sp8 * 4) + '...boot ID' + sp2 + str(cal['lar']['up_bootid']) + sp0)
     if arg.kernel:
         print(sp0 + '...with kernel' + sp2 + str(cal['lar']['up_kern']) + sp0)
 
@@ -1120,6 +1177,8 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
         print(sp0 + 'Shortest uptime' + sp1 + str(cal['sho']['up_uptime']) + pw2 + sp5 + 'from' + sp5 + str(cal['sho']['up_btime']) + sp0)
     else:
         print(sp0 + 'Shortest uptime' + sp1 + str(cal['sho']['up_uptime']) + pw2 + sp7)
+    if arg.bootid:
+        print(sp0 + (sp8 * 5) + '...boot ID' + sp2 + str(cal['sho']['up_bootid']) + sp0)
     if arg.kernel:
         print(sp0 + sp8 + '...with kernel' + sp2 + str(cal['sho']['up_kern']) + sp0)
     print(sp0 + 'Average uptime' + sp2 + str(cal['ave']['uptime']) + pw3 + sp0)
@@ -1130,12 +1189,16 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
         print(sp0 + 'Largest downtime' + sp1 + str(cal['lar']['down_downtime']) + sp5 + 'from' + sp5 + str(cal['lar']['down_offbtime']) + sp0)
     else:
         print(sp0 + 'Largest downtime' + sp1 + str(cal['lar']['down_downtime']) + sp7)
+    if arg.bootid:
+        print(sp0 + (sp8 * 6) + '...boot ID' + sp2 + str(cal['lar']['down_bootid']) + sp0)
     if arg.kernel:
         print(sp0 + (sp8 * 2) + '...with kernel' + sp2 + str(cal['lar']['down_kern']) + sp0)
     if isinstance(cal['sho']['down_offbtime'], str) or cal['sho']['down_offbtime'] is not False:
         print(sp0 + 'Shortest downtime' + sp1 + str(cal['sho']['down_downtime']) + sp5 + 'from' + sp5 + str(cal['sho']['down_offbtime']) + sp0)
     else:
         print(sp0 + 'Shortest downtime' + sp1 + str(cal['sho']['down_downtime']) + sp7)
+    if arg.bootid:
+        print(sp0 + (sp8 * 7) + '...boot ID' + sp2 + str(cal['sho']['down_bootid']) + sp0)
     if arg.kernel:
         print(sp0 + (sp8 * 3) + '...with kernel' + sp2 + str(cal['sho']['down_kern']) + sp0)
     print(sp0 + 'Average downtime' + sp2 + str(cal['ave']['downtime']) + sp0)
@@ -1143,6 +1206,8 @@ def print_default(db_rows, cbtime, cuptime, crntime, cslptime, ckernel, arg):
         if not arg.csv:
             print('')
         print(sp0 + 'Current uptime' + sp2 + str(cuptime) + pw4 + sp5 + 'since' + sp5 + str(cbtime) + sp0)
+        if arg.bootid:
+            print(sp0 + (sp8 * 4) + '...boot ID' + sp2 + str(cbootid) + sp0)
         if arg.kernel:
             print(sp0 + '...with kernel' + sp2 + str(ckernel) + sp0)
 
@@ -1152,9 +1217,9 @@ def main():
 
     arg = get_arguments()
 
-    btime, uptime, rntime, slptime, kernel = get_os_values()
+    bootid, btime, uptime, rntime, slptime, kernel = get_os_values()
 
-    assure_state_db(btime, uptime, rntime, slptime, kernel, arg)
+    assure_state_db(bootid, btime, uptime, rntime, slptime, kernel, arg)
 
     db_conn = sqlite3.connect(arg.db_file)
     db_conn.row_factory = sqlite3.Row
@@ -1162,12 +1227,13 @@ def main():
 
     # Check if DB have the old format
     columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'slptime' not in columns:
+    if 'rntime' and 'slptime' and 'bootid' not in columns:
         logging.warning('DB format outdated')
-        upgrade_db(db_conn, conn, arg)
+        upgrade_db(db_conn, conn, columns, arg)
 
-    conn.execute('select btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
-    last_btime, last_uptime, last_endst = conn.fetchone()
+    conn.execute('select bootid, btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
+    last_bootid, last_btime, last_uptime, last_endst = conn.fetchone()
+    logging.info('Last bootid from DB = %s', str(last_bootid))
     logging.info('Last btime from DB = %s', str(last_btime))
     logging.info('Last uptime from DB = %s', str(last_uptime))
     last_buptime = last_btime + last_uptime
@@ -1175,19 +1241,24 @@ def main():
     logging.info('Last endst from DB = %s', str(last_endst))
 
     # - Test if system was resterted
-    # How tuptime does it:
-    #    Checking if the value resultant from last_btime plus last_uptime (both saved into db) is...
-    #        ...lower than current btime
-    #           or (to catch shutdowns lower than a second)
-    #        ...equal to current btime and current uptime is lower than last_uptime
     #
+    # How tuptime does it:
+    #
+    #    If boot_id exists (only on Linux nowadays), checking if its value changed.
+    #
+    #    Rest of the cases, checking if the value resultant from last_btime plus last_uptime
+    #    (both saved into db) is lower than current btime or (to catch shutdowns lower than a second)
+    #    equal to current btime and current uptime is lower than last_uptime
+    #
+    # Checking boot_id is the most secure way to detect a new boot. Working with time values is not 100% relialible.
     # In some particular cases the btime value from /proc/stat or from the system clock functions may change.
-    # It is affected by discontinuous jumps in the system time (e.g., if the system administrator
-    # manually changes the clock), and by the incremental adjustments performed by adjtime(3) and NTP.
-    # Testing only last_btime vs actual btime can produce a false startup register.
-    # This issue also happen on virtualized enviroments, servers with high load or with high disk I/O.
-    # Also related to kernel system clock frequency, computation of jiffies / HZ and the problem
-    # of lost ticks.
+    # It is affected by discontinuous jumps in the system time (e.g., if the system administrator manually changes
+    # the clock), and by the incremental adjustments performed by adjtime(3) and NTP. Testing only last_btime vs
+    # actual btime can produce a false startup register, that's why is there the uptime value.
+    # This issue also happen on virtualized enviroments, servers with high load or with high disk I/O. Also related
+    # to kernel system clock frequency, computation of jiffies / HZ and the problema of lost ticks.
+    # When tuptime doesn't register a new boot, only an update of the records, it tries to fix the drift.
+    #
     # More info:
     #    https://tools.ietf.org/html/rfc1589
     #    https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=119971
@@ -1198,9 +1269,24 @@ def main():
     # script and the cron task works as expected.
 
     if arg.update:
+
+        if last_bootid and bootid and last_bootid != bootid:
+            logging.info('System restarted = True from bootid')
+            new_boot = True
+
+        elif last_buptime < btime or (last_buptime == btime and uptime < last_uptime):
+            logging.info('System restarted = True from btime')
+            new_boot = True
+
+        else:
+            logging.info('System restarted = False')
+            new_boot = False
+
         try:
-            if (last_buptime < btime) or (last_buptime == btime and uptime < last_uptime):
-                logging.info('System restarted = True')
+            if new_boot:
+                # Adjust btime. Never lower than before
+                if last_buptime > btime:
+                    btime = last_buptime
 
                 offbtime_db = last_buptime
                 downtime_db = btime - last_buptime
@@ -1211,19 +1297,17 @@ def main():
                 conn.execute('update tuptime set offbtime = ' + str(offbtime_db) + ', downtime = ' + str(downtime_db) +
                              ' where rowid = (select max(rowid) from tuptime)')
                 # Create a new boot register
-                conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?)',
-                             (str(btime), str(uptime), str(rntime), str(slptime), None, str(arg.endst), None, str(kernel)))
+                conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
+                             (str(bootid), str(btime), str(uptime), str(rntime), str(slptime), None, str(arg.endst), None, str(kernel)))
                 logging.info('DB info = insert ok')
 
             else:
-                logging.info('System restarted = False')
-
                 # Adjust time drift. Check only when system wasn't restarted
                 btime, uptime, rntime, slptime = control_drift(last_btime, btime, uptime, rntime, slptime)
 
                 # If a graceful shutdown was just registered before, let 5 seconds to next update to avoid being overlaped
                 # with regular schedule execution (it can happen at shutdown)
-                if (last_endst and ((last_uptime + 5) > uptime) and not arg.endst):
+                if last_endst and (last_uptime + 5 > uptime) and not arg.endst:
                     logging.info('DB info = graceful pass')
                 else:
                     # Update current boot records
@@ -1262,7 +1346,7 @@ def main():
 
     # Create list of dicts from sqlite row objects to allow item allocation
     db_rows = [dict(row) for row in db_rows]
-    empty_row = [{'kernel': None, 'uptime': False, 'rntime': False, 'slptime': False, 'endst': False, 'offbtime': False, 'startup': 0, 'btime': False, 'downtime': False}]
+    empty_row = [{'startup': 0, 'bootid': None, 'uptime': False, 'rntime': False, 'slptime': False, 'endst': False, 'offbtime': False, 'btime': False, 'downtime': False, 'kernel': None}]
 
     if arg.update:
         # If the user can only read db, the previous select return outdated numbers in last row
@@ -1299,7 +1383,7 @@ def main():
     elif arg.tat is not None:
         print_tat(db_rows, btime, uptime, arg)
     else:
-        print_default(db_rows, btime, uptime, rntime, slptime, kernel, arg)
+        print_default(db_rows, bootid, btime, uptime, rntime, slptime, kernel, arg)
 
 
 if __name__ == "__main__":
