@@ -7,13 +7,13 @@ Test database integrity. Try to catch weird errors and fix them.
 
 import sys, argparse, locale, signal, logging, sqlite3
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 fixcnt = 0
 errcnt = 0
 
 # List of tests to auto-execute
-TESTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+TESTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -208,6 +208,19 @@ def test9(arg, row, conn):
         err_cnt(arg)
 
 
+def test10(arg, row, conn, prev_row):
+    if prev_row['bootid'] and row['bootid'] and \
+       prev_row['bootid'] == row['bootid']:
+        print(row['startup'])
+        print(' duplicate bootid')
+        print(' ' + str(prev_row['startup']) + ' ' +  str(prev_row['bootid']))
+        print(' ' + str(row['startup']) + ' ' +  str(row['bootid']))
+
+        if arg.fix:
+            conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
+            print(' FIXED: delete row = ' + str(row['startup']))
+        err_cnt(arg)
+
 
 def main():
 
@@ -264,12 +277,13 @@ def main():
             if i == 9:
                 test9(arg, row, conn)
 
-            if i == 9:
-                test9(arg, row, conn)
+            if i == 10:
+                if row != db_rows[0]:  # Only after first row
+                    test10(arg, row, conn, prev_row)
 
             prev_row = row
 
-        if i == 10:
+        if i == 11:
             test0(arg, db_rows, conn)
 
         db_conn.commit()
