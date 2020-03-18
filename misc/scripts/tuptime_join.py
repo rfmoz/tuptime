@@ -31,7 +31,7 @@ Check owner (usually tuptime:tuptime) and copy modified file to right location. 
 import sys, argparse, locale, signal, logging, sqlite3
 from shutil import copyfile
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -98,7 +98,7 @@ def main():
 
     # Check if DB have the old format
     columns = [i[1] for i in conn0.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'slptime' not in columns:
+    if 'rntime' and 'slptime' and 'bootid' not in columns:
         logging.error('DB format outdated on old file')
         sys.exit(-1)
 
@@ -109,7 +109,7 @@ def main():
 
     # Check if DB have the old format
     columns = [i[1] for i in conn1.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'slptime' not in columns:
+    if 'rntime' and 'slptime' and 'bootid' not in columns:
         logging.error('DB format outdated on new file')
         sys.exit(-1)
 
@@ -158,9 +158,10 @@ def main():
 
         # Add registers to file0
         print(' Adding startup row: ' + str(row['startup']))
-        conn0.execute('insert into tuptime values (?,?,?,?,?,?,?,?)',
-                      (str(row['btime']), str(row['uptime']), str(row['rntime']), str(row['slptime']), str(row['offbtime']), str(row['endst']), str(row['downtime']), str(row['kernel'])))
+        conn0.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
+                      (str(row['bootid']), str(row['btime']), str(row['uptime']), str(row['rntime']), str(row['slptime']), str(row['offbtime']), str(row['endst']), str(row['downtime']), str(row['kernel'])))
         if arg.verbose:
+            print('\tbootid = ' + str(row['bootid']))
             print('\tbtime = ' + str(row['btime']))
             print('\tuptime = ' + str(row['uptime']))
             print('\trntime = ' + str(row['rntime']))
