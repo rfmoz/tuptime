@@ -2,4 +2,3 @@ src/systemd/tuptime.service lib/systemd/system/
 src/init.d/debian/tuptime etc/init.d/
 src/cron.d/tuptime etc/cron.d/
 src/tuptime usr/bin/
-misc/scripts/uptimed-to-tuptime.py usr/share/doc/tuptime/contrib/

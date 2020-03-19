@@ -34,9 +34,6 @@ db-tuptime-migrate-3.1-to-4.0.sh
     Tuptime v.4 do it automatically.
 
 
-uptimed-to-tuptime.py
-    Migrate Uptimed records to Tuptime.
-
 
 
 
