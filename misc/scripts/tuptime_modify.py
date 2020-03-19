@@ -234,7 +234,7 @@ def main():
 
     # Check if DB have the old format
     columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'slptime' not in columns:
+    if 'rntime' and 'slptime' and 'bootid' not in columns:
         logging.error('DB format outdated')
         sys.exit(-1)
 
