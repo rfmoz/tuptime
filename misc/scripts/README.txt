@@ -21,12 +21,12 @@ tuptime_modify.py
 
 ____DB migrations____
 
-db-tuptime-migrate.sh
-    Update tuptime database format from versions previous than 3.0.00.
+db-tuptime-migrate-2.0-to-3.0.sh
+    Update tuptime database format from version 2.0.0 to 3.0.0.
 
 
 db-tuptime-migrate-3.0-to-3.1.sh
-    Update tuptime database format from version 3.0.00 to 3.1.00.
+    Update tuptime database format from version 3.0.0 to 3.1.0.
 
 
 db-tuptime-migrate-3.1-to-4.0.sh
