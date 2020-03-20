@@ -704,9 +704,6 @@ the running efective time. Running (efective time) and hibernate power states
 are childs of the uptime and report accumulated values inside their time range,
 which counts since the startup until the shutdown.
 
-A basic sample web wrapper is available under misc/web/. It is made in php and
-can be useful as a starting template to any other particular use case.
-
 If the system have configured a time zone with daylight saving time (DST),
 to avoid problems when the time change, the real time clock (RTC) should have
 set to universal time coordinated (UTC), not local time. Check it with 
