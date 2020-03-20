@@ -43,6 +43,6 @@ Z.- For testing with "dev" branch. Install "git" on step "1" and replace step "2
     git clone -b dev https://github.com/rfrail3/tuptime.git tuptime-4.1.0
     rpmdev-setuptree
     cd ~/rpmbuild/SPECS/
-    cp ../../tuptime-4.0.0/misc/rpm/tuptime.spec .
-    tar -czvf ../SOURCES/4.1.0.tar.gz ../../tuptime-4.1.0
+    cp ../../tuptime-5.0.0/misc/rpm/tuptime.spec .
+    tar -czvf ../SOURCES/5.0.0.tar.gz ../../tuptime-5.0.0
     rpmbuild -ba --target=noarch tuptime.spec
