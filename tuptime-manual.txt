@@ -300,8 +300,7 @@ These are the command line options, no configuration file is used:
 
 
 -l, --list
-  Enumerate as list each startup number, startup date, uptime, shutdown date, 
-  end status and offtime. Multiple order options can be combined together.
+  Enumerate system life as a list.
 
   Examples:
          tuptime -l
@@ -376,8 +375,7 @@ These are the command line options, no configuration file is used:
 
   
 -t, --table
-  Enumerate as table each startup number, startup date, uptime, shutdown date, 
-  end status and downtime. Multiple order options can be combined together.
+  Enumerate system life as a table.
 
   Examples:
          tuptime -t
