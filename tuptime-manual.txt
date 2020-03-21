@@ -20,7 +20,7 @@ Indeed, it can:
   - Uptime and downtime percentage since first boot time
   - Accumulated system uptime (running and sleeping), downtime and total
   - Current uptime
-  - Register used kernels
+  - Register used kernels and boot IDs
   - Print formatted table or list with most of the previous values
   - Narrow reports since and/or until a given startup or timestamp
   - Reports in csv
@@ -483,8 +483,8 @@ tuptime-cron.[timer|service] units are installed as expected.
 
 Why it's needed the use of an other .service file with the name tuptime-cron?
 The default tuptime.service file uses the option 'RemainAfterExit=true' and
-nowadays the systemd timer can't restart an already running service, so, there
-is no way to restart it.
+nowadays the systemd timer can't restart an already running service, so, this
+is the best workaround.
 
 By default, both have a 5 minutes scheduled execution. Feel free to lower 
 that value if your requirements are narrow.
@@ -545,7 +545,7 @@ From 2.x to 3.x:
     It is because the database have the format of the 2.x release. Please, execute the
     following scripts for the migration: 
     
-    https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate.sh
+    https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate-2.0-to-3.0.sh
     https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate-3.0-to-3.1.sh
  
 From 3.x to 4.x:
@@ -620,10 +620,11 @@ the system may change. A slightly drift is compensate over the uptime value, but
 very high drift can cause inconsistent registers and output, for example, Raspberry
 Pi don't have any clock and initializes from 1 January 1970.
 
-To avoid that problem the systemd unit have the time-sync.target requirement, it
-delay the first execution after boot until the time is synchronized and the clock
-is accurate. But check that you don't fall into the following bug already opened:
-https://github.com/systemd/systemd/issues/5097
+As Tuptime have time dependency, their Systemd service unit pulls time-sync.target
+and it's ordered before it. Note that it doesn't assure that the clock is syncronized,
+only that it needs it. On last releases of Systemd, there is a new unit that delays
+reaching time-sync.target until stay on sync "systemd-time-wait-sync",but it isn't
+enable by default nowadays.
 
 The drift value that Tuptime have reference is reported in verbose mode "tuptime -v"
 in the line "INFO:Drift over btime". Values around +-1 are very common and can be
@@ -631,28 +632,35 @@ considered as normal.
 
 A few recomendations / workarounds are:
 
-If the systems is a single-board computer, like Raspberry Pi or Beaglebone, use a
-RTC module and configure it properly.
+Enable "systemd-time-wait-sync".
 
-Use timesyncd if is available (timedatectl set-ntp true), it can also keep the time
-in systems without hardware clock.
+Use "systemd-timesyncd" if it is available (timedatectl set-ntp true), it can also
+keep the time in systems without hardware clock. Disable any other time sync service
+like "ntp", "chrony", "openntpd" to avoid issues, most related with the use in
+conjuntion with "systemd-time-wait-sync".
 
-If the system dont have any RTC and the bug over time-sync isn't fixed, the use of 
-"systemd-timesyncd-wait" can reach the desired behaviour and solve it. More info
-in (https://github.com/assisi/systemd-timesyncd-wait)
-
-Use the traditional ntp client and delay the execution of tuptime until the time
-is synced. Add under "[Unit]" the text "ntp.service" at the end of "After=" and
-"Requires=" lines.
+Use any time sync service like "ntp", "chrony" or "openntpd" and disable
+"systemd-timesyncd". Add the time sync service requirement on "tuptime.service" at
+the end of "After=" and "Wants=" lines.
 
 Force a time sync in the "tuptime.unit" file. Add under "[Service]" definition the 
 line "ExecStartPre=/usr/bin/ntpdate pool.ntp.org"
 
-In systems without systemd, "ntp-wait" can be added to the init script and the cron
-line preceeding the tuptime execution. 
+If the systems is a single-board computer, like Raspberry Pi or Beaglebone, use a
+RTC module and configure it properly.
+
+Without Systemd, use a ntp client and delay the execution of tuptime until the time
+is synced. Also, "ntp-wait" can be added to the init script and the cron line
+preceeding the tuptime execution.
 
 Try and failure is the best way to find the right solution for the environment in 
 which the system is running.
+
+Systemd timer issues:
+
+    https://github.com/systemd/systemd/issues/14061
+    https://github.com/systemd/systemd/issues/8683
+    https://github.com/systemd/systemd/issues/5097
 
 Good reads:
 
