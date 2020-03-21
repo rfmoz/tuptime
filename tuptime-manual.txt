@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 4.1.0
+                              version 5.0.0
                                 Ricardo F.
-                               01/Jan/2020
+                               15/Mar/2020
 
 
 
@@ -155,6 +155,7 @@ These are the command line options, no configuration file is used:
   -h, --help            show this help message and exit
   -A STARTUP, --at STARTUP
                         restrict to this startup number
+  -b, --bootid          print boot identifier information
   -c, --csv             csv output
   -d DATE_FORMAT, --date DATE_FORMAT
                         date format output
@@ -191,6 +192,14 @@ These are the command line options, no configuration file is used:
           tuptime -A 34
           tuptime --at 22
           tuptime -l -A -1  # List last register
+
+
+-b, --bootid
+  Add boot identifier to the output.
+
+  Examples:
+         tuptime -b
+         tuptime -t --bootid
 
 
 -h, --help
@@ -546,6 +555,12 @@ From 3.x to 4.x:
 
     https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate-3.1-to-4.0.sh
  
+From 4.x to 5.x:
+    Added bootid register. The migrations is done automatically from Tuptime.
+    Also, the migration script is located at:
+
+    https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate-4.0-to-5.0.sh
+
 
 ==================
 | Database Specs |
@@ -554,15 +569,17 @@ From 3.x to 4.x:
 Tuptime use a sqlite3 database located in "/var/lib/tuptime/tuptime.db" with
 the following format:
 
-tuptime (btime integer, 
-         uptime integer, 
+tuptime (bootid text,
+         btime integer,
+         uptime integer,
          rntime integer,
          slptime integer,
-         offbtime integer, 
-         endst integer, 
-         downtime integer, 
+         offbtime integer,
+         endst integer,
+         downtime integer,
          kernel text)
 
+bootid   Unique boot identifier
 btime    Startup date in epoch
 uptime   Uptime seconds  
 rntime   Running time seconds

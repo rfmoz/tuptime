@@ -1,10 +1,10 @@
-.TH TUPTIME 1 "Jan 2020" "4.1.0" "Linux Manual"
+.TH TUPTIME 1 "March 2020" "5.0.0" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [{\-h | \-\-help}] [{\-A | \-\-at}=<startup>] [{\-c | \-\-csv}] [{\-d | \-\-date}=<date\ format>] [\-\-decp=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}={d|e|k|r|s|u}] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<startup>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<startup>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}]
+tuptime [{\-h | \-\-help}] [{\-A | \-\-at}=<startup>] [{\-b | \-\-bootid}] [{\-c | \-\-csv}] [{\-d | \-\-date}=<date\ format>] [\-\-decp=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}={d|e|k|r|s|u}] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<startup>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<startup>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}]
 
 .SH DESCRIPTION
 .RS
@@ -51,6 +51,9 @@ Show this help message and exit
 T}
 \-A | \-\-at STARTUP@T{
 Restrict at this startup number
+T}
+\-b | \-\-bootid@T{
+Print boot identifier
 T}
 \-c | \-\-csv@T{
 Output in csv format

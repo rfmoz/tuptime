@@ -1,8 +1,12 @@
-tuptime (4.1.1) unstable; urgency=low
+tuptime (5.0.0) unstable; urgency=low
 
-  * Mitigate overlapping a graceful shutdown register
+  * Identify new startups with boot_id
+  * Adding --bootid option
+  * Change database specs. Add bootid column
+  * After a graceful shutdown register, delay 5 seconds next DB update
+  * Update .deb package
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 08 Feb 2020 16:49:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 15 Mar 2020 18:38:00 +0100
 
 tuptime (4.1.0) unstable; urgency=low
 

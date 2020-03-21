@@ -127,6 +127,9 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
 
 ### Alternatives
 
+journalctl --list-boots - Show a tabular list of boot numbers (relative to the current boot), their IDs, and the timestamps of the first and last message pertaining to the boot.
+https://github.com/systemd/systemd/
+
 uptimed - Is an uptime record daemon keeping track of the highest uptimes a computer system ever had. It uses the system boot time to keep sessions apart from each other.
 https://github.com/rpodgorny/uptimed
 
