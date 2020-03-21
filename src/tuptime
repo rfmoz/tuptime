@@ -969,38 +969,6 @@ def print_tat(db_rows, btime, uptime, arg):
 def print_default(db_rows, cbootid, cbtime, cuptime, crntime, cslptime, ckernel, arg):
     """Print values as default output"""
 
-    def extract_times(db_rows, option, key):
-        """Extract max/min values for uptime/downtime"""
-
-        # Work with a fresh copy of the list of dicts
-        dbr = db_rows[:]
-
-        # Remove empty startup and downtime dates to avoid reporting them
-        if key == 'downtime':
-            for row in dbr[:]:
-                if row['downtime'] is False:
-                    dbr.remove(row)
-        if key == 'uptime':
-            for row in dbr[:]:
-                if row['uptime'] is False:
-                    dbr.remove(row)
-
-        # Extract max/min values from the complete time rows only if
-        # the dict keep 1 row or more
-        if option == 'max' and dbr:
-            row = max(dbr, key=lambda x: x[key])
-        elif option == 'min' and dbr:
-            row = min(dbr, key=lambda x: x[key])
-        else:
-            # If the dict is empty, report nothing
-            row = {'bootid': None, 'btime': False, 'uptime': 0, 'rntime': 0, 'slptime': 0, 'offbtime': False, 'downtime': 0, 'kernel': None}
-
-        # Report based on the key requested
-        if key == 'uptime':
-            return row['uptime'], row['bootid'], row['rntime'], row['slptime'], row['btime'], row['kernel']
-
-        return row['downtime'], row['bootid'], row['offbtime'], row['kernel']
-
     def extract_max_min_tst(db_rows, arg):
         """Extract max and min timestamps values available"""
 
@@ -1032,11 +1000,11 @@ def print_default(db_rows, cbootid, cbtime, cuptime, crntime, cslptime, ckernel,
         return max_tstamp, min_tstamp
 
     # Initialize empty variables
-    cal = {'lar': {}, 'sho': {}}  # For calculated times: average, large, short, total
+    cal = {}
     cal.update({'tot': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}})
     cal.update({'ave': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}})
-    rate = {'up': 0.0, 'rn': 0.0, 'spd': 0.0, 'down': 0.0}  # For rated values
-    shdown = {'ok': 0, 'bad': 0}  # For shutdown states
+    rate = {'up': 0.0, 'rn': 0.0, 'spd': 0.0, 'down': 0.0}
+    shdown = {'ok': 0, 'bad': 0}
     startups = 0
     shutdowns = 0
     kernel_cnt = []
@@ -1094,18 +1062,6 @@ def print_default(db_rows, cbootid, cbtime, cuptime, crntime, cslptime, ckernel,
     if shutdowns > 0:
         cal['ave']['downtime'] = int(round(float(cal['tot']['downtime'] / shutdowns), 0))
 
-    cal['lar']['up_uptime'], cal['lar']['up_bootid'], cal['lar']['up_rntime'], \
-    cal['lar']['up_slptime'], cal['lar']['up_btime'], cal['lar']['up_kern'] = extract_times(db_rows, 'max', 'uptime')
-
-    cal['sho']['up_uptime'], cal['sho']['up_bootid'], cal['sho']['up_rntime'], \
-    cal['sho']['up_slptime'], cal['sho']['up_btime'], cal['sho']['up_kern'] = extract_times(db_rows, 'min', 'uptime')
-
-    cal['lar']['down_downtime'], cal['lar']['down_bootid'], cal['lar']['down_offbtime'], \
-    cal['lar']['down_kern'] = extract_times(db_rows, 'max', 'downtime')
-
-    cal['sho']['down_downtime'], cal['sho']['down_bootid'], cal['sho']['down_offbtime'], \
-    cal['sho']['down_kern'] = extract_times(db_rows, 'min', 'downtime')
-
     if not arg.seconds:  # Human readable style
         if max_tstamp is not None:
             max_tstamp = datetime.fromtimestamp(max_tstamp).strftime(arg.date_format)
@@ -1140,22 +1096,16 @@ def print_default(db_rows, cbootid, cbtime, cuptime, crntime, cslptime, ckernel,
         sp1 = sp2 = sp3 = sp4 = sp5 = '","'
 
     if arg.power:
-        pw1 = sp4 + '(r:' + str(cal['lar']['up_rntime']) + ' + s:' + str(cal['lar']['up_slptime']) + ')'
-        pw2 = sp4 + '(r:' + str(cal['sho']['up_rntime']) + ' + s:' + str(cal['sho']['up_slptime']) + ')'
-        pw3 = sp4 + '(r:' + str(cal['ave']['rntime']) + ' + s:' + str(cal['ave']['slptime']) + ')'
-        pw4 = sp4 + '(r:' + str(crntime) + ' + s:' + str(cslptime) + ')'
+        pw1 = sp4 + '(r:' + str(cal['ave']['rntime']) + ' + s:' + str(cal['ave']['slptime']) + ')'
+        pw2 = sp4 + '(r:' + str(crntime) + ' + s:' + str(cslptime) + ')'
     else:
-        pw1 = pw2 = pw3 = pw4 = ''
+        pw1 = pw2 = ''
 
     if (arg.tu is not None or arg.until) and max_tstamp:
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp5 + 'until' + sp5 + str(max_tstamp) + sp0)
     else:
         print(sp0 + 'System startups' + sp1 + str(startups) + sp5 + 'since' + sp5 + str(min_tstamp) + sp7)
     print(sp0 + 'System shutdowns' + sp1 + str(shdown['ok']) + sp4 + 'ok' + sp5 + '-' + sp5 + str(shdown['bad']) + sp4 + 'bad' + sp0)
-    print(sp0 + 'System uptime' + sp3 + str(rate['up']) + '%' + sp5 + '-' + sp5 + str(cal['tot']['uptime']) + sp0)
-    if arg.power:
-        print(sp0 + 'System power state' + sp1 + 'r:' + str(rate['rn']) + '% + s:' + str(rate['spd'])  + '%' + sp5 + '-' + sp5 + 'r:' + str(cal['tot']['rntime']) + ' + s:' + str(cal['tot']['slptime']) + sp0)
-    print(sp0 + 'System downtime' + sp2 + str(rate['down']) + '%' + sp5 + '-' + sp5 + str(cal['tot']['downtime']) + sp0)
     print(sp0 + 'System life' + sp3 + str(sys_life) + sp0)
     if arg.bootid:
         print(sp0 + 'System boot IDs' + sp2 + str(bootid_cnt) + sp0)
@@ -1164,48 +1114,19 @@ def print_default(db_rows, cbootid, cbtime, cuptime, crntime, cslptime, ckernel,
     if not arg.csv:
         print('')
 
-    if isinstance(cal['lar']['up_btime'], str) or cal['lar']['up_btime'] is not False:
-        print(sp0 + 'Largest uptime' + sp2 + str(cal['lar']['up_uptime']) + pw1 + sp5 + 'from' + sp5 + str(cal['lar']['up_btime']) + sp0)
-    else:
-        print(sp0 + 'Largest uptime' + sp2 + str(cal['lar']['up_uptime']) + pw1 + sp7)
-    if arg.bootid:
-        print(sp0 + (sp8 * 4) + '...boot ID' + sp2 + str(cal['lar']['up_bootid']) + sp0)
-    if arg.kernel:
-        print(sp0 + '...with kernel' + sp2 + str(cal['lar']['up_kern']) + sp0)
-
-    if isinstance(cal['sho']['up_btime'], str) or cal['sho']['up_btime'] is not False:
-        print(sp0 + 'Shortest uptime' + sp1 + str(cal['sho']['up_uptime']) + pw2 + sp5 + 'from' + sp5 + str(cal['sho']['up_btime']) + sp0)
-    else:
-        print(sp0 + 'Shortest uptime' + sp1 + str(cal['sho']['up_uptime']) + pw2 + sp7)
-    if arg.bootid:
-        print(sp0 + (sp8 * 5) + '...boot ID' + sp2 + str(cal['sho']['up_bootid']) + sp0)
-    if arg.kernel:
-        print(sp0 + sp8 + '...with kernel' + sp2 + str(cal['sho']['up_kern']) + sp0)
-    print(sp0 + 'Average uptime' + sp2 + str(cal['ave']['uptime']) + pw3 + sp0)
+    print(sp0 + 'System uptime' + sp3 + str(rate['up']) + '%' + sp5 + '-' + sp5 + str(cal['tot']['uptime']) + sp0)
+    if arg.power:
+        print(sp0 + 'System power state' + sp1 + 'r:' + str(rate['rn']) + '% + s:' + str(rate['spd'])  + '%' + sp5 + '-' + sp5 + 'r:' + str(cal['tot']['rntime']) + ' + s:' + str(cal['tot']['slptime']) + sp0)
+    print(sp0 + 'System downtime' + sp2 + str(rate['down']) + '%' + sp5 + '-' + sp5 + str(cal['tot']['downtime']) + sp0)
     if not arg.csv:
         print('')
 
-    if isinstance(cal['lar']['down_offbtime'], str) or cal['lar']['down_offbtime'] is not False:
-        print(sp0 + 'Largest downtime' + sp1 + str(cal['lar']['down_downtime']) + sp5 + 'from' + sp5 + str(cal['lar']['down_offbtime']) + sp0)
-    else:
-        print(sp0 + 'Largest downtime' + sp1 + str(cal['lar']['down_downtime']) + sp7)
-    if arg.bootid:
-        print(sp0 + (sp8 * 6) + '...boot ID' + sp2 + str(cal['lar']['down_bootid']) + sp0)
-    if arg.kernel:
-        print(sp0 + (sp8 * 2) + '...with kernel' + sp2 + str(cal['lar']['down_kern']) + sp0)
-    if isinstance(cal['sho']['down_offbtime'], str) or cal['sho']['down_offbtime'] is not False:
-        print(sp0 + 'Shortest downtime' + sp1 + str(cal['sho']['down_downtime']) + sp5 + 'from' + sp5 + str(cal['sho']['down_offbtime']) + sp0)
-    else:
-        print(sp0 + 'Shortest downtime' + sp1 + str(cal['sho']['down_downtime']) + sp7)
-    if arg.bootid:
-        print(sp0 + (sp8 * 7) + '...boot ID' + sp2 + str(cal['sho']['down_bootid']) + sp0)
-    if arg.kernel:
-        print(sp0 + (sp8 * 3) + '...with kernel' + sp2 + str(cal['sho']['down_kern']) + sp0)
+    print(sp0 + 'Average uptime' + sp2 + str(cal['ave']['uptime']) + pw1 + sp0)
     print(sp0 + 'Average downtime' + sp2 + str(cal['ave']['downtime']) + sp0)
     if arg.update:
         if not arg.csv:
             print('')
-        print(sp0 + 'Current uptime' + sp2 + str(cuptime) + pw4 + sp5 + 'since' + sp5 + str(cbtime) + sp0)
+        print(sp0 + 'Current uptime' + sp2 + str(cuptime) + pw2 + sp5 + 'since' + sp5 + str(cbtime) + sp0)
         if arg.bootid:
             print(sp0 + (sp8 * 4) + '...boot ID' + sp2 + str(cbootid) + sp0)
         if arg.kernel:
