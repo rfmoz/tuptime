@@ -948,25 +948,25 @@ def print_default(db_rows, sis, arg):
 
         # Get max timestamp available
         if arg.tu is not None:
-            max_tstamp = arg.tu
+            tstamp['max'] = arg.tu
         elif last_offbtime is not False:
-            max_tstamp = last_offbtime + db_rows[-1]['downtime']
+            tstamp['max'] = last_offbtime + db_rows[-1]['downtime']
         elif last_btime is not False:
-            max_tstamp = last_btime + db_rows[-1]['uptime']
+            tstamp['max'] = last_btime + db_rows[-1]['uptime']
         else:
-            max_tstamp = None
+            tstamp['max'] = None
 
         # Get min timestamp available
         if arg.ts is not None:
-            min_tstamp = arg.ts
+            tstamp['min'] = arg.ts
         elif first_btime is not False:
-            min_tstamp = first_btime
+            tstamp['min'] = first_btime
         elif first_offbtime is not False:
-            min_tstamp = first_offbtime - db_rows[0]['uptime']
+            tstamp['min'] = first_offbtime - db_rows[0]['uptime']
         else:
-            min_tstamp = max_tstamp
+            tstamp['min'] = tstamp['max']
 
-        return max_tstamp, min_tstamp
+        return tstamp
 
     # Initialize empty variables
     cal = {}
@@ -975,8 +975,10 @@ def print_default(db_rows, sis, arg):
     rate = {'up': 0.0, 'rn': 0.0, 'spd': 0.0, 'down': 0.0}
     shdown = {'ok': 0, 'bad': 0}
     updown = {'startups': 0, 'shutdowns': 0}
+    tstamp = {'max': 0, 'min': 0}
     kernel_cnt = []
     bootid_cnt = []
+    sys_life = 0
 
     # Unless startup register indicate empty
     if db_rows[0]['startup']:
@@ -1013,7 +1015,7 @@ def print_default(db_rows, sis, arg):
     sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
 
     # Get max/min timestamp
-    max_tstamp, min_tstamp = extract_max_min_tst(db_rows, arg)
+    tstamp = extract_max_min_tst(db_rows, arg, tstamp)
 
     # Get rates and average uptime / downtime
     if sys_life > 0:
@@ -1031,11 +1033,11 @@ def print_default(db_rows, sis, arg):
         cal['ave']['downtime'] = int(round(float(cal['tot']['downtime'] / updown['shutdowns']), 0))
 
     if not arg.seconds:  # Human readable style
-        if max_tstamp is not None:
-            max_tstamp = datetime.fromtimestamp(max_tstamp).strftime(arg.date_format)
+        if tstamp['max'] is not None:
+            tstamp['max'] = datetime.fromtimestamp(tstamp['max']).strftime(arg.date_format)
 
-        if min_tstamp is not None:
-            min_tstamp = datetime.fromtimestamp(min_tstamp).strftime(arg.date_format)
+        if tstamp['min'] is not None:
+            tstamp['min'] = datetime.fromtimestamp(tstamp['min']).strftime(arg.date_format)
 
         # Look into the keys to set right values
         for k in cal:
@@ -1069,10 +1071,10 @@ def print_default(db_rows, sis, arg):
     else:
         pw1 = pw2 = ''
 
-    if (arg.tu is not None or arg.until) and max_tstamp:
-        print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(min_tstamp) + sp5 + 'until' + sp5 + str(max_tstamp) + sp0)
+    if (arg.tu is not None or arg.until) and tstamp['max']:
+        print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp5 + 'until' + sp5 + str(tstamp['max']) + sp0)
     else:
-        print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(min_tstamp) + sp7)
+        print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp7)
     print(sp0 + 'System shutdowns' + sp1 + str(shdown['ok']) + sp4 + 'ok' + sp5 + '-' + sp5 + str(shdown['bad']) + sp4 + 'bad' + sp0)
     print(sp0 + 'System life' + sp3 + str(sys_life) + sp0)
     if arg.bootid:
