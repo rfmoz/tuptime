@@ -691,14 +691,18 @@ def tsince_opt(db_rows, sis, arg):
 def ordering_output(db_rows, arg):
     """Order output"""
 
-    if arg.order and (arg.order in ('e', 'd', 'k', 'u', 'r', 's')):
+    if db_rows:
+        if arg.order and (arg.order in ('e', 'd', 'k', 'u', 'r', 's')):
 
-        match_value = {'u': 'uptime', 'e': 'endst', 'd': 'downtime', 'k': 'kernel', 'r': 'rntime', 's': 'slptime'}
+            match_value = {'u': 'uptime', 'e': 'endst', 'd': 'downtime', 'k': 'kernel', 'r': 'rntime', 's': 'slptime'}
 
-        db_rows = sorted(db_rows, key=lambda x: (x[match_value[arg.order]]))
+            db_rows = sorted(db_rows, key=lambda x: (x[match_value[arg.order]]))
 
-    if arg.reverse:
-        db_rows = list(reversed(db_rows))
+        if arg.reverse:
+            db_rows = list(reversed(db_rows))
+    else:
+        db_rows = [{'startup': 0, 'bootid': None, 'uptime': False, 'rntime': False, 'slptime': False, \
+                  'endst': False, 'offbtime': False, 'btime': False, 'downtime': False, 'kernel': None}]
 
     return db_rows
 
@@ -980,8 +984,8 @@ def print_default(db_rows, sis, arg):
     cnt = {'kernel': [], 'bootid': []}
     sys_life = 0
 
-    # Unless startup register indicate empty
-    if db_rows[0]['startup']:
+    # Get values from db
+    if db_rows:
         for row in db_rows:
 
             # Count startups
@@ -1006,33 +1010,34 @@ def print_default(db_rows, sis, arg):
             cnt['kernel'].append(row['kernel'])
             cnt['bootid'].append(row['bootid'])
 
-    # Get kernel and boot_id counters:
-    #   Remove duplicate and empty elements
-    cnt['kernel'] = len(set(filter(None, cnt['kernel'])))
-    cnt['bootid'] = len(set(filter(None, cnt['bootid'])))
+        # Get max/min timestamp
+        tstamp = extract_max_min_tst(db_rows, arg, tstamp)
 
     # Get system life
     sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
-
-    # Get max/min timestamp
-    tstamp = extract_max_min_tst(db_rows, arg, tstamp)
-
+    
     # Get rates and average uptime / downtime
     if sys_life > 0:
         rate['up'] = round((cal['tot']['uptime'] * 100) / sys_life, arg.decp)
         rate['rn'] = round((cal['tot']['rntime'] * 100) / sys_life, arg.decp)
         rate['spd'] = round((cal['tot']['slptime'] * 100) / sys_life, arg.decp)
         rate['down'] = round((cal['tot']['downtime'] * 100) / sys_life, arg.decp)
-
+    
     if updown['startups'] > 0:
         cal['ave']['uptime'] = int(round(float(cal['tot']['uptime'] / updown['startups']), 0))
         cal['ave']['rntime'] = int(round(float(cal['tot']['rntime'] / updown['startups']), 0))
         cal['ave']['slptime'] = int(round(float(cal['tot']['slptime'] / updown['startups']), 0))
-
+    
     if updown['shutdowns'] > 0:
         cal['ave']['downtime'] = int(round(float(cal['tot']['downtime'] / updown['shutdowns']), 0))
 
-    if not arg.seconds:  # Human readable style
+    # Get kernel and boot_id counters, remove duplicate and empty elements
+    cnt['kernel'] = len(set(filter(None, cnt['kernel'])))
+    cnt['bootid'] = len(set(filter(None, cnt['bootid'])))
+    
+
+    # Ouput stlye: Apply human or keep seconds
+    if not arg.seconds:
         if tstamp['max'] is not None:
             tstamp['max'] = datetime.fromtimestamp(tstamp['max']).strftime(arg.date_format)
 
@@ -1042,19 +1047,14 @@ def print_default(db_rows, sis, arg):
         # Look into the keys to set right values
         for k in cal:
             for key in cal[k]:
-                if key in ['up_kern', 'down_kern', 'up_bootid', 'down_bootid']:
-                    continue
-                elif key in ['up_btime', 'down_offbtime']:
-                    if cal[k][key] is not False:
-                        cal[k][key] = datetime.fromtimestamp(cal[k][key]).strftime(arg.date_format)
-                else:
-                    cal[k][key] = time_conv(cal[k][key])
+                cal[k][key] = time_conv(cal[k][key])
 
         sis['uptime'] = time_conv(sis['uptime'])
         sis['rntime'] = time_conv(sis['rntime'])
         sis['slptime'] = time_conv(sis['slptime'])
         sis['btime'] = datetime.fromtimestamp(sis['btime']).strftime(arg.date_format)
         sys_life = time_conv(sys_life)
+
 
     if not arg.csv:  # Define content/spaces between values
         sp0 = sp7 = ''
@@ -1070,6 +1070,7 @@ def print_default(db_rows, sis, arg):
         pw2 = sp4 + '(r:' + str(sis['rntime']) + ' + s:' + str(sis['slptime']) + ')'
     else:
         pw1 = pw2 = ''
+
 
     if (arg.tu is not None or arg.until) and tstamp['max']:
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp5 + 'until' + sp5 + str(tstamp['max']) + sp0)
@@ -1268,10 +1269,6 @@ def main():
         db_rows, arg = tuntil_opt(db_rows, sis, arg)
     if arg.ts is not None:
         db_rows, arg = tsince_opt(db_rows, sis, arg)
-
-    if not db_rows:
-        db_rows = [{'startup': 0, 'bootid': None, 'uptime': False, 'rntime': False, 'slptime': False, \
-                  'endst': False, 'offbtime': False, 'btime': False, 'downtime': False, 'kernel': None}]
 
     # Print values
     if arg.lst:
