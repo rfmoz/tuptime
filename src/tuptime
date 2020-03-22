@@ -246,13 +246,12 @@ def get_arguments():
         arg.since = -1
         arg.until = arg.at
 
-    if arg.power or arg.tat:
-        if arg.ts or arg.tu:
-            # Power states report accumulated time across an uptime range, is not possible to
-            # know if the state was running or sleeping between specific points insde it.
-            # Narrow ranges can cut the btime and offbtime info, it doesn't make sense with
-            # 'at' argument report.
-            parser.error('Operator can\'t be combined with [--tsince] or [--tuntil]')
+    if (arg.ts or arg.tu) and (arg.power or arg.tat):
+        # Power states report accumulated time across an uptime range, is not possible to
+        # know if the state was running or sleeping between specific points insde it.
+        # Narrow ranges can cut the btime and offbtime info, it doesn't make sense with
+        # 'at' argument report.
+        parser.error('Operator can\'t be combined with [--tsince] or [--tuntil]')
 
     logging.info('Arguments = %s', str(vars(arg)))
     return arg
@@ -319,7 +318,7 @@ def get_os_values():
                     if line.startswith('btime'):
                         sis['btime'] = line.split()[1]
 
-        try:  # uptime and rntime be toghether to avoid time mismatch between them
+        try:  # uptime and rntime must be toghether to avoid time mismatch between them
             # Time since some unspecified starting point. Contains sleep time on linux.
             sis['uptime'] = time.clock_gettime(time.CLOCK_BOOTTIME)
             # Time since some unspecified starting point. Not contains sleep time on linux.
@@ -369,7 +368,7 @@ def get_os_values():
 
     try:
         logging.info('Current locale = %s', str(locale.getlocale()))
-    except Exception:
+    except:
         pass
     logging.info('Boot ID = %s', str(sis['bootid']))
     logging.info('Uptime = %s', str(sis['uptime']))
