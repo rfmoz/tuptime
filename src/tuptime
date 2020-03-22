@@ -969,15 +969,13 @@ def print_default(db_rows, sis, arg):
         return tstamp
 
     # Initialize empty variables
-    cal = {}
-    cal.update({'tot': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}})
-    cal.update({'ave': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}})
+    cal = {'tot': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}, \
+           'ave': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}}
     rate = {'up': 0.0, 'rn': 0.0, 'spd': 0.0, 'down': 0.0}
     shdown = {'ok': 0, 'bad': 0}
     updown = {'startups': 0, 'shutdowns': 0}
     tstamp = {'max': 0, 'min': 0}
-    kernel_cnt = []
-    bootid_cnt = []
+    cnt = {'kernel': [], 'bootid': []}
     sys_life = 0
 
     # Unless startup register indicate empty
@@ -1003,13 +1001,13 @@ def print_default(db_rows, sis, arg):
             cal['tot']['downtime'] += row['downtime']
 
             # Lists with kernel names and boot_id identifiers
-            kernel_cnt.append(row['kernel'])
-            bootid_cnt.append(row['bootid'])
+            cnt['kernel'].append(row['kernel'])
+            cnt['bootid'].append(row['bootid'])
 
     # Get kernel and boot_id counters:
     #   Remove duplicate and empty elements
-    kernel_cnt = len(set(filter(None, kernel_cnt)))
-    bootid_cnt = len(set(filter(None, bootid_cnt)))
+    cnt['kernel'] = len(set(filter(None, cnt['kernel'])))
+    cnt['bootid'] = len(set(filter(None, cnt['bootid'])))
 
     # Get system life
     sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
@@ -1078,9 +1076,9 @@ def print_default(db_rows, sis, arg):
     print(sp0 + 'System shutdowns' + sp1 + str(shdown['ok']) + sp4 + 'ok' + sp5 + '-' + sp5 + str(shdown['bad']) + sp4 + 'bad' + sp0)
     print(sp0 + 'System life' + sp3 + str(sys_life) + sp0)
     if arg.bootid:
-        print(sp0 + 'System boot IDs' + sp2 + str(bootid_cnt) + sp0)
+        print(sp0 + 'System boot IDs' + sp2 + str(cnt['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + 'System kernels' + sp2 + str(kernel_cnt) + sp0)
+        print(sp0 + 'System kernels' + sp2 + str(cnt['kernel']) + sp0)
     if not arg.csv:
         print('')
 
@@ -1252,7 +1250,6 @@ def main():
         for key in db_rows[-1].keys():
             if db_rows[-1][key] is None:
                 db_rows[-1][key] = False
-
 
     # Parse since until arguments
     if arg.until:
