@@ -575,7 +575,7 @@ def time_conv(secs):
         return str(human_dtm[:-1])
 
 
-def since_opt(db_rows, empty_row, arg):
+def since_opt(db_rows, arg):
     """Get rows since a given row startup number registered"""
 
     if arg.since < 0:  # Negative value start from bottom
@@ -586,13 +586,10 @@ def since_opt(db_rows, empty_row, arg):
         if arg.since > row['startup']:
             db_rows.remove(row)
 
-    if not db_rows:
-        db_rows = empty_row
-
     return db_rows, arg
 
 
-def until_opt(db_rows, empty_row, arg):
+def until_opt(db_rows, arg):
     """Get rows until a given row startup number registered"""
 
     if arg.until < 0:  # Negative value start from bottom
@@ -603,13 +600,10 @@ def until_opt(db_rows, empty_row, arg):
         if arg.until < row['startup']:
             db_rows.remove(row)
 
-    if not db_rows:
-        db_rows = empty_row
-
     return db_rows, arg
 
 
-def tuntil_opt(db_rows, empty_row, sis, arg):
+def tuntil_opt(db_rows, sis, arg):
     """Split and report rows until a given timestamp
 
     Conventions:
@@ -644,14 +638,10 @@ def tuntil_opt(db_rows, empty_row, sis, arg):
             offset = True
             db_rows.remove(row)
 
-    # Report 0 if matches produce an empty db
-    if not db_rows:
-        db_rows = empty_row
-
     return db_rows, arg
 
 
-def tsince_opt(db_rows, empty_row, sis, arg):
+def tsince_opt(db_rows, sis, arg):
     """Split and report rows since a given timestamp
 
     Conventions:
@@ -692,10 +682,6 @@ def tsince_opt(db_rows, empty_row, sis, arg):
 
         elif offset is None:
             db_rows.remove(row)
-
-    # Report 0 if matches produce an empty db
-    if not db_rows:
-        db_rows = empty_row
 
     return db_rows, arg
 
@@ -952,7 +938,7 @@ def print_tat(db_rows, sis, arg):
 def print_default(db_rows, sis, arg):
     """Print values as default output"""
 
-    def extract_max_min_tst(db_rows, arg):
+    def extract_max_min_tst(db_rows, arg, tstamp):
         """Extract max and min timestamps values available"""
 
         last_btime = db_rows[-1]['btime']
@@ -1265,19 +1251,21 @@ def main():
             if db_rows[-1][key] is None:
                 db_rows[-1][key] = False
 
-    empty_row = [{'startup': 0, 'bootid': None, 'uptime': False, 'rntime': False, 'slptime': False, \
-                  'endst': False, 'offbtime': False, 'btime': False, 'downtime': False, 'kernel': None}]
 
     # Parse since until arguments
     if arg.until:
-        db_rows, arg = until_opt(db_rows, empty_row, arg)
+        db_rows, arg = until_opt(db_rows, arg)
     if arg.since:
-        db_rows, arg = since_opt(db_rows, empty_row, arg)
+        db_rows, arg = since_opt(db_rows, arg)
 
     if arg.tu is not None:
-        db_rows, arg = tuntil_opt(db_rows, empty_row, sis, arg)
+        db_rows, arg = tuntil_opt(db_rows, sis, arg)
     if arg.ts is not None:
-        db_rows, arg = tsince_opt(db_rows, empty_row, sis, arg)
+        db_rows, arg = tsince_opt(db_rows, sis, arg)
+
+    if not db_rows:
+        db_rows = [{'startup': 0, 'bootid': None, 'uptime': False, 'rntime': False, 'slptime': False, \
+                  'endst': False, 'offbtime': False, 'btime': False, 'downtime': False, 'kernel': None}]
 
     # Print values
     if arg.lst:
