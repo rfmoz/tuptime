@@ -962,28 +962,32 @@ def print_default(db_rows, sis, arg):
     def extract_max_min_tst(db_rows, arg, tstamp):
         """Extract max and min timestamps values available"""
 
-        last_btime = db_rows[-1]['btime']
-        last_offbtime = db_rows[-1]['offbtime']
-        first_btime = db_rows[0]['btime']
-        first_offbtime = db_rows[0]['offbtime']
+        if db_rows:
+            first = {'btime': db_rows[0]['btime'], 'uptime': db_rows[0]['uptime'],
+                     'offbtime': db_rows[0]['offbtime']}
+            last = {'btime': db_rows[-1]['btime'], 'uptime': db_rows[-1]['uptime'],
+                    'offbtime': db_rows[-1]['offbtime'], 'downtime': db_rows[-1]['downtime']}
+        else:
+            first = {'btime': False, 'uptime': False, 'offbtime': False}
+            last = {'btime': False, 'uptime': False, 'offbtime': False, 'downtime': False}
 
         # Get max timestamp available
         if arg.tu is not None:
             tstamp['max'] = arg.tu
-        elif last_offbtime is not False:
-            tstamp['max'] = last_offbtime + db_rows[-1]['downtime']
-        elif last_btime is not False:
-            tstamp['max'] = last_btime + db_rows[-1]['uptime']
+        elif last['offbtime'] is not False:
+            tstamp['max'] = last['offbtime'] + last['downtime']
+        elif last['btime'] is not False:
+            tstamp['max'] = last['btime'] + last['uptime']
         else:
             tstamp['max'] = None
 
         # Get min timestamp available
         if arg.ts is not None:
             tstamp['min'] = arg.ts
-        elif first_btime is not False:
-            tstamp['min'] = first_btime
-        elif first_offbtime is not False:
-            tstamp['min'] = first_offbtime - db_rows[0]['uptime']
+        elif first['btime'] is not False:
+            tstamp['min'] = first['btime']
+        elif first['offbtime'] is not False:
+            tstamp['min'] = first['offbtime'] - first['uptime']
         else:
             tstamp['min'] = tstamp['max']
 
@@ -1025,8 +1029,8 @@ def print_default(db_rows, sis, arg):
             cnt['kernel'].append(row['kernel'])
             cnt['bootid'].append(row['bootid'])
 
-        # Get max/min timestamp
-        tstamp = extract_max_min_tst(db_rows, arg, tstamp)
+    # Get max/min timestamp
+    tstamp = extract_max_min_tst(db_rows, arg, tstamp)
 
     # Get system life
     sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
