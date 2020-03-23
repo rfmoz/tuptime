@@ -339,7 +339,7 @@ def get_os_values():
         return sis
 
     # Linux
-    if sys.platform.startswith(('linux')):
+    if sys.platform.startswith('linux'):
         sis = os_linux(sis)
     # BSDs
     elif sys.platform.startswith(('freebsd', 'darwin', 'dragonfly', 'openbsd', 'netbsd')):
@@ -694,7 +694,6 @@ def ordering_output(db_rows, arg):
         if arg.order and (arg.order in ('e', 'd', 'k', 'u', 'r', 's')):
 
             match_value = {'u': 'uptime', 'e': 'endst', 'd': 'downtime', 'k': 'kernel', 'r': 'rntime', 's': 'slptime'}
-
             db_rows = sorted(db_rows, key=lambda x: (x[match_value[arg.order]]))
 
         if arg.reverse:
@@ -893,11 +892,13 @@ def print_tat(db_rows, sis, arg):
     if arg.tat < 0:
         arg.tat = sis['btime'] + sis['uptime'] + arg.tat
 
-    report = {'at': False, 'startup': False, 'status': False, 'time': False, 'time_fwd': False, 'time_total': False}
+    report = {'at': False, 'startup': False, 'status': False, 'time': False, 'time_fwd': False, 'time_total': False, 'bootid': None, 'kernel': None}
 
     for row in db_rows:
         report['at'] = arg.tat
         report['startup'] = row['startup']
+        report['bootid'] = row['bootid']
+        report['kernel'] = row['kernel']
 
         # Report UP if tat fall into btime + uptime range
         if (arg.tat >= row['btime']) and (arg.tat < (row['btime'] + row['uptime'])):
@@ -936,6 +937,10 @@ def print_tat(db_rows, sis, arg):
             sp0, sp2, sp5, sp8 = '"', '","', '","', ''
 
         print(sp0 + 'Timestamp status' + sp2  + str(report['status']) + sp5 + 'at' + sp5 + str(report['at']) + sp5 + 'on' + sp5 + str(report['startup']) + sp0)
+        if arg.bootid:
+            print(sp0 + (sp8 * 6) + '...boot ID' + sp2 + str(report['bootid']) + sp0)
+        if arg.kernel:
+            print(sp0 + (sp8 * 2) + '...with kernel' + sp2 + str(report['kernel']) + sp0)
         print(sp0 + (sp8 * 6) + 'elapsed in' + sp2 + str(perctg_1) + '%' + sp5 + '-' + sp5 + str(report['time']) + sp0)
         print(sp0 + (sp8 * 4) + 'remaining in' + sp2 + str(perctg_2) + '%' + sp5 + '-' + sp5 + str(report['time_fwd']) + sp0)
 
@@ -1014,26 +1019,26 @@ def print_default(db_rows, sis, arg):
 
     # Get system life
     sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
-    
+
     # Get rates and average uptime / downtime
     if sys_life > 0:
         rate['up'] = round((cal['tot']['uptime'] * 100) / sys_life, arg.decp)
         rate['rn'] = round((cal['tot']['rntime'] * 100) / sys_life, arg.decp)
         rate['spd'] = round((cal['tot']['slptime'] * 100) / sys_life, arg.decp)
         rate['down'] = round((cal['tot']['downtime'] * 100) / sys_life, arg.decp)
-    
+
     if updown['startups'] > 0:
         cal['ave']['uptime'] = int(round(float(cal['tot']['uptime'] / updown['startups']), 0))
         cal['ave']['rntime'] = int(round(float(cal['tot']['rntime'] / updown['startups']), 0))
         cal['ave']['slptime'] = int(round(float(cal['tot']['slptime'] / updown['startups']), 0))
-    
+
     if updown['shutdowns'] > 0:
         cal['ave']['downtime'] = int(round(float(cal['tot']['downtime'] / updown['shutdowns']), 0))
 
     # Get kernel and boot_id counters, remove duplicate and empty elements
     cnt['kernel'] = len(set(filter(None, cnt['kernel'])))
     cnt['bootid'] = len(set(filter(None, cnt['bootid'])))
-    
+
 
     # Ouput stlye: Apply human or keep seconds
     if not arg.seconds:
