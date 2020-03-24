@@ -520,7 +520,7 @@ def control_drift(prev, sis):
 
             sis['rntime'] = sis['rntime'] + offset
             if sis['rntime'] < 1:
-                sis['slptime'] = sis['slptime'] + sis['rntime']
+                sis['slptime'] = sis['slptime'] + sis['rntime'] - 1
                 if sis['slptime'] < 0:
                     logging.info('Drift decrease slptime under 0. Impossible')
                     sis['slptime'] = 0
