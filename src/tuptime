@@ -254,7 +254,7 @@ def get_arguments():
         arg.since = -1
         arg.until = arg.at
 
-    if (arg.ts or arg.tu) and (arg.power or arg.tat):
+    if ((arg.ts or arg.tu) and (arg.power or arg.tat)) or (arg.tat and arg.power):
         # Power states report accumulated time across an uptime range, is not possible to
         # know if the state was running or sleeping between specific points insde it.
         # Narrow ranges can cut the btime and offbtime info, it doesn't make sense with
