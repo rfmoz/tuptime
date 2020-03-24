@@ -619,7 +619,7 @@ def tuntil_opt(db_rows, sis, arg):
     """Split and report rows until a given timestamp
 
     Conventions:
-        - Each row keeps its startup number and boot ID
+        - Keep startup number, boot ID and kernel
         - Empty values are False
     """
 
@@ -657,7 +657,7 @@ def tsince_opt(db_rows, sis, arg):
     """Split and report rows since a given timestamp
 
     Conventions:
-        - Each row keeps its startup number and boot ID
+        - Keep startup number, boot ID and kernel
         - Empty values are False
     """
 
@@ -743,9 +743,7 @@ def for_print(db_rows, arg):
                 row['rntime'] = row['rntime']
                 row['slptime'] = row['slptime']
         else:
-            row['uptime'] = ''
-            row['rntime'] = ''
-            row['slptime'] = ''
+            row['uptime'] = row['rntime'] = row['slptime'] = ''
 
         if row['endst'] is not False:
             if row['offbtime'] is not False or row['downtime'] is not False:
@@ -834,10 +832,12 @@ def print_list(db_rows, arg):
 def print_table(db_rows, arg):
     """Print values as a table"""
 
-    # Populate table with values to print
     tbl = [['No.', 'Boot ID', 'Startup Date', 'Uptime', 'Running', 'Sleeping', 'Shutdown Date', 'End', 'Downtime', 'Kernel']]
     al_left = [tbl[0].index('End'), tbl[0].index('Kernel')]  # Aligned to left
+    side_spaces = 3
+    colpad = []
 
+    # Remove unused cols
     if not arg.bootid:
         tbl[0].remove('Boot ID')
 
@@ -850,8 +850,6 @@ def print_table(db_rows, arg):
 
     if not arg.csv:   # Add empty brake up line if csv is not used
         tbl.append([''] * len(tbl[0]))
-    colpad = []
-    side_spaces = 3
 
     db_rows = ordering_output(db_rows, arg)
 
@@ -860,6 +858,7 @@ def print_table(db_rows, arg):
         rowd = ([str(row_dict['startup']), str(row_dict['btime']), str(row_dict['uptime']),
                  str(row_dict['offbtime']), str(row_dict['endst']), str(row_dict['downtime'])])
 
+        # Add optional cols
         if 'Boot ID' in tbl[0]:
             rowd.insert(tbl[0].index('Boot ID'), str(row_dict['bootid']))
 
@@ -893,7 +892,7 @@ def print_table(db_rows, arg):
                 sys.stdout.write('"' + value + '"')
                 if (key + 1) != len(row):
                     sys.stdout.write(',')
-            print("")
+            print('')
 
 
 def print_tat(db_rows, sis, arg):
@@ -952,6 +951,8 @@ def print_tat(db_rows, sis, arg):
             print(sp0 + (sp8 * 6) + '...boot ID' + sp2 + str(report['bootid']) + sp0)
         if arg.kernel:
             print(sp0 + (sp8 * 2) + '...with kernel' + sp2 + str(report['kernel']) + sp0)
+        if arg.bootid or arg.kernel and not arg.csv:
+            print('')
         print(sp0 + (sp8 * 6) + 'elapsed in' + sp2 + str(perctg_1) + '%' + sp5 + '-' + sp5 + str(report['time']) + sp0)
         print(sp0 + (sp8 * 4) + 'remaining in' + sp2 + str(perctg_2) + '%' + sp5 + '-' + sp5 + str(report['time_fwd']) + sp0)
 
@@ -1068,6 +1069,7 @@ def print_default(db_rows, sis, arg):
         sis['btime'] = datetime.fromtimestamp(sis['btime']).strftime(arg.date_format)
         sys_life = time_conv(sys_life)
 
+    # Finally print all
     if not arg.csv:  # Define content/spaces between values
         sp0 = sp7 = ''
         sp1, sp2, sp3 = ':\t', ': \t', ': \t\t'
