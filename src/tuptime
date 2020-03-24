@@ -966,6 +966,8 @@ def print_default(db_rows, sis, arg):
         if db_rows:
             first = db_rows[0]
             last = db_rows[-1]
+        else:
+            first = last = None
 
         # Get max timestamp available
         if arg.tu is not None:
@@ -1000,30 +1002,29 @@ def print_default(db_rows, sis, arg):
     sys_life = 0
 
     # Get values from db
-    if db_rows:
-        for row in db_rows:
+    for row in db_rows:
 
-            # Count startups
-            updown['startups'] += 1
+        # Count startups
+        updown['startups'] += 1
 
-            # Count shutdowns when endst is set
-            if row['endst'] is not False:
-                if any((row['offbtime'], row['downtime'])):
-                    if row['endst'] == 0:
-                        shdown['bad'] += 1
-                    if row['endst'] == 1:
-                        shdown['ok'] += 1
-                    updown['shutdowns'] += 1
+        # Count shutdowns when endst is set
+        if row['endst'] is not False:
+            if any((row['offbtime'], row['downtime'])):
+                if row['endst'] == 0:
+                    shdown['bad'] += 1
+                if row['endst'] == 1:
+                    shdown['ok'] += 1
+                updown['shutdowns'] += 1
 
-            # Count totals
-            cal['tot']['uptime'] += row['uptime']
-            cal['tot']['rntime'] += row['rntime']
-            cal['tot']['slptime'] += row['slptime']
-            cal['tot']['downtime'] += row['downtime']
+        # Count totals
+        cal['tot']['uptime'] += row['uptime']
+        cal['tot']['rntime'] += row['rntime']
+        cal['tot']['slptime'] += row['slptime']
+        cal['tot']['downtime'] += row['downtime']
 
-            # Lists with kernel names and boot_id identifiers
-            cnt['kernel'].append(row['kernel'])
-            cnt['bootid'].append(row['bootid'])
+        # Lists with kernel names and boot_id identifiers
+        cnt['kernel'].append(row['kernel'])
+        cnt['bootid'].append(row['bootid'])
 
     # Get max/min timestamp
     tstamp = extract_max_min_tst(db_rows, arg, tstamp)
