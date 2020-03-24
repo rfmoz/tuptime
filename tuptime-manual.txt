@@ -635,10 +635,6 @@ only that it needs it. On last releases of Systemd, there is a new unit that del
 reaching time-sync.target until stay on sync "systemd-time-wait-sync",but it isn't
 enable by default nowadays.
 
-The drift value that Tuptime have reference is reported in verbose mode "tuptime -v"
-in the line "INFO:Drift over btime". Values around +-1 are very common and can be
-considered as normal.
-
 A few recomendations / workarounds are:
 
 Enable "systemd-time-wait-sync".
@@ -664,6 +660,10 @@ preceeding the tuptime execution.
 
 Try and failure is the best way to find the right solution for the environment in 
 which the system is running.
+
+The drift value that Tuptime have reference is reported in verbose mode "tuptime -v"
+in the line "INFO:Drift over btime". Values around +-1 are very common and can be
+considered as normal.
 
 Systemd timer issues:
 
