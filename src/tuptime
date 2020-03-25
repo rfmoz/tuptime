@@ -634,30 +634,29 @@ def tuntil_opt(db_rows, sis, arg):
     if arg.tu < 0:
         arg.tu = sis['btime'] + sis['uptime'] + arg.tu
 
-    # Find a match along all rows and get the offset
-    offset = None
-    for ind, row in enumerate(db_rows[:]):
+    remap = []
+    for row in db_rows:
 
-        if offset is not None:
-            db_rows.remove(row)
-
-        elif arg.tu > row['offbtime'] and arg.tu <= (row['offbtime'] + row['downtime']):
-            offset = arg.tu - row['offbtime']
-            db_rows[ind]['downtime'] = offset
+        if arg.tu > row['offbtime'] and arg.tu <= (row['offbtime'] + row['downtime']):
+            row['downtime'] = arg.tu - row['offbtime']
+            remap.append(row)
+            break
 
         elif arg.tu > row['btime'] and arg.tu <= (row['btime'] + row['uptime']):
-            offset = arg.tu - row['btime']
-            db_rows[ind]['uptime'] = offset
-            db_rows[ind]['rntime'] = db_rows[ind]['slptime'] = False
-            db_rows[ind]['offbtime'] = False
-            db_rows[ind]['endst'] = False
-            db_rows[ind]['downtime'] = False
+            row['uptime'] = arg.tu - row['btime']
+            row['rntime'] = row['slptime'] = False
+            row['offbtime'] = False
+            row['endst'] = False
+            row['downtime'] = False
+            remap.append(row)
+            break
 
         elif arg.tu <= row['btime']:
-            offset = True
-            db_rows.remove(row)
+            break
 
-    return db_rows, arg
+        remap.append(row)
+
+    return remap, arg
 
 
 def tsince_opt(db_rows, sis, arg):
@@ -672,37 +671,33 @@ def tsince_opt(db_rows, sis, arg):
     if arg.ts < 0:
         arg.ts = sis['btime'] + sis['uptime'] + arg.ts
 
-    # Find a match along all rows and get the offset
-    offset = None
-    for row in db_rows[:]:
+    remap = []
+    for row in db_rows:
 
         if arg.ts <= row['btime']:
-            offset = True
+            remap.append(row)
 
         elif arg.ts > row['btime'] and arg.ts < (row['btime'] + row['uptime']):
-            offset = row['btime'] + row['uptime'] - arg.ts
-            db_rows[0]['btime'] = False
-            db_rows[0]['uptime'] = offset
-            db_rows[0]['rntime'] = db_rows[0]['slptime'] = False
+            row['uptime'] = row['btime'] + row['uptime'] - arg.ts
+            row['btime'] = False
+            row['rntime'] = row['slptime'] = False
+            remap.append(row)
 
         elif arg.ts == row['offbtime']:
-            offset = True
-            db_rows[0]['btime'] = False
-            db_rows[0]['uptime'] = False
-            db_rows[0]['rntime'] = db_rows[0]['slptime'] = False
+            row['btime'] = False
+            row['uptime'] = False
+            row['rntime'] = row['slptime'] = False
+            remap.append(row)
 
         elif arg.ts > row['offbtime'] and arg.ts < (row['offbtime'] + row['downtime']):
-            offset = row['offbtime'] + row['downtime'] - arg.ts
-            db_rows[0]['btime'] = False
-            db_rows[0]['uptime'] = False
-            db_rows[0]['rntime'] = db_rows[0]['slptime'] = False
-            db_rows[0]['offbtime'] = False
-            db_rows[0]['downtime'] = offset
+            row['downtime'] = row['offbtime'] + row['downtime'] - arg.ts
+            row['btime'] = False
+            row['uptime'] = False
+            row['rntime'] = row['slptime'] = False
+            row['offbtime'] = False
+            remap.append(row)
 
-        elif offset is None:
-            db_rows.remove(row)
-
-    return db_rows, arg
+    return remap, arg
 
 
 def ordering_output(db_rows, arg):
