@@ -19,11 +19,11 @@ Indeed, it can:
   - Count nicely and accidentally shutdowns 
   - Uptime and downtime percentage since first boot time
   - Accumulated system uptime (running and sleeping), downtime and total
-  - Current uptime
   - Register used kernels and boot IDs
-  - Print formatted table or list with most of the previous values
-  - Narrow reports since and/or until a given startup or timestamp
-  - Reports in csv
+  - Report current uptime
+  - Print formatted table or list with the system history
+  - Narrow reports since, until or at a given startup or timestamp
+  - Output in csv format
 
 
 
@@ -77,11 +77,11 @@ For Linux systems:
            # useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
              --shell '/bin/false' --comment 'Tuptime execution user' tuptime
 
-       Execute tuptime with a privilege user for create db path:
+       Execute tuptime with a privilege user for create DB path:
 
            # tuptime
 
-       Change owner of the db path and file:
+       Change owner of the DB path and file:
 
            # chown -R tuptime /var/lib/tuptime
 
@@ -155,34 +155,34 @@ These are the command line options, no configuration file is used:
   -h, --help            show this help message and exit
   -A STARTUP, --at STARTUP
                         restrict to this startup number
-  -b, --bootid          print boot identifier information
+  -b, --bootid          print boot identifier info
   -c, --csv             csv output
   -d DATE_FORMAT, --date DATE_FORMAT
                         date format output
   --decp DECIMALS       number of decimals in percentages
   -f FILE, --filedb FILE
-                        database file
+                        database file (/var/lib/tuptime/tuptime.db)
   -g, --graceful        register a graceful shutdown
-  -k, --kernel          print kernel information
+  -k, --kernel          print kernel info
   -l, --list            enumerate system life as list
-  -n, --noup            avoid update values
+  -n, --noup            avoid update values into DB
   -o TYPE, --order TYPE
-                        order enumerate by [<e|d|k|u|r|s>]
-  -p, --power           print power states run + sleep
-  -r, --reverse         reverse order
+                        order enumerate by [u|r|s|e|d|k]
+  -p, --power           print power states run + sleep info
+  -r, --reverse         reverse order in list or table output
   -s, --seconds         output time in seconds and epoch
   -S STARTUP, --since STARTUP
                         restrict from this startup number
   -t, --table           enumerate system life as table
-  --tat TIMESTAMP       status at epoch timestamp
+  --tat TIMESTAMP       system status at epoch timestamp
   --tsince TIMESTAMP    restrict from this epoch timestamp
   --tuntil TIMESTAMP    restrict until this epoch timestamp
   -U STARTUP, --until STARTUP
                         restrict up until this startup number
   -v, --verbose         verbose output
   -V, --version         show version
-  -x, --silent          update values into db without output
-  -z, --zip             narrow date style
+  -x, --silent          update values into DB without output
+  -z, --zip             narrow timer style output
 
 
 -A <STARTUP>, --at <STARTUP>
@@ -281,7 +281,7 @@ These are the command line options, no configuration file is used:
 
   
 -g, --graceful
-  Register the time in db as a graceful shutdown. This option is the way that
+  Register the time in DB as a graceful shutdown. This option is the way that
   tuptime have for know if is a good or a bad shutdown. This is used in the 
   init.d and systemd files at the shutdown process.
 
@@ -309,22 +309,22 @@ These are the command line options, no configuration file is used:
 
 
 -n, --noup
-  Avoid update values in the db with the current btime, uptime, etc. Useful 
-  when reporting modified db files.
+  Avoid update values in the DB with the current btime, uptime, etc. Useful 
+  when reporting modified DB files.
 
   Examples:
          tuptime -n
          tuptime --noup
 
 
--o [<d|e|k|r|s|u>], --order=[<d|e|k|r|s|u>]
+-o [u|r|s|e|d|k], --order=[u|r|s|e|d|k]
   Order enumerate output from table or list by:
-    <d>  downtime
-    <e>  end status
-    <k>  kernel
+    <u>  uptime
     <r>  runtime
     <s>  sleep time
-    <u>  uptime
+    <e>  end status
+    <d>  downtime
+    <k>  kernel
   Therefore, only works in conjunction with (-t) or (-l) options.
 
   Examples:
@@ -346,8 +346,7 @@ These are the command line options, no configuration file is used:
 
 
 -r, --reverse
-  Reverse the order for table or list output. Therefore, only works in conjunction with 
-  any of (-t), (-l), (-e), (-o), (-u) and (-c) options.
+  Reverse order for table or list output.
 
   Examples:
          tuptime -tr
@@ -503,20 +502,17 @@ that value if your requirements are narrow.
 ==================
 
 System startups:	
- Total number of system startups from since to until date. Until is joined if
- is used in a narrow range.
+ Total number of system startups registered since first date available.
 
 System shutdowns:
   Total number of shutdowns done correctly or incorrectly.
 
 System life:
-  Time counter since first startup date until last.
+  Time counter since first startup date available.
 
 System uptime:
-  Percentage of uptime and time counter.
-
 System downtime:
-  Percentage of downtime and time counter.
+  Percentage of time and time counter.
 
 Average uptime:
 Average downtime: 
@@ -588,7 +584,7 @@ tuptime (bootid text,
          downtime integer,
          kernel text)
 
-bootid   Unique boot identifier
+bootid   Unique boot identifier (if it exists)
 btime    Startup date in epoch
 uptime   Uptime seconds  
 rntime   Running time seconds
@@ -619,9 +615,9 @@ when the uptime value is low.
 
 Take care of the harware clock RTC (if the system have), or how the operating
 system initializes their clock at startup. Tuptime register the date reported by
-the system at first execution after boot (usually from init system) and use it
-to calculate the previous shutdown time and the current uptime value. The command
-"who -b" do more less the same.
+the system at first execution after boot and use it to calculate the previous
+shutdown time and the current uptime value. The command "who -b" do more less
+the same.
 
 If the system starts with a incorrect date and time and some external time sync is
 used, like ntpd or timesyncd, a few time after boot the startup date reported by
@@ -637,7 +633,8 @@ enable by default nowadays.
 
 A few recomendations / workarounds are:
 
-Enable "systemd-time-wait-sync".
+Enable "systemd-time-wait-sync". But take care because it can delay the execution
+more than expected and a startup can be lost. Check open issues on Systemd's GitHub.
 
 Use "systemd-timesyncd" if it is available (timedatectl set-ntp true), it can also
 keep the time in systems without hardware clock. Disable any other time sync service
@@ -684,7 +681,7 @@ Good reads:
 | Date and Epoch notes |
 ========================
 
-The options --tsince and --tuntil use epoch timestamp format, as quick
+The options --tsince, --tuntil and --tat use epoch timestamp format, as quick
 reference here are some notes:
 
 Seconds equivalences:

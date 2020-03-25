@@ -4,7 +4,7 @@
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [{\-h | \-\-help}] [{\-A | \-\-at}=<startup>] [{\-b | \-\-bootid}] [{\-c | \-\-csv}] [{\-d | \-\-date}=<date\ format>] [\-\-decp=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}={d|e|k|r|s|u}] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<startup>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<startup>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}] [{\-z | \-\-zip}]
+tuptime [{\-h | \-\-help}] [{\-A | \-\-at}=<startup>] [{\-b | \-\-bootid}] [{\-c | \-\-csv}] [{\-d | \-\-date}=<date\ format>] [\-\-decp=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}=\[u|r|s|e|d|k\]] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<startup>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<startup>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}] [{\-z | \-\-zip}]
 
 .SH DESCRIPTION
 .RS
@@ -27,19 +27,19 @@ the system, keeping it between restarts. Indeed, it can:
 - Accumulated system uptime (running and sleeping), downtime and total
 .RS
 .RE
-- Current uptime
+- Register used kernels and boot IDs
 .RS
 .RE
-- Register used kernels
+- Report current uptime
 .RS
 .RE
-- Print formatted table or list with most of the previous values
+- Print formatted table or list with the system history
 .RS
 .RE
-- Narrow reports since and/or until a given startup or timestamp
+- Narrow reports since, until or at a given startup or timestamp
 .RS
 .RE
-- Reports in csv
+- Output in csv format
 
 .SH OPTIONS
 .SS ARGUMENTS
@@ -50,49 +50,49 @@ l lx.
 Show this help message and exit
 T}
 \-A | \-\-at STARTUP@T{
-Restrict at this startup number
+Restrict to this startup number
 T}
 \-b | \-\-bootid@T{
-Print boot identifier
+Print boot identifier info
 T}
 \-c | \-\-csv@T{
 Output in csv format
 T}
 \-d | \-\-date TIMESTAMP@T{
-Date format
+Date format output
 T}
 \--decp DECIMALS@T{
 Number of decimals in percentages
 T}
 \-f | \-\-file FILE@T{
-Database file
+Database file (file path)
 T}
 \-g | \-\-graceful@T{
 Register a graceful shutdown
 T}
 \-k | \-\-kernel@T{
-Print kernel information
+Print kernel info
 T}
 \-l | \-\-list@T{
 Enumerate system life as list
 T}
 \-n | \-\-noup@T{
-Avoid update values
+Avoid update values into DB
 T}
 \-o | \-\-order TYPE@T{
-Order enumerate by [<d|e|k|r|s|u>] d = downtime | e = end status | k = kernel | r = runtime | s = sleep time | u = uptime
+Order enumerate by [u|r|s|e|d|k] (u = uptime | r = runtime | s = sleep time | e = end status | d = downtime | k = kernel)
+T}
+\-p | \-\-power@T{
+Print power states run + sleep info
 T}
 \-r | \-\-reverse@T{
 Reverse order in list or table output
-T}
-\-p | \-\-power@T{
-Print power states run + sleep
 T}
 \-s | \-\-seconds@T{
 Output time in seconds and epoch
 T}
 \-S | \-\-since STARTUP@T{
-Restric since this startup number
+Restrict from this startup number
 T}
 \-t | \-\-table@T{
 Enumerate system life as table
@@ -101,7 +101,7 @@ T}
 Report system status at specific timestamp
 T}
 \-\-tsince TIMESTAMP@T{
-Restrict since this epoch timestamp
+Restrict from this epoch timestamp
 T}
 \-\-tuntil TIMESTAMP@T{
 Restrict until this epoch timestamp
@@ -113,13 +113,13 @@ T}
 Verbose output
 T}
 \-V | \-\-version@T{
-Show version.
+Show version
 T}
 \-x | \-\-silent@T{
-Update values without print
+Update values into DB without output
 T}
 \-z | \-\-zip@T{
-Narrow date on counter style output.
+Narrow timer style output
 T}
 .TE
 .SS ENVIRONMENT
@@ -135,28 +135,24 @@ precedence over this.
 .RE
 System startups:
 .RS
-Total number of system startups from since to until date.
+Total number of system startups from since first date available.
 
 .RE
 System shutdowns:
 .RS
-Total number of shutdowns done correctly or incorrectly. The separator
-points to the state of last shutdown (<-) ok, (->) bad if any filter is used.
-
-.RE
-System uptime:
-.RS
-Percentage of uptime and time counter.
-
-.RE
-System downtime:
-.RS
-Percentage of downtime and time counter.
+Total number of shutdowns done correctly or incorrectly.
 
 .RE
 System life:
 .RS
-Time counter since first startup date until last.
+Time counter since first startup date available.
+
+.RE
+System uptime:
+.RE
+System downtime:
+.RS
+Percentage of time and time counter.
 
 .RE
 Average uptime:
@@ -168,7 +164,7 @@ Time counter with the average time.
 .RE
 Current uptime:
 .RS
-Actual time counter and date. Always is update.
+Actual time counter and date since registered boot date.
 
 .SH EXAMPLES
 .TP 
@@ -176,10 +172,10 @@ Actual time counter and date. Always is update.
 Default output.
 .TP 
 .B tuptime -t
-Enumerate system life as table
+Enumerate system life as table.
 .TP 
 .B tuptime -l
-Enumerate system life as list
+Enumerate system life as list.
 .TP
 .B tuptime -k 
 Add kernel information to the output.

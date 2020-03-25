@@ -48,14 +48,14 @@ def get_arguments():
         action='store',
         metavar='STARTUP',
         type=int,
-        help='restrict at this startup number'
+        help='restrict to this startup number'
     )
     parser.add_argument(
         '-b', '--bootid',
         dest='bootid',
         action='store_true',
         default=False,
-        help='print boot identifier information'
+        help='print boot identifier info'
     )
     parser.add_argument(
         '-c', '--csv',
@@ -101,7 +101,7 @@ def get_arguments():
         dest='kernel',
         action='store_true',
         default=False,
-        help='print kernel information'
+        help='print kernel info'
     )
     group.add_argument(
         '-l', '--list',
@@ -115,7 +115,7 @@ def get_arguments():
         dest='update',
         default=True,
         action='store_false',
-        help='avoid update values into db'
+        help='avoid update values into DB'
     )
     parser.add_argument(
         '-o', '--order',
@@ -124,15 +124,15 @@ def get_arguments():
         default=False,
         action='store',
         type=str,
-        choices=['e', 'd', 'k', 'u', 'r', 's'],
-        help='order enumerate by [<e|d|k|u|r|s>]'
+        choices=['u', 'r', 's', 'e', 'd', 'k'],
+        help='order enumerate by [u|r|s|e|d|k]'
     )
     parser.add_argument(
         '-p', '--power',
         dest='power',
         default=False,
         action='store_true',
-        help='print power states run + sleep'
+        help='print power states run + sleep info'
     )
     parser.add_argument(
         '-r', '--reverse',
@@ -171,7 +171,7 @@ def get_arguments():
         default=None,
         action='store',
         type=int,
-        help='status at epoch timestamp'
+        help='system status at epoch timestamp'
     )
     parser.add_argument(
         '--tsince',
@@ -218,14 +218,14 @@ def get_arguments():
         dest='silent',
         default=False,
         action='store_true',
-        help='update values into db without output'
+        help='update values into DB without output'
     )
     parser.add_argument(
         '-z', '--zip',
         dest='zip',
         default=False,
         action='store_true',
-        help='narrow date style'
+        help='narrow timer style output'
     )
     arg = parser.parse_args()
 
@@ -237,7 +237,7 @@ def get_arguments():
     # Check combination of operator requirements
     if arg.reverse or arg.order:
         if not arg.table and not arg.lst:
-            parser.error('Used operators must be combined with [-t|--table] or [-l|--list].')
+            parser.error('Used operators must be combined with [-t|--table] or [-l|--list]')
         if arg.order == 'k':
             if not arg.kernel:
                 logging.info('Auto enable option = kernel')
@@ -411,7 +411,7 @@ def get_os_values():
 
 
 def assure_state_db(sis, arg):
-    """Assure state of db file and related directories"""
+    """Assure state of DB file and related directories"""
 
     if arg.db_file == DB_FILE:  # If db_file keeps default value
         # Check for DB environment variable
@@ -431,7 +431,7 @@ def assure_state_db(sis, arg):
         logging.error('Checking DB path "%s": %s', str(os.path.dirname(arg.db_file)), str(exp_path))
         sys.exit(-1)
 
-    # Test and create db with the initial values
+    # Test and create DB with the initial values
     try:
         if os.path.isfile(arg.db_file):
             logging.info('DB file exists = %s', str(arg.db_file))
@@ -454,7 +454,7 @@ def assure_state_db(sis, arg):
 
 
 def upgrade_db(db_conn, conn, columns, arg):
-    """Upgrade db to current format"""
+    """Upgrade DB to current format"""
 
     if not os.access(arg.db_file, os.W_OK):
         logging.error('"%s" file not writable by execution user.', str(arg.db_file))
@@ -533,10 +533,10 @@ def control_drift(prev, sis):
             logging.info('Fixed btime = %s', str(sis['btime']))
             logging.info('Fixed timestamp = %s', str(sis['btime'] + sis['uptime']))
             # Fixed timestamp must be equal to system timestamp after drift values
-            # Fixed btime must be equal to last btime from db
+            # Fixed btime must be equal to last btime from DB
 
         else:
-            # Keep btime from db with current uptime until it can be fixed
+            # Keep btime from DB with current uptime until it can be fixed
             sis['btime'] = prev['btime']
             logging.info('Keep last btime from DB = %s', str(sis['btime']))
             if sis['uptime'] <= offset:
@@ -552,7 +552,7 @@ def time_conv(secs):
 
     # Ouptut style:
     #  Large --> 4 years, 172 days, 16 hours, 4 minutes and 13 seconds
-    #  Short --> 04y 172d 16h 04m 13s
+    #  Short --> 4y 172d 16h 4m 13s
 
     # Dict to store values
     dtm = {'years': 0, 'days': 0, 'hours': 0, 'minutes': 0, 'seconds': 0}
@@ -702,9 +702,9 @@ def ordering_output(db_rows, arg):
     """Order output"""
 
     if db_rows:
-        if arg.order and (arg.order in ('e', 'd', 'k', 'u', 'r', 's')):
+        if arg.order and (arg.order in ('u', 'r', 's', 'e', 'd', 'k')):
 
-            match_value = {'u': 'uptime', 'e': 'endst', 'd': 'downtime', 'k': 'kernel', 'r': 'rntime', 's': 'slptime'}
+            match_value = {'u': 'uptime', 'r': 'rntime', 's': 'slptime', 'e': 'endst', 'd': 'downtime', 'k': 'kernel'}
             db_rows = sorted(db_rows, key=lambda x: (x[match_value[arg.order]]))
 
         if arg.reverse:
@@ -1001,7 +1001,7 @@ def print_default(db_rows, sis, arg):
     cnt = {'kernel': [], 'bootid': []}
     sys_life = 0
 
-    # Get values from db
+    # Get values from DB
     for row in db_rows:
 
         # Count startups
@@ -1154,7 +1154,7 @@ def main():
     #    If boot id exists (only on Linux nowadays), checking if its value changed.
     #
     #    Rest of the cases, checking if the value resultant from previous btime plus previous uptime
-    #    (both saved into db) is lower than current btime or (to catch shutdowns lower than a second)
+    #    (both saved into DB) is lower than current btime or (to catch shutdowns lower than a second)
     #    equal to current btime and current uptime is lower than previous uptime
     #
     # Checking boot id is the most secure way to detect a new boot. Working with time values is not 100% relialible.
@@ -1214,7 +1214,7 @@ def main():
 
             except:
                 # If you see this error, maybe the systemd script isn't executed at startup
-                # or the db file (DB_FILE) have wrong permissions.
+                # or the DB file (DB_FILE) have wrong permissions.
                 logging.error('Detected a new system startup but the values have not been saved into DB.')
                 logging.error('Tuptime execution user can\'t write into DB file: %s', str(arg.db_file))
                 sys.exit(-1)
@@ -1258,8 +1258,8 @@ def main():
         logging.info('Possible deleted rows in DB')
 
     if arg.update:
-        # If the user can only read db, the previous select return outdated numbers in last row
-        # because the db was not updated previously. The following snippet update that in memmory
+        # If the user can only read DB, the previous select return outdated numbers in last row
+        # because the DB was not updated previously. The following snippet update that in memmory
         db_rows[-1]['uptime'] = sis['uptime']
         db_rows[-1]['rntime'] = sis['rntime']
         db_rows[-1]['slptime'] = sis['slptime']

@@ -6,6 +6,7 @@ Tuptime is a tool for report the historical and statistical real time of the sys
 
 ### Basic Installation and usage
 
+
 #### Package installation
 
 * Debian: https://packages.debian.org/tuptime
@@ -13,7 +14,8 @@ Tuptime is a tool for report the historical and statistical real time of the sys
 * ArchLinux: https://aur.archlinux.org/packages/tuptime
 * FreeBSD: https://www.freshports.org/sysutils/tuptime
 
-#### Manual installation
+
+#### Brief Manual installation
 
 In a Linux or FreeBSD system...
 
@@ -33,6 +35,10 @@ Assure that the system pass the prerequisites:
 Run first with a privileged user:
 
 	tuptime
+
+Pick from "src/" folder the right file for your cron and init manager, setup both
+properly. See "tuptime-manual.txt" for more information.
+
 
 #### Examples
 
@@ -93,9 +99,6 @@ Or this, with -l | --list option:
 	Downtime: 16 seconds
 	. . .
 
-Don't forget! For keep it updated, add it to the init system, to the cron service and use 'tuptime' user for execution. (All scripts, units and related files are provided inside this repo)
-
-
 
 ### Highlights about Tuptime internals
 
@@ -113,7 +116,7 @@ Don't forget! For keep it updated, add it to the init system, to the cron servic
   - Registers as a table or list ordering by any label.
   - The whole life of the system or only a part of it, closing the range between startups/shutdowns or timestamps.
   - Accumulated running and sleeping time over an uptime.
-  - The kernel version used.
+  - The kernel version used and boot idenfiers.
   - The system state at specific point in time.
 
 
