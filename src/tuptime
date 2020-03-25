@@ -97,6 +97,13 @@ def get_arguments():
         help='register a graceful shutdown'
     )
     parser.add_argument(
+        '-i', '--invert',
+        dest='invert',
+        action='store_true',
+        default=False,
+        help='invert startup number'
+    )
+    parser.add_argument(
         '-k', '--kernel',
         dest='kernel',
         action='store_true',
@@ -777,7 +784,7 @@ def for_print(db_rows, arg):
     return remap
 
 
-def print_list(db_rows, arg):
+def print_list(db_rows, last_st, arg):
     """Print values as list"""
 
     db_rows = ordering_output(db_rows, arg)
@@ -791,6 +798,9 @@ def print_list(db_rows, arg):
         else:
             sp0 = '"'
             sp4 = sp3 = sp2 = sp1 = '","'
+
+        if arg.invert and row_dict['startup'] != 0:
+            row_dict['startup'] = row_dict['startup'] - last_st
 
         if row_dict['btime']:
             print(sp0 + 'Startup' + sp3 + str(row_dict['startup']) + sp1 + 'at' + sp1 + str(row_dict['btime']) + sp0)
@@ -829,7 +839,7 @@ def print_list(db_rows, arg):
             print('')
 
 
-def print_table(db_rows, arg):
+def print_table(db_rows, last_st, arg):
     """Print values as a table"""
 
     tbl = [['No.', 'Boot ID', 'Startup Date', 'Uptime', 'Running', 'Sleeping', 'Shutdown Date', 'End', 'Downtime', 'Kernel']]
@@ -857,6 +867,9 @@ def print_table(db_rows, arg):
     for row_dict in for_print(db_rows, arg):
         rowd = ([str(row_dict['startup']), str(row_dict['btime']), str(row_dict['uptime']),
                  str(row_dict['offbtime']), str(row_dict['endst']), str(row_dict['downtime'])])
+
+        if arg.invert and row_dict['startup'] != 0:
+            rowd[0] = row_dict['startup'] - last_st
 
         # Add optional cols
         if 'Boot ID' in tbl[0]:
@@ -895,7 +908,7 @@ def print_table(db_rows, arg):
             print('')
 
 
-def print_tat(db_rows, sis, arg):
+def print_tat(db_rows, sis, last_st, arg):
     """Report system status at specific timestamp"""
 
     # Negative value decrease actual timestamp
@@ -940,6 +953,9 @@ def print_tat(db_rows, sis, arg):
             report['at'] = datetime.fromtimestamp(report['at']).strftime(arg.date_format)
             report['time'] = time_conv(report['time'])
             report['time_fwd'] = time_conv(report['time_fwd'])
+
+        if arg.invert and report['startup'] != 0:
+            report['startup'] = report['startup'] - last_st
 
         if not arg.csv:  # Define content/spaces between values
             sp0, sp2, sp5, sp8 = '', ':\t', '   ', ' '
@@ -1254,7 +1270,8 @@ def main():
     db_rows = [dict(row) for row in conn.fetchall()]
     db_conn.close()
 
-    if len(db_rows) != db_rows[-1]['startup']:  # Real startups are not equal to enumerate startups
+    last_st = db_rows[-1]['startup']
+    if len(db_rows) != last_st:  # Real startups are not equal to enumerate startups
         logging.info('Possible deleted rows in DB')
 
     if arg.update:
@@ -1286,11 +1303,11 @@ def main():
 
     # Print values
     if arg.lst:
-        print_list(db_rows, arg)
+        print_list(db_rows, last_st, arg)
     elif arg.table:
-        print_table(db_rows, arg)
+        print_table(db_rows, last_st, arg)
     elif arg.tat is not None:
-        print_tat(db_rows, sis, arg)
+        print_tat(db_rows, sis, last_st, arg)
     else:
         print_default(db_rows, sis, arg)
 
