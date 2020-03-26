@@ -163,6 +163,7 @@ These are the command line options, no configuration file is used:
   -f FILE, --filedb FILE
                         database file (/var/lib/tuptime/tuptime.db)
   -g, --graceful        register a graceful shutdown
+  -i, --invert          startup number in reverse count
   -k, --kernel          print kernel info
   -l, --list            enumerate system life as list
   -n, --noup            avoid update values into DB
@@ -288,6 +289,16 @@ These are the command line options, no configuration file is used:
   Examples:
          tuptime -g
          tuptime --graceful
+
+
+-i, --invert
+  Print startup number in reverse count starting since last boot. Only works in
+  conjunction with (-t), (-l), or (--tat) options. Equal than the output of 
+  "journalctl --list-boots".
+
+  Examples:
+         tuptime -t -i
+         tuptime -l --invert
 
 
 -k, --kernel
