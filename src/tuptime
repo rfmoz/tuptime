@@ -581,7 +581,7 @@ def since_opt(db_rows, last_st, arg):
     """Get rows since a given row startup number registered"""
 
     if arg.since <= 0:  # Negative value start from bottom
-        arg.since = last_st + arg.since 
+        arg.since = last_st + arg.since
 
     # Remove rows if the startup is lower
     for row in db_rows[:]:
@@ -683,7 +683,7 @@ def tsince_opt(db_rows, sis, arg):
     return remap, arg
 
 
-def ordering_output(db_rows, arg):
+def ordering_output(db_rows, arg, last_st):
     """Order output"""
 
     if db_rows:
@@ -694,6 +694,11 @@ def ordering_output(db_rows, arg):
 
         if arg.reverse:
             db_rows = list(reversed(db_rows))
+
+        if arg.invert:
+            for ind, _ in enumerate(db_rows):
+                db_rows[ind]['startup'] = db_rows[ind]['startup'] - last_st
+
     else:
         db_rows = [{'startup': 0, 'bootid': None, 'uptime': False, 'rntime': False, 'slptime': False,
                     'endst': False, 'offbtime': False, 'btime': False, 'downtime': False, 'kernel': None}]
@@ -704,9 +709,8 @@ def ordering_output(db_rows, arg):
 def for_print(db_rows, arg):
     """Prepare values for print"""
 
-    remap = []  # To store processed list
-
     # Based if the value is False or not, set the right content format
+    remap = []
     for row in db_rows:
 
         if row['bootid'] is None:
@@ -765,7 +769,7 @@ def for_print(db_rows, arg):
 def print_list(db_rows, last_st, arg):
     """Print values as list"""
 
-    db_rows = ordering_output(db_rows, arg)
+    db_rows = ordering_output(db_rows, arg, last_st)
 
     for row_dict in for_print(db_rows, arg):
 
@@ -776,9 +780,6 @@ def print_list(db_rows, last_st, arg):
         else:
             sp0 = '"'
             sp4 = sp3 = sp2 = sp1 = '","'
-
-        if arg.invert and row_dict['startup'] != 0:
-            row_dict['startup'] = row_dict['startup'] - last_st
 
         if row_dict['btime']:
             print(sp0 + 'Startup' + sp3 + str(row_dict['startup']) + sp1 + 'at' + sp1 + str(row_dict['btime']) + sp0)
@@ -839,15 +840,12 @@ def print_table(db_rows, last_st, arg):
     if not arg.csv:   # Add empty brake up line if csv is not used
         tbl.append([''] * len(tbl[0]))
 
-    db_rows = ordering_output(db_rows, arg)
+    db_rows = ordering_output(db_rows, arg, last_st)
 
     # Build table for print
     for row_dict in for_print(db_rows, arg):
         rowd = ([str(row_dict['startup']), str(row_dict['btime']), str(row_dict['uptime']),
                  str(row_dict['offbtime']), str(row_dict['endst']), str(row_dict['downtime'])])
-
-        if arg.invert and row_dict['startup'] != 0:
-            rowd[0] = row_dict['startup'] - last_st
 
         # Add optional cols
         if 'Boot ID' in tbl[0]:
@@ -1091,7 +1089,7 @@ def print_default(db_rows, sis, arg):
     else:
         pw1 = pw2 = ''
 
-    if (arg.tu is not None or arg.until) and tstamp['max']:
+    if (arg.tu or arg.until) is not None:
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp5 + 'until' + sp5 + str(tstamp['max']) + sp0)
     else:
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp7)
