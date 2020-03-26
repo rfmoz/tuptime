@@ -351,7 +351,17 @@ def get_os_values():
         logging.error('System = %s not supported', sys.platform)
         sys.exit(-1)
 
-    # All OS values as integer
+    # Check right allocation of variables before continue
+    for osvarkey, osvarvalue in {'btime': sis['btime'], 'uptime': sis['uptime'], 'rntime': sis['rntime']}.items():
+        if osvarvalue is None:
+            logging.error('%s value unallocate from system. Can\'t continue.', str(osvarkey))
+            sys.exit(-1)
+        if osvarkey in {'uptime', 'rntime'} and float(osvarvalue) < 0:
+            logging.warning('Reset invalid %s value \"%s\"', str(osvarkey), str(osvarvalue))
+            if osvarkey == 'uptime': sis['uptime'] = 1
+            if osvarkey == 'rntime': sis['rntime'] = 1
+
+    # Number OS values as integer
     sis['btime'] = int(round(float(sis['btime']), 0))
     sis['uptime'] = int(round(float(sis['uptime']), 0))
     sis['rntime'] = int(round(float(sis['rntime']), 0))
@@ -364,9 +374,11 @@ def get_os_values():
     # Get sleep time from runtime
     sis['slptime'] = sis['uptime'] - sis['rntime']
 
-    sis['kernel'] = platform.platform()
-    logging.info('Python = %s', str(platform.python_version()))
+    # Text OS values
+    sis['bootid'] = str(sis['bootid'])
+    sis['kernel'] = str(platform.platform())
 
+    logging.info('Python = %s', str(platform.python_version()))
     try:
         logging.info('Current locale = %s', str(locale.getlocale()))
     except:
@@ -378,17 +390,6 @@ def get_os_values():
     logging.info('Btime = %s', str(sis['btime']))
     logging.info('Kernel = %s', str(sis['kernel']))
     logging.info('Execution user = %s', str(os.getuid()))
-
-    # Check right allocation of variables before continue and fix when possible
-    for osvarkey, osvarvalue in {'btime': sis['btime'], 'uptime': sis['uptime'], 'rntime': sis['rntime'], 'slptime': sis['slptime'], 'kernel': sis['kernel']}.items():
-        if osvarvalue is None:
-            logging.error('%s value unallocate from system. Can\'t continue.', str(osvarkey))
-            sys.exit(-1)
-        if osvarkey in {'uptime', 'rntime', 'slptime'} and osvarvalue < 0:
-            logging.warning('Reset invalid %s value \"%s\"', str(osvarkey), str(osvarvalue))
-            if osvarkey == 'uptime': sis['uptime'] = 1
-            if osvarkey == 'rntime': sis['rntime'] = 1
-            if osvarkey == 'slptime': sis['slptime'] = 0
 
     # Avoid executing when OS clock is too out of phase
     if sis['btime'] < 946684800:   # 01/01/2000 00:00
