@@ -3,7 +3,7 @@
                          ----------------------
                               version 5.0.0
                                 Ricardo F.
-                               15/Mar/2020
+                               26/Mar/2020
 
 
 
@@ -298,6 +298,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime -t -i
+         tuptime -tib
          tuptime -l --invert
 
 
@@ -382,7 +383,7 @@ These are the command line options, no configuration file is used:
   Examples:
           tuptime -S 34
           tuptime --since 22
-          tuptime -l -S -10  # List since last 10 registers
+          tuptime -l -S -10
 
   
 -t, --table
@@ -430,7 +431,7 @@ These are the command line options, no configuration file is used:
   Examples:
           tuptime -U 45
           tuptime --until 11
-          tuptime -l -U -10  # List all except last 10 registers
+          tuptime -l -U -10
 
 
 -v, --verbose
@@ -535,10 +536,10 @@ Current uptime:
 
 Removed on version 5 and equivalent output:
 
-  Largest uptime:      tuptime -t -o u | head -3
-  Shortest uptime:     tuptime -t -ro u | head -3
-  Largest downtime:    tuptime -t -o d | head -3
-  Shortest downtime:   tuptime -t -ro d | head -4
+  Largest uptime:      tuptime -t -ro u | head -3
+  Shortest uptime:     tuptime -t -o u | head -3
+  Largest downtime:    tuptime -t -ro d | head -3
+  Shortest downtime:   tuptime -t -o d | head -4
 
 
 
