@@ -639,7 +639,8 @@ def tuntil_opt(db_rows, sis, arg):
         elif arg.tu <= row['btime']:
             break
 
-        remap.append(row)
+        else:
+            remap.append(row)
 
     return remap, arg
 
@@ -681,6 +682,9 @@ def tsince_opt(db_rows, sis, arg):
             row['rntime'] = row['slptime'] = False
             row['offbtime'] = False
             remap.append(row)
+
+        else:
+            continue
 
     return remap, arg
 
