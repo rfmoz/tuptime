@@ -479,6 +479,7 @@ def upgrade_db(db_conn, conn, columns, arg):
                          '(btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel) '
                          'SELECT btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel '
                          'FROM tuptime')
+            conn.execute('update tuptimeNew set bootid = "None"')
             conn.execute('drop table tuptime')
             conn.execute('alter table tuptimeNew RENAME TO tuptime')
             db_conn.commit()
