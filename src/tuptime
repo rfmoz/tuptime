@@ -1186,7 +1186,7 @@ def main():
 
     if arg.update:
 
-        if (prev['bootid'] and sis['bootid']) != 'None' and prev['bootid'] != sis['bootid']:
+        if (prev['bootid'] or sis['bootid']) != 'None' and prev['bootid'] != sis['bootid']:
             logging.info('System restarted = True from bootid')
             new_boot = True
 
