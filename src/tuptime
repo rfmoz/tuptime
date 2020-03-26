@@ -715,6 +715,9 @@ def for_print(db_rows, arg):
     remap = []
     for row in db_rows:
 
+        if row['bootid'] is None:
+            row['bootid'] = ''
+
         if row['btime'] is not False:
             if not arg.seconds:
                 row['btime'] = datetime.fromtimestamp(row['btime']).strftime(arg.date_format)
@@ -757,6 +760,9 @@ def for_print(db_rows, arg):
                 row['downtime'] = row['downtime']
         else:
             row['downtime'] = ''
+
+        if row['kernel'] is None:
+            row['kernel'] = ''
 
         remap.append(row)
     return remap
