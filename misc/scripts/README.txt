@@ -38,9 +38,5 @@ db-tuptime-migrate-4.0-to-5.0.sh
 
 ____Plots____
 
-tuptime-barchart_from_db.py
-    Graph a daily plot reading directly from tuptime database.
-
-
 tuptime-barchart_from_csv.py
     Graph a daily plot from tuptime csv output.
