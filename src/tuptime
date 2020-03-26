@@ -702,8 +702,8 @@ def ordering_output(db_rows, arg, last_st):
                 db_rows[ind]['startup'] = db_rows[ind]['startup'] - last_st
 
     else:
-        db_rows = [{'startup': 0, 'bootid': 'None', 'uptime': False, 'rntime': False, 'slptime': False,
-                    'endst': False, 'offbtime': False, 'btime': False, 'downtime': False, 'kernel': 'None'}]
+        db_rows = [{'startup': 0, 'bootid': None, 'uptime': False, 'rntime': False, 'slptime': False,
+                    'endst': False, 'offbtime': False, 'btime': False, 'downtime': False, 'kernel': None}]
 
     return db_rows
 
@@ -926,7 +926,7 @@ def print_tat(db_rows, sis, last_st, arg):
 
     if report['status'] is None:
         report['startup'] = report['time'] = report['time_fwd'] = 0
-        report['bootid'] = report['kernel'] = 'None'
+        report['bootid'] = report['kernel'] = ''
         perctg_1 = perctg_2 = 0.0
     else:
         perctg_1 = round(report['time'] * 100 / report['time_total'], arg.decp)
@@ -1176,7 +1176,7 @@ def main():
 
     if arg.update:
 
-        if prev['bootid'] != 'None' and sis['bootid'] and prev['bootid'] != sis['bootid']:
+        if prev['bootid'] and sis['bootid'] and prev['bootid'] != sis['bootid']:
             logging.info('System restarted = True from bootid')
             new_boot = True
 
