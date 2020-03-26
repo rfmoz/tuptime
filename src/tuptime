@@ -385,9 +385,9 @@ def get_os_values():
             logging.error('%s value unallocate from system. Can\'t continue.', str(osvarkey))
             sys.exit(-1)
         if osvarkey in {'uptime', 'rntime', 'slptime'} and osvarvalue < 0:
-            logging.warning('Invalid %s value \"%s\". Reset to \"0\"', str(osvarkey), str(osvarvalue))
-            if osvarkey == 'uptime': sis['uptime'] = 0
-            if osvarkey == 'rntime': sis['rntime'] = 0
+            logging.warning('Reset invalid %s value \"%s\"', str(osvarkey), str(osvarvalue))
+            if osvarkey == 'uptime': sis['uptime'] = 1
+            if osvarkey == 'rntime': sis['rntime'] = 1
             if osvarkey == 'slptime': sis['slptime'] = 0
 
     # Avoid executing when OS clock is too out of phase
