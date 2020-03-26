@@ -45,6 +45,8 @@ fi
 sqlite3 ${TMP_DBF} "CREATE TABLE tuptimeNew (bootid text, btime integer, uptime integer, rntime integer, slptime integer, offbtime integer, endst integer, downtime integer, kernel text);" && \
 sqlite3 ${TMP_DBF} "INSERT INTO tuptimeNew(btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel) SELECT btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel FROM tuptime;" && \
 #sqlite3 ${TMP_DBF} "update tuptimeNew set bootid = \"${BOOTID}\" where rowid = (select max(rowid) from tuptimeNew)" && \
+sqlite3 ${TMP_DBF} "update tuptimeNew set bootid = 'None';" && \
+sqlite3 ${TMP_DBF} "update tuptimeNew set kernel = 'None' where kernel = '';" && \
 sqlite3 ${TMP_DBF} "DROP TABLE tuptime;" && \
 sqlite3 ${TMP_DBF} "ALTER TABLE tuptimeNew RENAME TO tuptime;" 
 if [ $? -ne 0 ]; then
