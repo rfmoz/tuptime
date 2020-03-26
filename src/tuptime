@@ -101,7 +101,7 @@ def get_arguments():
         dest='invert',
         action='store_true',
         default=False,
-        help='invert startup number'
+        help='startup number in reverse count'
     )
     parser.add_argument(
         '-k', '--kernel',
@@ -112,7 +112,7 @@ def get_arguments():
     )
     group.add_argument(
         '-l', '--list',
-        dest='lst',
+        dest='list',
         default=False,
         action='store_true',
         help='enumerate system life as list'
@@ -243,7 +243,7 @@ def get_arguments():
 
     # Check combination of operator requirements
     if arg.reverse or arg.order:
-        if not arg.table and not arg.lst:
+        if not arg.table and not arg.list:
             parser.error('Used operators must be combined with [-t|--table] or [-l|--list]')
         if arg.order == 'k':
             if not arg.kernel:
@@ -253,10 +253,12 @@ def get_arguments():
             if not arg.power:
                 logging.info('Auto enable option = power')
                 arg.power = True
+    if arg.invert and not (arg.table or arg.list or arg.tat):
+        parser.error('Used operators must be combined with [-t|--table], [-l|--list] or [--tat]')
 
     # Wrap 'at' over since and until
     if arg.at is not None:
-        arg.since = arg.until = arg.at 
+        arg.since = arg.until = arg.at
 
     if ((arg.ts or arg.tu) and (arg.power or arg.tat)) or (arg.tat and arg.power):
         # Power states report accumulated time across an uptime range, is not possible to
@@ -883,7 +885,14 @@ def print_table(db_rows, last_st, arg):
 
         # Print cols by row
         for row in tbl:
-            sys.stdout.write(str(row[0]).ljust(colpad[0]))  # First col print
+
+            # First col print
+            if arg.invert:
+                sys.stdout.write(str(row[0]).rjust(colpad[0]))
+            else:
+                sys.stdout.write(str(row[0]).ljust(colpad[0]))
+
+            # Next ones
             for i in range(1, len(row)):
                 if i in al_left:  # Aligned side
                     col = (side_spaces * ' ') + str(row[i]).ljust(colpad[i])
@@ -891,10 +900,11 @@ def print_table(db_rows, last_st, arg):
                     col = str(row[i]).rjust(colpad[i] + side_spaces)
                 sys.stdout.write(str('' + col))  # Other col print
             print('')
+
     else:
         for row in tbl:
             for key, value in enumerate(row):
-                sys.stdout.write('"' + value + '"')
+                sys.stdout.write('"' + str(value) + '"')
                 if (key + 1) != len(row):
                     sys.stdout.write(',')
             print('')
@@ -938,7 +948,7 @@ def print_tat(db_rows, sis, last_st, arg):
 
     if report['status'] is None:
         report['startup'] = report['time'] = report['time_fwd'] = 0
-        report['bootid'] = report['kernel'] = None
+        report['bootid'] = report['kernel'] = ''
         perctg_1 = perctg_2 = 0.0
     else:
         perctg_1 = round(report['time'] * 100 / report['time_total'], arg.decp)
@@ -1297,7 +1307,7 @@ def main():
         db_rows, arg = tsince_opt(db_rows, sis, arg)
 
     # Print values
-    if arg.lst:
+    if arg.list:
         print_list(db_rows, last_st, arg)
     elif arg.table:
         print_table(db_rows, last_st, arg)
