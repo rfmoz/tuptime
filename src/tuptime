@@ -241,31 +241,14 @@ def get_arguments():
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
         logging.info('Version = %s', (__version__))
 
-    # Check combination of operator requirements
-    if arg.reverse or arg.order:
-        if not arg.table and not arg.list:
-            parser.error('Used operators must be combined with [-t|--table] or [-l|--list]')
-        if arg.order == 'k':
-            if not arg.kernel:
-                logging.info('Auto enable option = kernel')
-                arg.kernel = True
-        if arg.order == 'r' or arg.order == 's':
-            if not arg.power:
-                logging.info('Auto enable option = power')
-                arg.power = True
-    if arg.invert and not (arg.table or arg.list or arg.tat):
-        parser.error('Used operators must be combined with [-t|--table], [-l|--list] or [--tat]')
+    if arg.power and (arg.ts or arg.tu or arg.tat):
+        # Power states report accumulated time across an uptime range, it isn't possible to
+        # know if the state was running or sleeping between specific points insde it.
+        parser.error('Used operators can\'t be combined together')
 
     # Wrap 'at' over since and until
     if arg.at is not None:
         arg.since = arg.until = arg.at
-
-    if ((arg.ts or arg.tu) and (arg.power or arg.tat)) or (arg.tat and arg.power):
-        # Power states report accumulated time across an uptime range, is not possible to
-        # know if the state was running or sleeping between specific points insde it.
-        # Narrow ranges can cut the btime and offbtime info, it doesn't make sense with
-        # 'at' argument report.
-        parser.error('Operator can\'t be combined with [--tsince] or [--tuntil]')
 
     if arg.zip:
         global ZIP
