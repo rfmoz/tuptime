@@ -14,9 +14,9 @@
 #      btime integer, uptime real, rntime real, slptime real, offbtime integer, endst integer, downtime real, kernel text
 
 SOURCE_DB='/var/lib/tuptime/tuptime.db'
-USER_DB=$(stat -c '%U' ${SOURCE_DB})
-TMP_DBF=`mktemp`
-BKP_DATE=`date +%s`
+USER_DB=$(stat -c '%U' "${SOURCE_DB}")
+TMP_DBF=$(mktemp)
+BKP_DATE=$(date +%s)
 
 # Test file permissions
 if [ -w "${SOURCE_DB}" ]; then
@@ -30,41 +30,41 @@ fi
 # Test sqlite3 command
 sqlite3 -version > /dev/null
 if [ $? -ne 0 ]; then
-	echo "Please, install "sqlite3" command for manage sqlite v3 databases."
+	echo "Please, install \"sqlite3\" command for manage sqlite v3 databases."
         exit 2
 fi
 
 # Work with a db copy
-cp ${SOURCE_DB} ${TMP_DBF}
+cp "${SOURCE_DB}" "${TMP_DBF}"
 if [ $? -ne 0 ]; then
 	echo "FAIL: ERROR 4" && exit 4
 fi
 
 # Adding new columns
-sqlite3 ${TMP_DBF} "CREATE TABLE tuptimeNew (btime integer, uptime integer, rntime integer, slptime integer, offbtime integer, endst integer, downtime integer, kernel text);" && \
-sqlite3 ${TMP_DBF} "UPDATE tuptime SET offbtime = cast(round(offbtime) as int);" && \
-sqlite3 ${TMP_DBF} "UPDATE tuptime SET uptime = cast(round(uptime) as int);" && \
-sqlite3 ${TMP_DBF} "UPDATE tuptime SET downtime = cast(round(downtime) as int);" && \
-sqlite3 ${TMP_DBF} "INSERT INTO tuptimeNew(btime, uptime, offbtime, endst, downtime, kernel) SELECT btime, uptime, offbtime, endst, downtime, kernel FROM tuptime;" && \
-sqlite3 ${TMP_DBF} "UPDATE tuptimeNew SET rntime = uptime;" && \
-sqlite3 ${TMP_DBF} "UPDATE tuptimeNew SET slptime = 0;" && \
-sqlite3 ${TMP_DBF} "DROP TABLE tuptime;" && \
-sqlite3 ${TMP_DBF} "ALTER TABLE tuptimeNew RENAME TO tuptime;" 
+sqlite3 "${TMP_DBF}" "CREATE TABLE tuptimeNew (btime integer, uptime integer, rntime integer, slptime integer, offbtime integer, endst integer, downtime integer, kernel text);" && \
+sqlite3 "${TMP_DBF}" "UPDATE tuptime SET offbtime = cast(round(offbtime) as int);" && \
+sqlite3 "${TMP_DBF}" "UPDATE tuptime SET uptime = cast(round(uptime) as int);" && \
+sqlite3 "${TMP_DBF}" "UPDATE tuptime SET downtime = cast(round(downtime) as int);" && \
+sqlite3 "${TMP_DBF}" "INSERT INTO tuptimeNew(btime, uptime, offbtime, endst, downtime, kernel) SELECT btime, uptime, offbtime, endst, downtime, kernel FROM tuptime;" && \
+sqlite3 "${TMP_DBF}" "UPDATE tuptimeNew SET rntime = uptime;" && \
+sqlite3 "${TMP_DBF}" "UPDATE tuptimeNew SET slptime = 0;" && \
+sqlite3 "${TMP_DBF}" "DROP TABLE tuptime;" && \
+sqlite3 "${TMP_DBF}" "ALTER TABLE tuptimeNew RENAME TO tuptime;" 
 if [ $? -ne 0 ]; then
 	echo "FAIL: ERROR 5" && exit 5
 fi
 
 # Backup original db and rename the temp db as source
-mv ${SOURCE_DB} ${SOURCE_DB}.${BKP_DATE}.back && \
-mv ${TMP_DBF} ${SOURCE_DB}
+mv "${SOURCE_DB}" "${SOURCE_DB}"."${BKP_DATE}".back && \
+mv "${TMP_DBF}" "${SOURCE_DB}"
 if [ $? -ne 0 ]; then
 	echo "FAIL: ERROR 6" && exit 6
 fi
 echo "Backup file: ${SOURCE_DB}.${BKP_DATE}.back"
 
 # Set permission and user
-chmod 644 ${SOURCE_DB} && \
-chown ${USER_DB} ${SOURCE_DB}
+chmod 644 "${SOURCE_DB}" && \
+chown "${USER_DB}" "${SOURCE_DB}"
 if [ $? -ne 0 ]; then
 	echo "FAIL: ERROR 7" && exit 7
 fi
