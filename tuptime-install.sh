@@ -2,7 +2,7 @@
 
 #
 # Tuptime installation linux script
-# v.1.8.3
+# v.1.8.4
 #
 # Usage:
 #	bash tuptime-install.sh		Normal installation
@@ -94,15 +94,15 @@ echo ""
 echo "+ Cloning repository"
 if [ ${DEV} -eq 1 ]; then
         echo "  ...using dev branch"
-	git clone -b dev https://github.com/rfrail3/tuptime.git ${F_TMP1} || exit
+	git clone -b dev https://github.com/rfrail3/tuptime.git "${F_TMP1}" || exit
 else
-	git clone https://github.com/rfrail3/tuptime.git ${F_TMP1} || exit
+	git clone https://github.com/rfrail3/tuptime.git "${F_TMP1}" || exit
 fi
 echo '  [OK]'
 
 echo "+ Copying files"
-install -m 755 ${F_TMP1}/src/tuptime ${D_BIN}/tuptime || exit
-if [ ${SELX} = true ]; then restorecon -vF ${D_BIN}/tuptime; fi
+install -m 755 "${F_TMP1}"/src/tuptime "${D_BIN}"/tuptime || exit
+if [ ${SELX} = true ]; then restorecon -vF "${D_BIN}"/tuptime; fi
 echo '  [OK]'
 
 echo "+ Creating Tuptime user"
@@ -129,35 +129,35 @@ su -s /bin/sh tuptime -c "tuptime -x" || exit
 echo '  [OK]'
 
 # Install init
-if [ ${PID1} = 'systemd' ]; then
+if [ "${PID1}" = 'systemd' ]; then
 	echo "+ Copying Systemd file"
-	cp -a ${F_TMP1}/src/systemd/tuptime.service ${SYSDPATH} || exit
-	if [ ${SELX} = true ]; then restorecon -vF ${SYSDPATH}tuptime.service; fi
+	cp -a "${F_TMP1}"/src/systemd/tuptime.service "${SYSDPATH}" || exit
+	if [ ${SELX} = true ]; then restorecon -vF "${SYSDPATH}"tuptime.service; fi
 	systemctl daemon-reload || exit
 	systemctl enable tuptime.service && systemctl start tuptime.service || exit
 	echo '  [OK]'
-elif [ ${PID1} = 'init' ] && [ -f /etc/rc.d/init.d/functions ]; then
+elif [ "${PID1}" = 'init' ] && [ -f /etc/rc.d/init.d/functions ]; then
 	echo "+ Copying  SysV init RedHat file"
-	install -m 755 ${F_TMP1}/src/init.d/redhat/tuptime /etc/init.d/tuptime || exit
+	install -m 755 "${F_TMP1}"/src/init.d/redhat/tuptime /etc/init.d/tuptime || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	chkconfig --add tuptime || exit
 	chkconfig tuptime on || exit
 	echo '  [OK]'
-elif [ ${PID1} = 'init' ] && [ -f /lib/lsb/init-functions ]; then
+elif [ "${PID1}" = 'init' ] && [ -f /lib/lsb/init-functions ]; then
 	echo "+ Copying SysV init Debian file"
-	install -m 755 ${F_TMP1}/src/init.d/debian/tuptime /etc/init.d/tuptime || exit
+	install -m 755 "${F_TMP1}"/src/init.d/debian/tuptime /etc/init.d/tuptime || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	update-rc.d tuptime defaults || exit
 	echo '  [OK]'
-elif [ ${PID1} = 'init' ] && [ -f /etc/rc.conf ]; then
+elif [ "${PID1}" = 'init' ] && [ -f /etc/rc.conf ]; then
 	echo "+ Copying OpenRC file for init"
-	install -m 755 ${F_TMP1}/src/openrc/tuptime /etc/init.d/ || exit
+	install -m 755 "${F_TMP1}"/src/openrc/tuptime /etc/init.d/ || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	rc-update add tuptime default && rc-service tuptime start || exit
 	echo '  [OK]'
-elif [ ${PID1} = 'openrc-init' ]; then
+elif [ "${PID1}" = 'openrc-init' ]; then
 	echo "+ Copying OpenRC file for openrc-init"
-	install -m 755 ${F_TMP1}/src/openrc/tuptime /etc/init.d/ || exit
+	install -m 755 "${F_TMP1}"/src/openrc/tuptime /etc/init.d/ || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/init.d/tuptime; fi
 	rc-update add tuptime default && rc-service tuptime start || exit
 	echo '  [OK]'
@@ -171,13 +171,13 @@ fi
 # Install cron
 if [ -d /etc/cron.d/ ]; then
 	echo "+ Copying Cron file"
-	cp -a ${F_TMP1}/src/cron.d/tuptime /etc/cron.d/tuptime || exit
+	cp -a "${F_TMP1}"/src/cron.d/tuptime /etc/cron.d/tuptime || exit
 	if [ ${SELX} = true ]; then restorecon -vF /etc/cron.d/tuptime; fi
 	echo '  [OK]'
-elif [ -d ${SYSDPATH} ]; then
+elif [ -d "${SYSDPATH}" ]; then
 	echo "+ Copying tuptime-cron.timer and .service"
-	cp -a ${F_TMP1}/src/systemd/tuptime-cron.*  ${SYSDPATH} || exit
-	if [ ${SELX} = true ]; then restorecon -vF ${SYSDPATH}tuptime-cron.*; fi
+	cp -a "${F_TMP1}"/src/systemd/tuptime-cron.*  "${SYSDPATH}" || exit
+	if [ ${SELX} = true ]; then restorecon -vF "${SYSDPATH}"tuptime-cron.*; fi
 	systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
 	echo '  [OK]'
 else
