@@ -40,10 +40,17 @@ if [ "$(expr substr "$(uname -s)" 1 5)" != "Linux" ]; then
 	exit 1
 fi
 
-# Test if git is installed
-git --version > /dev/null 2>&1
+# Test if curl is installed
+curl --version > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-	echo "ERROR: \"git\" command not available"
+	echo "ERROR: \"curl\" command not available"
+	echo "Please, install it"; exit 1
+fi
+
+# Test if tar is installed
+tar --version > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+	echo "ERROR: \"tar\" command not available"
 	echo "Please, install it"; exit 1
 fi
 
@@ -54,7 +61,7 @@ if [ $? -ne 0 ]; then
         echo "Please, install version 3 or greater"; exit 1
 else
 	# Test if version 3 or avobe of python is installed
-	pynum=$(echo "$pyver" | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2)
+	pynum=$(echo "${pyver}" | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2)
         if [ "$pynum" -lt 30 ] ; then
                 echo "ERROR: Its needed Python version 3, not ${pyver}"
                 echo "Please, upgrade it."; exit 1
@@ -91,12 +98,12 @@ echo ""
 echo "++ Tuptime installation script ++"
 echo ""
 
-echo "+ Cloning repository"
+echo "+ Getting source tar file"
 if [ ${DEV} -eq 1 ]; then
         echo "  ...using dev branch"
-	git clone -b dev https://github.com/rfrail3/tuptime.git "${F_TMP1}" || exit
+	tar xvz --strip 1 -C "${F_TMP1}" -f <(curl -sL https://github.com/rfrail3/tuptime/archive/dev.tar.gz) || exit
 else
-	git clone https://github.com/rfrail3/tuptime.git "${F_TMP1}" || exit
+	tar xvz --strip 1 -C "${F_TMP1}" -f <(curl -sL https://github.com/rfrail3/tuptime/archive/master.tar.gz) || exit
 fi
 echo '  [OK]'
 
