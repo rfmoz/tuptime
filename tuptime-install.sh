@@ -116,9 +116,9 @@ echo "+ Creating Tuptime user"
 useradd -h > /dev/null 2>&1
 if [ $? -eq 0 ]; then
 	useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
-        	--shell '/bin/false' --comment 'Tuptime execution user' tuptime || exit
+        	--shell '/bin/false' --comment 'Tuptime execution user' tuptime
 else
-	adduser -S -H -h '/var/lib/tuptime' -s '/bin/false' tuptime || exit
+	adduser -S -H -h '/var/lib/tuptime' -s '/bin/false' tuptime
 fi
 echo '  [OK]'
 
