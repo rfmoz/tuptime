@@ -64,7 +64,7 @@ For Linux systems:
       
        Download and execute the installation script:
 
-           # sh <(curl -s https://raw.githubusercontent.com/rfrail3/tuptime/master/tuptime-install.sh)
+           # bash <(curl -s https://raw.githubusercontent.com/rfrail3/tuptime/master/tuptime-install.sh)
 
    + Manual install:
 
