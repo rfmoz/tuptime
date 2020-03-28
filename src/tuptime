@@ -968,36 +968,34 @@ def print_tat(db_rows, sis, last_st, arg):
 def print_default(db_rows, sis, arg):
     """Print values as default output"""
 
-    def extract_max_min_tst(db_rows, arg, tstamp):
-        """Extract max and min timestamps values available"""
+    def parse_rows(db_rows, cal, shdown, updown, cnt):
+        """Extract values from all DB rows"""
 
-        if db_rows:
-            first = db_rows[0]
-            last = db_rows[-1]
-        else:
-            first = last = None
+        for row in db_rows:
 
-        # Get max timestamp available
-        if arg.tu is not None:
-            tstamp['max'] = arg.tu
-        elif last and last['offbtime'] is not False:
-            tstamp['max'] = last['offbtime'] + last['downtime']
-        elif last and last['btime'] is not False:
-            tstamp['max'] = last['btime'] + last['uptime']
-        else:
-            tstamp['max'] = None
+            # Count startups
+            updown['startups'] += 1
 
-        # Get min timestamp available
-        if arg.ts is not None:
-            tstamp['min'] = arg.ts
-        elif first and first['btime'] is not False:
-            tstamp['min'] = first['btime']
-        elif first and first['offbtime'] is not False:
-            tstamp['min'] = first['offbtime'] - first['uptime']
-        else:
-            tstamp['min'] = tstamp['max']
+            # Count shutdowns when endst is set
+            if row['endst'] is not False:
+                if any((row['offbtime'], row['downtime'])):
+                    if row['endst'] == 0:
+                        shdown['bad'] += 1
+                    if row['endst'] == 1:
+                        shdown['ok'] += 1
+                    updown['shutdowns'] += 1
 
-        return tstamp
+            # Count totals
+            cal['tot']['uptime'] += row['uptime']
+            cal['tot']['rntime'] += row['rntime']
+            cal['tot']['slptime'] += row['slptime']
+            cal['tot']['downtime'] += row['downtime']
+
+            # Lists with kernel names and boot_id identifiers
+            cnt['kernel'].append(row['kernel'])
+            cnt['bootid'].append(row['bootid'])
+
+        return cal, shdown, updown, cnt
 
     # Initialize empty variables
     cal = {'tot': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0},
@@ -1005,37 +1003,24 @@ def print_default(db_rows, sis, arg):
     rate = {'up': 0.0, 'rn': 0.0, 'slp': 0.0, 'down': 0.0}
     shdown = {'ok': 0, 'bad': 0}
     updown = {'startups': 0, 'shutdowns': 0}
-    tstamp = {'max': None, 'min': None}
+    tstamp = {'min': arg.ts, 'max': arg.tu}  # Args as init values
     cnt = {'kernel': [], 'bootid': []}
     sys_life = 0
 
-    # Get values from DB
-    for row in db_rows:
+    if db_rows:
+        # Get values from all DB rows
+        cal, shdown, updown, cnt = parse_rows(db_rows, cal, shdown, updown, cnt)
 
-        # Count startups
-        updown['startups'] += 1
+        # Max timestamp - until date
+        if tstamp['max'] is None:
+            if db_rows[-1]['offbtime'] is not False:
+                tstamp['max'] = db_rows[-1]['offbtime'] + db_rows[-1]['downtime']
+            elif db_rows[-1]['btime'] is not False:
+                tstamp['max'] = db_rows[-1]['btime'] + db_rows[-1]['uptime']
 
-        # Count shutdowns when endst is set
-        if row['endst'] is not False:
-            if any((row['offbtime'], row['downtime'])):
-                if row['endst'] == 0:
-                    shdown['bad'] += 1
-                if row['endst'] == 1:
-                    shdown['ok'] += 1
-                updown['shutdowns'] += 1
-
-        # Count totals
-        cal['tot']['uptime'] += row['uptime']
-        cal['tot']['rntime'] += row['rntime']
-        cal['tot']['slptime'] += row['slptime']
-        cal['tot']['downtime'] += row['downtime']
-
-        # Lists with kernel names and boot_id identifiers
-        cnt['kernel'].append(row['kernel'])
-        cnt['bootid'].append(row['bootid'])
-
-    # Get max/min timestamp
-    tstamp = extract_max_min_tst(db_rows, arg, tstamp)
+        # Min timestamp - since date
+        if tstamp['min'] is None:
+            tstamp['min'] = db_rows[0]['btime']
 
     # Get system life
     sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
@@ -1094,7 +1079,7 @@ def print_default(db_rows, sis, arg):
     else:
         pw1 = pw2 = ''
 
-    if (arg.tu or arg.until) is not None:
+    if arg.tu or arg.until:
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp5 + 'until' + sp5 + str(tstamp['max']) + sp0)
     else:
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp7)
