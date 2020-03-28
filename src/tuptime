@@ -1144,7 +1144,7 @@ def main():
     #
     # How tuptime does it:
     #
-    #    If boot id exists (only on Linux nowadays), checking if its value changed.
+    #    If boot id exists (only on Linux nowadays), checking if its value changed and isn't none
     #
     #    Rest of the cases, checking if the value resultant from previous btime plus previous uptime
     #    (both saved into DB) is lower than current btime or (to catch shutdowns lower than a second)
@@ -1170,7 +1170,7 @@ def main():
 
     if arg.update:
 
-        if (prev['bootid'] or sis['bootid']) != 'None' and prev['bootid'] != sis['bootid']:
+        if 'None' != prev['bootid'] != sis['bootid'] != 'None':
             logging.info('System restarted = True from bootid')
             new_boot = True
 
