@@ -2,12 +2,14 @@ tuptime (5.0.0) unstable; urgency=low
 
   * Identify new startups with boot_id
   * Adding -b, --bootid option to show boot IDs
-  * Adding -z, --zip option to show narrow range date counters
+  * Adding -z, --zip option to reduced text on date counters
+  * Adding -i, --invert option to show startup number in reverse count
   * Change database specs. Add bootid column
   * After a graceful shutdown register, delay 5 seconds next DB update
+  * Large refactoring
   * Update .deb package
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 15 Mar 2020 18:38:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 28 Mar 2020 01:27:00 +0100
 
 tuptime (4.1.0) unstable; urgency=low
 
