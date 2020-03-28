@@ -3,7 +3,7 @@
                          ----------------------
                               version 5.0.0
                                 Ricardo F.
-                               26/Mar/2020
+                               28/Mar/2020
 
 
 
@@ -460,7 +460,7 @@ These are the command line options, no configuration file is used:
 
 
 -z, --zip
-  Narrow date on counter style output.
+  Narrow time counter style output.
 
   Examples:
          tuptime -z
