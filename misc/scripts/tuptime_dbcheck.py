@@ -148,7 +148,7 @@ def test5(arg, row, conn):
                 fixed2 = row['rntime'] - fixed
                 conn.execute('update tuptime set rntime = ' + str(fixed2) + ' where rowid = ' + str(row['startup']))
                 print(' FIXED: rntime = ' + str(fixed2))
-            elif row['slptime'] > row['rntime'] and row['slptime'] - fixed > 0:
+            elif row['slptime'] >= row['rntime'] and row['slptime'] - fixed > 0:
                 fixed2 = row['slptime'] - fixed
                 conn.execute('update tuptime set slptime = ' + str(fixed2) + ' where rowid = ' + str(row['startup']))
                 print(' FIXED: slptime = ' + str(fixed2))
