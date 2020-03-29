@@ -13,7 +13,7 @@ fixcnt = 0
 errcnt = 0
 
 # List of tests to auto-execute
-TESTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+TESTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -208,20 +208,6 @@ def test9(arg, row, conn):
         err_cnt(arg)
 
 
-def test10(arg, row, conn, prev_row):
-    if prev_row['bootid'] and row['bootid'] and \
-       prev_row['bootid'] == row['bootid']:
-        print(row['startup'])
-        print(' duplicate bootid')
-        print(' ' + str(prev_row['startup']) + ' ' +  str(prev_row['bootid']))
-        print(' ' + str(row['startup']) + ' ' +  str(row['bootid']))
-
-        if arg.fix:
-            conn.execute('delete from tuptime where rowid = ' + str(row['startup']))
-            print(' FIXED: delete row = ' + str(row['startup']))
-        err_cnt(arg)
-
-
 def main():
 
     arg = get_arguments()
@@ -232,7 +218,7 @@ def main():
 
     # Check if DB have the old format
     columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'slptime' not in columns:
+    if 'rntime' and 'slptime' and 'bootid' not in columns:
         logging.error('DB format outdated')
         sys.exit(-1)
 
@@ -277,13 +263,9 @@ def main():
             if i == 9:
                 test9(arg, row, conn)
 
-            if i == 10:
-                if row != db_rows[0]:  # Only after first row
-                    test10(arg, row, conn, prev_row)
-
             prev_row = row
 
-        if i == 11:
+        if i == 10:
             test0(arg, db_rows, conn)
 
         db_conn.commit()
