@@ -29,18 +29,18 @@ fi
 bc -version > /dev/null
 if [ $? -ne 0 ]; then
         echo "Please, install \"bc\" command"
-        exit 2
+        exit 3
 fi
 
 TMP_DB=$(mktemp)  # For temporary process db
 
-cp "${SOURCE_DB}" "${TMP_DB}"
+cp "${SOURCE_DB}" "${TMP_DB}" || exit 4
 
 # Adding new column
-sqlite3 "${TMP_DB}" "ALTER TABLE tuptime RENAME TO tuptime_old;"
-sqlite3 "${TMP_DB}" "CREATE TABLE tuptime (btime INT, uptime REAL, offbtime INT, endst INT, downtime REAL, kernel TEXT);"
-sqlite3 "${TMP_DB}" "INSERT INTO tuptime(btime, uptime, offbtime, endst, downtime, kernel) SELECT btime, uptime, offbtime, endst, downtime, '' FROM tuptime_old;"
-sqlite3 "${TMP_DB}" "DROP TABLE tuptime_old;"
+sqlite3 "${TMP_DB}" "ALTER TABLE tuptime RENAME TO tuptime_old;" && \
+sqlite3 "${TMP_DB}" "CREATE TABLE tuptime (btime INT, uptime REAL, offbtime INT, endst INT, downtime REAL, kernel TEXT);" && \
+sqlite3 "${TMP_DB}" "INSERT INTO tuptime(btime, uptime, offbtime, endst, downtime, kernel) SELECT btime, uptime, offbtime, endst, downtime, '' FROM tuptime_old;" && \
+sqlite3 "${TMP_DB}" "DROP TABLE tuptime_old;" || exit 5
 
 ## Adding values for new columns downtime and offbtime
 #ROWS=`sqlite3 "${TMP_DB}" "select max(oid) from tuptime;"`
@@ -52,12 +52,12 @@ sqlite3 "${TMP_DB}" "DROP TABLE tuptime_old;"
 
 
 # Backup old db and restore the new
-mv "${SOURCE_DB}" "${SOURCE_DB}".back
-mv "${TMP_DB}" "${SOURCE_DB}"
-chmod 644 "${SOURCE_DB}"
+mv "${SOURCE_DB}" "${SOURCE_DB}".back && \
+mv "${TMP_DB}" "${SOURCE_DB}" && \
+chmod 644 "${SOURCE_DB}" || exit 6
+echo "Backup file in: ${SOURCE_DB}.back"
 
 rm -f "${TMP_DB}"
 
-echo "Backup file in: ${SOURCE_DB}.back"
 echo "Process completed OK"
 

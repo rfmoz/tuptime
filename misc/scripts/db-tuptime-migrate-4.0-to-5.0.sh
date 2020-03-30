@@ -17,7 +17,7 @@ SOURCE_DB='/var/lib/tuptime/tuptime.db'
 USER_DB=$(stat -c '%U' "${SOURCE_DB}")
 TMP_DBF=$(mktemp)
 BKP_DATE=$(date +%s)
-#BOOTID=`cat /proc/sys/kernel/random/boot_id`
+#BOOTID=$(cat /proc/sys/kernel/random/boot_id)
 
 # Test file permissions
 if [ -w "${SOURCE_DB}" ]; then
@@ -36,10 +36,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Work with a db copy
-cp "${SOURCE_DB}" "${TMP_DBF}"
-if [ $? -ne 0 ]; then
-	echo "FAIL: ERROR 4" && exit 4
-fi
+cp "${SOURCE_DB}" "${TMP_DBF}" ||  exit 4
 
 # Adding new columns
 sqlite3 "${TMP_DBF}" "CREATE TABLE tuptimeNew (bootid text, btime integer, uptime integer, rntime integer, slptime integer, offbtime integer, endst integer, downtime integer, kernel text);" && \
@@ -48,23 +45,15 @@ sqlite3 "${TMP_DBF}" "INSERT INTO tuptimeNew(btime, uptime, rntime, slptime, off
 sqlite3 "${TMP_DBF}" "update tuptimeNew set bootid = 'None';" && \
 sqlite3 "${TMP_DBF}" "update tuptimeNew set kernel = 'None' where kernel = '';" && \
 sqlite3 "${TMP_DBF}" "DROP TABLE tuptime;" && \
-sqlite3 "${TMP_DBF}" "ALTER TABLE tuptimeNew RENAME TO tuptime;" 
-if [ $? -ne 0 ]; then
-	echo "FAIL: ERROR 5" && exit 5
-fi
+sqlite3 "${TMP_DBF}" "ALTER TABLE tuptimeNew RENAME TO tuptime;" || exit 5
 
 # Backup original db and rename the temp db as source
 mv "${SOURCE_DB}" "${SOURCE_DB}"."${BKP_DATE}".back && \
-mv "${TMP_DBF}" "${SOURCE_DB}"
-if [ $? -ne 0 ]; then
-	echo "FAIL: ERROR 6" && exit 6
-fi
+mv "${TMP_DBF}" "${SOURCE_DB}" || exit 6
 echo "Backup file: ${SOURCE_DB}.${BKP_DATE}.back"
 
 # Set permission and user
 chmod 644 "${SOURCE_DB}" && \
-chown "${USER_DB}" "${SOURCE_DB}"
-if [ $? -ne 0 ]; then
-	echo "FAIL: ERROR 7" && exit 7
-fi
+chown "${USER_DB}" "${SOURCE_DB}" || exit 7
+
 echo "Process completed: OK"
