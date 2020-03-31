@@ -155,7 +155,7 @@ These are the command line options, no configuration file is used:
   -h, --help            show this help message and exit
   -A STARTUP, --at STARTUP
                         restrict to this startup number
-  -b, --bootid          print boot identifier info
+  -b, --bootid          show boot identifier
   -c, --csv             csv output
   -d DATE_FORMAT, --date DATE_FORMAT
                         date format output
@@ -164,12 +164,12 @@ These are the command line options, no configuration file is used:
                         database file (/var/lib/tuptime/tuptime.db)
   -g, --graceful        register a graceful shutdown
   -i, --invert          startup number in reverse count
-  -k, --kernel          print kernel info
+  -k, --kernel          show kernel version
   -l, --list            enumerate system life as list
   -n, --noup            avoid update values into DB
   -o TYPE, --order TYPE
                         order enumerate by [u|r|s|e|d|k]
-  -p, --power           print power states run + sleep info
+  -p, --power           show power states run + sleep
   -r, --reverse         reverse order in list or table output
   -s, --seconds         output time in seconds and epoch
   -S STARTUP, --since STARTUP
@@ -347,7 +347,7 @@ These are the command line options, no configuration file is used:
 
 
 -p, --power
-  Add the running and sleeping accumulated time for the correspondent uptime slot.
+  Print the running and sleeping accumulated time for the correspondent uptime slot.
   Note that only Python >= 3.6 can register this values.
 
   Examples:
