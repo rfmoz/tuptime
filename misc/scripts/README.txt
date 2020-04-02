@@ -33,3 +33,4 @@ db-tuptime-migrate-3.1-to-4.0.sh
 db-tuptime-migrate-4.0-to-5.0.sh
     Update tuptime database format from version 4.0.0 or above to 5.0.0.
     Tuptime v.5 do it automatically.
+
