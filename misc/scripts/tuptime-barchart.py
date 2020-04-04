@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Sample plot report from the info that the tuptime command report"""
+"""Sample plot with accumulative hours for each day in every state
+from the info that the tuptime command report"""
 
-#
-# This is a playground script.
-# It only test how to extract values from Tuptime and plot them in a
-# graphic enviroment. It isn't 100% reliable, fails setting right
-# position on first day and when DST happends.
-#
 
 from datetime import datetime, timedelta
 import subprocess, csv, argparse, tempfile
@@ -32,7 +27,7 @@ def get_arguments():
         '-e', '--edate',
         dest='edate',
         action='store',
-        help='end date to plot, format:"Y-m-d". Default edate is today.',
+        help='end date to plot, format:"Y-m-d" (default today).',
         type=str
     )
     parser.add_argument(
@@ -55,7 +50,7 @@ def get_arguments():
         dest='pdays',
         default=7,
         action='store',
-        help='past days before edate to plot, will be ignored if set bdate (default is 7).',
+        help='past days before edate to plot (default is 7).',
         type=int
     )
     parser.add_argument(
@@ -134,11 +129,10 @@ def main():
 
     nran = 0  # Range number
     daysplt = []  # List for all day splits with their events
-    max_events = 0  # Max events in a daysplit
     ftmp = tempfile.NamedTemporaryFile().name  # File to store Tuptime csv
 
     # Iterate over each element in (since, until) list
-    for nran in range(len(date_list)):
+    for nran, _  in enumerate(date_list):
         tsince = str(int(date_list[nran][0]))  # Timestamp arg tsince
         tuntil = str(int(date_list[nran][1]))  # timestamp arg tuntil
 
@@ -189,24 +183,7 @@ def main():
 
             print('Got range --->\t' + str(nran) + ' with ' + str(len(daysplit_events)) + ' events')
 
-            # Get max number of events between all days
-            if len(daysplit_events) > max_events:
-                max_events = len(daysplit_events)
-
     print('Ranges got:\t' + str(len(daysplt)))
-    print('Max events:\t' + str(max_events))
-
-    # Convert seconds to days to plot them
-    for i in range(0, len(daysplt)):
-        for k in range(0, len(daysplt[i])):
-            daysplt[i][k][:] = [x / 3600 for x in daysplt[i][k]]
-
-    # For each day...
-    for i in range(0, len(daysplt)):
-
-        # All days with equal number of events, fill with 0,0,0
-        while max_events >= len(daysplt[i]):
-            daysplt[i].append([0, 0, 0])
 
     # At this poing daysplt have:
     #
@@ -215,52 +192,44 @@ def main():
     #     list_with_the value_of_each_type_of_event[
     #       uptime, downtime_ok, downtime_bad ]]]
 
-    # Matplotlib requires stack with slices, a list with the elements
-    # for all columns from bottom to top:
+    # For each day, get total value for each type of event and convert seconds to hours
+    for i in range(0, len(daysplt)):
+        daysplt[i] = [(sum(j) / 3600) for j in zip(*daysplt[i])]
+
+    # At this poing daysplt have:
+    #
+    # list_with_days[
+    #   list_with_total_time of_each_type_of_event[
+    #     uptime, downtime_ok, downtime_bad ]]
+
+    # Matplotlib requires stack with slices
     #
     # y
-    # |  down_bad   down_bad   down_bad
-    # |  down_ok    down_ok    down_ok
     # |  uptime     uptime     uptime
-    # |  down_bad   down_bad   down_bad
     # |  down_ok    down_ok    down_ok
-    # |  uptime     uptime     uptime
+    # |  down_bad   down_bad   down_bad
     # |----------------------------------x
     # |   day1       day2       dayN
 
-    # Stack events from each day (daysplt) based on their position
-    #  [upt, downt ok, downt bad] and so on...
-    stack = []
-    # for the number of max events present...
-    for event in range(0, max_events):
+    # Get each state values slice from each day
+    days = {'uptime': [], 'down_ok': [], 'down_bad': []}
+    for i in daysplt:
+        if not i: i = [0, 0, 0]  # Set empty
+        days['uptime'].append(i[0])
+        days['down_ok'].append(i[1])
+        days['down_bad'].append(i[2])
 
-        # ...for each (uptime, downtime ok, downtime bad)...
-        for tipe in (0, 1, 2):
-            row_stack = []
-
-            # ...for number of days...
-            for day in range(0, len(daysplt)):
-
-                # populate value for each day
-                row_stack.append(daysplt[day][event][tipe])
-
-            # populate an slice
-            stack.append(np.array(row_stack))
-
-    print('Rows to stack:\t' + str(len(stack)))
-
-    ind = np.arange(len(daysplt))    # the x locations for the groups
-    width = 0.9
-    color_list = ['green', 'grey', 'black']
+    ind = np.arange(len(daysplt))  # number of days on x
+    width = 0.9  # column size
 
     plt.figure(figsize=(arg.width, arg.height))
 
-    # Plot events from their position and rotate color
-    for i in range(0, len(stack)):
-        plt.bar(ind, stack[i], width, color=color_list[i % len(color_list)], linewidth=0, bottom=np.sum(stack[:i], axis=0))
+    plt.bar(ind, days['uptime'], width, color='green', label='Uptime')
+    plt.bar(ind, days['down_ok'], width, color='grey', label='Downtime OK', bottom=days['uptime'])
+    plt.bar(ind, days['down_bad'], width, color='black', label='Downtime BAD', bottom=[i+j for i, j in zip(days['uptime'], days['down_ok'])])
 
-    plt.ylabel('Hours')
-    plt.title('Tuptime days bar chart')
+    plt.ylabel('Counter of Hours')
+    plt.title('Accumulative Hours per State by Day')
     plt.xticks(ind, xlegend, rotation=85, ha="center")
     plt.margins(y=0, x=0.01)
     plt.yticks(np.arange(0, 25, 2))
