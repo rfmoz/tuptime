@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Sample plot with accumulative hours for each day in every state
+"""Sample plot with accumulative hours for every state in each day
 from the info that the tuptime command report"""
 
 
@@ -27,7 +27,7 @@ def get_arguments():
         '-e', '--edate',
         dest='edate',
         action='store',
-        help='end date to plot, format:"Y-m-d" (default today).',
+        help='end date to plot, format:"Y-m-d" (default today)',
         type=str
     )
     parser.add_argument(
@@ -42,7 +42,7 @@ def get_arguments():
         dest='height',
         default=6,
         action='store',
-        help='window height.',
+        help='window height',
         type=int
     )
     parser.add_argument(
@@ -50,7 +50,7 @@ def get_arguments():
         dest='pdays',
         default=7,
         action='store',
-        help='past days before edate to plot (default is 7).',
+        help='past days before edate to plot (default is 7)',
         type=int
     )
     parser.add_argument(
@@ -58,7 +58,7 @@ def get_arguments():
         dest='width',
         default=8,
         action='store',
-        help='window width.',
+        help='window width',
         type=int
     )
     arg = parser.parse_args()
@@ -68,19 +68,20 @@ def get_arguments():
 def date_check(arg):
     """Check and clean dates"""
 
-    # Set user or default begind date. Days ago...
-    if arg.bdate:
-        begin_date = dateutil.parser.parse(arg.bdate)
-    else:
-        begin_date = datetime.today() - timedelta(days=arg.pdays)
-        print('Default begin:\tsince ' + str(arg.pdays) + ' days ago')
-
     # Set user or default end date.
     if arg.edate:
         end_date = dateutil.parser.parse(arg.edate)
     else:
         end_date = datetime.today()
         print('Default end:\tnow')
+
+    # Set user or default begind date. Days ago...
+    if arg.bdate:
+        begin_date = dateutil.parser.parse(arg.bdate)
+    else:
+        begin_date = end_date - timedelta(days=arg.pdays)
+        print('Default begin:\tsince ' + str(arg.pdays) + ' days ago')
+
 
     # Adjust date to the start or end time range and set the format
     begin_date = begin_date.replace(hour=0, minute=0, second=0).strftime("%Y-%m-%d %H:%M:%S")
@@ -228,7 +229,7 @@ def main():
     plt.bar(ind, days['down_ok'], width, color='grey', label='Downtime OK', bottom=days['uptime'])
     plt.bar(ind, days['down_bad'], width, color='black', label='Downtime BAD', bottom=[i+j for i, j in zip(days['uptime'], days['down_ok'])])
 
-    plt.ylabel('Counter of Hours')
+    plt.ylabel('Hours Counter')
     plt.title('Accumulative Hours per State by Day')
     plt.xticks(ind, xlegend, rotation=85, ha="center")
     plt.margins(y=0, x=0.01)
