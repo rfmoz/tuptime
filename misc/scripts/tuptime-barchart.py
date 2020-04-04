@@ -3,6 +3,13 @@
 
 """Sample plot report from the info that the tuptime command report"""
 
+#
+# This is a playground script.
+# It only test how to extract values from Tuptime and plot them in a
+# graphic enviroment. It isn't 100% reliable, fails setting right
+# position on first day and when DST happends.
+#
+
 from datetime import datetime, timedelta
 import subprocess, csv, argparse, tempfile
 import numpy as np
@@ -200,37 +207,6 @@ def main():
         # All days with equal number of events, fill with 0,0,0
         while max_events >= len(daysplt[i]):
             daysplt[i].append([0, 0, 0])
-
-        # Mitigate DST changes. Days with one hour more or less
-
-        # Sum total time per day
-        total_day_time = int(round(float(sum([sum(i) for i in zip(*daysplt[i])])), 0))
-
-        # Days with less than 24 hours
-        if total_day_time < 24:
-
-            # Except last current one
-            if daysplt[i] == daysplt[-1] and str(datetime.today())[0:10] == str(date_limits[1])[0:10]:
-                continue
-
-            # Increment first bottom value
-            event0 = daysplt[i][0]
-
-            # Look for the state with max value and get their position on list
-            position_max_value = max([u for u, j in enumerate(event0) if j == max(event0)])
-            event0[position_max_value] = event0[position_max_value] + (24 - total_day_time)
-
-        # Days with more than 24 hours
-        if total_day_time > 24:
-
-            # Look for first bottom value greater than 1 and decrease it
-            for events in daysplt[i]:
-                if max(events) > 1:
-
-                    # Look for the state with max value and get their position on list and decrease it
-                    position_max_value = max([u for u, j in enumerate(events) if j == max(events)])
-                    events[position_max_value] = events[position_max_value] - (total_day_time - 24)
-
 
     # At this poing daysplt have:
     #
