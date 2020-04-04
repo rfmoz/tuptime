@@ -198,7 +198,7 @@ def main():
     for i in range(0, len(daysplt)):
 
         # All days with equal number of events, fill with 0,0,0
-        while max_events > len(daysplt[i]):
+        while max_events >= len(daysplt[i]):
             daysplt[i].append([0, 0, 0])
 
         # Mitigate DST changes. Days with one hour more or less
@@ -218,7 +218,7 @@ def main():
 
             # Look for the state with max value and get their position on list
             position_max_value = max([u for u, j in enumerate(event0) if j == max(event0)])
-            event0[position_max_value] = event0[position_max_value] + 1 
+            event0[position_max_value] = event0[position_max_value] + (24 - total_day_time)
 
         # Days with more than 24 hours
         if total_day_time > 24:
@@ -229,7 +229,7 @@ def main():
 
                     # Look for the state with max value and get their position on list and decrease it
                     position_max_value = max([u for u, j in enumerate(events) if j == max(events)])
-                    events[position_max_value] = events[position_max_value] - 1 
+                    events[position_max_value] = events[position_max_value] - (total_day_time - 24)
 
 
     # At this poing daysplt have:
