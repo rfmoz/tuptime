@@ -60,7 +60,7 @@ For Linux systems:
 
        Arch    - https://aur.archlinux.org/packages/tuptime/
 
-   + Using .sh script:
+   + Using bash script:
       
        Download and execute the installation script:
 

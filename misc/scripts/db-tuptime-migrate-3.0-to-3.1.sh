@@ -10,6 +10,11 @@
 
 SOURCE_DB='/var/lib/tuptime/tuptime.db'
 
+# Check bash execution
+if [ ! -n "$BASH" ]; then
+  echo "\nMake sure that this script runs with BASH\n"
+fi
+
 # Test file permissions
 if [ -w "${SOURCE_DB}" ]; then
    echo "Migrating tuptime database format"

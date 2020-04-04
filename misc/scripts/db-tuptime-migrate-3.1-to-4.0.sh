@@ -18,6 +18,11 @@ USER_DB=$(stat -c '%U' "${SOURCE_DB}")
 TMP_DBF=$(mktemp)
 BKP_DATE=$(date +%s)
 
+# Check bash execution
+if [ ! -n "$BASH" ]; then
+  echo "\nMake sure that this script runs with BASH\n"
+fi
+
 # Test file permissions
 if [ -w "${SOURCE_DB}" ]; then
    echo -e "\n## Migrating tuptime database format ##\n"

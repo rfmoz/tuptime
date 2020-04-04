@@ -2,7 +2,7 @@
 
 #
 # Tuptime installation linux script
-# v.1.8.5
+# v.1.8.6
 #
 # Usage:
 #	bash tuptime-install.sh		Normal installation
@@ -18,6 +18,11 @@ PID1=$(grep 'Name' /proc/1/status | cut -f2)
 # Swich dev branch
 DEV=0
 
+
+# Check bash execution
+if [ ! -n "$BASH" ]; then
+  echo "\nMake sure that this script runs with BASH\n"
+fi
 
 # Check root execution
 if [ "$(id -u)" != "0" ]; then
