@@ -213,8 +213,7 @@ These are the command line options, no configuration file is used:
 
 
 -c, --csv
-  Report in csv format. When this option is used, for an easier post processed,
-  all lines always have the same number of values (empty or not).
+  Report in csv format.
 
   Examples:
          tuptime --csv
