@@ -179,23 +179,15 @@ def main():
                     # Add to events list per day
                     daysplit_events.append(l_row)
 
-            # Finally add all events in a day to daysplt list
+            # Per day, get total value for each type of event and convert seconds to hours
+            daysplit_events = [(sum(j) / 3600) for j in zip(*daysplit_events)]
+
+            # Populate daysplt list with totals
             daysplt.append(daysplit_events)
 
             print('Got range --->\t' + str(nran) + ' with ' + str(len(daysplit_events)) + ' events')
 
     print('Ranges got:\t' + str(len(daysplt)))
-
-    # At this poing daysplt have:
-    #
-    # list_with_days[
-    #   list_with_all_events_on_a_day[
-    #     list_with_the value_of_each_type_of_event[
-    #       uptime, downtime_ok, downtime_bad ]]]
-
-    # For each day, get total value for each type of event and convert seconds to hours
-    for i in range(0, len(daysplt)):
-        daysplt[i] = [(sum(j) / 3600) for j in zip(*daysplt[i])]
 
     # At this poing daysplt have:
     #
