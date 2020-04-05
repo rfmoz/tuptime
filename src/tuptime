@@ -352,14 +352,15 @@ def get_os_values():
         sys.exit(-1)
 
     # Check right allocation of variables before continue
-    for osvarkey, osvarvalue in {'btime': sis['btime'], 'uptime': sis['uptime'], 'rntime': sis['rntime']}.items():
-        if osvarvalue is None:
-            logging.error('%s value unallocate from system. Can\'t continue.', str(osvarkey))
-            sys.exit(-1)
-        if osvarkey in {'uptime', 'rntime'} and float(osvarvalue) < 0:
-            logging.warning('Reset invalid %s value \"%s\"', str(osvarkey), str(osvarvalue))
-            if osvarkey == 'uptime': sis['uptime'] = 1
-            if osvarkey == 'rntime': sis['rntime'] = 1
+    for key in sis:
+        if key in ('btime', 'uptime', 'rntime'):
+            if sis[key] is None:
+                logging.error('%s value unallocate from system. Can\'t continue.', str(sis[key]))
+                sys.exit(-1)
+        if key in ('uptime', 'rntime') and float(sis[key]) < 0:
+            logging.warning('Reset invalid %s value \"%s\"', str(key), str(sis[key]))
+            if key == 'uptime': sis['uptime'] = 1
+            if key == 'rntime': sis['rntime'] = 1
 
     # Number OS values as integer
     sis['btime'] = int(round(float(sis['btime']), 0))
