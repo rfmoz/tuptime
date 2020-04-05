@@ -12,7 +12,7 @@ SOURCE_DB='/var/lib/tuptime/tuptime.db'
 
 # Check bash execution
 if [ ! -n "$BASH" ]; then
-  echo "\nMake sure that this script runs with BASH\n"
+  echo "--- WARNING - execute only with BASH ---"
 fi
 
 # Test file permissions

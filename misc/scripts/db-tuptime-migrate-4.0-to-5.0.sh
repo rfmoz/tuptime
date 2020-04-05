@@ -21,7 +21,7 @@ BKP_DATE=$(date +%s)
 
 # Check bash execution
 if [ ! -n "$BASH" ]; then
-  echo "\nMake sure that this script runs with BASH\n"
+  echo "--- WARNING - execute only with BASH ---"
 fi
 
 # Test file permissions

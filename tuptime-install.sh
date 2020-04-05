@@ -21,9 +21,9 @@ DEV=0
 
 # Check bash execution
 if [ ! -n "$BASH" ]; then
-  echo "\nMake sure that this script runs with BASH\n"
+  echo "--- WARNING - execute only with BASH ---"
 fi
-
+exit
 # Check root execution
 if [ "$(id -u)" != "0" ]; then
   echo "Please run this script as root"
