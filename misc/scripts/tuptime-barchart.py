@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Sample plot with accumulative hours for every state in each day
+"""Sample plot with hours per every state in each day
 from the info that the tuptime command report"""
 
 
@@ -221,23 +221,31 @@ def main():
         days['down_bad'].append(i[2])
 
     ind = np.arange(len(daysplt))  # number of days on x
-    width = 0.9  # column size
 
     plt.figure(figsize=(arg.width, arg.height))
 
-    plt.bar(ind, days['uptime'], width, color='green', label='Uptime')
-    plt.bar(ind, days['down_ok'], width, color='grey', label='Downtime OK', bottom=days['uptime'])
-    plt.bar(ind, days['down_bad'], width, color='black', label='Downtime BAD', bottom=[i+j for i, j in zip(days['uptime'], days['down_ok'])])
+    # Old bar plot
+    #width = 0.9  # column size
+    #plt.bar(ind, days['uptime'], width, color='green', label='Uptime')
+    #plt.bar(ind, days['down_ok'], width, color='grey', label='Downtime OK', bottom=days['uptime'])
+    #plt.bar(ind, days['down_bad'], width, color='black', label='Downtime BAD', bottom=[i+j for i, j in zip(days['uptime'], days['down_ok'])])
 
-    plt.ylabel('Hours Counter')
-    plt.title('Accumulative Hours per State by Day')
+    plt.plot(ind, days['uptime'], linewidth=2, marker='o', color='green', label='Uptime')
+    plt.plot(ind, days['down_ok'], linewidth=2, marker='o', color='grey', label='Down Ok')
+    plt.plot(ind, days['down_bad'], linewidth=2, marker='o', color='black', label='Down Bad')
+
+    plt.ylabel('Hours')
+    plt.title('Hours per State by Day')
     plt.xticks(ind, xlegend, rotation=85, ha="center")
     plt.margins(y=0, x=0.01)
     plt.yticks(np.arange(0, 25, 2))
-    plt.grid(color='w', linestyle='--', linewidth=0.5, axis='y')
+    plt.ylim(top=26)
+    plt.grid(color='lightgrey', linestyle='--', linewidth=0.5, axis='y')
+    plt.grid(color='lightblue', linestyle='--', linewidth=0.5, axis='x')
     plt.tight_layout()
     cfig = plt.get_current_fig_manager()
     cfig.canvas.set_window_title("Tuptime")
+    plt.legend()
     plt.show()
 
 
