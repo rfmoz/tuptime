@@ -3,9 +3,9 @@
 ====================================
 
 
-Install dependencies:
+Install dependencies, latest versions:
 
-    # pkg install python3 py36-sqlite3 git
+    # pkg install python3 py37-sqlite3 git
 
 Clone repository and copy executable file:
 
@@ -44,13 +44,13 @@ It's all done.
 ====================================
 
 
-Install dependencies:
+Install dependencies, latest versions:
 
     # pkg_add git python
 
 Create a symlink for the Python3 interpreter:
 
-    # ln -s /usr/local/bin/python3.6 /usr/local/bin/python3 
+    # ln -s /usr/local/bin/python3.? /usr/local/bin/python3 
      
 Clone repository and copy executable file:
 
