@@ -240,6 +240,8 @@ def get_arguments():
     if arg.verbose:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
         logging.info('Version = %s', (__version__))
+    else:
+        logging.basicConfig(format='%(levelname)s:%(message)s')
 
     if arg.power and (arg.ts or arg.tu or arg.tat):
         # Power states report accumulated time across an uptime range, it isn't possible to
