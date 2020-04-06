@@ -780,14 +780,14 @@ def print_list(db_rows, last_st, arg):
 
     db_rows = ordering_output(db_rows, arg, last_st)
 
-    for row_dict in for_print(db_rows, arg):
+    if not arg.csv:  # Define content/spaces between values
+        sp1, sp2, sp8 = '  ', ': ', ' '
+        sp0 = sp7 = ''
+    else:
+        sp0, sp7, sp8 = '"', ',""', ''
+        sp1 = sp2 = '","'
 
-        if not arg.csv:  # Define content/spaces between values
-            sp1, sp2, sp8 = '  ', ': ', ' '
-            sp0 = sp7 = ''
-        else:
-            sp0, sp7, sp8 = '"', ',""', ''
-            sp1 = sp2 = '","'
+    for row_dict in for_print(db_rows, arg):
 
         if row_dict['btime']:
             print(sp0 + 'Startup' + sp2 + sp8 + str(row_dict['startup']) + sp1 + 'at' + sp1 + str(row_dict['btime']) + sp0)
