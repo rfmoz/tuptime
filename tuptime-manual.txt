@@ -183,7 +183,6 @@ These are the command line options, no configuration file is used:
   -v, --verbose         verbose output
   -V, --version         show version
   -x, --silent          update values into DB without output
-  -z, --zip             narrow timer style output
 
 
 -A <STARTUP>, --at <STARTUP>
@@ -456,14 +455,6 @@ These are the command line options, no configuration file is used:
   Examples:
          tuptime -x
          tuptime --silent
-
-
--z, --zip
-  Narrow time counter style output.
-
-  Examples:
-         tuptime -z
-         tuptime -t -k --zip   # Table with kernel and narrow date style
 
 
 

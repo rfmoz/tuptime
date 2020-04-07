@@ -23,7 +23,6 @@ from datetime import datetime
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATE_FORMAT = '%X %x'
-ZIP = False
 __version__ = '5.0.0'
 
 # Terminate when SIGPIPE signal is received
@@ -227,21 +226,12 @@ def get_arguments():
         action='store_true',
         help='update values into DB without output'
     )
-    parser.add_argument(
-        '-z', '--zip',
-        dest='zip',
-        default=False,
-        action='store_true',
-        help='narrow timer style output'
-    )
     arg = parser.parse_args()
 
     # Check enable verbose
     if arg.verbose:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
         logging.info('Version = %s', (__version__))
-    else:
-        logging.basicConfig(format='%(levelname)s:%(message)s')
 
     if arg.power and (arg.ts or arg.tu or arg.tat):
         # Power states report accumulated time across an uptime range, it isn't possible to
@@ -251,10 +241,6 @@ def get_arguments():
     # Wrap 'at' over since and until
     if arg.at is not None:
         arg.since = arg.until = arg.at
-
-    if arg.zip:
-        global ZIP
-        ZIP = True
 
     logging.info('Arguments = %s', str(vars(arg)))
     return arg
@@ -545,41 +531,26 @@ def control_drift(prev, sis):
 def time_conv(secs):
     """Convert seconds to human readable syle"""
 
-    # Ouptut style:
-    #  Large --> 4 years, 172 days, 16 hours, 4 minutes and 13 seconds
-    #  Short --> 4y 172d 16h 4m 13s
-
     # Dict to store values
-    dtm = {'years': 0, 'days': 0, 'hours': 0, 'minutes': 0, 'seconds': 0}
+    dtm = {'yr': 0, 'd': 0, 'h': 0, 'min': 0, 's': 0}
     line = ''
 
     # Calculate values
-    dtm['minutes'], dtm['seconds'] = divmod(secs, 60)
-    dtm['hours'], dtm['minutes'] = divmod(dtm['minutes'], 60)
-    dtm['days'], dtm['hours'] = divmod(dtm['hours'], 24)
-    dtm['years'], dtm['days'] = divmod(dtm['days'], 365)
+    dtm['min'], dtm['s'] = divmod(secs, 60)
+    dtm['h'], dtm['min'] = divmod(dtm['min'], 60)
+    dtm['d'], dtm['h'] = divmod(dtm['h'], 24)
+    dtm['yr'], dtm['d'] = divmod(dtm['d'], 365)
 
     # Construct date sentence
-    for key in ('years', 'days', 'hours', 'minutes', 'seconds'):
+    for key in ('yr', 'd', 'h', 'min', 's'):
 
         # Avoid print empty values at the beginning
-        if (dtm[key] == 0) and (line == '') and (key != 'seconds'):
+        if (dtm[key] == 0) and (line == '') and (key != 's'):
             continue
         else:
-            if ZIP:
-                line += str(dtm[key]) + key[0] + ' '
-            else:
-                if (dtm[key]) == 1:  # Not plural for 1 unit
-                    line += str(dtm[key]) + ' ' + str(key[:-1]) + ', '
-                else:
-                    line += str(dtm[key]) + ' ' + str(key) + ', '
-
-    if ZIP:
-        # Return without last space char
-        return str(line[:-1])
-    else:
-        # Return without last comma and space char
-        return str(line[:-2])
+            line += str(dtm[key]) + key + ' '
+    # Return without last space char
+    return str(line[:-1])
 
 
 def since_opt(db_rows, last_st, arg):

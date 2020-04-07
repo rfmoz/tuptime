@@ -46,57 +46,57 @@ Sample output after install:
 
 	System startups:	1   since   21:54:09 24/09/15
 	System shutdowns:	0 ok   -   0 bad
-	System life: 		21 minutes, 30 seconds
+	System life: 		21min 30s
 
-	System uptime: 		100.0%   -   21 minutes, 30 seconds
-	System downtime: 	0.0%   -   0 seconds
+	System uptime: 		100.0%   -   21min 30s
+	System downtime: 	0.0%   -   0s
 
-	Average uptime: 	21 minutes, 30 seconds
-	Average downtime: 	0 seconds
+	Average uptime: 	21min 30s
+	Average downtime: 	0s
 
-	Current uptime: 	21 minutes, 30 seconds   since   21:54:09 24/09/15
+	Current uptime: 	21min 30s   since   21:54:09 24/09/15
 
 If you do the same a few days after, the output may will be more similar to this:
 
 	System startups:	110   since   10:15:27 08/08/15
-	System shutdowns:	107 ok  -   2 bad
-	System life: 		47 days, 12 hours, 2 minutes, 15 seconds
+	System shutdowns:	107 ok   -   2 bad
+	System life: 		47d 12h 2min 15s
 
-	System uptime: 		4.04%   -   1 days, 22 hours, 4 minutes, 44 seconds
-	System downtime: 	95.96%   -   45 days, 13 hours, 57 minutes, 30 seconds
+	System uptime: 		4.04%   -   1d 22h 4min 44s
+	System downtime: 	95.96%   -   45d 13h 57min 30s
 
-	Average uptime: 	25 minutes, 8 seconds
-	Average downtime: 	9 hours, 56 minutes, 42 seconds
+	Average uptime: 	25min 8s
+	Average downtime: 	9h 56min 42s
 
-	Current uptime: 	23 minutes, 33 seconds   since   21:54:09 24/09/15
+	Current uptime: 	23min 33s   since   21:54:09 24/09/15
 
 Or this, with -t | --table option:
 
-	No.      Startup Date                              Uptime       Shutdown Date   End                   Downtime
+	No.      Startup Date       Uptime       Shutdown Date   End    Downtime
                                                                                                                                     
-	1   10:15:27 08/08/15                          42 seconds   10:16:09 08/08/15    OK                 16 seconds
-	2   10:16:26 08/08/15                          49 seconds   10:17:15 08/08/15    OK                 16 seconds
-	3   10:17:32 08/08/15               5 minutes, 47 seconds   10:23:19 08/08/15    OK                 16 seconds
-	4   10:23:36 08/08/15                           9 seconds   10:23:45 08/08/15   BAD                 42 seconds
-	5   10:24:28 08/08/15      2 hours, 9 minutes, 27 seconds   12:33:55 08/08/15    OK     41 minutes, 44 seconds
+	1   10:15:27 08/08/15          42s   10:16:09 08/08/15    OK         16s
+	2   10:16:26 08/08/15          49s   10:17:15 08/08/15    OK         16s
+	3   10:17:32 08/08/15     5min 47s   10:23:19 08/08/15    OK         16s
+	4   10:23:36 08/08/15           9s   10:23:45 08/08/15   BAD         42s
+	5   10:24:28 08/08/15  2h 9min 27s   12:33:55 08/08/15    OK   41min 44s
         . . .
 
 Or this, with -l | --list option:
 
 	Startup:  1  at  10:15:27 08/08/15
-	Uptime:   42 seconds
+	Uptime:   42s
 	Shutdown: OK  at  10:16:09 08/08/15
-	Downtime: 16 seconds
+	Downtime: 16s
 
 	Startup:  2  at  10:16:26 08/08/15
-	Uptime:   49 seconds
+	Uptime:   49s
 	Shutdown: OK  at  10:17:15 08/08/15
-	Downtime: 16 seconds
+	Downtime: 16s
 
 	Startup:  3  at  10:17:32 08/08/15
-	Uptime:   5 minutes, 47 seconds
+	Uptime:   5min 47s
 	Shutdown: OK  at  10:23:19 08/08/15
-	Downtime: 16 seconds
+	Downtime: 16s
 	. . .
 
 

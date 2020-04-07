@@ -1,8 +1,8 @@
 tuptime (5.0.0) unstable; urgency=low
 
+  * Abbreviate format in time counters
   * Identify new startups with boot_id
   * Adding -b, --bootid option to show boot IDs
-  * Adding -z, --zip option to reduced text on date counters
   * Adding -i, --invert option to show startup number in reverse count
   * Change database specs. Add bootid column
   * After a graceful shutdown register, delay 5 seconds next DB update
