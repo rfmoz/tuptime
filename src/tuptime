@@ -1077,7 +1077,7 @@ def print_default(db_rows, sis, arg):
         uptime = {'average': str(cal['ave']['uptime']), \
                   'current': str(cal['ave']['uptime']), \
                   'sys_rate': str(rate['up']) + '%', \
-                  'sys_time': str(cal['tot']['uptime']) + '%'}
+                  'sys_time': str(cal['tot']['uptime'])}
 
     if arg.tu or arg.until:
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp5 + 'until' + sp5 + str(tstamp['max']) + sp0)
