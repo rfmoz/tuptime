@@ -1075,7 +1075,7 @@ def print_default(db_rows, sis, arg):
                   'sys_time': '(r:' + str(cal['tot']['rntime']) + ' + s:' + str(cal['tot']['slptime']) + ')'}
     else:
         uptime = {'average': str(cal['ave']['uptime']), \
-                  'current': str(cal['ave']['uptime']), \
+                  'current': str(sis['uptime']), \
                   'sys_rate': str(rate['up']) + '%', \
                   'sys_time': str(cal['tot']['uptime'])}
 
