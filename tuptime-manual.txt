@@ -60,6 +60,10 @@ For Linux systems:
 
        Arch    - https://aur.archlinux.org/packages/tuptime/
 
+       Fedora
+       CentOS  - https://copr.fedorainfracloud.org/coprs/frankcrawford/tuptime/
+
+
    + Using bash script:
       
        Download and execute the installation script:
