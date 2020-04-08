@@ -45,11 +45,11 @@ properly. See "tuptime-manual.txt" for more information.
 Sample output after install:
 
 	System startups:	1   since   21:54:09 24/09/15
-	System shutdowns:	0 ok   -   0 bad
+	System shutdowns:	0 ok  -  0 bad
 	System life: 		21min 30s
 
-	System uptime: 		100.0%   -   21min 30s
-	System downtime: 	0.0%   -   0s
+	System uptime: 		100.0%  -  21min 30s
+	System downtime: 	0.0%  -  0s
 
 	Average uptime: 	21min 30s
 	Average downtime: 	0s
@@ -59,11 +59,11 @@ Sample output after install:
 If you do the same a few days after, the output may will be more similar to this:
 
 	System startups:	110   since   10:15:27 08/08/15
-	System shutdowns:	107 ok   -   2 bad
+	System shutdowns:	107 ok  -  2 bad
 	System life: 		47d 12h 2min 15s
 
-	System uptime: 		4.04%   -   1d 22h 4min 44s
-	System downtime: 	95.96%   -   45d 13h 57min 30s
+	System uptime: 		4.04%  -  1d 22h 4min 44s
+	System downtime: 	95.96%  -  45d 13h 57min 30s
 
 	Average uptime: 	25min 8s
 	Average downtime: 	9h 56min 42s
@@ -72,13 +72,13 @@ If you do the same a few days after, the output may will be more similar to this
 
 Or this, with -t | --table option:
 
-	No.      Startup Date       Uptime       Shutdown Date   End    Downtime
+	No.      Startup Date        Uptime       Shutdown Date   End    Downtime
                                                                                                                                     
-	1   10:15:27 08/08/15          42s   10:16:09 08/08/15    OK         16s
-	2   10:16:26 08/08/15          49s   10:17:15 08/08/15    OK         16s
-	3   10:17:32 08/08/15     5min 47s   10:23:19 08/08/15    OK         16s
-	4   10:23:36 08/08/15           9s   10:23:45 08/08/15   BAD         42s
-	5   10:24:28 08/08/15  2h 9min 27s   12:33:55 08/08/15    OK   41min 44s
+	1   10:15:27 08/08/15           42s   10:16:09 08/08/15    OK         16s
+	2   10:16:26 08/08/15           49s   10:17:15 08/08/15    OK         16s
+	3   10:17:32 08/08/15      5min 47s   10:23:19 08/08/15    OK         16s
+	4   10:23:36 08/08/15            9s   10:23:45 08/08/15   BAD         42s
+	5   10:24:28 08/08/15   2h 9min 27s   12:33:55 08/08/15    OK   41min 44s
         . . .
 
 Or this, with -l | --list option:
