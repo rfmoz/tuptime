@@ -916,10 +916,11 @@ def print_tat(db_rows, sis, last_st, arg):
         report['startup'] = report['startup'] - last_st
 
     if not arg.csv:  # Define content/spaces between values
-        sp0, sp2, sp5, sp8 = '', ':\t', '   ', ' '
+        sp0, sp2, sp9 = '', ':\t', '  -  '
+        sp8, sp5 = ' ', '   '
     else:
         sp0, sp8 = '"', ''
-        sp2 = sp5 = '","'
+        sp2 = sp5 = sp9 = '","'
 
     print(sp0 + 'Timestamp status' + sp2 + str(report['status']) + sp5 + 'at' + sp5 + str(report['at']) + sp5 + 'on' + sp5 + str(report['startup']) + sp0)
     if arg.bootid:
@@ -928,8 +929,8 @@ def print_tat(db_rows, sis, last_st, arg):
         print(sp0 + (sp8 * 2) + '...with kernel' + sp2 + str(report['kernel']) + sp0)
     if (arg.bootid or arg.kernel) and not arg.csv:
         print('')
-    print(sp0 + (sp8 * 6) + 'elapsed in' + sp2 + str(perctg_1) + '%' + sp5 + '-' + sp5 + str(report['time']) + sp0)
-    print(sp0 + (sp8 * 4) + 'remaining in' + sp2 + str(perctg_2) + '%' + sp5 + '-' + sp5 + str(report['time_fwd']) + sp0)
+    print(sp0 + (sp8 * 6) + 'elapsed in' + sp2 + str(perctg_1) + '%' + sp9 + str(report['time']) + sp0)
+    print(sp0 + (sp8 * 4) + 'remaining in' + sp2 + str(perctg_2) + '%' + sp9 + str(report['time_fwd']) + sp0)
 
 
 def print_default(db_rows, sis, arg):
@@ -1032,12 +1033,11 @@ def print_default(db_rows, sis, arg):
 
     # Finally print all
     if not arg.csv:  # Define content/spaces between values
-        sp1, sp5 = ': \t', '   '
+        sp1, sp5, sp8, sp9 = ': \t', '   ', ' ', '  -  '
         sp0 = sp7 = ''
-        sp4 = sp8 = ' '
     else:
         sp0, sp7, sp8 = '"', ',""', ''
-        sp1 = sp4 = sp5 = '","'
+        sp1 = sp5 = sp9 = '","'
 
     if arg.power:
         uptime = {'average': '(r:' + str(cal['ave']['rntime']) + ' + s:' + str(cal['ave']['slptime']) + ')', \
@@ -1054,7 +1054,7 @@ def print_default(db_rows, sis, arg):
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp5 + 'until' + sp5 + str(tstamp['max']) + sp0)
     else:
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp0 + (sp7 * 2))
-    print(sp0 + 'System shutdowns' + sp1 + str(shdown['ok']) + sp4 + 'ok' + sp5 + '-' + sp5 + str(shdown['bad']) + sp4 + 'bad' + sp0)
+    print(sp0 + 'System shutdowns' + sp1 + str(shdown['ok']) + sp8 + 'ok' + sp9 + str(shdown['bad']) + sp8 + 'bad' + sp0)
     print(sp0 + 'System life' + sp1 + (sp8 * 8) + str(sys_life) + sp0)
     if arg.bootid:
         print(sp0 + 'System boot IDs' + sp1 + str(cnt['bootid']) + sp0)
@@ -1063,8 +1063,8 @@ def print_default(db_rows, sis, arg):
     if not arg.csv:
         print('')
 
-    print(sp0 + 'System uptime' + sp1 + (sp8 * 8) + uptime['sys_rate'] + sp5 + '-' + sp5 + uptime['sys_time'] + sp0)
-    print(sp0 + 'System downtime' + sp1 + str(rate['down']) + '%' + sp5 + '-' + sp5 + str(cal['tot']['downtime']) + sp0)
+    print(sp0 + 'System uptime' + sp1 + (sp8 * 8) + uptime['sys_rate'] + sp9 + uptime['sys_time'] + sp0)
+    print(sp0 + 'System downtime' + sp1 + str(rate['down']) + '%' + sp9 + str(cal['tot']['downtime']) + sp0)
     if not arg.csv:
         print('')
 
