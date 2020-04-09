@@ -1033,11 +1033,12 @@ def print_default(db_rows, sis, arg):
 
     # Finally print all
     if not arg.csv:  # Define content/spaces between values
-        sp1, sp5, sp8, sp9 = ': \t', '   ', ' ', '  -  '
+        sp1, sp5, sp9 = ': \t', '   ', '  -  '
+        sp4 = sp8 = ' '
         sp0 = sp7 = ''
     else:
         sp0, sp7, sp8 = '"', ',""', ''
-        sp1 = sp5 = sp9 = '","'
+        sp1 = sp4 = sp5 = sp9 = '","'
 
     if arg.power:
         uptime = {'average': '(r:' + str(cal['ave']['rntime']) + ' + s:' + str(cal['ave']['slptime']) + ')', \
@@ -1054,7 +1055,7 @@ def print_default(db_rows, sis, arg):
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp5 + 'until' + sp5 + str(tstamp['max']) + sp0)
     else:
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp0 + (sp7 * 2))
-    print(sp0 + 'System shutdowns' + sp1 + str(shdown['ok']) + sp8 + 'ok' + sp9 + str(shdown['bad']) + sp8 + 'bad' + sp0)
+    print(sp0 + 'System shutdowns' + sp1 + str(shdown['ok']) + sp4 + 'ok' + sp9 + str(shdown['bad']) + sp4 + 'bad' + sp0)
     print(sp0 + 'System life' + sp1 + (sp8 * 8) + str(sys_life) + sp0)
     if arg.bootid:
         print(sp0 + 'System boot IDs' + sp1 + str(cnt['bootid']) + sp0)
