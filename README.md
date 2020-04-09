@@ -12,6 +12,7 @@ Tuptime is a tool for report the historical and statistical real time of the sys
 * Debian: https://packages.debian.org/tuptime
 * Ubuntu: https://packages.ubuntu.com/tuptime
 * ArchLinux: https://aur.archlinux.org/packages/tuptime
+* CentOS, Fedora: https://copr.fedorainfracloud.org/coprs/frankcrawford/tuptime/
 * FreeBSD: https://www.freshports.org/sysutils/tuptime
 
 
@@ -23,7 +24,7 @@ Clone the repo:
 
 	git clone https://github.com/rfrail3/tuptime.git
 
-Copy the "tuptime" file located under "latest/" directory to "/usr/bin/" and make it executable:
+Copy the 'tuptime' file located under 'latest/' directory to '/usr/bin/' and make it executable:
 
 	cp tuptime/src/tuptime /usr/bin/tuptime
 	chmod ugo+x /usr/bin/tuptime
@@ -36,8 +37,8 @@ Run first with a privileged user:
 
 	tuptime
 
-Pick from "src/" folder the right file for your cron and init manager, setup both
-properly. See "tuptime-manual.txt" for more information.
+Pick from 'src/' folder the right file for your cron and init manager, setup both
+properly. See 'tuptime-manual.txt' for more information.
 
 
 #### Examples
@@ -104,7 +105,7 @@ Or this, with -l | --list option:
 
 - It doesn't run as a daemon, at least, it only needs execution when the init manager startup and shutdown the system. To avoid issues with a switch off without a proper shutdown, like power failures, a cron job and a .timer unit are shipped with the project to update the registers each n minutes. As a system administrator, you can easily choose the best number for your particular system requirements.
 
-- It is written in Python using common modules and as few as possible, easy to see what is inside it, and modify it for fit for your particular use case.
+- It is written in Python using common modules and as few as possible, fast execution, easy to see what is inside it, and modify it for fit for your particular use case.
 
 - It registers the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it has the option to output the registers in seconds and epoch or/and in csv format, easy to pipe it to other commands.
 

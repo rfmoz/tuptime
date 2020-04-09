@@ -15,7 +15,7 @@ Tuptime report historical and statistical real time of the system, keeping it be
 Indeed, it can:
 
   - Count system startups
-  - Register first boot time (a.k.a. installation time)
+  - Register first boot time (since installation time)
   - Count nicely and accidentally shutdowns 
   - Uptime and downtime percentage since first boot time
   - Accumulated system uptime (running and sleeping), downtime and total
@@ -60,8 +60,7 @@ For Linux systems:
 
        Arch    - https://aur.archlinux.org/packages/tuptime/
 
-       Fedora
-       CentOS  - https://copr.fedorainfracloud.org/coprs/frankcrawford/tuptime/
+       Fedora, CentOS  - https://copr.fedorainfracloud.org/coprs/frankcrawford/tuptime/
 
 
    + Using bash script:
@@ -130,7 +129,8 @@ For BSDs systems:
 
        Add the suggested cron entry and enable it on rc:
 
-           # echo 'tuptime_enable="YES"' >> /etc/rc.conf
+           # sysrc tuptime_enable=YES
+           # service tuptime start
 
    + Manual install on FreeBSD, OpenBSD, NetBSD and derivates:
 
@@ -275,7 +275,7 @@ These are the command line options, no configuration file is used:
 -f <FILE>, --filedb=<FILE>
   Define an alternative database file. Default is located in 
   '/var/lib/tuptime/tuptime.db'. It takes precedence over environmental variable
-  "TUPTIME_DBF".
+  'TUPTIME_DBF'.
 
   Examples:
          tuptime -f /var/lib/tuptime/tuptime.db  # (Default)
@@ -296,7 +296,7 @@ These are the command line options, no configuration file is used:
 -i, --invert
   Print startup number in reverse count starting since last boot. Only works in
   conjunction with (-t), (-l), or (--tat) options. Equal than the output of 
-  "journalctl --list-boots".
+  'journalctl --list-boots'.
 
   Examples:
          tuptime -t -i
@@ -533,7 +533,7 @@ Removed on version 5 and equivalent output:
   Largest uptime:      tuptime -t -ro u | head -3
   Shortest uptime:     tuptime -t -o u | head -3
   Largest downtime:    tuptime -t -ro d | head -3
-  Shortest downtime:   tuptime -t -o d | head -4
+  Shortest downtime:   tuptime -t -o d | head -3
 
 
 
@@ -542,19 +542,8 @@ Removed on version 5 and equivalent output:
 ======================================
 
 From 2.x to 3.x:
-    If this error appears:
-    
-    ...(a few lines)...
-    sqlite3.OperationalError: no such column: endst
-    
-    or:
-    
-    ...(a few lines)...
-        db_rows[-1][4] = opt.endst
-    IndexError: list assignment index out of range
-    
-    It is because the database have the format of the 2.x release. Please, execute the
-    following scripts for the migration: 
+    From 2.x to 3.0, reorder columns, added offbtime, endst and downtime. From 3.0 to 3.1,
+    added kernel column. The migration scripts are loated at:
     
     https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate-2.0-to-3.0.sh
     https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate-3.0-to-3.1.sh
@@ -577,7 +566,7 @@ From 4.x to 5.x:
 | Database Specs |
 ==================
 
-Tuptime use a sqlite3 database located in "/var/lib/tuptime/tuptime.db" with
+Tuptime use a sqlite3 database located in '/var/lib/tuptime/tuptime.db' with
 the following format:
 
 tuptime (bootid text,
@@ -600,15 +589,17 @@ endst    Type of shutdown [1 ok | 0 bad]
 downtime Downtime seconds
 kernel   Name of the kernel
 
-The number of startup sequency is extracted from "rowid", the signed integer 
+The number of startup sequency is extracted from 'rowid', the signed integer 
 key that uniquely identifies the row within its table in sqlite.
 
 For reset all the values, simply delete the database file.
 
-It is possible to query and modify it directly. But if a complete row is
-deleted and the database is not recreate completely (vacuum), rowid keep the
-real information about startup number. Tuptime will advert about it if the
-verbose mode is enabled.
+It is possible to query and modify it directly, but it's better to use any of
+the scripts located under 'misc/scripts' for modify, join or check it.
+
+If a complete row is deleted and the database is not recreate completely (vacuum),
+rowid keep the real information about startup number. Tuptime will advert about
+it if the verbose mode is enabled.
 
 
 
@@ -622,7 +613,7 @@ when the uptime value is low.
 Take care of the harware clock RTC (if the system have), or how the operating
 system initializes their clock at startup. Tuptime register the date reported by
 the system at first execution after boot and use it to calculate the previous
-shutdown time and the current uptime value. The command "who -b" do more less
+shutdown time and the current uptime value. The command 'who -b' do more less
 the same.
 
 If the system starts with a incorrect date and time and some external time sync is
@@ -634,38 +625,38 @@ Pi don't have any clock and initializes from 1 January 1970.
 As Tuptime have time dependency, their Systemd service unit pulls time-sync.target
 and it's ordered before it. Note that it doesn't assure that the clock is syncronized,
 only that it needs it. On last releases of Systemd, there is a new unit that delays
-reaching time-sync.target until stay on sync "systemd-time-wait-sync",but it isn't
+reaching time-sync.target until stay on sync 'systemd-time-wait-sync',but it isn't
 enable by default nowadays.
 
 A few recomendations / workarounds are:
 
-Enable "systemd-time-wait-sync". But take care because it can delay the execution
+Enable 'systemd-time-wait-sync'. But take care because it can delay the execution
 more than expected and a startup can be lost. Check open issues on Systemd's GitHub.
 
-Use "systemd-timesyncd" if it is available (timedatectl set-ntp true), it can also
+Use 'systemd-timesyncd' if it is available (timedatectl set-ntp true), it can also
 keep the time in systems without hardware clock. Disable any other time sync service
-like "ntp", "chrony", "openntpd" to avoid issues, most related with the use in
-conjuntion with "systemd-time-wait-sync".
+like 'ntp', 'chrony', 'openntpd' to avoid issues, most related with the use in
+conjuntion with 'systemd-time-wait-sync'.
 
-Use any time sync service like "ntp", "chrony" or "openntpd" and disable
-"systemd-timesyncd". Add the time sync service requirement on "tuptime.service" at
-the end of "After=" and "Wants=" lines.
+Use any time sync service like 'ntp', 'chrony' or 'openntpd' and disable
+'systemd-timesyncd'. Add the time sync service requirement on 'tuptime.service' at
+the end of 'After=' and 'Wants=' lines.
 
-Force a time sync in the "tuptime.unit" file. Add under "[Service]" definition the 
-line "ExecStartPre=/usr/bin/ntpdate pool.ntp.org"
+Force a time sync in the 'tuptime.unit' file. Add under '[Service]' definition the 
+line 'ExecStartPre=/usr/bin/ntpdate pool.ntp.org'
 
 If the systems is a single-board computer, like Raspberry Pi or Beaglebone, use a
 RTC module and configure it properly.
 
 Without Systemd, use a ntp client and delay the execution of tuptime until the time
-is synced. Also, "ntp-wait" can be added to the init script and the cron line
+is synced. Also, 'ntp-wait' can be added to the init script and the cron line
 preceeding the tuptime execution.
 
 Try and failure is the best way to find the right solution for the environment in 
 which the system is running.
 
-The drift value that Tuptime have reference is reported in verbose mode "tuptime -v"
-in the line "INFO:Drift over btime". Values around +-1 are very common and can be
+The drift value that Tuptime have reference is reported in verbose mode 'tuptime -v'
+in the line 'INFO:Drift over btime'. Values around +-1 are common and can be
 considered as normal.
 
 Systemd timer issues:
@@ -711,8 +702,8 @@ Convert epoch to human date:
 
 More info about date input formats:
 	man date
-	"https://www.gnu.org/software/coreutils/manual/html_node/
-	Date-input-formats.html#Date-input-formats"
+	'https://www.gnu.org/software/coreutils/manual/html_node/
+	Date-input-formats.html#Date-input-formats'
 
 
 
@@ -721,19 +712,19 @@ More info about date input formats:
 ===========
 
 Tuptime can be executed with 'root' user, but it's recommendable the use of an
-unprivileged user, like 'tuptime' as the installation section reflects for
-avoid security problems. In any case, if the database file is not writable by
-the user that execute tuptime, the changes are not saved. This situation is
-covered for print values, but not for update database, for that reason, a 
-user who can write in the database file must to execute tuptime for update values
-at startup and shutdown at least.
+unprivileged user, like 'tuptime' as the installation section points to avoid
+security problems. In any case, if the database file is not writable by the
+current execution user, the changes are not saved. This situation is covered
+for print values, but not for update database, that's why a user who can write
+in the database file must execute tuptime, usually from the init manager, to
+update values at startup and shutdown, at least.
 
 Kernel name is registered each time that tuptime update values. If ksplice is
 used to update the kernel, last kernel will have the whole time assignment
 since the last system start.
 
 Tuptime is backed by a SQLite dabase. It is highly resilient but fails can
-occur in any software and hardware level producing a database corruption. Here
+occur in any software and hardware level, producing a database corruption. Here
 is an excellent documentation about it https://www.sqlite.org/howtocorrupt.html
 
 The uptime reference is linked with the wall clock time elapsed since boot, not
