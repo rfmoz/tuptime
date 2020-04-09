@@ -5,7 +5,7 @@
 
 Install dependencies, latest versions:
 
-    # pkg install python3 py37-sqlite3 git
+    # pkg install python3 py36-sqlite3 git
 
 Clone repository and copy executable file:
 
