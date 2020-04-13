@@ -389,8 +389,8 @@ def get_os_values():
     return sis
 
 
-def assure_state_db(sis, arg):
-    """Assure state of DB file and related directories"""
+def gain_db(sis, arg):
+    """Assure DB state and get DB connection"""
 
     if arg.db_file == DB_FILE:  # If db_file keeps default value
         # Check for DB environment variable
@@ -422,14 +422,26 @@ def assure_state_db(sis, arg):
                          '(bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
                          'offbtime integer, endst integer, downtime integer, kernel text)')
             conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
-                         (str(sis['bootid']), str(sis['btime']), str(sis['uptime']),
-                          str(sis['rntime']), str(sis['slptime']), None,
-                          str(arg.endst), None, str(sis['kernel'])))
+                         (str(sis['bootid']), str(sis['btime']), str(sis['uptime']), str(sis['rntime']),
+                          str(sis['slptime']), None, str(arg.endst), None, str(sis['kernel'])))
             db_conn.commit()
             db_conn.close()
     except Exception as exp_file:
         logging.error('Checking DB file "%s": %s', str(arg.db_file), str(exp_file))
         sys.exit(-1)
+
+    # Get DB connection
+    db_conn = sqlite3.connect(arg.db_file)
+    db_conn.row_factory = sqlite3.Row
+    conn = db_conn.cursor()
+
+    # Check if DB have the old format
+    columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
+    if 'rntime' and 'slptime' and 'bootid' not in columns:
+        logging.warning('DB format outdated')
+        upgrade_db(db_conn, conn, columns, arg)
+
+    return db_conn, conn
 
 
 def upgrade_db(db_conn, conn, columns, arg):
@@ -798,7 +810,7 @@ def print_table(db_rows, last_st, arg):
     side_spaces = 3
     colpad = []
 
-    # Remove unused cols
+    # Remove unused optional cols
     if not arg.bootid:
         tbl[0].remove('Boot ID')
 
@@ -840,13 +852,8 @@ def print_table(db_rows, last_st, arg):
         # Print cols by row
         for row in tbl:
 
-            # First col print
-            if arg.invert:
-                sys.stdout.write(str(row[0]).rjust(colpad[0]))
-            else:
-                sys.stdout.write(str(row[0]).ljust(colpad[0]))
-
-            # Next ones
+            # First raw and next ones with side spaces
+            sys.stdout.write(str(row[0]).rjust(colpad[0]))
             for i in range(1, len(row)):
                 if i in al_left:  # Aligned side
                     col = (side_spaces * ' ') + str(row[i]).ljust(colpad[i])
@@ -1012,7 +1019,7 @@ def print_default(db_rows, sis, arg):
     cnt['kernel'] = len(set(cnt['kernel']))
     cnt['bootid'] = len(set(cnt['bootid']))
 
-    # Ouput stlye: Apply human or keep seconds
+    # Ouput style: Apply human or keep seconds
     if not arg.seconds:
         if tstamp['max'] is not None:
             tstamp['max'] = datetime.fromtimestamp(tstamp['max']).strftime(arg.date_format)
@@ -1041,14 +1048,14 @@ def print_default(db_rows, sis, arg):
         sp1 = sp4 = sp5 = sp9 = '","'
 
     if arg.power:
-        uptime = {'average': '(r:' + str(cal['ave']['rntime']) + ' + s:' + str(cal['ave']['slptime']) + ')', \
-                  'current': '(r:' + str(sis['rntime']) + ' + s:' + str(sis['slptime']) + ')', \
-                  'sys_rate': '(r:' + str(rate['rn']) + '% + s:' + str(rate['slp']) + '%)', \
+        uptime = {'average': '(r:' + str(cal['ave']['rntime']) + ' + s:' + str(cal['ave']['slptime']) + ')',
+                  'current': '(r:' + str(sis['rntime']) + ' + s:' + str(sis['slptime']) + ')',
+                  'sys_rate': '(r:' + str(rate['rn']) + '% + s:' + str(rate['slp']) + '%)',
                   'sys_time': '(r:' + str(cal['tot']['rntime']) + ' + s:' + str(cal['tot']['slptime']) + ')'}
     else:
-        uptime = {'average': str(cal['ave']['uptime']), \
-                  'current': str(sis['uptime']), \
-                  'sys_rate': str(rate['up']) + '%', \
+        uptime = {'average': str(cal['ave']['uptime']),
+                  'current': str(sis['uptime']),
+                  'sys_rate': str(rate['up']) + '%',
                   'sys_time': str(cal['tot']['uptime'])}
 
     if arg.tu or arg.until:
@@ -1081,139 +1088,8 @@ def print_default(db_rows, sis, arg):
             print(sp0 + '...with kernel' + sp1 + str(sis['kernel']) + sp0)
 
 
-def main():
-    """main entry point, core logic and database manage"""
-
-    arg = get_arguments()
-
-    sis = get_os_values()
-
-    assure_state_db(sis, arg)
-
-    db_conn = sqlite3.connect(arg.db_file)
-    db_conn.row_factory = sqlite3.Row
-    conn = db_conn.cursor()
-
-    # Check if DB have the old format
-    columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'slptime' and 'bootid' not in columns:
-        logging.warning('DB format outdated')
-        upgrade_db(db_conn, conn, columns, arg)
-
-    conn.execute('select bootid, btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
-    prev = dict(zip(['bootid', 'btime', 'uptime', 'endst'], conn.fetchone()))
-    prev['buptime'] = prev['btime'] + prev['uptime']
-
-    logging.info('Last bootid from DB = %s', str(prev['bootid']))
-    logging.info('Last btime from DB = %s', str(prev['btime']))
-    logging.info('Last uptime from DB = %s', str(prev['uptime']))
-    logging.info('Last buptime from DB = %s', str(prev['buptime']))
-    logging.info('Last endst from DB = %s', str(prev['endst']))
-
-    # - Test if system was resterted
-    #
-    # How tuptime does it:
-    #
-    #    If boot id exists (only on Linux nowadays), checking if its value changed and isn't none
-    #
-    #    Rest of the cases, checking if the value resultant from previous btime plus previous uptime
-    #    (both saved into DB) is lower than current btime or (to catch shutdowns lower than a second)
-    #    equal to current btime and current uptime is lower than previous uptime
-    #
-    # Checking boot id is the most secure way to detect a new boot. Working with time values is not 100% relialible.
-    # In some particular cases the btime value from /proc/stat or from the system clock functions may change.
-    # It is affected by discontinuous jumps in the system time (e.g., if the system administrator manually changes
-    # the clock), and by the incremental adjustments performed by adjtime(3) and NTP. Testing only prev btime vs
-    # current btime can produce a false startup register, that's why is there the uptime value.
-    # This issue also happen on virtualized enviroments, servers with high load or with high disk I/O. Also related
-    # to kernel system clock frequency, computation of jiffies / HZ and the problema of lost ticks.
-    # When tuptime doesn't register a new boot, only an update of the records, it tries to fix the drift.
-    #
-    # More info:
-    #    https://tools.ietf.org/html/rfc1589
-    #    https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=119971
-    #    http://man7.org/linux/man-pages/man2/clock_gettime.2.html
-    #    http://unix.stackexchange.com/questions/118631/how-can-i-measure-and-prevent-clock-drift
-    #
-    # To avoid lost an uptime record, please be sure that the system have time sync enabled, the init/systemd
-    # script and the cron task works as expected.
-
-    if arg.update:
-
-        if 'None' != prev['bootid'] != sis['bootid'] != 'None':
-            logging.info('System restarted = True from bootid')
-            if prev['buptime'] > sis['btime']:  # Assure btime. Never lower than before
-                sis['btime'] = prev['buptime']
-            new_boot = True
-
-        elif prev['buptime'] < sis['btime'] or (prev['buptime'] == sis['btime'] and sis['uptime'] < prev['uptime']):
-            logging.info('System restarted = True from btime')
-            new_boot = True
-
-        else:
-            logging.info('System restarted = False')
-            new_boot = False
-
-        if new_boot:
-            sis['offbtime'] = prev['buptime']
-            sis['downtime'] = sis['btime'] - prev['buptime']
-            logging.info('Recording offbtime into DB = %s', str(sis['offbtime']))
-            logging.info('Recording downtime into DB = %s', str(sis['downtime']))
-
-            try:
-                # Save downtimes for previous boot
-                conn.execute('update tuptime set \
-                             offbtime = ' + str(sis['offbtime']) + ', downtime = ' + str(sis['downtime']) +
-                             ' where rowid = (select max(rowid) from tuptime)')
-
-                # Create a new boot register
-                conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
-                             (str(sis['bootid']), str(sis['btime']), str(sis['uptime']),
-                              str(sis['rntime']), str(sis['slptime']), None,
-                              str(arg.endst), None, str(sis['kernel'])))
-                logging.info('DB info = insert ok')
-
-            except:
-                # If you see this error, maybe the systemd script isn't executed at startup
-                # or the DB file (DB_FILE) have wrong permissions.
-                logging.error('Detected a new system startup but the values have not been saved into DB.')
-                logging.error('Tuptime execution user can\'t write into DB file: %s', str(arg.db_file))
-                sys.exit(-1)
-
-        else:
-            # Adjust time drift. Check only when system wasn't restarted
-            sis = control_drift(prev, sis)
-
-            # If a graceful shutdown was just registered before, let 5 seconds to next update to avoid being overlaped
-            # with regular schedule execution (it can happen at shutdown)
-            if prev['endst'] and (prev['uptime'] + 5 > sis['uptime']) and not arg.endst:
-                logging.info('DB info = graceful pass')
-            else:
-                try:
-                    # Update current boot records
-                    conn.execute('update tuptime set uptime = ' + str(sis['uptime']) +
-                                 ', rntime = ' + str(sis['rntime']) + ', slptime = ' + str(sis['slptime']) +
-                                 ', endst = ' + str(arg.endst) + ', kernel = \'' + str(sis['kernel']) +
-                                 '\' where rowid = (select max(rowid) from tuptime)')
-                    logging.info('DB info = update ok')
-
-                except sqlite3.OperationalError:
-                    logging.info('DB info = update skip')
-    else:
-        logging.info('DB info = skip by arg.update')
-
-    db_conn.commit()
-
-    # Exit if silent is enabled. Avoid wasting time in print operations
-    if arg.silent:
-        db_conn.close()
-        logging.info('Silent mode')
-        sys.exit(0)
-
-    # Get all rows to determine print values. Convert from sqlite row object to dict to allow item allocation
-    conn.execute('select rowid as startup, * from tuptime')
-    db_rows = [dict(row) for row in conn.fetchall()]
-    db_conn.close()
+def output_hub(db_rows, sis, arg):
+    """Manage values for print"""
 
     last_st = db_rows[-1]['startup']
     if len(db_rows) != last_st:  # Real startups are not equal to enumerate startups
@@ -1255,6 +1131,122 @@ def main():
         print_tat(db_rows, sis, last_st, arg)
     else:
         print_default(db_rows, sis, arg)
+
+
+def check_new_boot(prev, sis):
+    """Test if system have new boot"""
+
+    # How tuptime does it:
+    #
+    #    If boot id exists (only on Linux nowadays), checking if its value changed and isn't none
+    #
+    #    Rest of the cases, checking if the value resultant from previous btime plus previous uptime
+    #    (both saved into DB) is lower than current btime or (to catch shutdowns lower than a second)
+    #    equal to current btime and current uptime is lower than previous uptime
+    #
+    # Checking boot id is the most secure way to detect a new boot. Working with time values is not 100% relialible.
+    # In some particular cases the btime value from /proc/stat or from the system clock functions may change.
+    # When tuptime doesn't register a new boot, only an update of the records, it tries to fix the drift.
+    #
+    # To avoid lost an uptime record, please be sure that the system have time sync enabled, the init/systemd
+    # script and the cron task works as expected.
+
+    if 'None' != prev['bootid'] != sis['bootid'] != 'None':
+        logging.info('System restarted = True from bootid')
+        return True
+
+    elif prev['buptime'] < sis['btime'] or (prev['buptime'] == sis['btime'] and sis['uptime'] < prev['uptime']):
+        logging.info('System restarted = True from btime')
+        return True
+
+    else:
+        logging.info('System restarted = False')
+        return False
+
+
+def main():
+    """Main entry point, core logic"""
+
+    arg = get_arguments()
+    sis = get_os_values()
+    db_conn, conn = gain_db(sis, arg)
+
+    conn.execute('select bootid, btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
+    prev = dict(zip(['bootid', 'btime', 'uptime', 'endst'], conn.fetchone()))
+    prev['buptime'] = prev['btime'] + prev['uptime']
+
+    logging.info('Last bootid from DB = %s', str(prev['bootid']))
+    logging.info('Last btime from DB = %s', str(prev['btime']))
+    logging.info('Last uptime from DB = %s', str(prev['uptime']))
+    logging.info('Last buptime from DB = %s', str(prev['buptime']))
+    logging.info('Last endst from DB = %s', str(prev['endst']))
+
+    if arg.update:
+
+        # Check if system was restarted
+        if check_new_boot(prev, sis):
+
+            sis['offbtime'] = prev['buptime']
+            if sis['offbtime'] > sis['btime']:  # Assure btime. Never lower than shutdown
+                sis['btime'] = sis['offbtime']
+            sis['downtime'] = sis['btime'] - prev['buptime']
+            logging.info('Recording offbtime into DB = %s', str(sis['offbtime']))
+            logging.info('Recording downtime into DB = %s', str(sis['downtime']))
+
+            try:
+                # Save downtimes for previous boot
+                conn.execute('update tuptime set \
+                             offbtime = ' + str(sis['offbtime']) + ', downtime = ' + str(sis['downtime']) +
+                             ' where rowid = (select max(rowid) from tuptime)')
+
+                # Create a new boot register
+                conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
+                             (str(sis['bootid']), str(sis['btime']), str(sis['uptime']), str(sis['rntime']),
+                              str(sis['slptime']), None, str(arg.endst), None, str(sis['kernel'])))
+                logging.info('DB info = insert ok')
+
+            except:
+                # If you see this error, maybe the systemd script isn't executed at startup
+                # or the DB file (DB_FILE) have wrong permissions.
+                logging.error('Detected a new system startup but the values have not been saved into DB.')
+                logging.error('Tuptime execution user can\'t write into DB file: %s', str(arg.db_file))
+                sys.exit(-1)
+
+        else:
+            # Adjust time drift. Check only when system wasn't restarted
+            sis = control_drift(prev, sis)
+
+            # If a graceful shutdown was just registered before, let 5 seconds to next update to avoid being overlaped
+            # with regular schedule execution (it can happen at shutdown)
+            if prev['endst'] and (prev['uptime'] + 5 > sis['uptime']) and not arg.endst:
+                logging.info('DB info = graceful pass')
+            else:
+                try:
+                    # Update current boot records
+                    conn.execute('update tuptime set uptime = ' + str(sis['uptime']) +
+                                 ', rntime = ' + str(sis['rntime']) + ', slptime = ' + str(sis['slptime']) +
+                                 ', endst = ' + str(arg.endst) + ', kernel = \'' + str(sis['kernel']) +
+                                 '\' where rowid = (select max(rowid) from tuptime)')
+                    logging.info('DB info = update ok')
+
+                except sqlite3.OperationalError:
+                    logging.info('DB info = update skip')
+    else:
+        logging.info('DB info = skip by arg.update')
+
+    db_conn.commit()
+
+    if arg.silent:
+        db_conn.close()
+        logging.info('Silent mode')
+
+    else:
+        # Get all rows to determine print values. Convert from sqlite row object to dict to allow item allocation
+        conn.execute('select rowid as startup, * from tuptime')
+        db_rows = [dict(row) for row in conn.fetchall()]
+        db_conn.close()
+
+        output_hub(db_rows, sis, arg)
 
 
 if __name__ == "__main__":
