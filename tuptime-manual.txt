@@ -618,9 +618,13 @@ the same.
 
 If the system starts with a incorrect date and time and some external time sync is
 used, like ntpd or timesyncd, a few time after boot the startup date reported by
-the system may change. A slightly drift is compensate over the uptime value, but a
-very high drift can cause inconsistent registers and output, for example, Raspberry
-Pi don't have any clock and initializes from 1 January 1970.
+the system may change. This behaviour is also related with adjustments performed by
+adjtime(3), systems running inside virtualized enviroments, servers with high load or
+with high disk I/O, wrong computation of jiffies / HZ and the problema of lost ticks.
+
+A slightly drift is compensate over the uptime value, but a very high drift can cause
+inconsistent registers and output, for example, Raspberry Pi don't have any clock and
+initializes from 1 January 1970.
 
 As Tuptime have time dependency, their Systemd service unit pulls time-sync.target
 and it's ordered before it. Note that it doesn't assure that the clock is syncronized,
@@ -669,6 +673,7 @@ Good reads:
 
     https://tools.ietf.org/html/rfc1589
     https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=119971
+    http://man7.org/linux/man-pages/man2/clock_gettime.2.html
     https://unix.stackexchange.com/questions/118631/how-can-i-measure-and-prevent-clock-drift
     Timekeeping in VMware Virtual Machines (Document)
 
