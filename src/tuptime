@@ -370,7 +370,7 @@ def get_os_values():
     logging.info('Python = %s', str(platform.python_version()))
     try:
         logging.info('Current locale = %s', str(locale.getlocale()))
-    except:
+    except Exception:
         logging.info('Current locale = None')
     logging.info('Boot ID = %s', str(sis['bootid']))
     logging.info('Uptime = %s', str(sis['uptime']))
@@ -1208,7 +1208,7 @@ def main():
                               str(sis['slptime']), None, str(arg.endst), None, str(sis['kernel'])))
                 logging.info('DB info = insert ok')
 
-            except:
+            except Exception:
                 # If you see this error, maybe the systemd script isn't executed at startup
                 # or the DB file (DB_FILE) have wrong permissions
                 logging.error('Detected a new system startup but the values have not been saved into DB.')
