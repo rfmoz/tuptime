@@ -96,7 +96,7 @@ else
 	SELX=0
 fi
 
-# Temporary dir for clone repo into it
+# Temporary dir to download sources
 F_TMP1=$(mktemp -d)
 
 echo ""
@@ -178,6 +178,11 @@ elif [ "${PID1}" = 'openrc-init' ]; then
 	rc-update add tuptime default && rc-service tuptime start || exit
 	echo '  [OK]'
 
+elif [ "${PID1}" = 'runit' ] && [ -f /etc/rc.local ] && [ -f /etc/rc.shutdown ]; then
+	echo "+ Runit startup and shutdown execution"
+	echo 'tuptime -x' >> /etc/rc.local || exit
+	echo 'tuptime -gx' >> /etc/rc.shutdown || exit
+
 else
 	echo "#########################################"
 	echo " WARNING - Any init file for your system"
@@ -191,12 +196,20 @@ if [ -d /etc/cron.d/ ]; then
 	cp -a "${F_TMP1}"/src/cron.d/tuptime /etc/cron.d/tuptime || exit
 	((SELX)) && restorecon -vF /etc/cron.d/tuptime
 	echo '  [OK]'
+
 elif [ -d "${SYSDPATH}" ]; then
 	echo "+ Copying tuptime-cron.timer and .service"
 	cp -a "${F_TMP1}"/src/systemd/tuptime-cron.*  "${SYSDPATH}" || exit
 	((SELX)) && restorecon -vF "${SYSDPATH}"tuptime-cron.*
 	systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
 	echo '  [OK]'
+
+elif [ -d /etc/cron.hourly/ ]; then
+	echo "+ Cron hourly execution"
+	printf '#!/bin/sh \n tuptime -x' > /etc/cron.hourly/tuptime || exit
+	chmod 744 /etc/cron.hourly/tuptime || exit
+	echo '  [OK]'
+
 else
 	echo "#########################################"
 	echo " WARNING - Any cron file for your system"
