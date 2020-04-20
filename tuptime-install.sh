@@ -2,7 +2,7 @@
 
 #
 # Tuptime installation linux script
-# v.1.8.6
+# v.1.8.7
 #
 # Usage:
 #	bash tuptime-install.sh		Normal installation
@@ -208,6 +208,12 @@ elif [ -d /etc/cron.hourly/ ]; then
 	echo "+ Cron hourly execution"
 	printf '#!/bin/sh \n tuptime -x' > /etc/cron.hourly/tuptime || exit
 	chmod 744 /etc/cron.hourly/tuptime || exit
+	echo '  [OK]'
+
+elif [ -d /etc/periodic/15min/ ]; then
+	echo "+ Periodic execution"
+	printf '#!/bin/sh \n tuptime -x' > /etc/periodic/15min/tuptime || exit
+	chmod 744 /etc/periodic/15min/tuptime || exit
 	echo '  [OK]'
 
 else
