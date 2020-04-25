@@ -67,7 +67,7 @@ For Linux systems:
       
        Download and execute the installation script:
 
-           # bash <(curl -s https://raw.githubusercontent.com/rfrail3/tuptime/master/tuptime-install.sh)
+           # bash <(curl -Ls https://git.io/tuptime-install.sh)
 
    + Manual install:
 
@@ -530,10 +530,10 @@ Current uptime:
 
 Removed on version 5 and equivalent output:
 
-  Largest uptime:      tuptime -t -ro u | head -3
-  Shortest uptime:     tuptime -t -o u | head -3
-  Largest downtime:    tuptime -t -ro d | head -3
-  Shortest downtime:   tuptime -t -o d | head -3
+  Largest uptime:      tuptime -tor u | head -3
+  Shortest uptime:     tuptime -to u | head -3
+  Largest downtime:    tuptime -tor d | head -3
+  Shortest downtime:   tuptime -to d | head -3
 
 
 
