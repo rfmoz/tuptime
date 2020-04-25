@@ -330,8 +330,8 @@ def get_os_values():
     # Linux
     if sys.platform.startswith('linux'):
         sis = os_linux(sis)
-    # BSDs
-    elif sys.platform.startswith(('freebsd', 'darwin', 'dragonfly', 'openbsd', 'netbsd')):
+    # BSD and related
+    elif sys.platform.startswith(('freebsd', 'darwin', 'dragonfly', 'openbsd', 'netbsd', 'sunos')):
         sis = os_bsd(sis)
     # elif:
     #     other_os()
