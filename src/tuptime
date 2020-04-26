@@ -939,8 +939,6 @@ def print_tat(db_rows, sis, last_st, arg):
         print(sp0 + (sp8 * 6) + '...boot ID' + sp2 + str(report['bootid']) + sp0)
     if arg.kernel:
         print(sp0 + (sp8 * 2) + '...with kernel' + sp2 + str(report['kernel']) + sp0)
-    if (arg.bootid or arg.kernel) and not arg.csv:
-        print('')
     print(sp0 + (sp8 * 6) + 'elapsed in' + sp2 + str(perctg_1) + '%' + sp9 + str(report['time']) + sp0)
     print(sp0 + (sp8 * 4) + 'remaining in' + sp2 + str(perctg_2) + '%' + sp9 + str(report['time_fwd']) + sp0)
 
@@ -1051,10 +1049,10 @@ def print_default(db_rows, sis, arg):
         sp1 = sp4 = sp5 = sp9 = '","'
 
     if arg.power:
-        uptime = {'average': '(r:' + str(cal['ave']['rntime']) + ' + s:' + str(cal['ave']['slptime']) + ')',
-                  'current': '(r:' + str(sis['rntime']) + ' + s:' + str(sis['slptime']) + ')',
-                  'sys_rate': '(r:' + str(rate['rn']) + '% + s:' + str(rate['slp']) + '%)',
-                  'sys_time': '(r:' + str(cal['tot']['rntime']) + ' + s:' + str(cal['tot']['slptime']) + ')'}
+        uptime = {'average': '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')',
+                  'current': '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')',
+                  'sys_rate': '(rn: ' + str(rate['rn']) + '% + slp: ' + str(rate['slp']) + '%)',
+                  'sys_time': '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')'}
     else:
         uptime = {'average': str(cal['ave']['uptime']),
                   'current': str(sis['uptime']),
