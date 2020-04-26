@@ -545,17 +545,17 @@ def control_drift(prev, sis):
 def time_conv(secs):
     """Convert seconds to human readable syle"""
 
-    dtm = {'yr': 0, 'd': 0, 'h': 0, 'min': 0, 's': 0}
+    dtm = {'yr': 0, 'd': 0, 'h': 0, 'm': 0, 's': 0}
     line = ''
 
     # Get human values from seconds
-    dtm['min'], dtm['s'] = divmod(secs, 60)
-    dtm['h'], dtm['min'] = divmod(dtm['min'], 60)
+    dtm['m'], dtm['s'] = divmod(secs, 60)
+    dtm['h'], dtm['m'] = divmod(dtm['m'], 60)
     dtm['d'], dtm['h'] = divmod(dtm['h'], 24)
     dtm['yr'], dtm['d'] = divmod(dtm['d'], 365)
 
     # Build date sentence with this order
-    for key in ('yr', 'd', 'h', 'min', 's'):
+    for key in ('yr', 'd', 'h', 'm', 's'):
 
         # Avoid print empty values at the beginning, except seconds
         if (dtm[key] == 0) and (line == '') and (key != 's'):
