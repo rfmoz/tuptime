@@ -67,7 +67,7 @@ Or swich to -l | --list option:
 ### Basic Installation
 
 
-#### Package installation
+#### By package manager
 
 * Debian: https://packages.debian.org/tuptime
 * Ubuntu: https://packages.ubuntu.com/tuptime
@@ -76,7 +76,7 @@ Or swich to -l | --list option:
 * FreeBSD: https://www.freshports.org/sysutils/tuptime
 
 
-#### Brief Manual installation
+#### By manual method
 
 In a Linux or FreeBSD system...
 
