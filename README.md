@@ -10,29 +10,29 @@ Just after install:
 
 	System startups:	1   since   21:54:09 24/09/15
 	System shutdowns:	0 ok  -  0 bad
-	System life: 		21min 30s
+	System life: 		21m 30s
 
-	System uptime: 		100.0%  -  21min 30s
+	System uptime: 		100.0%  -  21m 30s
 	System downtime: 	0.0%  -  0s
 
-	Average uptime: 	21min 30s
+	Average uptime: 	21m 30s
 	Average downtime: 	0s
 
-	Current uptime: 	21min 30s   since   21:54:09 24/09/15
+	Current uptime: 	21m 30s   since   21:54:09 24/09/15
 
 A few days later:
 
 	System startups:	110   since   10:15:27 08/08/15
 	System shutdowns:	107 ok  -  2 bad
-	System life: 		47d 12h 2min 15s
+	System life: 		47d 12h 2m 15s
 
-	System uptime: 		4.04%  -  1d 22h 4min 44s
-	System downtime: 	95.96%  -  45d 13h 57min 30s
+	System uptime: 		4.04%  -  1d 22h 4m 44s
+	System downtime: 	95.96%  -  45d 13h 57m 30s
 
-	Average uptime: 	25min 8s
-	Average downtime: 	9h 56min 42s
+	Average uptime: 	25m 8s
+	Average downtime: 	9h 56m 42s
 
-	Current uptime: 	23min 33s   since   21:54:09 24/09/15
+	Current uptime: 	23m 33s   since   21:54:09 24/09/15
 
 Swich to -t | --table option:
 
@@ -40,9 +40,9 @@ Swich to -t | --table option:
                                                                                                                                     
 	1   10:15:27 08/08/15           42s   10:16:09 08/08/15    OK         16s
 	2   10:16:26 08/08/15           49s   10:17:15 08/08/15    OK         16s
-	3   10:17:32 08/08/15      5min 47s   10:23:19 08/08/15    OK         16s
+	3   10:17:32 08/08/15        5m 47s   10:23:19 08/08/15    OK         16s
 	4   10:23:36 08/08/15            9s   10:23:45 08/08/15   BAD         42s
-	5   10:24:28 08/08/15   2h 9min 27s   12:33:55 08/08/15    OK   41min 44s
+	5   10:24:28 08/08/15     2h 9m 27s   12:33:55 08/08/15    OK     41m 44s
         . . .
 
 Or swich to -l | --list option:
@@ -58,7 +58,7 @@ Or swich to -l | --list option:
 	Downtime: 16s
 
 	Startup:  3  at  10:17:32 08/08/15
-	Uptime:   5min 47s
+	Uptime:   5m 47s
 	Shutdown: OK  at  10:23:19 08/08/15
 	Downtime: 16s
 	. . .
