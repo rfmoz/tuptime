@@ -233,9 +233,10 @@ def get_arguments():
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
         logging.info('Version = %s', (__version__))
 
-    if arg.power and (arg.ts or arg.tu or arg.tat):
-        # Power states report accumulated time across an uptime range, it isn't possible to
-        # know if the state was running or sleeping between specific points inside it
+    if (arg.power and (arg.ts or arg.tu or arg.tat)) or (arg.tat and (arg.ts or arg.tu)):
+        # - power states report accumulated time across an uptime range, it isn't possible to
+        # know if the state was running or sleeping between specific points inside it.
+        # - tat work within startups numbers, not in narrow ranges.
         parser.error('Used operators can\'t be combined together')
 
     # Wrap 'at' over since and until
