@@ -76,6 +76,11 @@ Or swich to -l | --list option:
 * FreeBSD: https://www.freshports.org/sysutils/tuptime
 
 
+#### By one-liner script
+
+	bash <(curl -Ls https://git.io/tuptime-install.sh)
+
+
 #### By manual method
 
 In a Linux or FreeBSD system...
