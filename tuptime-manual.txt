@@ -676,6 +676,7 @@ Good reads:
     http://man7.org/linux/man-pages/man2/clock_gettime.2.html
     https://unix.stackexchange.com/questions/118631/how-can-i-measure-and-prevent-clock-drift
     Timekeeping in VMware Virtual Machines (Document)
+    https://venam.nixers.net/blog/unix/2020/05/02/time-on-unix.html
 
 
 
