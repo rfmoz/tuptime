@@ -1140,7 +1140,7 @@ def check_new_boot(prev, sis):
 
     # How tuptime does it:
     #
-    #    If boot id exists (only on Linux nowadays), checking if its value changed and isn't none
+    #    If boot id exists (only on Linux nowadays), checking if its value has changed
     #
     #    If not exists, checking if the value resultant from previous btime plus previous uptime (both
     #    saved into DB) is lower than current btime or (to catch shutdowns lower than a second) equal
@@ -1153,9 +1153,13 @@ def check_new_boot(prev, sis):
     # To avoid lost an uptime record, please be sure that the system have time sync enabled, the init/systemd
     # script and the cron task works as expected.
 
-    if 'None' != prev['bootid'] != sis['bootid'] != 'None':
-        logging.info('System restarted = True from bootid')
-        return True
+    if prev['bootid'] != 'None' and sis['bootid'] != 'None':
+        if prev['bootid'] != sis['bootid']:
+            logging.info('System restarted = True from bootid')
+            return True
+        else:
+            logging.info('System restarted = False from bootid')
+            return False
 
     elif prev['buptime'] < sis['btime'] or (prev['buptime'] == sis['btime'] and sis['uptime'] < prev['uptime']):
         logging.info('System restarted = True from btime')
