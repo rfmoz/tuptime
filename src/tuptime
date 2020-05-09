@@ -501,12 +501,11 @@ def control_drift(prev, sis):
     offset = sis['btime'] - prev['btime']  # Calculate time offset
     logging.info('Drift over btime = %s', str(offset))
 
-    # If previous btime doesn't match
-    if prev['btime'] != sis['btime']:
+    if offset:
         logging.info('Fixing drift...')
 
         # Apply offset to btime, uptime and related
-        if sis['uptime'] > offset and (sis['uptime'] + offset) > 0:
+        if (sis['uptime'] + offset) > 0:
             logging.info('System timestamp = %s', str(sis['btime'] + sis['uptime']))
 
             sis['uptime'] = sis['uptime'] + offset
@@ -533,11 +532,8 @@ def control_drift(prev, sis):
         else:
             # Keep btime from DB with current uptime until it can be fixed
             sis['btime'] = prev['btime']
-            logging.info('Keep last btime from DB = %s', str(sis['btime']))
-            if sis['uptime'] <= offset:
-                logging.info('Drift is bigger or equal than uptime. Skipping')
-            if (sis['uptime'] + offset) <= 0:
-                logging.info('Drift decreases uptime under 1. Skipping')
+            logging.info('Drift decreases uptime under 1. Skipping fix')
+            logging.info('Unfixed btime = %s', str(sis['btime']))
 
     return sis
 
