@@ -405,7 +405,7 @@ def gain_db(sis, arg):
         if os.path.isdir(os.path.dirname(arg.db_file)):
             logging.info('Directory exists = %s', str(os.path.dirname(arg.db_file)))
         else:
-            logging.info('Creating path = %s', str(os.path.dirname(arg.db_file)))
+            logging.info('Making path = %s', str(os.path.dirname(arg.db_file)))
             os.makedirs(os.path.dirname(arg.db_file))
     except Exception as exp_path:
         logging.error('Checking DB path "%s": %s', str(os.path.dirname(arg.db_file)), str(exp_path))
@@ -416,7 +416,7 @@ def gain_db(sis, arg):
         if os.path.isfile(arg.db_file):
             logging.info('DB file exists = %s', str(arg.db_file))
         else:
-            logging.info('Creating DB file = %s', str(arg.db_file))
+            logging.info('Making DB file = %s', str(arg.db_file))
             db_conn = sqlite3.connect(arg.db_file)
             conn = db_conn.cursor()
             conn.execute('create table if not exists tuptime'
@@ -455,7 +455,7 @@ def upgrade_db(db_conn, conn, columns, arg):
 
     try:
 
-        if 'rntime' and 'slptime' not in columns:  # tuptime v4
+        if 'rntime' and 'slptime' not in columns:  # new in tuptime v4
             logging.warning('Upgrading DB with power states')
             conn.execute('create table if not exists tuptimeNew'
                          '(btime integer, uptime integer, rntime integer, slptime integer,'
@@ -473,7 +473,7 @@ def upgrade_db(db_conn, conn, columns, arg):
             conn.execute('alter table tuptimeNew RENAME TO tuptime')
             db_conn.commit()
 
-        if 'bootid' not in columns:  # tuptime v5
+        if 'bootid' not in columns:  # new in tuptime v5
             logging.warning('Upgrading DB with boot ID')
             conn.execute('create table if not exists tuptimeNew'
                          '(bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
