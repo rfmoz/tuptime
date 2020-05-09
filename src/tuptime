@@ -708,48 +708,42 @@ def format_output(db_rows, arg):
         if row['bootid'] is False:
             row['bootid'] = ''
 
-        if row['btime'] is not False:
+        if row['btime'] is False:
+            row['btime'] = ''
+        else:
             if not arg.seconds:
                 row['btime'] = datetime.fromtimestamp(row['btime']).strftime(arg.date_format)
-        else:
-            row['btime'] = ''
 
-        if row['uptime'] is not False:
+        if row['uptime'] is False:
+            row['uptime'] = row['rntime'] = row['slptime'] = ''
+        else:
             if not arg.seconds:
                 row['uptime'] = time_conv(row['uptime'])
                 row['rntime'] = time_conv(row['rntime'])
                 row['slptime'] = time_conv(row['slptime'])
-            else:
-                row['uptime'] = row['uptime']
-                row['rntime'] = row['rntime']
-                row['slptime'] = row['slptime']
-        else:
-            row['uptime'] = row['rntime'] = row['slptime'] = ''
 
-        if row['endst'] is not False:
-            if row['offbtime'] is not False or row['downtime'] is not False:
+        if row['endst'] is False:
+            row['endst'] = ''
+        else:
+            if row['offbtime'] is False or row['downtime'] is False:
+                row['endst'] = ''
+            else:
                 if row['endst'] == 1:
                     row['endst'] = 'OK'
                 elif row['endst'] == 0:
                     row['endst'] = 'BAD'
-            else:
-                row['endst'] = ''
-        else:
-            row['endst'] = ''
 
-        if row['offbtime'] is not False:
+        if row['offbtime'] is False:
+            row['offbtime'] = ''
+        else:
             if not arg.seconds:
                 row['offbtime'] = datetime.fromtimestamp(row['offbtime']).strftime(arg.date_format)
-        else:
-            row['offbtime'] = ''
 
-        if row['downtime'] is not False:
+        if row['downtime'] is False:
+            row['downtime'] = ''
+        else:
             if not arg.seconds:
                 row['downtime'] = time_conv(row['downtime'])
-            else:
-                row['downtime'] = row['downtime']
-        else:
-            row['downtime'] = ''
 
         if row['kernel'] is False:
             row['kernel'] = ''
@@ -763,12 +757,12 @@ def print_list(db_rows, last_st, arg):
 
     db_rows = ordering_output(db_rows, arg, last_st)
 
-    if not arg.csv:  # Define content/spaces between values
-        sp1, sp2, sp8 = '  ', ': ', ' '
-        sp0 = sp7 = ''
-    else:
+    if arg.csv:  # Define content/spaces between values
         sp0, sp7, sp8 = '"', ',""', ''
         sp1 = sp2 = '","'
+    else:
+        sp1, sp2, sp8 = '  ', ': ', ' '
+        sp0 = sp7 = ''
 
     for row_dict in format_output(db_rows, arg):
 
@@ -844,7 +838,15 @@ def print_table(db_rows, last_st, arg):
 
         tbl.append(rowd)
 
-    if not arg.csv:
+    if arg.csv:
+        for row in tbl:
+            for key, value in enumerate(row):
+                sys.stdout.write('"' + str(value) + '"')
+                if (key + 1) != len(row):
+                    sys.stdout.write(',')
+            print('')
+
+    else:
         for i in range(len(tbl[0])):
             # Get the maximum width of the given column index
             colpad.append(max([len(str(row[i])) for row in tbl]))
@@ -860,14 +862,6 @@ def print_table(db_rows, last_st, arg):
                 else:
                     col = str(row[i]).rjust(colpad[i] + side_spaces)
                 sys.stdout.write(str('' + col))
-            print('')
-
-    else:
-        for row in tbl:
-            for key, value in enumerate(row):
-                sys.stdout.write('"' + str(value) + '"')
-                if (key + 1) != len(row):
-                    sys.stdout.write(',')
             print('')
 
 
@@ -923,12 +917,12 @@ def print_tat(db_rows, sis, last_st, arg):
         report['time'] = time_conv(report['time'])
         report['time_fwd'] = time_conv(report['time_fwd'])
 
-    if not arg.csv:  # Define content/spaces between values
-        sp0, sp2, sp9 = '', ':\t', '  -  '
-        sp8, sp5 = ' ', '   '
-    else:
+    if arg.csv:  # Define content/spaces between values
         sp0, sp8 = '"', ''
         sp2 = sp5 = sp9 = '","'
+    else:
+        sp0, sp2, sp9 = '', ':\t', '  -  '
+        sp8, sp5 = ' ', '   '
 
     print(sp0 + 'Timestamp status' + sp2 + str(report['status']) + sp5 + 'at' + sp5 + str(report['at']) + sp5 + 'on' + sp5 + str(report['startup']) + sp0)
     if arg.bootid:
@@ -1036,13 +1030,13 @@ def print_default(db_rows, sis, arg):
         sys_life = time_conv(sys_life)
 
     # Finally print all
-    if not arg.csv:  # Define content/spaces between values
+    if arg.csv:  # Define content/spaces between values
+        sp0, sp7, sp8 = '"', ',""', ''
+        sp1 = sp4 = sp5 = sp9 = '","'
+    else:
         sp1, sp5, sp9 = ': \t', '   ', '  -  '
         sp4 = sp8 = ' '
         sp0 = sp7 = ''
-    else:
-        sp0, sp7, sp8 = '"', ',""', ''
-        sp1 = sp4 = sp5 = sp9 = '","'
 
     if arg.power:
         uptime = {'average': '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')',
