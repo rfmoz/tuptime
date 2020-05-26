@@ -22,10 +22,8 @@ case "$1" in
     configure)
 
 	# Rename to underscore if previous exists
-        if getent passwd tuptime >/dev/null ; then
-	    usermod -l _tuptime tuptime
-	    groupmod -n _tuptime tuptime
-	fi
+        getent passwd tuptime >/dev/null && usermod -l _tuptime tuptime
+	getent group tuptime > /dev/null && groupmod -n _tuptime tuptime
 
 	# Create user if not exists
         if ! getent passwd _tuptime >/dev/null ; then
