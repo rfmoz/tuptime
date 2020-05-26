@@ -20,23 +20,32 @@ set -e
 
 case "$1" in
     configure)
-        if ! getent passwd tuptime >/dev/null ; then
-            echo "Adding tuptime user ..."
+
+	# Rename to underscore if previous exists
+        if getent passwd tuptime >/dev/null ; then
+	    usermod -l _tuptime tuptime
+	    groupmod -n _tuptime tuptime
+	fi
+
+	# Create user if not exists
+        if ! getent passwd _tuptime >/dev/null ; then
+            echo "Adding _tuptime user..."
             adduser --quiet --system --group --disabled-password \
                 --home "/var/lib/tuptime" \
                 --shell '/usr/sbin/nologin' \
-                --gecos 'Tuptime execution user,,,' tuptime
+                --gecos 'Tuptime execution user,,,' \
+		--force-badname _tuptime
         fi
 
-	# ensure right ownership
+	# Ensure right ownership
 	if [ -d /var/lib/tuptime ]; then
-		chown tuptime:tuptime /var/lib/tuptime
+		chown _tuptime:_tuptime /var/lib/tuptime
 		if [ -f /var/lib/tuptime/tuptime.db ]; then
-			chown tuptime:tuptime /var/lib/tuptime/tuptime.db
+			chown _tuptime:_tuptime /var/lib/tuptime/tuptime.db
 		fi
 	fi
 
-	su -s /bin/sh tuptime -c "tuptime -x"
+	su -s /bin/sh _tuptime -c "tuptime -x"
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

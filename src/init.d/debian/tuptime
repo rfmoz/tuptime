@@ -1,6 +1,6 @@
 #!/bin/sh
 # tuptime - Report the historical and statistical real time of the system, keeping it between restarts.
-# Author Ricardo Fraile - 2017
+# Author Ricardo Fraile - 2020
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 . /lib/init/vars.sh
 . /lib/lsb/init-functions
 
-USER='tuptime'
+USER='_tuptime'
 BIN_NAME='tuptime'
 PATH_BIN="/usr/bin/$BIN_NAME"
 

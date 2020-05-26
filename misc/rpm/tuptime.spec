@@ -32,8 +32,10 @@ sed -i '1s=^#!/usr/bin/\(python\|env python\)[23]\?=#!%{__python3}=' src/tuptime
 
 
 %pre
-getent group tuptime >/dev/null || groupadd -r tuptime
-getent passwd tuptime >/dev/null || useradd --system --gid tuptime --home-dir "/var/lib/tuptime" --shell '/sbin/nologin' --comment 'Tuptime execution user' tuptime > /dev/null
+getent group tuptime >/dev/null && groupmod -n _tuptime tuptime
+getent passwd tuptime >/dev/null && usermod -l _tuptime tuptime
+getent group _tuptime >/dev/null || groupadd -r _tuptime
+getent passwd _tuptime >/dev/null || useradd --system --gid _tuptime --home-dir "/var/lib/tuptime" --shell '/sbin/nologin' --comment 'Tuptime execution user' _tuptime > /dev/null
 
 
 %build
@@ -56,7 +58,7 @@ cp -R %{_topdir}/BUILD/%{name}-%{version}/CHANGELOG %{buildroot}%{_docdir}/tupti
 
 
 %post
-su -s /bin/sh tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
+su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 %systemd_post tuptime.service
 %systemd_post tuptime-cron.service
 %systemd_post tuptime-cron.timer
@@ -80,7 +82,7 @@ su -s /bin/sh tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 %{_unitdir}/tuptime-cron.service
 %{_unitdir}/tuptime-cron.timer
 %attr(0755, root, root) %{_bindir}/tuptime
-%dir %attr(0755, tuptime, tuptime) %{_sharedstatedir}/tuptime/
+%dir %attr(0755, _tuptime, _tuptime) %{_sharedstatedir}/tuptime/
 %docdir %{_docdir}/tuptime/
 %{_docdir}/tuptime/tuptime-manual.txt
 %{_docdir}/tuptime/CHANGELOG
@@ -88,5 +90,5 @@ su -s /bin/sh tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 
 
 %changelog
-* Wed Mar 20 2020 Ricardo Fraile <rfraile@rfraile.eu> 5.0.0-1
+* Tue May 26 2020 Ricardo Fraile <rfraile@rfraile.eu> 5.0.0-1
 - RPM release

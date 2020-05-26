@@ -18,7 +18,7 @@
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-USER='tuptime'
+USER='_tuptime'
 BIN_NAME='tuptime'
 PATH_BIN="/usr/bin/$BIN_NAME"
 LOCKFILE="/var/lock/subsys/$BIN_NAME"

@@ -3,7 +3,7 @@
                          ----------------------
                               version 5.0.0
                                 Ricardo F.
-                               28/Mar/2020
+                               26/May/2020
 
 
 
@@ -75,10 +75,10 @@ For Linux systems:
 
            # install -m 755 tuptime/src/tuptime /usr/bin/tuptime
 
-       Add tuptime user:
+       Add _tuptime user:
 
            # useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
-             --shell '/bin/false' --comment 'Tuptime execution user' tuptime
+             --shell '/bin/false' --comment 'Tuptime execution user' _tuptime
 
        Execute tuptime with a privilege user for create DB path:
 
@@ -86,7 +86,7 @@ For Linux systems:
 
        Change owner of the DB path and file:
 
-           # chown -R tuptime /var/lib/tuptime
+           # chown -R _tuptime:_tuptime /var/lib/tuptime
 
        Copy cron file:
 
@@ -718,7 +718,7 @@ More info about date input formats:
 ===========
 
 Tuptime can be executed with 'root' user, but it's recommendable the use of an
-unprivileged user, like 'tuptime' as the installation section points to avoid
+unprivileged user, like '_tuptime' as the installation section points to avoid
 security problems. In any case, if the database file is not writable by the
 current execution user, the changes are not saved. This situation is covered
 for print values, but not for update database, that's why a user who can write

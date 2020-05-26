@@ -59,6 +59,6 @@ echo "Backup file: ${SOURCE_DB}.${BKP_DATE}.back"
 
 # Set permission and user
 chmod 644 "${SOURCE_DB}" && \
-chown "${USER_DB}" "${SOURCE_DB}" || exit 7
+chown "${USER_DB}":"${USER_DB}" "${SOURCE_DB}" || exit 7
 
 echo "Process completed: OK"

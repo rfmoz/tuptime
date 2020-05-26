@@ -14,7 +14,7 @@ Clone repository and copy executable file:
 
 Add tuptime user:
 
-    # pw adduser tuptime -d /nonexistent -s /usr/sbin/nologin -c "Tuptime execution user"
+    # pw adduser _tuptime -d /nonexistent -s /usr/sbin/nologin -c "Tuptime execution user"
 
 Execute tuptime with a privileged user for create db path:
 
@@ -22,7 +22,7 @@ Execute tuptime with a privileged user for create db path:
 
 Change owner of the db path and file:
 
-    # chown -R tuptime /var/lib/tuptime
+    # chown -R _tuptime:_tuptime /var/lib/tuptime
 
 Add the cron entry and restart the service:
 
@@ -59,7 +59,7 @@ Clone repository and copy executable file:
 
 Add tuptime user:
 
-    # adduser -home /var/empty -shell /sbin/nologin -batch tuptime
+    # adduser -home /var/empty -shell /sbin/nologin -batch _tuptime
 
 Execute tuptime with a privileged user for create db path:
 
@@ -67,7 +67,7 @@ Execute tuptime with a privileged user for create db path:
 
 Change owner of the db path and file:
 
-    # chown -R tuptime /var/lib/tuptime
+    # chown -R _tuptime:_tuptime /var/lib/tuptime
 
 Add the cron entry, create a '/var/cron/tabs/tuptime' file with this content:
 
@@ -77,16 +77,16 @@ Add the cron entry, create a '/var/cron/tabs/tuptime' file with this content:
 
 Set the right permissions to cron file and restart the service:
 
-    # chown tuptime:crontab /var/cron/tabs/tuptime 
+    # chown _tuptime:crontab /var/cron/tabs/tuptime 
     # chmod 600 /var/cron/tabs/tuptime 
 
 Add execution at startup:
 
-    # echo 'su - tuptime -c "/usr/local/bin/python3 /usr/local/bin/tuptime -x"' >> /etc/rc.local
+    # echo 'su - _tuptime -c "/usr/local/bin/python3 /usr/local/bin/tuptime -x"' >> /etc/rc.local
 
 Add execution at shutdown:
 
-    # echo 'su - tuptime -c "/usr/local/bin/python3 /usr/local/bin/tuptime -xg"' >> /etc/rc.shutdown
+    # echo 'su - _tuptime -c "/usr/local/bin/python3 /usr/local/bin/tuptime -xg"' >> /etc/rc.shutdown
 
 It's all done.
 
@@ -122,13 +122,13 @@ Execute tuptime with a privileged user for create db path:
 
 Add tuptime user:
 
-    # useradd -d /var/lib/tuptime -s /sbin/nologin tuptime
+    # useradd -d /var/lib/tuptime -s /sbin/nologin _tuptime
 
 Change owner of the db path and file:
 
-    # chown -R tuptime /var/lib/tuptime
+    # chown -R _tuptime:_tuptime /var/lib/tuptime
 
-Add the cron entry, create a '/var/cron/tabs/tuptime' file with this content:
+Add the cron entry, create a '/var/cron/tabs/_tuptime' file with this content:
 
     SHELL=/bin/sh
     PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin/
@@ -136,7 +136,7 @@ Add the cron entry, create a '/var/cron/tabs/tuptime' file with this content:
 
 Set the right permissions to cron file and restart the service:
 
-    # chown tuptime /var/cron/tabs/tuptime 
+    # chown _tuptime /var/cron/tabs/_tuptime 
     # chmod 600 /var/cron/tabs/tuptime
     # service cron restart
 
