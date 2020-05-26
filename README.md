@@ -83,7 +83,7 @@ Or swich to -l | --list option:
 
 #### By manual method
 
-In a Linux or FreeBSD system...
+Briefly in a Linux or FreeBSD system...
 
 Clone the repo:
 
