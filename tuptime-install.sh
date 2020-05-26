@@ -135,11 +135,11 @@ tuptime -x
 echo '  [OK]'
 
 echo "+ Setting Tuptime db ownership"
-chown -R "$EXUSR" /var/lib/tuptime || exit
+chown -R "$EXUSR":"$EXUSR" /var/lib/tuptime || exit
 chmod 755 /var/lib/tuptime || exit
 echo '  [OK]'
 
-echo "+ Executing Tuptime with _tuptime user for testing"
+echo "+ Executing Tuptime with '_tuptime' user for testing"
 su -s /bin/sh "$EXUSR" -c "tuptime -x" || exit
 echo '  [OK]'
 
