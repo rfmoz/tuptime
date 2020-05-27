@@ -135,7 +135,7 @@ tuptime -x
 echo '  [OK]'
 
 echo "+ Setting Tuptime db ownership"
-chown -R "${EXUSR}":"${EXUSR}" /var/lib/tuptime || exit
+( chown -R "${EXUSR}":"${EXUSR}" /var/lib/tuptime || chown -R "${EXUSR}" /var/lib/tuptime ) || exit
 chmod 755 /var/lib/tuptime || exit
 echo '  [OK]'
 
