@@ -196,13 +196,13 @@ fi
 # Install cron
 if [ -d /etc/cron.d/ ]; then
 	echo "+ Copying Cron file"
-	cp -a "${F_TMP1}"/src/cron.d/tuptime /etc/cron.d/tuptime || exit
+	install -m 644 "${F_TMP1}"/src/cron.d/tuptime /etc/cron.d/tuptime || exit
 	((SELX)) && restorecon -vF /etc/cron.d/tuptime
 	echo '  [OK]'
 
 elif [ -d "${SYSDPATH}" ]; then
 	echo "+ Copying tuptime-cron.timer and .service"
-	cp -a "${F_TMP1}"/src/systemd/tuptime-cron.*  "${SYSDPATH}" || exit
+	install -m 644 "${F_TMP1}"/src/systemd/tuptime-cron.*  "${SYSDPATH}" || exit
 	((SELX)) && restorecon -vF "${SYSDPATH}"tuptime-cron.*
 	systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
 	echo '  [OK]'
