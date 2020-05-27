@@ -5,7 +5,8 @@
 
 Install dependencies, latest versions:
 
-    # pkg install python3 py36-sqlite3 git
+    # pkg install python3 git
+    # pkg install py37-sqlite3  # (version number must match "python3 -V")
 
 Clone repository and copy executable file:
 
@@ -26,7 +27,7 @@ Change owner of the db path and file:
 
 Add the cron entry and restart the service:
 
-    # echo '*/5 * * * *  /usr/local/bin/tuptime -x' > /var/cron/tabs/tuptime
+    # echo '*/5 * * * *  /usr/local/bin/tuptime -x' > /var/cron/tabs/_tuptime
     # service cron restart
 
 Copy rc.d file:
@@ -69,7 +70,7 @@ Change owner of the db path and file:
 
     # chown -R _tuptime:_tuptime /var/lib/tuptime
 
-Add the cron entry, create a '/var/cron/tabs/tuptime' file with this content:
+Add the cron entry, create a '/var/cron/tabs/_tuptime' file with this content:
 
     SHELL=/bin/sh
     PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin/
@@ -77,8 +78,8 @@ Add the cron entry, create a '/var/cron/tabs/tuptime' file with this content:
 
 Set the right permissions to cron file and restart the service:
 
-    # chown _tuptime:crontab /var/cron/tabs/tuptime 
-    # chmod 600 /var/cron/tabs/tuptime 
+    # chown _tuptime:crontab /var/cron/tabs/_tuptime 
+    # chmod 600 /var/cron/tabs/_tuptime 
 
 Add execution at startup:
 
@@ -137,7 +138,7 @@ Add the cron entry, create a '/var/cron/tabs/_tuptime' file with this content:
 Set the right permissions to cron file and restart the service:
 
     # chown _tuptime /var/cron/tabs/_tuptime 
-    # chmod 600 /var/cron/tabs/tuptime
+    # chmod 600 /var/cron/tabs/_tuptime
     # service cron restart
 
 Copy rc.d file:
