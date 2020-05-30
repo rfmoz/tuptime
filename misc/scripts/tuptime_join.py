@@ -4,19 +4,20 @@
 '''
 This script join two tuptime db files into an other one. It works as follows:
 
-    - Takes two paths of db files (old one must be first) and an output file as destination of the join.
-    - Look for last register on old file and sum (btime + uptime)
-    - Look on new file a btime greather than previous sum value
-    - Insert registers that match
+    - Takes two paths of db files and an output file as destination of the join.
+    - Look for first btime on both files and take the one with the older value as starting DB
+    - Look on starting DB for last register and sum (btime + uptime)
+    - Look on the newer file for a btime greather than previous sum value
+    - Insert registers that match on destination file DB
 
- # tuptime_join.py -d /path/to/joined.db /path/to/old.db /path/to/new.db
+ # tuptime_join.py /path/to/old.db /path/to/new.db -d /path/to/joined.db
 
 Maybe after upgrade your computer and install new stuff, you want to continue with the registers
 that you have before. It is possible to join the new ones into the old ones without any awkward jump.
 Please, see the following example:
 
-Join new registers of two db files into other (old file must be defined first):
-    tuptime_join.py -d /tmp/tt.db /backup/old/tuptime.db /var/lib/tuptime/tuptime.db
+Join registers of two db files into other:
+    tuptime_join.py /backup/old/tuptime.db /var/lib/tuptime/tuptime.db -d /tmp/tt.db
 
 Check if all is ok:
     tuptime --noup -t -f /tmp/tt.db
@@ -31,7 +32,7 @@ Check owner (usually tuptime:tuptime) and copy modified file to right location. 
 import sys, argparse, locale, signal, logging, sqlite3
 from shutil import copyfile
 
-__version__ = '1.0.0'
+__version__ = '1.2.0'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -49,7 +50,7 @@ def get_arguments():
         metavar='FILE',
         nargs=2,
         type=str,
-        help='files to join (OLD and NEW)'
+        help='files to join'
     )
     parser.add_argument(
         '-d', '--dest',
@@ -63,9 +64,9 @@ def get_arguments():
     parser.add_argument(
         '-v', '--verbose',
         dest='verbose',
-        default=False,
-        action='store_true',
-        help='verbose output'
+        action='count',
+        default=0,
+        help='verbose output (vv=detail)'
     )
     arg = parser.parse_args()
 
@@ -77,55 +78,67 @@ def get_arguments():
     return arg
 
 
-def main():
-
-    arg = get_arguments()
-
-    print('Old file (arg 1): \t' + str(arg.files[0]))
-    print('New file (arg 2):\t' + str(arg.files[1]))
-
-    # Copy old file to output file
-    print('\nCopy old file to destination')
-    copyfile(arg.files[0], arg.dest)
-    fl0 = {'name': arg.dest}    # File0 is output file
-    fl1 = {'name': arg.files[1]}  # file1 is new file
-    print('Destination file: \t' + str(fl0['name']))
+def order_files(arg):
+    """Identify older file"""
 
     # Open file0 DB
-    db_conn0 = sqlite3.connect(fl0['name'])
+    db_conn0 = sqlite3.connect(arg.files[0])
     db_conn0.row_factory = sqlite3.Row
     conn0 = db_conn0.cursor()
 
-    # Check if DB have the old format
-    columns = [i[1] for i in conn0.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'slptime' not in columns:
-        logging.error('DB format outdated on old file')
-        sys.exit(-1)
-
     # Open file1 DB
-    db_conn1 = sqlite3.connect(fl1['name'])
+    db_conn1 = sqlite3.connect(arg.files[1])
     db_conn1.row_factory = sqlite3.Row
     conn1 = db_conn1.cursor()
 
-    # Check if DB have the old format
-    columns = [i[1] for i in conn1.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'slptime' not in columns:
-        logging.error('DB format outdated on new file')
-        sys.exit(-1)
+    # Check if DBs have the old format
+    for conn, fname in ((conn0, arg.files[0]), (conn1, arg.files[1])):
+        columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
+        if 'rntime' and 'slptime' and 'bootid' not in columns:
+            logging.error('DB format outdated on file: ' + str(fname))
+            sys.exit(-1)
 
     # Check older file
     conn0.execute('select btime from tuptime where rowid = (select min(rowid) from tuptime)')
-    fl0_btime = conn0.fetchone()[0]
     conn1.execute('select btime from tuptime where rowid = (select min(rowid) from tuptime)')
-    fl1_btime = conn1.fetchone()[0]
-    if fl0_btime > fl1_btime:
-        logging.warning('"New file" looks older than "Old file"')
 
-    # Print raw rows
+    # File with large btime is newer
+    if (conn0.fetchone()[0]) > (conn1.fetchone()[0]):
+        return arg.files[1], arg.files[0]
+    return arg.files[0], arg.files[1]
+
+
+def main():
+    """Main logic"""
+
+    arg = get_arguments()
+
+    f_old, f_new = order_files(arg)
+
+    print('Old source file: \t' + str(f_old))
+    print('New source file:\t' + str(f_new))
+
+    # Use old file as starting DB. Copy as destination file.
+    copyfile(f_old, arg.dest)
+    fl0 = {'path': arg.dest}   # file0 is destination file
+    fl1 = {'path': f_new}  # file1 is source newer file
+    print('Destination file: \t' + str(fl0['path']))
+
+    # Open file0 DB
+    db_conn0 = sqlite3.connect(fl0['path'])
+    db_conn0.row_factory = sqlite3.Row
+    conn0 = db_conn0.cursor()
+
+    # Open file1 DB
+    db_conn1 = sqlite3.connect(fl1['path'])
+    db_conn1.row_factory = sqlite3.Row
+    conn1 = db_conn1.cursor()
+
+    # Get all rows from source file0 and print raw rows
     conn0.execute('select rowid as startup, * from tuptime')
     db_rows = conn0.fetchall()
     print('\nDestination rows before:\t' + str(len(db_rows)))
-    if arg.verbose:
+    if arg.verbose > 1:
         for row in db_rows:
             print("\t", end='')
             print(dict(row))
@@ -139,7 +152,7 @@ def main():
     conn1.execute('select rowid as startup, * from tuptime where btime > ' + str(fl0['offbtime']))
     db_rows = conn1.fetchall()
 
-    print('\nRows to add from new file: \t' + str(len(db_rows)))
+    print('\nRows to add from newer file: \t' + str(len(db_rows)))
 
     # Insert rows on file0
     for row in db_rows:
@@ -158,9 +171,10 @@ def main():
 
         # Add registers to file0
         print(' Adding startup row: ' + str(row['startup']))
-        conn0.execute('insert into tuptime values (?,?,?,?,?,?,?,?)',
-                      (str(row['btime']), str(row['uptime']), str(row['rntime']), str(row['slptime']), str(row['offbtime']), str(row['endst']), str(row['downtime']), str(row['kernel'])))
+        conn0.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
+                      (str(row['bootid']), str(row['btime']), str(row['uptime']), str(row['rntime']), str(row['slptime']), str(row['offbtime']), str(row['endst']), str(row['downtime']), str(row['kernel'])))
         if arg.verbose:
+            print('\tbootid = ' + str(row['bootid']))
             print('\tbtime = ' + str(row['btime']))
             print('\tuptime = ' + str(row['uptime']))
             print('\trntime = ' + str(row['rntime']))
@@ -181,7 +195,7 @@ def main():
     conn0.execute('select rowid as startup, * from tuptime')
     db_rows = conn0.fetchall()
     print('\nDestination rows after: \t' + str(len(db_rows)))
-    if arg.verbose:
+    if arg.verbose > 1:
         for row in db_rows:
             print("\t", end='')
             print(dict(row))

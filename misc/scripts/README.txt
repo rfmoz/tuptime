@@ -1,8 +1,6 @@
 #### Scripts #####
 
 
-
-
 ____Tools____
 
 tuptime_dbcheck.py
@@ -17,34 +15,29 @@ tuptime_modify.py
 
 
 
-
-
 ____DB migrations____
 
-db-tuptime-migrate.sh
-    Update tuptime database format from versions previous than 3.0.00.
+db-tuptime-migrate-2.0-to-3.0.sh
+    Update tuptime database format from version 2.0.0 or above to 3.0.0.
 
 
 db-tuptime-migrate-3.0-to-3.1.sh
-    Update tuptime database format from version 3.0.00 to 3.1.00.
+    Update tuptime database format from version 3.0.0 to 3.1.0.
 
 
 db-tuptime-migrate-3.1-to-4.0.sh
-    Update tuptime database format from version 3.1.0 or above to to 4.0.0.
+    Update tuptime database format from version 3.1.0 or above to 4.0.0.
     Tuptime v.4 do it automatically.
 
 
-uptimed-to-tuptime.py
-    Migrate Uptimed records to Tuptime.
-
+db-tuptime-migrate-4.0-to-5.0.sh
+    Update tuptime database format from version 4.0.0 or above to 5.0.0.
+    Tuptime v.5 do it automatically.
 
 
 
 ____Plots____
 
-tuptime-barchart_from_db.py
-    Graph a daily plot reading directly from tuptime database.
-
-
-tuptime-barchart_from_csv.py
-    Graph a daily plot from tuptime csv output.
+tuptime-barchart.py
+    Graph a plot with all hours per state inside each day from tuptime
+    csv output. Playground script.

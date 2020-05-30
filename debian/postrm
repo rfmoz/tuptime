@@ -22,7 +22,7 @@ set -e
 case "$1" in
     purge|disappear)
         rm -rf /var/lib/tuptime/
-	deluser tuptime || true
+	deluser _tuptime || true
     ;;
 
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade)

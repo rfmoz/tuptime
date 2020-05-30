@@ -141,7 +141,7 @@ def fix_shutdown(arg, reg, conn, modt, orgt):
     if orgt['rntime'] + arg.seconds > 0:
         modt['rntime'] = orgt['rntime'] + arg.seconds
         modt['slptime'] = orgt['slptime']
-    elif orgt['slptime'] + arg.seconds > 0:
+    elif orgt['slptime'] + arg.seconds >= 0:
         modt['rntime'] = orgt['rntime']
         modt['slptime'] = orgt['slptime'] + arg.seconds
     else:
@@ -153,8 +153,8 @@ def fix_shutdown(arg, reg, conn, modt, orgt):
     # Limit check
     if modt['downtime'] is None or modt['downtime'] < 0 or \
        modt['offbtime'] is None or modt['offbtime'] < 0 or \
-       modt['uptime'] < 0 or modt['rntime'] < 0 or modt['slptime'] < 0:
-        logging.error('modified values can\'t be None or lower than 0')
+       modt['uptime'] < 1 or modt['rntime'] < 1 or modt['slptime'] < 0:
+        logging.error('modified values can\'t be None or under limits')
         sys.exit(-1)
 
     # Update values
@@ -174,7 +174,7 @@ def fix_startup(arg, reg, conn, modt, orgt, modp, orgp):
     if orgt['rntime'] - arg.seconds > 0:
         modt['rntime'] = orgt['rntime'] - arg.seconds
         modt['slptime'] = orgt['slptime']
-    elif orgt['slptime'] - arg.seconds > 0:
+    elif orgt['slptime'] - arg.seconds >= 0:
         modt['rntime'] = orgt['rntime']
         modt['slptime'] = orgt['slptime'] - arg.seconds
     else:
@@ -184,14 +184,14 @@ def fix_startup(arg, reg, conn, modt, orgt, modp, orgp):
     print('\t   modified\tbtime: ' + str(modt['btime']) + ' | uptime: ' + str(modt['uptime']) + ' | rntime: ' + str(modt['rntime']) + ' | slptime: ' + str(modt['slptime']) + ' | offbtime: ----n/a--- | downtime: --n/a-- ')
 
     # Limit check
-    if modt['uptime'] < 0 or modt['rntime'] < 0 or modt['slptime'] < 0:
-        logging.error('modified values can\'t be lower than 0')
+    if modt['uptime'] < 1 or modt['rntime'] < 1 or modt['slptime'] < 0:
+        logging.error('modified values can\'t be under limits')
         sys.exit(-1)
 
-    # First row don't have previous register to modify
+    # Get previous registers to modify except from first row
     if reg['prev'] > 0:
 
-        # Get values from previous register
+        # Get values from previous row
         conn.execute('select downtime from tuptime where rowid = ' + str(reg['prev']))
         orgp['downtime'] = conn.fetchone()[0]
 
@@ -234,7 +234,7 @@ def main():
 
     # Check if DB have the old format
     columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'slptime' not in columns:
+    if 'rntime' and 'slptime' and 'bootid' not in columns:
         logging.error('DB format outdated')
         sys.exit(-1)
 

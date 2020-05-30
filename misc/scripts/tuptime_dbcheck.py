@@ -7,7 +7,7 @@ Test database integrity. Try to catch weird errors and fix them.
 
 import sys, argparse, locale, signal, logging, sqlite3
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 fixcnt = 0
 errcnt = 0
@@ -148,7 +148,7 @@ def test5(arg, row, conn):
                 fixed2 = row['rntime'] - fixed
                 conn.execute('update tuptime set rntime = ' + str(fixed2) + ' where rowid = ' + str(row['startup']))
                 print(' FIXED: rntime = ' + str(fixed2))
-            elif row['slptime'] > row['rntime'] and row['slptime'] - fixed > 0:
+            elif row['slptime'] >= row['rntime'] and row['slptime'] - fixed > 0:
                 fixed2 = row['slptime'] - fixed
                 conn.execute('update tuptime set slptime = ' + str(fixed2) + ' where rowid = ' + str(row['startup']))
                 print(' FIXED: slptime = ' + str(fixed2))
@@ -208,7 +208,6 @@ def test9(arg, row, conn):
         err_cnt(arg)
 
 
-
 def main():
 
     arg = get_arguments()
@@ -219,7 +218,7 @@ def main():
 
     # Check if DB have the old format
     columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'slptime' not in columns:
+    if 'rntime' and 'slptime' and 'bootid' not in columns:
         logging.error('DB format outdated')
         sys.exit(-1)
 
@@ -260,9 +259,6 @@ def main():
 
             if i == 8:
                 test8(arg, row, conn)
-
-            if i == 9:
-                test9(arg, row, conn)
 
             if i == 9:
                 test9(arg, row, conn)

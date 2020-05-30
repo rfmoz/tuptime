@@ -3,5 +3,5 @@
 # NOTE: Decrease the execution time for increase accuracity.
 
 
-*/5 * * * *   tuptime    if [ -x /usr/bin/tuptime ]; then /usr/bin/tuptime -x > /dev/null; fi
+*/5 * * * *   _tuptime    if [ -x /usr/bin/tuptime ]; then /usr/bin/tuptime -x > /dev/null; fi
 

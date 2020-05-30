@@ -1,11 +1,12 @@
 [Unit]
 Description=Tuptime service
 Documentation=man:tuptime(1) file:///usr/share/doc/tuptime/tuptime-manual.txt.gz
+After=time-sync.target
 Wants=time-sync.target
 
 [Service]
 Type=oneshot
-User=tuptime
+User=_tuptime
 RemainAfterExit=true
 ExecStart=/usr/bin/tuptime -x
 ExecStop=/usr/bin/tuptime -xg

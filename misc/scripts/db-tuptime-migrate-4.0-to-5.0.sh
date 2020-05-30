@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-# This script update the tuptime database format from version 3.1.0 or above to to 4.0.0
+# This script update the tuptime database format from version 4.0.0 or above to to 5.0.0
 #
 # Usage:
 #      Execute this script.
@@ -9,14 +9,15 @@
 #      The original db file will be renamed to /var/lib/tuptime/tuptime.[date].back
 #
 # Change the db origin:
-#      btime integer, uptime real, offbtime integer, endst integer, downtime real, kernel text
-# to:
 #      btime integer, uptime real, rntime real, slptime real, offbtime integer, endst integer, downtime real, kernel text
+# to:
+#      bootid text, btime integer, uptime real, rntime real, slptime real, offbtime integer, endst integer, downtime real, kernel text
 
 SOURCE_DB='/var/lib/tuptime/tuptime.db'
 USER_DB=$(stat -c '%U' "${SOURCE_DB}")
 TMP_DBF=$(mktemp)
 BKP_DATE=$(date +%s)
+#BOOTID=$(cat /proc/sys/kernel/random/boot_id)
 
 # Check bash execution
 if [ ! -n "$BASH" ]; then
@@ -40,16 +41,14 @@ if [ $? -ne 0 ]; then
 fi
 
 # Work with a db copy
-cp "${SOURCE_DB}" "${TMP_DBF}" || exit 4
+cp "${SOURCE_DB}" "${TMP_DBF}" ||  exit 4
 
 # Adding new columns
-sqlite3 "${TMP_DBF}" "CREATE TABLE tuptimeNew (btime integer, uptime integer, rntime integer, slptime integer, offbtime integer, endst integer, downtime integer, kernel text);" && \
-sqlite3 "${TMP_DBF}" "UPDATE tuptime SET offbtime = cast(round(offbtime) as int);" && \
-sqlite3 "${TMP_DBF}" "UPDATE tuptime SET uptime = cast(round(uptime) as int);" && \
-sqlite3 "${TMP_DBF}" "UPDATE tuptime SET downtime = cast(round(downtime) as int);" && \
-sqlite3 "${TMP_DBF}" "INSERT INTO tuptimeNew(btime, uptime, offbtime, endst, downtime, kernel) SELECT btime, uptime, offbtime, endst, downtime, kernel FROM tuptime;" && \
-sqlite3 "${TMP_DBF}" "UPDATE tuptimeNew SET rntime = uptime;" && \
-sqlite3 "${TMP_DBF}" "UPDATE tuptimeNew SET slptime = 0;" && \
+sqlite3 "${TMP_DBF}" "CREATE TABLE tuptimeNew (bootid text, btime integer, uptime integer, rntime integer, slptime integer, offbtime integer, endst integer, downtime integer, kernel text);" && \
+sqlite3 "${TMP_DBF}" "INSERT INTO tuptimeNew(btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel) SELECT btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel FROM tuptime;" && \
+#sqlite3 "${TMP_DBF}" "update tuptimeNew set bootid = \"${BOOTID}\" where rowid = (select max(rowid) from tuptimeNew)" && \
+sqlite3 "${TMP_DBF}" "update tuptimeNew set bootid = 'None';" && \
+sqlite3 "${TMP_DBF}" "update tuptimeNew set kernel = 'None' where kernel = '';" && \
 sqlite3 "${TMP_DBF}" "DROP TABLE tuptime;" && \
 sqlite3 "${TMP_DBF}" "ALTER TABLE tuptimeNew RENAME TO tuptime;" || exit 5
 
