@@ -23,7 +23,7 @@ from datetime import datetime
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATE_FORMAT = '%X %x'
-__version__ = '5.0.0'
+__version__ = '5.0.1'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -800,9 +800,8 @@ def print_table(db_rows, last_st, arg):
     """Print values as a table"""
 
     tbl = [['No.', 'Boot ID', 'Startup Date', 'Uptime', 'Running', 'Sleeping', 'Shutdown Date', 'End', 'Downtime', 'Kernel']]
-    al_left = [tbl[0].index('End'), tbl[0].index('Kernel')]  # Aligned to left
+    align_left, colpad = [], []
     side_spaces = 3
-    colpad = []
 
     # Define header row, remove unused optional cols
     if not arg.bootid:
@@ -847,6 +846,11 @@ def print_table(db_rows, last_st, arg):
             print('')
 
     else:
+        # Get index position of elements left aligned
+        for i in ('End', 'Kernel'):
+            if i in tbl[0]:
+                align_left.extend([tbl[0].index(i)])
+
         for i in range(len(tbl[0])):
             # Get the maximum width of the given column index
             colpad.append(max([len(str(row[i])) for row in tbl]))
@@ -857,7 +861,7 @@ def print_table(db_rows, last_st, arg):
             # First in raw and next ones with side spaces
             sys.stdout.write(str(row[0]).rjust(colpad[0]))
             for i in range(1, len(row)):
-                if i in al_left:  # Aligned side
+                if i in align_left:
                     col = (side_spaces * ' ') + str(row[i]).ljust(colpad[i])
                 else:
                     col = str(row[i]).rjust(colpad[i] + side_spaces)
