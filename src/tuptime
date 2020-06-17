@@ -758,18 +758,18 @@ def print_list(db_rows, last_st, arg):
     db_rows = ordering_output(db_rows, arg, last_st)
 
     if arg.csv:  # Define content/spaces between values
-        sp0, sp7, sp8 = '"', ',""', ''
+        sp0, sp8 = '"', ''
         sp1 = sp2 = '","'
     else:
-        sp1, sp2, sp8 = '  ', ': ', ' '
-        sp0 = sp7 = ''
+        sp1, sp2 = '  ', ': '
+        sp8, sp0 = ' ', ''
 
     for row_dict in format_output(db_rows, arg):
 
         if row_dict['btime']:
             print(sp0 + 'Startup' + sp2 + sp8 + str(row_dict['startup']) + sp1 + 'at' + sp1 + str(row_dict['btime']) + sp0)
         else:
-            print(sp0 + 'Startup' + sp2 + sp8 + str(row_dict['startup']) + sp0 + (sp7 * 2))
+            print(sp0 + 'Startup' + sp2 + sp8 + str(row_dict['startup']) + sp0)
 
         if arg.bootid and row_dict['bootid']:
             print(sp0 + 'Boot ID' + sp2 + sp8 + str(row_dict['bootid']) + sp0)
@@ -784,7 +784,7 @@ def print_list(db_rows, last_st, arg):
         if row_dict['offbtime'] and row_dict['endst']:
             print(sp0 + 'Shutdown' + sp2 + str(row_dict['endst']) + sp1 + 'at' + sp1 + str(row_dict['offbtime']) + sp0)
         elif row_dict['endst']:
-            print(sp0 + 'Shutdown' + sp2 + str(row_dict['endst']) + sp0 + (sp7 * 2))
+            print(sp0 + 'Shutdown' + sp2 + str(row_dict['endst']) + sp0)
 
         if row_dict['downtime']:
             print(sp0 + 'Downtime' + sp2 + str(row_dict['downtime']) + sp0)
@@ -1035,12 +1035,12 @@ def print_default(db_rows, sis, arg):
 
     # Finally print all
     if arg.csv:  # Define content/spaces between values
-        sp0, sp7, sp8 = '"', ',""', ''
+        sp0, sp8 = '"', ''
         sp1 = sp4 = sp5 = sp9 = '","'
     else:
-        sp1, sp5, sp9 = ': \t', '   ', '  -  '
+        sp1, sp5 = ': \t', '   '
+        sp9, sp0 = '  -  ', ''
         sp4 = sp8 = ' '
-        sp0 = sp7 = ''
 
     uptime = {'average': str(cal['ave']['uptime']), 'current': str(sis['uptime']), 'sys_rate': str(rate['up']) + '%', 'sys_time': str(cal['tot']['uptime'])}
 
@@ -1053,7 +1053,7 @@ def print_default(db_rows, sis, arg):
     if arg.tu or arg.until:
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp5 + 'until' + sp5 + str(tstamp['max']) + sp0)
     else:
-        print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp0 + (sp7 * 2))
+        print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp0)
     print(sp0 + 'System shutdowns' + sp1 + str(shdown['ok']) + sp4 + 'ok' + sp9 + str(shdown['bad']) + sp4 + 'bad' + sp0)
     print(sp0 + 'System life' + sp1 + (sp8 * 8) + str(sys_life) + sp0)
     if arg.bootid:
