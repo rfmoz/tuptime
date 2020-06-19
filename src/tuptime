@@ -402,9 +402,7 @@ def gain_db(sis, arg):
     # Test path
     arg.db_file = os.path.abspath(arg.db_file)  # Get absolute or relative path
     try:
-        if os.path.isdir(os.path.dirname(arg.db_file)):
-            logging.info('Directory exists = %s', str(os.path.dirname(arg.db_file)))
-        else:
+        if not os.path.isdir(os.path.dirname(arg.db_file)):
             logging.info('Making path = %s', str(os.path.dirname(arg.db_file)))
             os.makedirs(os.path.dirname(arg.db_file))
     except Exception as exp_path:
