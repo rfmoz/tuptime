@@ -292,6 +292,9 @@ def get_os_values():
             sis['uptime'] = time.time() - sis['btime']
             sis['rntime'] = sis['uptime']
 
+        # https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=244867
+        # sis['bootid'] = os.popen(sysctl_bin + ' -n kern.boot_id').read()
+
         return sis
 
     def os_linux(sis):
