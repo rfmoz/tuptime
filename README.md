@@ -87,7 +87,7 @@ Briefly in a Linux or FreeBSD system...
 
 Clone the repo:
 
-	git clone https://github.com/rfrail3/tuptime.git
+	git clone --depth=1 https://github.com/rfrail3/tuptime.git
 
 Copy the 'tuptime' file located under 'latest/' directory to '/usr/bin/' and make it executable:
 

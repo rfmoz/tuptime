@@ -10,7 +10,7 @@ Install dependencies, latest versions:
 
 Clone repository and copy executable file:
 
-    # git clone https://github.com/rfrail3/tuptime.git
+    # git clone --depth=1 https://github.com/rfrail3/tuptime.git
     # install -m 755 tuptime/src/tuptime /usr/local/bin/tuptime
 
 Add tuptime user:
@@ -55,7 +55,7 @@ Create a symlink for the Python3 interpreter:
      
 Clone repository and copy executable file:
 
-    # git clone https://github.com/rfrail3/tuptime.git
+    # git clone --depth=1 https://github.com/rfrail3/tuptime.git
     # install -m 755 tuptime/src/tuptime /usr/local/bin/tuptime
 
 Add tuptime user:
@@ -114,7 +114,7 @@ Install tls certs before clone the repo:
 
 Clone repository and copy executable file:
 
-    # git clone https://github.com/rfrail3/tuptime.git
+    # git clone --depth=1 https://github.com/rfrail3/tuptime.git
     # install -m 755 tuptime/src/tuptime /usr/local/bin/tuptime
 
 Execute tuptime with a privileged user for create db path:
