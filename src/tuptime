@@ -257,15 +257,18 @@ def get_os_values():
 
         logging.info('System = BSD')
 
+        def _sysctl():
+            """Set sysctl execution path"""
+            for path in os.environ["PATH"].split(os.pathsep):
+                sysctl_path = os.path.join(path, 'sysctl')
+                if os.path.isfile(sysctl_path) and os.access(sysctl_path, os.X_OK):
+                    return sysctl_path
+
         try:
             sis['btime'] = time.clock_gettime(time.CLOCK_REALTIME) - time.clock_gettime(time.CLOCK_MONOTONIC)
         except Exception as exp:
             logging.info('Old btime assignment. %s', str(exp))
-            for path in os.environ["PATH"].split(os.pathsep):
-                sysctl_bin = os.path.join(path, 'sysctl')
-                if os.path.isfile(sysctl_bin) and os.access(sysctl_bin, os.X_OK):
-                    break
-            sysctl_out = os.popen(sysctl_bin + ' -n kern.boottime').read()
+            sysctl_out = os.popen(_sysctl() + ' -n kern.boottime').read()
             # Some BSDs report the value assigned to 'sec', others do it directly
             if 'sec' in sysctl_out:  # FreeBSD, Darwin
                 sis['btime'] = sysctl_out.split(' sec = ')[1].split(',')[0]
@@ -292,8 +295,10 @@ def get_os_values():
             sis['uptime'] = time.time() - sis['btime']
             sis['rntime'] = sis['uptime']
 
-        # https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=244867
-        # sis['bootid'] = os.popen(sysctl_bin + ' -n kern.boot_id').read()
+        try:
+            sis['bootid'] = os.popen(_sysctl() + ' -xn kern.boot_id').read().split('Dump:')[-1].rstrip()
+        except Exception as exp:
+            logging.info('BSD boot_id not assigned')
 
         return sis
 
@@ -1132,7 +1137,7 @@ def check_new_boot(prev, sis):
 
     # How tuptime does it:
     #
-    #    If boot id exists (only on Linux nowadays), checking if its value has changed
+    #    If boot id exists (only on Linux and FreeBSD nowadays), checking if its value has changed
     #
     #    If not exists, checking if the value resultant from previous btime plus previous uptime (both
     #    saved into DB) is lower than current btime or (to catch shutdowns lower than a second) equal
