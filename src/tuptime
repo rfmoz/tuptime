@@ -296,7 +296,12 @@ def get_os_values():
             sis['rntime'] = sis['uptime']
 
         try:
-            sis['bootid'] = os.popen(_sysctl() + ' -xn kern.boot_id').read().split('Dump:')[-1].rstrip()
+            sysctl_out = os.popen(_sysctl() + ' -xn kern.boot_id').read()
+            if 'Dump' in sysctl_out:
+                sis['bootid'] = sysctl_out.split('Dump:')[-1].rstrip()
+            else:
+                raise ValueError
+
         except Exception as exp:
             logging.info('BSD boot_id not assigned')
 
