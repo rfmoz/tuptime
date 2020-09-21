@@ -936,7 +936,7 @@ def print_tat(db_rows, sis, last_st, arg):
         sp2 = sp5 = sp9 = '","'
     else:
         sp0, sp2, sp9 = '', ':\t', '  =  '
-        sp8, sp5 = ' ', '   '
+        sp8, sp5 = ' ', '  '
 
     print(sp0 + 'Timestamp status' + sp2 + str(report['status']) + sp5 + 'at' + sp5 + str(report['at']) + sp5 + 'on' + sp5 + str(report['startup']) + sp0)
     if arg.bootid:
@@ -1048,7 +1048,7 @@ def print_default(db_rows, sis, arg):
         sp0, sp8 = '"', ''
         sp1 = sp4 = sp5 = sp7 = sp9 = '","'
     else:
-        sp1, sp5 = ': \t', '   '
+        sp1, sp5 = ': \t', '  '
         sp9, sp7, sp0 = '  =  ', '  +  ', ''
         sp4 = sp8 = ' '
 
