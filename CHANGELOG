@@ -1,6 +1,7 @@
 tuptime (5.0.1) unstable; urgency=low
 
   * Identify new startups with boot_id on FreeBSD
+  * Option --decp renamed to --dec and -e equal to it.
 
  -- Ricardo Fraile <rfraile@rfraile.eu>  Tue, 04 Aug 2020 00:06:00 +0100
 

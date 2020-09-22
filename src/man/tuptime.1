@@ -1,10 +1,10 @@
-.TH TUPTIME 1 "May 2020" "5.0.0" "Linux Manual"
+.TH TUPTIME 1 "Sep 2020" "5.0.1" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [{\-h | \-\-help}] [{\-A | \-\-at}=<startup>] [{\-b | \-\-bootid}] [{\-c | \-\-csv}] [{\-d | \-\-date}=<date\ format>] [\-\-decp=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-i | \-\-invert}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}=[u|r|s|e|d|k]] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<startup>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<startup>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}]
+tuptime [{\-h | \-\-help}] [{\-A | \-\-at}=<startup>] [{\-b | \-\-bootid}] [{\-c | \-\-csv}] [{\-d | \-\-date}=<date\ format>] [\-e | \-\-dec=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-i | \-\-invert}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}=[u|r|s|e|d|k]] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<startup>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<startup>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}]
 
 .SH DESCRIPTION
 .RS
@@ -61,7 +61,7 @@ T}
 \-d | \-\-date TIMESTAMP@T{
 Date format output
 T}
-\--decp DECIMALS@T{
+\-e | \-\-dec DECIMALS@T{
 Number of decimals in percentages
 T}
 \-f | \-\-file FILE@T{

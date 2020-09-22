@@ -71,8 +71,8 @@ def get_arguments():
         help='date format output'
     )
     parser.add_argument(
-        '--decp',
-        dest='decp',
+        '-e', '--dec',
+        dest='dec',
         default=2,
         metavar='DECIMALS',
         action='store',
@@ -920,8 +920,8 @@ def print_tat(db_rows, sis, last_st, arg):
         report['bootid'] = report['kernel'] = 'None'
         perctg_1 = perctg_2 = 0.0
     else:
-        perctg_1 = round(report['time'] * 100 / report['time_total'], arg.decp)
-        perctg_2 = round(report['time_fwd'] * 100 / report['time_total'], arg.decp)
+        perctg_1 = round(report['time'] * 100 / report['time_total'], arg.dec)
+        perctg_2 = round(report['time_fwd'] * 100 / report['time_total'], arg.dec)
 
         if arg.invert:
             report['startup'] = report['startup'] - last_st
@@ -1007,10 +1007,10 @@ def print_default(db_rows, sis, arg):
 
     # Get rates and average uptime / downtime
     if sys_life > 0:
-        rate['up'] = round((cal['tot']['uptime'] * 100) / sys_life, arg.decp)
-        rate['rn'] = round((cal['tot']['rntime'] * 100) / sys_life, arg.decp)
-        rate['slp'] = round((cal['tot']['slptime'] * 100) / sys_life, arg.decp)
-        rate['down'] = round((cal['tot']['downtime'] * 100) / sys_life, arg.decp)
+        rate['up'] = round((cal['tot']['uptime'] * 100) / sys_life, arg.dec)
+        rate['rn'] = round((cal['tot']['rntime'] * 100) / sys_life, arg.dec)
+        rate['slp'] = round((cal['tot']['slptime'] * 100) / sys_life, arg.dec)
+        rate['down'] = round((cal['tot']['downtime'] * 100) / sys_life, arg.dec)
 
     if updown['startups'] > 0:
         cal['ave']['uptime'] = int(round(float(cal['tot']['uptime'] / updown['startups']), 0))
