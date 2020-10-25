@@ -677,6 +677,7 @@ def tsince_opt(db_rows, sis, arg):
             row['uptime'] = False
             row['rntime'] = row['slptime'] = False
             row['offbtime'] = False
+            row['endst'] = False
             remap.append(row)
 
         else:
@@ -956,22 +957,26 @@ def print_default(db_rows, sis, arg):
         for row in db_rows:
 
             # Sum totals
-            updown['startups'] += 1
-            if row['endst'] is not False:
-                if any((row['offbtime'], row['downtime'])):
-                    if row['endst'] == 0:
-                        shdown['bad'] += 1
-                    if row['endst'] == 1:
-                        shdown['ok'] += 1
-                    updown['shutdowns'] += 1
+            if row['btime'] is not False:
+                updown['startups'] += 1
+            if row['offbtime'] is not False:
+                if row['endst'] == 0:
+                    shdown['bad'] += 1
+                if row['endst'] == 1:
+                    shdown['ok'] += 1
+                updown['shutdowns'] += 1
             cal['tot']['uptime'] += row['uptime']
             cal['tot']['rntime'] += row['rntime']
             cal['tot']['slptime'] += row['slptime']
             cal['tot']['downtime'] += row['downtime']
 
             # Get lists with all values
-            cnt['kernel'].append(row['kernel'])
             cnt['bootid'].append(row['bootid'])
+            if row['uptime'] is not False:
+                cnt['uptime'].append(row['uptime'])
+            if row['downtime'] is not False:
+                cnt['downtime'].append(row['downtime'])
+            cnt['kernel'].append(row['kernel'])
 
         return cal, shdown, updown, cnt
 
@@ -981,7 +986,7 @@ def print_default(db_rows, sis, arg):
     shdown = {'ok': 0, 'bad': 0}
     updown = {'startups': 0, 'shutdowns': 0}
     tstamp = {'min': arg.ts, 'max': arg.tu}  # Args as init values
-    cnt = {'kernel': [], 'bootid': []}
+    cnt = {'bootid': [], 'uptime': [], 'downtime': [], 'kernel': []}
     sys_life = 0
 
     if db_rows:
@@ -1012,13 +1017,13 @@ def print_default(db_rows, sis, arg):
         rate['slp'] = round((cal['tot']['slptime'] * 100) / sys_life, arg.dec)
         rate['down'] = round((cal['tot']['downtime'] * 100) / sys_life, arg.dec)
 
-    if updown['startups'] > 0:
-        cal['ave']['uptime'] = int(round(float(cal['tot']['uptime'] / updown['startups']), 0))
-        cal['ave']['rntime'] = int(round(float(cal['tot']['rntime'] / updown['startups']), 0))
-        cal['ave']['slptime'] = int(round(float(cal['tot']['slptime'] / updown['startups']), 0))
+    if len(cnt['uptime']) > 0:
+        cal['ave']['uptime'] = int(round(float(cal['tot']['uptime'] / len(cnt['uptime'])), 0))
+        cal['ave']['rntime'] = int(round(float(cal['tot']['rntime'] / len(cnt['uptime'])), 0))
+        cal['ave']['slptime'] = int(round(float(cal['tot']['slptime'] / len(cnt['uptime'])), 0))
 
-    if updown['shutdowns'] > 0:
-        cal['ave']['downtime'] = int(round(float(cal['tot']['downtime'] / updown['shutdowns']), 0))
+    if len(cnt['downtime']) > 0:
+        cal['ave']['downtime'] = int(round(float(cal['tot']['downtime'] / len(cnt['downtime'])), 0))
 
     # Get kernel and boot_id counters, remove duplicate and empty elements
     cnt['kernel'] = len(set(cnt['kernel']))
