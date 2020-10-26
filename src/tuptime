@@ -1085,7 +1085,7 @@ def print_default(db_rows, sis, arg):
 
     print(sp0 + 'Average uptime' + sp1 + uptime['average'] + sp0)
     print(sp0 + 'Average downtime' + sp1 + str(cal['ave']['downtime']) + sp0)
-    if arg.update:
+    if arg.update and not (arg.until or arg.tu):
         if not arg.csv:
             print('')
         print(sp0 + 'Current uptime' + sp1 + uptime['current'] + sp5 + 'since' + sp5 + str(sis['btime']) + sp0)
