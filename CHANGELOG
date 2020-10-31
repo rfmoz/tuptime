@@ -2,8 +2,9 @@ tuptime (5.0.1) unstable; urgency=low
 
   * Identify new startups with boot_id on FreeBSD
   * Option --decp renamed to --dec and -e equal to it.
+  * Minnor code refactoring
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Tue, 04 Aug 2020 00:06:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 31 Oct 2020 15:06:00 +0100
 
 tuptime (5.0.0) unstable; urgency=low
 
