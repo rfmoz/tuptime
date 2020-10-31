@@ -8,31 +8,31 @@ Tuptime is a tool for report the historical and statistical real time of the sys
 
 Just after install:
 
-	System startups:	1   since   21:54:09 24/09/15
-	System shutdowns:	0 ok  -  0 bad
+	System startups:	1  since  21:54:09 24/09/15
+	System shutdowns:	0 ok  +  0 bad
 	System life: 		21m 30s
 
-	System uptime: 		100.0%  -  21m 30s
-	System downtime: 	0.0%  -  0s
+	System uptime: 		100.0%  =  21m 30s
+	System downtime: 	0.0%  =  0s
 
 	Average uptime: 	21m 30s
 	Average downtime: 	0s
 
-	Current uptime: 	21m 30s   since   21:54:09 24/09/15
+	Current uptime: 	21m 30s  since  21:54:09 24/09/15
 
 A few days later:
 
-	System startups:	110   since   10:15:27 08/08/15
-	System shutdowns:	107 ok  -  2 bad
+	System startups:	110  since  10:15:27 08/08/15
+	System shutdowns:	107 ok  +  2 bad
 	System life: 		47d 12h 2m 15s
 
-	System uptime: 		4.04%  -  1d 22h 4m 44s
-	System downtime: 	95.96%  -  45d 13h 57m 30s
+	System uptime: 		4.04%  =  1d 22h 4m 44s
+	System downtime: 	95.96%  =  45d 13h 57m 30s
 
 	Average uptime: 	25m 8s
 	Average downtime: 	9h 56m 42s
 
-	Current uptime: 	23m 33s   since   21:54:09 24/09/15
+	Current uptime: 	23m 33s  since  21:54:09 24/09/15
 
 Swich to -t | --table option:
 
@@ -87,7 +87,7 @@ Briefly in a Linux or FreeBSD system...
 
 Clone the repo:
 
-	git clone https://github.com/rfrail3/tuptime.git
+	git clone --depth=1 https://github.com/rfrail3/tuptime.git
 
 Copy the 'tuptime' file located under 'latest/' directory to '/usr/bin/' and make it executable:
 
@@ -128,7 +128,7 @@ properly. See 'tuptime-manual.txt' for more information.
 
 ### Alternatives
 
-journalctl --list-boots - Show a tabular list of boot numbers (relative to the current boot), their IDs, and the timestamps of the first and last message pertaining to the boot.
+journalctl --list-boots - Show a tabular list of boot numbers (relative to the current boot), their IDs, and the timestamps of the first and last message pertaining to the boot. Close output than 'tuptime  -bit'.
 https://github.com/systemd/systemd/
 
 uptimed - Is an uptime record daemon keeping track of the highest uptimes a computer system ever had. It uses the system boot time to keep sessions apart from each other.
@@ -140,7 +140,7 @@ https://dist.epipe.com/downtimed/
 lastwake - Analyzes the system journal and prints out wake-up and sleep timestamps; for each cycle it tells whether the system was suspended to RAM or to disk (hibernated).
 https://github.com/arigit/lastwake.py
 
-(bonus) dateutils - Not an alternative, but nifty collection of tools to work with dates.
+(bonus) dateutils - Not an alternative, but it is a nifty collection of tools to work with dates.
 https://github.com/hroptatyr/dateutils
 
 
