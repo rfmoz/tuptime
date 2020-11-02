@@ -257,18 +257,11 @@ def get_os_values():
 
         logging.info('System = BSD')
 
-        def _sysctl():
-            """Set sysctl execution path"""
-            for path in os.environ["PATH"].split(os.pathsep):
-                sysctl_path = os.path.join(path, 'sysctl')
-                if os.path.isfile(sysctl_path) and os.access(sysctl_path, os.X_OK):
-                    return sysctl_path
-
         try:
             sis['btime'] = time.clock_gettime(time.CLOCK_REALTIME) - time.clock_gettime(time.CLOCK_MONOTONIC)
         except Exception as exp:
             logging.info('Old btime assignment. %s', str(exp))
-            sysctl_out = os.popen(_sysctl() + ' -n kern.boottime').read()
+            sysctl_out = os.popen('sysctl -n kern.boottime').read()
             # Some BSDs report the value assigned to 'sec', others do it directly
             if 'sec' in sysctl_out:  # FreeBSD, Darwin
                 sis['btime'] = sysctl_out.split(' sec = ')[1].split(',')[0]
@@ -296,7 +289,7 @@ def get_os_values():
             sis['rntime'] = sis['uptime']
 
         try:
-            sysctl_out = os.popen(_sysctl() + ' -xn kern.boot_id 2>&1').read()
+            sysctl_out = os.popen('sysctl -xn kern.boot_id 2>&1').read()
             if 'Dump' in sysctl_out:
                 sis['bootid'] = sysctl_out.split('Dump:')[-1].rstrip()
             else:
