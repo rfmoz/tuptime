@@ -80,6 +80,14 @@ def get_arguments():
         help='number of decimals in percentages'
     )
     parser.add_argument(
+        '--decp',
+        dest='decp',
+        default=None,
+        action='store',
+        type=int,
+        help=argparse.SUPPRESS
+    )
+    parser.add_argument(
         '-f', '--filedb',
         dest='db_file',
         default=DB_FILE,
@@ -242,6 +250,10 @@ def get_arguments():
     # Wrap 'at' over since and until
     if arg.at is not None:
         arg.since = arg.until = arg.at
+
+    if arg.decp:
+        arg.dec = arg.decp
+        logging.warning('Argument \'--decp\' is deprecated in favour of \'-e\' or \'--dec\'.' )
 
     logging.info('Arguments = %s', str(vars(arg)))
     return arg
