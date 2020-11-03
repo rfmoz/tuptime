@@ -274,6 +274,8 @@ def get_os_values():
         except Exception as exp:
             logging.info('Old btime assignment. %s', str(exp))
             sysctl_out = os.popen('sysctl -n kern.boottime').read()
+            # # import subprocess
+            # # sysctl_out = subprocess.check_output(['sysctl', '-n', 'kern.boottime'], timeout=1, text=True)
             # Some BSDs report the value assigned to 'sec', others do it directly
             if 'sec' in sysctl_out:  # FreeBSD, Darwin
                 sis['btime'] = sysctl_out.split(' sec = ')[1].split(',')[0]
@@ -301,6 +303,8 @@ def get_os_values():
             sis['rntime'] = sis['uptime']
 
         try:
+            # # import subprocess
+            # # sysctl_out = subprocess.check_output(['sysctl', '-xn', 'kern.boot_id'], timeout=1, text=True)
             sysctl_out = os.popen('sysctl -xn kern.boot_id 2>&1').read()
             if 'Dump' in sysctl_out:
                 sis['bootid'] = sysctl_out.split('Dump:')[-1].rstrip()
