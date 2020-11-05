@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Sample plot with hours per every state in each day
-from the info that the tuptime command report"""
+"""Sample plot that reports the number of hours/events per every state
+in each day. It extracts the info from tuptime command execution"""
 
 
 from datetime import datetime, timedelta
@@ -61,6 +61,13 @@ def get_arguments():
         help='window width',
         type=int
     )
+    parser.add_argument(
+        '-x',
+        dest='report_events',
+        action='store_true',
+        default=False,
+        help='swich to report startup/shutdown events instead of hours'
+    )
     arg = parser.parse_args()
     return arg
 
@@ -68,14 +75,14 @@ def get_arguments():
 def date_check(arg):
     """Check and clean dates"""
 
-    # Set user or default end date.
+    # Set user provided or default end date
     if arg.edate:
         end_date = dateutil.parser.parse(arg.edate)
     else:
         end_date = datetime.today()
         print('Default end:\tnow')
 
-    # Set user or default begind date. Days ago...
+    # Set user provided or default begind date. Days ago...
     if arg.bdate:
         begin_date = dateutil.parser.parse(arg.bdate)
     else:
@@ -104,14 +111,13 @@ def date_range(date_limits):
     dstart = dateutil.parser.parse(date_limits[0])
     dend = dateutil.parser.parse(date_limits[1])
 
-    # Split time range in days, list with every day
+    # Split time range in days
     while dstart <= dend:
         dlimit.append(dstart)
         dstart += timedelta(days=1)
-    # Finally add last day time range until midnight
-    dlimit.append(dend)
+    dlimit.append(dend)  # Finally add last day time range until midnight
 
-    # Conver to epoch dates, pack two of them, begin and end for each split, and create a list with all
+    # Convert to epoch dates, pack two of them, begin and end for each split, and create a list with all
     for reg in range(1, len(dlimit)):
         ranepo.append([int(dlimit[reg-1].timestamp()), int(dlimit[reg].timestamp())])
         xlegend.append(datetime.fromtimestamp(dlimit[reg-1].timestamp()).strftime('%Y-%m-%d'))
@@ -128,9 +134,9 @@ def main():
     date_limits = date_check(arg)
     date_list, xlegend = date_range(date_limits)
 
-    nran = 0  # Range number
     daysplt = []  # List for all day splits with their events
     ftmp = tempfile.NamedTemporaryFile().name  # File to store Tuptime csv
+    bad = None
 
     # Iterate over each element in (since, until) list
     for nran, _  in enumerate(date_list):
@@ -144,71 +150,86 @@ def main():
             else:
                 subprocess.call(["tuptime", "-lsc", "--tsince", tsince, "--tuntil", tuntil], stdout=out)
 
-        # Get csv file
+        # Parse csv file
         daysplit_events = []
         with open(ftmp) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
-            bad = None  # Register bad shutdown
 
             for row in csv_reader:
-                l_row = []  # List for events in csv rows
+                l_row = [0, 0, 0]  # Events in csv rows
 
                 # Control how was the shutdown
                 if (row[0] == 'Shutdown') and (row[1] == 'BAD'):
                     bad = True
 
-                # Populate list with (uptime, downtime ok, downtime bad)
-                if (row[0] == 'Uptime') or (row[0] == 'Downtime'):
+                if arg.report_events:
+                    # Populate list with (startup, shutdown ok, shutdown bad)
+                    if ((row[0] == 'Startup') or (row[0] == 'Shutdown')) and len(row) > 2:
 
-                    if row[0] == 'Uptime':
-                        # Add 0 or value to first position
-                        l_row.append(int(row[1]))
-                    else:
-                        l_row.append(0)
+                        if row[0] == 'Startup' and row[2] == 'at':
+                            l_row[0] = 1
 
-                    if row[0] == 'Downtime':
-                        # Add (0, value) or (value, 0) to the end
-                        if bad is True:
-                            l_row.extend((0, int(row[1])))
-                        else:
-                            l_row.extend((int(row[1]), 0))
-                        bad = False  # Reset false
-                    else:
-                        l_row.extend((0, 0))
+                        if row[0] == 'Shutdown' and row[2] == 'at':
+                            if bad is True:
+                                l_row[2] = 1
+                            else:
+                                l_row[1] = 1
+                            bad = False
 
-                    # Add to events list per day
-                    daysplit_events.append(l_row)
+                else:
+                    # Populate list with (uptime, downtime ok, downtime bad)
+                    if (row[0] == 'Uptime') or (row[0] == 'Downtime'):
 
-            print('Got range --->\t' + str(nran) + ' with ' + str(len(daysplit_events)) + ' events')
+                        if row[0] == 'Uptime':
+                            l_row[0] = int(row[1])
 
-            # Per day, get total value for each type of event and convert seconds to hours
-            daysplit_events = [(sum(j) / 3600) for j in zip(*daysplit_events)]
+                        if row[0] == 'Downtime':
+                            if bad is True:
+                                l_row[2] = int(row[1])
+                            else:
+                                l_row[1] = int(row[1])
+                            bad = False
+
+                # Add to events list per day
+                daysplit_events.append(l_row)
+
+            print('Got range --->\t' + str(nran) + ' with ' + str(len([i for i in daysplit_events if i != [0, 0, 0]])) + ' events')
+
+            # Per day, get total value for each type of event
+            if arg.report_events:
+                daysplit_events = [(sum(j)) for j in zip(*daysplit_events)]
+            else:
+                # Convert seconds to hours
+                daysplit_events = [(sum(j) / 3600) for j in zip(*daysplit_events)]
 
             # Populate daysplt list with totals
             daysplt.append(daysplit_events)
 
     print('Ranges got:\t' + str(len(daysplt)))
 
-    # At this poing daysplt have:
+    # At this poing daysplt have one of these:
     #
     # list_with_days[
     #   list_with_total_time of_each_type_of_event[
     #     uptime, downtime_ok, downtime_bad ]]
+    #
+    # list_with_days[
+    #   list_with_total_counter of_each_type_of_event[
+    #     startup, shutdown_ok, shutdown_bad ]]
 
     # Matplotlib requires stack with slices
     #
     # y
-    # |  uptime     uptime     uptime
+    # |  up         up         up
     # |  down_ok    down_ok    down_ok
     # |  down_bad   down_bad   down_bad
     # |----------------------------------x
     # |   day1       day2       dayN
 
     # Get each state values slice from each day
-    days = {'uptime': [], 'down_ok': [], 'down_bad': []}
+    days = {'up': [], 'down_ok': [], 'down_bad': []}
     for i in daysplt:
-        if not i: i = [0, 0, 0]  # Set empty
-        days['uptime'].append(i[0])
+        days['up'].append(i[0])
         days['down_ok'].append(i[1])
         days['down_bad'].append(i[2])
 
@@ -216,24 +237,44 @@ def main():
 
     plt.figure(figsize=(arg.width, arg.height))
 
-    # Old bar plot
-    #width = 0.9  # column size
-    #plt.bar(ind, days['uptime'], width, color='green', label='Uptime')
-    #plt.bar(ind, days['down_ok'], width, color='grey', label='Downtime OK', bottom=days['uptime'])
-    #plt.bar(ind, days['down_bad'], width, color='black', label='Downtime BAD', bottom=[i+j for i, j in zip(days['uptime'], days['down_ok'])])
+    if arg.report_events:
+        plt.ylabel('Counter')
+        plt.title('Events per state by Day')
+        rlabel = ['Startup', 'Shutdown Ok', 'Shutdown Bad']
+        width = 0.42  # column size
 
-    plt.plot(ind, days['uptime'], linewidth=2, marker='o', color='green', label='Uptime')
-    plt.plot(ind, days['down_ok'], linewidth=2, marker='o', color='grey', label='Down Ok')
-    plt.plot(ind, days['down_bad'], linewidth=2, marker='o', color='black', label='Down Bad')
+        # Set position of bar on X axis
+        pst1 = np.arange(len(ind))
+        pst2 = [x + width for x in pst1]
 
-    plt.ylabel('Hours')
-    plt.title('Hours per State by Day')
+        plt.bar(pst1, days['up'], width, color='forestgreen', label=rlabel[0], edgecolor='white')
+        plt.bar(pst2, days['down_ok'], width, color='grey', label=rlabel[1], edgecolor='white', bottom=days['down_bad'])
+        plt.bar(pst2, days['down_bad'], width, color='black', label=rlabel[2], edgecolor='white')
+
+        ind = ind + width / 2
+
+    else:
+        plt.ylabel('Hours')
+        plt.title('Hours per State by Day')
+        plt.yticks(np.arange(0, 25, 2))
+        plt.ylim(top=26)
+        rlabel = ['Uptime', 'Down Ok', 'Down Bad']
+
+        # Old bar plot
+        #width = 0.9  # column size
+        #plt.bar(ind, days['up'], width, color='forestgreen', label=rlabel[0])
+        #plt.bar(ind, days['down_ok'], width, color='grey', label=rlabel[1], bottom=days['up'])
+        #plt.bar(ind, days['down_bad'], width, color='black', label=rlabel[2], bottom=[i+j for i, j in zip(days['up'], days['down_ok'])])
+
+        plt.plot(ind, days['up'], linewidth=2, marker='o', color='forestgreen', label=rlabel[0])
+        plt.plot(ind, days['down_ok'], linewidth=2, marker='o', color='grey', linestyle='--', label=rlabel[1])
+        plt.plot(ind, days['down_bad'], linewidth=2, marker='o', color='black', linestyle=':', label=rlabel[2])
+
+        plt.grid(color='lightblue', linestyle='--', linewidth=0.5, axis='x')
+
     plt.xticks(ind, xlegend, rotation=85, ha="center")
     plt.margins(y=0, x=0.01)
-    plt.yticks(np.arange(0, 25, 2))
-    plt.ylim(top=26)
     plt.grid(color='lightgrey', linestyle='--', linewidth=0.5, axis='y')
-    plt.grid(color='lightblue', linestyle='--', linewidth=0.5, axis='x')
     plt.tight_layout()
     cfig = plt.get_current_fig_manager()
     cfig.canvas.set_window_title("Tuptime")

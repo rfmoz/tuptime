@@ -39,5 +39,6 @@ db-tuptime-migrate-4.0-to-5.0.sh
 ____Plots____
 
 tuptime-barchart.py
-    Graph a plot with all hours per state inside each day from tuptime
-    csv output. Playground script.
+    Graph a plot with the number of hours (default) or events (-x swich)
+    per state along each day. It gets the info from tuptime csv output.
+    Playground script.
