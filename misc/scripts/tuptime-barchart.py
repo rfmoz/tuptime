@@ -40,9 +40,9 @@ def get_arguments():
     parser.add_argument(
         '-H', '--height',
         dest='height',
-        default=6,
+        default=13,
         action='store',
-        help='window height',
+        help='window height in cm',
         type=int
     )
     parser.add_argument(
@@ -56,9 +56,9 @@ def get_arguments():
     parser.add_argument(
         '-W', '--width',
         dest='width',
-        default=8,
+        default=17,
         action='store',
-        help='window width',
+        help='window width in cm',
         type=int
     )
     parser.add_argument(
@@ -193,7 +193,7 @@ def main():
                 # Add to events list per day
                 daysplit_events.append(l_row)
 
-            print('Got range --->\t' + str(nran) + ' with ' + str(len([i for i in daysplit_events if i != [0, 0, 0]])) + ' events')
+            print(str(nran) + ' range --->\t' + str(len([i for i in daysplit_events if i != [0, 0, 0]])) + ' events')
 
             # Per day, get total value for each type of event
             if arg.report_events:
@@ -235,11 +235,15 @@ def main():
 
     ind = np.arange(len(daysplt))  # number of days on x
 
-    plt.figure(figsize=(arg.width, arg.height))
+    # Set width and height from inches to cm
+    plt.figure(figsize=((arg.width / 2.54), (arg.height / 2.54)))
 
     if arg.report_events:
         plt.ylabel('Counter')
         plt.title('Events per state by Day')
+        maxv = max(i for v in days.values() for i in v)  # Get max value on all ranges
+        plt.yticks(np.arange(0, (maxv + 1), 1))
+        plt.ylim(top=(maxv + 1))
         rlabel = ['Startup', 'Shutdown Ok', 'Shutdown Bad']
         width = 0.42  # column size
 
