@@ -239,7 +239,7 @@ def main():
     plt.figure(figsize=((arg.width / 2.54), (arg.height / 2.54)))
 
     if arg.report_events:
-        plt.ylabel('Counter')
+        plt.ylabel('Events')
         plt.title('Events per state by Day')
         maxv = max(i for v in days.values() for i in v)  # Get max value on all ranges
         plt.yticks(np.arange(0, (maxv + 1), 1))
