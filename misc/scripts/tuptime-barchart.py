@@ -94,8 +94,8 @@ def date_check(arg):
     begin_date = begin_date.replace(hour=0, minute=0, second=0).strftime("%Y-%m-%d %H:%M:%S")
     end_date = end_date.replace(hour=23, minute=59, second=59).strftime("%Y-%m-%d %H:%M:%S")
 
-    print('Begin date:\t' + str(begin_date))
-    print('End date:\t' + str(end_date))
+    print('Begin datetime:\t' + str(begin_date))
+    print('End datetime:\t' + str(end_date))
 
     return([begin_date, end_date])
 

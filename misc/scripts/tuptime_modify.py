@@ -2,19 +2,19 @@
 # -*- coding: utf-8 -*-
 
 '''
-This script modify the "Startup Date", "Shutdown Date" and "End Status" on
-Tuptime database keeping the other values around in sync.
+This script modify the "Startup Timestamp", "Shutdown Timestamp" and
+"End Status" on Tuptime database keeping the other values around in sync.
 
-Increase 60 secs the startup date on register number 1:
+Increase 60 secs the startup datetime on register number 1:
     tuptime_modify.py -c startup -r 1 -s 60
 
-Decrease 100 secs the startup date on register number 4 on other file:
+Decrease 100 secs the startup datetime on register number 4 on other file:
     tuptime_modify.py -c startup -r 4 -s -100 -f /tmp/test.db
 
-Increase 30 secs the shutdown date on register number 12:
+Increase 30 secs the shutdown datetime on register number 12:
     tuptime_modify.py -c shutdown -r 12 -s 60
 
-Decrease 300 secs the shutdown date on register number 47 with verbose:
+Decrease 300 secs the shutdown datetime on register number 47 with verbose:
     tuptime_modify.py -c shutdown -r 47 -s -300 -v
 
 Swich end status value on register 54:
@@ -47,7 +47,7 @@ def get_arguments():
         type=str,
         required=True,
         choices=['startup', 'shutdown', 'endst'],
-        help='change startup or shutdown date time [<startup|shutdown|endst>]'
+        help='change startup or shutdown datetime [<startup|shutdown|endst>]'
     )
     parser.add_argument(
         '-f', '--filedb',
@@ -127,7 +127,7 @@ def fix_endst(arg, reg, conn, modt, orgt):
 
 
 def fix_shutdown(arg, reg, conn, modt, orgt):
-    """Modify shutdown date register"""
+    """Modify shutdown datetime register"""
 
     # Last row have None values
     if orgt['offbtime'] is None and orgt['downtime'] is None:
@@ -166,7 +166,7 @@ def fix_shutdown(arg, reg, conn, modt, orgt):
 
 
 def fix_startup(arg, reg, conn, modt, orgt, modp, orgp):
-    """Modify startup date register"""
+    """Modify startup datetime register"""
 
     modt['btime'] = orgt['btime'] + arg.seconds
     modt['uptime'] = orgt['uptime'] - arg.seconds

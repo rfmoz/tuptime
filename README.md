@@ -36,7 +36,7 @@ A few days later:
 
 Swich to -t | --table option:
 
-	No.      Startup Date        Uptime       Shutdown Date   End    Downtime
+	No.        Startup T.        Uptime         Shutdown T.   End    Downtime
                                                                                                                                     
 	1   10:15:27 08/08/15           42s   10:16:09 08/08/15    OK         16s
 	2   10:16:26 08/08/15           49s   10:17:15 08/08/15    OK         16s
