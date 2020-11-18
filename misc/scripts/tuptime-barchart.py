@@ -136,7 +136,7 @@ def main():
 
     daysplt = []  # List for all day splits with their events
     ftmp = tempfile.NamedTemporaryFile().name  # File to store Tuptime csv
-    bad = None
+    shutst = None
 
     # Iterate over each element in (since, until) list
     for nran, _  in enumerate(date_list):
@@ -159,8 +159,9 @@ def main():
                 l_row = [0, 0, 0]  # Events in csv rows
 
                 # Control how was the shutdown
-                if (row[0] == 'Shutdown') and (row[1] == 'BAD'):
-                    bad = True
+                if (row[0] == 'Shutdown'):
+                    if (row[1] == 'BAD') : shutst = 'BAD'
+                    if (row[1] == 'OK') : shutst = 'OK'
 
                 if arg.report_events:
                     # Populate list with (startup, shutdown ok, shutdown bad)
@@ -170,11 +171,10 @@ def main():
                             l_row[0] = 1
 
                         if row[0] == 'Shutdown' and row[2] == 'at':
-                            if bad is True:
+                            if shutst == 'BAD':
                                 l_row[2] = 1
                             else:
                                 l_row[1] = 1
-                            bad = False
 
                 else:
                     # Populate list with (uptime, downtime ok, downtime bad)
@@ -184,11 +184,10 @@ def main():
                             l_row[0] = int(row[1])
 
                         if row[0] == 'Downtime':
-                            if bad is True:
+                            if shutst == 'BAD':
                                 l_row[2] = int(row[1])
                             else:
                                 l_row[1] = int(row[1])
-                            bad = False
 
                 # Add to events list per day
                 daysplit_events.append(l_row)
