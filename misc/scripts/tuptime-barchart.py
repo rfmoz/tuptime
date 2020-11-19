@@ -159,9 +159,9 @@ def main():
                 l_row = [0, 0, 0]  # Events in csv rows
 
                 # Control how was the shutdown
-                if (row[0] == 'Shutdown'):
-                    if (row[1] == 'BAD') : shutst = 'BAD'
-                    if (row[1] == 'OK') : shutst = 'OK'
+                if row[0] == 'Shutdown':
+                    if row[1] == 'BAD': shutst = 'BAD'
+                    if row[1] == 'OK': shutst = 'OK'
 
                 if arg.report_events:
                     # Populate list with (startup, shutdown ok, shutdown bad)
@@ -261,17 +261,18 @@ def main():
         plt.title('Hours per State by Day')
         plt.yticks(np.arange(0, 25, 2))
         plt.ylim(top=26)
-        rlabel = ['Uptime', 'Down Ok', 'Down Bad']
+        rlabel = ['Uptime', 'Downtime']
+
+        # Merge all downtimes
+        days['down'] = [x + y for x, y in zip(days['down_ok'], days['down_bad'])]
 
         # Old bar plot
         #width = 0.9  # column size
         #plt.bar(ind, days['up'], width, color='forestgreen', label=rlabel[0])
-        #plt.bar(ind, days['down_ok'], width, color='grey', label=rlabel[1], bottom=days['up'])
-        #plt.bar(ind, days['down_bad'], width, color='black', label=rlabel[2], bottom=[i+j for i, j in zip(days['up'], days['down_ok'])])
+        #plt.bar(ind, days['down'], width, color='grey', label=rlabel[1], bottom=days['up'])
 
         plt.plot(ind, days['up'], linewidth=2, marker='o', color='forestgreen', label=rlabel[0])
-        plt.plot(ind, days['down_ok'], linewidth=2, marker='o', color='grey', linestyle='--', label=rlabel[1])
-        plt.plot(ind, days['down_bad'], linewidth=2, marker='o', color='black', linestyle=':', label=rlabel[2])
+        plt.plot(ind, days['down'], linewidth=2, marker='o', color='grey', linestyle='--', label=rlabel[1])
 
         plt.grid(color='lightblue', linestyle='--', linewidth=0.5, axis='x')
 
