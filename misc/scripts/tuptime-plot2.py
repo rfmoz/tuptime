@@ -3,7 +3,7 @@
 
 import subprocess, csv, argparse, tempfile
 from datetime import datetime, timedelta
-from matplotlib.lines import Line2D
+from collections import Counter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import dateutil.parser
@@ -58,6 +58,13 @@ def get_arguments():
         help='window width in cm',
         type=int
     )
+    parser.add_argument(
+        '-x',
+        dest='report_pie',
+        action='store_true',
+        default=False,
+        help='swich to  pie report with accumulated hours'
+    )
     arg = parser.parse_args()
     return arg
 
@@ -97,28 +104,25 @@ def main():
     arg = get_arguments()
     date_limits = date_check(arg)
 
-    ftmp = tempfile.NamedTemporaryFile().name  # File to store Tuptime csv
+    ftmp = tempfile.NamedTemporaryFile().name  # For Tuptime csv file
+    tst = {'up': [], 'down': [], 'down_ok': [], 'down_bad': []}  # Store events list on range
 
     # Get datetime objects from date limits in timestamp format
     tsince = str(int(dateutil.parser.parse(date_limits[0]).timestamp()))
     tuntil = str(int(dateutil.parser.parse(date_limits[1]).timestamp()))
 
+    # Query tuptime for every (since, until) and save output to a file
     with open(ftmp, "wb", 0) as out:
         if arg.dbfile:  # If a file is passed, avoid update it
             subprocess.call(["tuptime", "-tsc", "--tsince", tsince, "--tuntil", tuntil, "-f", arg.dbfile, "-n"], stdout=out)
         else:
             subprocess.call(["tuptime", "-tsc", "--tsince", tsince, "--tuntil", tuntil], stdout=out)
 
-    tstamp = []  # startup and shutdown timestamps
-    color = []  # colors
-
     # Parse csv file
-
     with open(ftmp) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
 
         for row in csv_reader:
-
             if row[0] == 'No.':
                 continue
 
@@ -127,59 +131,91 @@ def main():
             #print('Shutdown T.: ' + row[3])
             #print('End: ' + row[4])
             #print('Downtime: ' + row[5])
-            #print('-')
 
-            if row[1] != '' and row[3] != '':
-                tstamp.append(row[1])
-                color.append('forestgreen')
+            if row[1] != '':
+                tst['up'].append(row[1])
 
-                tstamp.append(row[3])
+            if row[3] != '':
                 if row[4] == 'BAD':
-                    color.append('black')
+                    tst['down_bad'].append(row[3])
                 else:
-                    color.append('grey')
+                    tst['down_ok'].append(row[3])
 
-    # Convert to datetime object
-    tstamp = [datetime.fromtimestamp(int(elem)) for elem in tstamp]
+    # Set whole downtimes and convert to datetime object
+    tst['down'] = tst['down_ok'] + tst['down_bad']
+    for state in tst:
+        tst[state] = [datetime.fromtimestamp(int(elem)) for elem in tst[state]]
 
-    # Reset date allows position circles inside the same 00..24 range on y-axis
-    y = [elem.replace(year=1970, month=1, day=1) for elem in tstamp]
+    if arg.report_pie:
+        pie = {'up': [], 'down': []}  # One plot for each type
 
-    # Reset hour allows position circles straight over the date tick on x-axis
-    x = [elem.replace(hour=00, minute=00, second=00) for elem in tstamp]
+        # From datetime, get only hour and add 'h' at the end
+        for elem in tst['up']: pie['up'].append(str(elem.hour) + str('h'))
+        for elem in tst['down']: pie['down'].append(str(elem.hour) + str('h'))
 
-    # Set scatter plot values
-    plt.scatter(x, y, s=200, color=color, edgecolors='white', alpha=0.8, marker="X")
+        # Count elements on list or set None if emtpy
+        c_down = dict(Counter(pie['down'])) if pie['down'] else {'None': [0]}
+        c_up = dict(Counter(pie['up'])) if pie['up'] else {'None': [0]}
 
-    # Format axes:
-    plt.gcf().autofmt_xdate()
-    axs = plt.gca()
+        # Set two plots and their frame size
+        _, axs = plt.subplots(1, 2, figsize=((arg.width / 2.54), (arg.height / 2.54)))
 
-    #  X as days and defined limits + 12h of margin
-    axs.xaxis.set_major_formatter(mdates.DateFormatter('%D'))
-    axs.xaxis.set_major_locator(mdates.DayLocator())
-    lbegin = datetime.strptime(date_limits[0], '%Y-%m-%d %H:%M:%S') - timedelta(hours=12)
-    lend = datetime.strptime(date_limits[1], '%Y-%m-%d %H:%M:%S') + timedelta(hours=12)
-    plt.xlim(lbegin, lend)
+        # Set values for each pie plot
+        axs[0].pie([c_up[v] for v in c_up], labels=[k for k in c_up], autopct='%1.1f%%', textprops={'fontsize': 8})
+        axs[0].set(aspect="equal", title='Startup')
 
-    #  Y as 24 hours range
-    axs.yaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
-    axs.yaxis.set_major_locator(mdates.HourLocator(byhour=range(0, 24, 2)))
-    plt.ylim([datetime(1970, 1, 1, 00, 00), datetime(1970, 1, 1, 23, 59, 59)])
+        axs[1].pie([c_down[v] for v in c_down], labels=[k for k in c_down], autopct='%1.1f%%', textprops={'fontsize': 8})
+        axs[1].set(aspect="equal", title='Shutdown')
 
-    # Set legend
-    plt.legend(handles=[Line2D([0], [0], marker='X', color='w', alpha=0.8, label='Startup', markerfacecolor='forestgreen', markersize=10),
-                        Line2D([0], [0], marker='X', color='w', alpha=0.8, label='Shutdown Ok', markerfacecolor='grey', markersize=10),
-                        Line2D([0], [0], marker='X', color='w', alpha=0.8, label='Shutdown Bad', markerfacecolor='black', markersize=10)])
+        axs[0].text(1, -0.1, str('From    ' + str(date_limits[0]) + '    to    ' + str(date_limits[1])), size=10, ha="center", transform=axs[0].transAxes)
+        plt.suptitle("Events per hour", fontsize=14)
 
-    axs.set_axisbelow(True)
-    axs.invert_yaxis()
-    axs.grid(True)
+    else:
+        # Reset date allows position circles inside the same 00..24 range on y-axis
+        scatt_y = {'up': [], 'down_ok': [], 'down_bad': []}
+        scatt_y['up'] = [elem.replace(year=1970, month=1, day=1) for elem in tst['up']]
+        scatt_y['down_ok'] = [elem.replace(year=1970, month=1, day=1) for elem in tst['down_ok']]
+        scatt_y['down_bad'] = [elem.replace(year=1970, month=1, day=1) for elem in tst['down_bad']]
 
-    plt.ylabel('Day Time')
-    plt.title('Events on Time by Day')
-    plt.margins(y=0, x=0.01)
-    plt.grid(color='lightgrey', linestyle='--', linewidth=0.9, axis='y')
+        # Reset hour allows position circles straight over the date tick on x-axis
+        scatt_x = {'up': [], 'down_ok': [], 'down_bad': []}
+        scatt_x['up'] = [elem.replace(hour=00, minute=00, second=00) for elem in tst['up']]
+        scatt_x['down_ok'] = [elem.replace(hour=00, minute=00, second=00) for elem in tst['down_ok']]
+        scatt_x['down_bad'] = [elem.replace(hour=00, minute=00, second=00) for elem in tst['down_bad']]
+
+        # Set width and height from inches to cm
+        plt.figure(figsize=((arg.width / 2.54), (arg.height / 2.54)))
+
+        # Set scatter plot values
+        plt.scatter(scatt_x['up'], scatt_y['up'], s=200, color='forestgreen', edgecolors='white', alpha=0.8, marker="X", label='Up')
+        plt.scatter(scatt_x['down_ok'], scatt_y['down_ok'], s=200, color='grey', edgecolors='white', alpha=0.8, marker="X", label='Down ok')
+        plt.scatter(scatt_x['down_bad'], scatt_y['down_bad'], s=200, color='black', edgecolors='white', alpha=0.8, marker="X", label='Down bad')
+
+        # Format axes:
+        plt.gcf().autofmt_xdate()
+        axs = plt.gca()
+
+        #  X as days and defined limits + 12h of margin
+        axs.xaxis.set_major_formatter(mdates.DateFormatter('%D'))
+        axs.xaxis.set_major_locator(mdates.DayLocator())
+        lbegin = datetime.strptime(date_limits[0], '%Y-%m-%d %H:%M:%S') - timedelta(hours=12)
+        lend = datetime.strptime(date_limits[1], '%Y-%m-%d %H:%M:%S') + timedelta(hours=12)
+        plt.xlim(lbegin, lend)
+
+        #  Y as 24 hours range
+        axs.yaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
+        axs.yaxis.set_major_locator(mdates.HourLocator(byhour=range(0, 24, 2)))
+        plt.ylim([datetime(1970, 1, 1, 00, 00), datetime(1970, 1, 1, 23, 59, 59)])
+
+        axs.set_axisbelow(True)
+        axs.invert_yaxis()
+        plt.grid(True)
+        plt.ylabel('Day Time')
+        plt.title('Events on Time by Day')
+        plt.margins(y=0, x=0.01)
+        plt.grid(color='lightgrey', linestyle='--', linewidth=0.9, axis='y')
+        plt.legend()
+
     plt.tight_layout()
     cfig = plt.get_current_fig_manager()
     cfig.canvas.set_window_title("Tuptime")

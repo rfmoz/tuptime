@@ -44,5 +44,6 @@ tuptime-plot1.py
     Playground script.
 
 tuptime-plot2.py
-    Graph a plot with the state events per hour along each day. It gets
-    the info from tuptime csv output. Playground script.
+    Graph a plot with the state events per hour along each day (default)
+    or accumulated events per hour (-x swich). It gets the info from
+    tuptime csv output. Playground script.
