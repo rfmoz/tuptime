@@ -17,14 +17,14 @@ def get_arguments():
         '-b', '--bdate',
         dest='bdate',
         action='store',
-        help='begin date to plot, format:"Y-m-d"',
+        help='begin date to plot, format:"d-m-Y"',
         type=str
     )
     parser.add_argument(
         '-e', '--edate',
         dest='edate',
         action='store',
-        help='end date to plot, format:"Y-m-d" (default today)',
+        help='end date to plot, format:"d-m-Y" (default today)',
         type=str
     )
     parser.add_argument(
@@ -88,8 +88,8 @@ def date_check(arg):
 
 
     # Adjust date to the start or end time range and set the format
-    begin_date = begin_date.replace(hour=0, minute=0, second=0).strftime("%Y-%m-%d %H:%M:%S")
-    end_date = end_date.replace(hour=23, minute=59, second=59).strftime("%Y-%m-%d %H:%M:%S")
+    begin_date = begin_date.replace(hour=0, minute=0, second=0).strftime("%d-%b-%Y %H:%M:%S")
+    end_date = end_date.replace(hour=23, minute=59, second=59).strftime("%d-%b-%Y %H:%M:%S")
 
     print('Begin datetime:\t' + str(begin_date))
     print('End datetime:\t' + str(end_date))
@@ -154,17 +154,17 @@ def main():
         for elem in tst['down']: pie['down'].append(str(elem.hour) + str('h'))
 
         # Count elements on list or set None if emtpy
-        c_down = dict(Counter(pie['down'])) if pie['down'] else {'None': [0]}
-        c_up = dict(Counter(pie['up'])) if pie['up'] else {'None': [0]}
+        pie['down'] = dict(Counter(pie['down'])) if pie['down'] else {'None': [0]}
+        pie['up'] = dict(Counter(pie['up'])) if pie['up'] else {'None': [0]}
 
         # Set two plots and their frame size
         _, axs = plt.subplots(1, 2, figsize=((arg.width / 2.54), (arg.height / 2.54)))
 
         # Set values for each pie plot
-        axs[0].pie([c_up[v] for v in c_up], labels=[k for k in c_up], autopct='%1.1f%%', textprops={'fontsize': 8})
+        axs[0].pie([pie['up'][v] for v in pie['up']], labels=[k for k in pie['up']], autopct='%1.1f%%', textprops={'fontsize': 8}, wedgeprops={'alpha':0.85})
         axs[0].set(aspect="equal", title='Startup')
 
-        axs[1].pie([c_down[v] for v in c_down], labels=[k for k in c_down], autopct='%1.1f%%', textprops={'fontsize': 8})
+        axs[1].pie([pie['down'][v] for v in pie['down']], labels=[k for k in pie['down']], autopct='%1.1f%%', textprops={'fontsize': 8}, wedgeprops={'alpha':0.85})
         axs[1].set(aspect="equal", title='Shutdown')
 
         axs[0].text(1, -0.1, str('From    ' + str(date_limits[0]) + '    to    ' + str(date_limits[1])), size=10, ha="center", transform=axs[0].transAxes)
@@ -187,19 +187,19 @@ def main():
         plt.figure(figsize=((arg.width / 2.54), (arg.height / 2.54)))
 
         # Set scatter plot values
-        plt.scatter(scatt_x['up'], scatt_y['up'], s=200, color='forestgreen', edgecolors='white', alpha=0.8, marker="X", label='Up')
-        plt.scatter(scatt_x['down_ok'], scatt_y['down_ok'], s=200, color='grey', edgecolors='white', alpha=0.8, marker="X", label='Down ok')
-        plt.scatter(scatt_x['down_bad'], scatt_y['down_bad'], s=200, color='black', edgecolors='white', alpha=0.8, marker="X", label='Down bad')
+        plt.scatter(scatt_x['up'], scatt_y['up'], s=200, color='forestgreen', edgecolors='white', alpha=0.85, marker="X", label='Up')
+        plt.scatter(scatt_x['down_ok'], scatt_y['down_ok'], s=200, color='grey', edgecolors='white', alpha=0.85, marker="X", label='Down ok')
+        plt.scatter(scatt_x['down_bad'], scatt_y['down_bad'], s=200, color='black', edgecolors='white', alpha=0.85, marker="X", label='Down bad')
 
         # Format axes:
         plt.gcf().autofmt_xdate()
         axs = plt.gca()
 
         #  X as days and defined limits + 12h of margin
-        axs.xaxis.set_major_formatter(mdates.DateFormatter('%D'))
+        axs.xaxis.set_major_formatter(mdates.DateFormatter('%d-%b-%Y'))
         axs.xaxis.set_major_locator(mdates.DayLocator())
-        lbegin = datetime.strptime(date_limits[0], '%Y-%m-%d %H:%M:%S') - timedelta(hours=12)
-        lend = datetime.strptime(date_limits[1], '%Y-%m-%d %H:%M:%S') + timedelta(hours=12)
+        lbegin = datetime.strptime(date_limits[0], '%d-%b-%Y %H:%M:%S') - timedelta(hours=12)
+        lend = datetime.strptime(date_limits[1], '%d-%b-%Y %H:%M:%S') + timedelta(hours=12)
         plt.xlim(lbegin, lend)
 
         #  Y as 24 hours range

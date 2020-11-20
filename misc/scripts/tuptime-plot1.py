@@ -20,14 +20,14 @@ def get_arguments():
         '-b', '--bdate',
         dest='bdate',
         action='store',
-        help='begin date to plot, format:"Y-m-d"',
+        help='begin date to plot, format:"d-m-Y"',
         type=str
     )
     parser.add_argument(
         '-e', '--edate',
         dest='edate',
         action='store',
-        help='end date to plot, format:"Y-m-d" (default today)',
+        help='end date to plot, format:"d-m-Y" (default today)',
         type=str
     )
     parser.add_argument(
@@ -91,8 +91,8 @@ def date_check(arg):
 
 
     # Adjust date to the start or end time range and set the format
-    begin_date = begin_date.replace(hour=0, minute=0, second=0).strftime("%Y-%m-%d %H:%M:%S")
-    end_date = end_date.replace(hour=23, minute=59, second=59).strftime("%Y-%m-%d %H:%M:%S")
+    begin_date = begin_date.replace(hour=0, minute=0, second=0).strftime("%d-%b-%Y %H:%M:%S")
+    end_date = end_date.replace(hour=23, minute=59, second=59).strftime("%d-%b-%Y %H:%M:%S")
 
     print('Begin datetime:\t' + str(begin_date))
     print('End datetime:\t' + str(end_date))
@@ -120,7 +120,7 @@ def date_range(date_limits):
     # Convert to epoch dates, pack two of them, begin and end for each split, and create a list with all
     for reg in range(1, len(dlimit)):
         ranepo.append([int(dlimit[reg-1].timestamp()), int(dlimit[reg].timestamp())])
-        xlegend.append(datetime.fromtimestamp(dlimit[reg-1].timestamp()).strftime('%Y-%m-%d'))
+        xlegend.append(datetime.fromtimestamp(dlimit[reg-1].timestamp()).strftime('%d-%b-%Y'))
 
     print('Ranges on list:\t' + str(len(ranepo)))
 
