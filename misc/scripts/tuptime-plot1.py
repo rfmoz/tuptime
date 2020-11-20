@@ -206,7 +206,7 @@ def main():
 
     print('Ranges got:\t' + str(len(daysplt)))
 
-    # At this poing daysplt have one of these:
+    # At this point daysplt have one of these:
     #
     # list_with_days[
     #   list_with_total_time of_each_type_of_event[
