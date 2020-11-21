@@ -276,7 +276,8 @@ def main():
 
         plt.grid(color='lightblue', linestyle='--', linewidth=0.5, axis='x')
 
-    plt.xticks(ind, xlegend, rotation=85, ha="center")
+    plt.xticks(ind, xlegend)
+    plt.gcf().autofmt_xdate()
     plt.margins(y=0, x=0.01)
     plt.grid(color='lightgrey', linestyle='--', linewidth=0.5, axis='y')
     plt.tight_layout()
