@@ -120,7 +120,7 @@ def date_range(date_limits):
     # Convert to epoch dates, pack two of them, begin and end for each split, and create a list with all
     for reg in range(1, len(dlimit)):
         ranepo.append([int(dlimit[reg-1].timestamp()), int(dlimit[reg].timestamp())])
-        xlegend.append(datetime.fromtimestamp(dlimit[reg-1].timestamp()).strftime('%d-%b-%Y'))
+        xlegend.append(datetime.fromtimestamp(dlimit[reg-1].timestamp()).strftime('%d-%b-%y'))
 
     print('Ranges on list:\t' + str(len(ranepo)))
 

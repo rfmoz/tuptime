@@ -178,7 +178,7 @@ def main():
         axs[1].set(aspect="equal", title='Shutdown')
 
         axs[0].text(1, -0.1, str('From    ' + str(date_limits[0]) + '    to    ' + str(date_limits[1])), size=10, ha="center", transform=axs[0].transAxes)
-        plt.suptitle("Events per Hour", fontsize=14)
+        plt.suptitle("Events per Hours in all Days", fontsize=14)
 
     else:
         # Reset date allows position circles inside the same 00..24 range on y-axis
@@ -206,7 +206,7 @@ def main():
         axs = plt.gca()
 
         #  X as days and defined limits with their margin
-        axs.xaxis.set_major_formatter(mdates.DateFormatter('%d-%b-%Y'))
+        axs.xaxis.set_major_formatter(mdates.DateFormatter('%d-%b-%y'))
         axs.xaxis.set_major_locator(mdates.DayLocator())
         plt.xlim(datetime.strptime(date_limits[0], '%d-%b-%Y %H:%M:%S') - timedelta(hours=4),
                  datetime.strptime(date_limits[1], '%d-%b-%Y %H:%M:%S') - timedelta(hours=20))
