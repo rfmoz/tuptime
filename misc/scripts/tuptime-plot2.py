@@ -203,12 +203,11 @@ def main():
         plt.gcf().autofmt_xdate()
         axs = plt.gca()
 
-        #  X as days and defined limits + 12h of margin
+        #  X as days and defined limits with their margin
         axs.xaxis.set_major_formatter(mdates.DateFormatter('%d-%b-%Y'))
         axs.xaxis.set_major_locator(mdates.DayLocator())
-        lbegin = datetime.strptime(date_limits[0], '%d-%b-%Y %H:%M:%S') - timedelta(hours=12)
-        lend = datetime.strptime(date_limits[1], '%d-%b-%Y %H:%M:%S') + timedelta(hours=12)
-        plt.xlim(lbegin, lend)
+        plt.xlim(datetime.strptime(date_limits[0], '%d-%b-%Y %H:%M:%S') - timedelta(hours=4),
+                 datetime.strptime(date_limits[1], '%d-%b-%Y %H:%M:%S') - timedelta(hours=20))
 
         #  Y as 24 hours range
         axs.yaxis.set_major_formatter(mdates.DateFormatter('%H:%M'))
