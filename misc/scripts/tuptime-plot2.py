@@ -166,12 +166,14 @@ def main():
 
         # Set values for each pie plot
         axs[0].pie([v[1] for v in pie['up']], labels=[k[0].rjust(2, '0') + str('h') for k in pie['up']],
-                   autopct='%1.1f%%', startangle=90, counterclock=False,
+                   autopct=lambda p : '{:.1f}%\n{:,.0f}'.format(p,p * sum([v[1] for v in pie['up']])/100),
+                   startangle=90, counterclock=False,
                    textprops={'fontsize': 8}, wedgeprops={'alpha':0.85})
         axs[0].set(aspect="equal", title='Startup')
 
         axs[1].pie([v[1] for v in pie['down']], labels=[str(k[0]).rjust(2, '0') + str('h') for k in pie['down']],
-                   autopct='%1.1f%%', startangle=90, counterclock=False,
+                   autopct=lambda p : '{:.1f}%\n{:,.0f}'.format(p,p * sum([v[1] for v in pie['down']])/100),
+                   startangle=90, counterclock=False,
                    textprops={'fontsize': 8}, wedgeprops={'alpha':0.85})
         axs[1].set(aspect="equal", title='Shutdown')
 
