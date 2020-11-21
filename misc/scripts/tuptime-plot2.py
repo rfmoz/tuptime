@@ -39,7 +39,7 @@ def get_arguments():
         dest='height',
         default=13,
         action='store',
-        help='window height in cm',
+        help='window height in cm (default 13)',
         type=int
     )
     parser.add_argument(
@@ -55,7 +55,7 @@ def get_arguments():
         dest='width',
         default=17,
         action='store',
-        help='window width in cm',
+        help='window width in cm (default 17)',
         type=int
     )
     parser.add_argument(
