@@ -177,7 +177,6 @@ def main():
                    textprops={'fontsize': 8}, wedgeprops={'alpha':0.85})
         axs[1].set(aspect="equal", title='Shutdown')
 
-        axs[0].text(1, -0.1, str('From    ' + str(date_limits[0]) + '    to    ' + str(date_limits[1])), size=10, ha="center", transform=axs[0].transAxes)
         plt.suptitle("Events per Hours in all Days", fontsize=14)
 
     else:
