@@ -178,7 +178,7 @@ def main():
         axs[1].set(aspect="equal", title='Shutdown')
 
         axs[0].text(1, -0.1, str('From    ' + str(date_limits[0]) + '    to    ' + str(date_limits[1])), size=10, ha="center", transform=axs[0].transAxes)
-        plt.suptitle("Events per hour", fontsize=14)
+        plt.suptitle("Events per Hour", fontsize=14)
 
     else:
         # Reset date allows position circles inside the same 00..24 range on y-axis

@@ -239,7 +239,7 @@ def main():
 
     if arg.report_events:
         plt.ylabel('Events')
-        plt.title('Events per state by Day')
+        plt.title('Events per State by Day')
         maxv = max(i for v in days.values() for i in v)  # Get max value on all ranges
         plt.yticks(np.arange(0, (maxv + 1), 1))
         plt.ylim(top=(maxv + 1))
