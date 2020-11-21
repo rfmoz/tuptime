@@ -149,22 +149,30 @@ def main():
     if arg.report_pie:
         pie = {'up': [], 'down': []}  # One plot for each type
 
-        # From datetime, get only hour and add 'h' at the end
-        for elem in tst['up']: pie['up'].append(str(elem.hour) + str('h'))
-        for elem in tst['down']: pie['down'].append(str(elem.hour) + str('h'))
+        # From datetime, get only hour
+        for elem in tst['up']: pie['up'].append(str(elem.hour))
+        for elem in tst['down']: pie['down'].append(str(elem.hour))
 
-        # Count elements on list or set None if emtpy
-        pie['down'] = dict(Counter(pie['down'])) if pie['down'] else {'None': [0]}
-        pie['up'] = dict(Counter(pie['up'])) if pie['up'] else {'None': [0]}
+        # Count elements on list or set '0' if emtpy. Get list with items
+        pie['up'] = dict(Counter(pie['up'])).items() if pie['up'] else [('0', 0)]
+        pie['down'] = dict(Counter(pie['down'])).items() if pie['down'] else [('0', 0)]
+
+        # Values ordered by first element on list that was key on source dict
+        pie['up'] = sorted(pie['up'], key=lambda ordr: int(ordr[0]))
+        pie['down'] = sorted(pie['down'], key=lambda ordr: int(ordr[0]))
 
         # Set two plots and their frame size
         _, axs = plt.subplots(1, 2, figsize=((arg.width / 2.54), (arg.height / 2.54)))
 
         # Set values for each pie plot
-        axs[0].pie([pie['up'][v] for v in pie['up']], labels=[k for k in pie['up']], autopct='%1.1f%%', textprops={'fontsize': 8}, wedgeprops={'alpha':0.85})
+        axs[0].pie([v[1] for v in pie['up']], labels=[k[0].rjust(2, '0') + str('h') for k in pie['up']],
+                   autopct='%1.1f%%', startangle=90, counterclock=False,
+                   textprops={'fontsize': 8}, wedgeprops={'alpha':0.85})
         axs[0].set(aspect="equal", title='Startup')
 
-        axs[1].pie([pie['down'][v] for v in pie['down']], labels=[k for k in pie['down']], autopct='%1.1f%%', textprops={'fontsize': 8}, wedgeprops={'alpha':0.85})
+        axs[1].pie([v[1] for v in pie['down']], labels=[str(k[0]).rjust(2, '0') + str('h') for k in pie['down']],
+                   autopct='%1.1f%%', startangle=90, counterclock=False,
+                   textprops={'fontsize': 8}, wedgeprops={'alpha':0.85})
         axs[1].set(aspect="equal", title='Shutdown')
 
         axs[0].text(1, -0.1, str('From    ' + str(date_limits[0]) + '    to    ' + str(date_limits[1])), size=10, ha="center", transform=axs[0].transAxes)
