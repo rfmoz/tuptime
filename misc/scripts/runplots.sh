@@ -5,17 +5,32 @@
 # with the same arguments.
 
 # Python command
-PYEX='python3'
+PyEx='python3'
 
 # Days ago
-past=30
+Past=30
 
-# Size wide and height for nice display on a 16:9 screen
-height=10
-wide=22
+# Set wide and height for fit all plots together on the screen
+xrandr -v > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+	Xrdr=`xrandr | grep -i ' connected\( primary\)\?'`  # Connected primary monitor
+	Xmm=`echo $Xrdr | grep -o -P '(?<=\)\ ).*(?=mm\ x\ )'`  # X mm size number
+	Ymm=`echo $Xrdr | grep -o -P '(?<=mm\ x\ ).*(?=mm)'`  # Y mm size number
+	Xcm=`echo "$Xmm / 10 / 2 - 2" | bc`  # Half in cm minus boundary
+	Ycm=`echo "$Ymm / 10 / 2 - 3" | bc`  # Half in cm minus boundary
+else
+	echo "### Install 'xrandr' for auto size based on monitor ###"
+	Xcm=22
+	Ycm=10
+fi
 
-echo "Making plots in backgroud..."
-$PYEX ./tuptime-plot1.py -W $wide -H $height -p $past > /dev/null &
-$PYEX ./tuptime-plot1.py -W $wide -H $height -p $past -x > /dev/null &
-$PYEX ./tuptime-plot2.py -W $wide -H $height -p $past > /dev/null &
-$PYEX ./tuptime-plot2.py -W $wide -H $height -p $past -x > /dev/null &
+echo -e "Days:\t$Past"
+echo -e "Wide:\t$Xcm"
+echo -e "Height:\t$Ycm"
+
+echo -e "\nMaking 4 plots in backgroud...\n"
+XnY="-W $Xcm -H $Ycm"
+$PyEx ./tuptime-plot1.py $XnY -p $Past > /dev/null &
+$PyEx ./tuptime-plot1.py $XnY -p $Past -x > /dev/null &
+$PyEx ./tuptime-plot2.py $XnY -p $Past > /dev/null &
+$PyEx ./tuptime-plot2.py $XnY -p $Past -x
