@@ -7,22 +7,25 @@
 # Python command
 PyEx='python3'
 
-# Days ago
-Past=30
-
-# Set wide and height for fit all plots together on the screen
-xrandr -v > /dev/null 2>&1
-if [ $? -eq 0 ]; then
-	Xrdr=`xrandr | grep -i ' connected\( primary\)\?'`  # Connected primary monitor
-	Xmm=`echo $Xrdr | grep -o -P '(?<=\)\ ).*(?=mm\ x\ )'`  # X mm size number
-	Ymm=`echo $Xrdr | grep -o -P '(?<=mm\ x\ ).*(?=mm)'`  # Y mm size number
-	Xcm=`echo "$Xmm / 10 / 2 - 2" | bc`  # Half in cm minus boundary
-	Ycm=`echo "$Ymm / 10 / 2 - 3" | bc`  # Half in cm minus boundary
+# X and Y wide and height for fit all plots together on the screen
+if [ -z "$1" ]; then
+	XargY='22x10'
 else
-	echo "### Install 'xrandr' for auto size based on monitor ###"
-	Xcm=22
-	Ycm=10
+	XargY=`grep -oP '\d+x\d+' <<<$1`
 fi
+Xcm=`cut -dx -f1 <<< $XargY`
+Ycm=`cut -dx -f2 <<< $XargY`
+
+# Days ago
+if [ -z "$2" ]; then
+	Past='30'
+else
+	Past=`grep -oP '\d+' <<<$2`
+fi
+echo "Execution: $0 [Width x Height] [Past Days]"
+echo "Example:   $0 22x10 30"
+echo ""
+if [ -z "$XargY" ] || [ -z "$Past" ]; then exit; fi
 
 echo -e "Days:\t$Past"
 echo -e "Wide:\t$Xcm"
