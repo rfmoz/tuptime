@@ -177,7 +177,7 @@ def main():
                    textprops={'fontsize': 8}, wedgeprops={'alpha':0.85})
         axs[1].set(aspect="equal", title='Shutdown')
 
-        plt.suptitle("Events per Hours in all Days", fontsize=14)
+        plt.suptitle("Events per Hours in Range", fontsize=14)
 
     else:
         # Reset date allows position circles inside the same 00..24 range on y-axis
