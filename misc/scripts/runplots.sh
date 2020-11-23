@@ -22,18 +22,23 @@ if [ -z "$2" ]; then
 else
 	Past=`grep -oP '\d+' <<<$2`
 fi
-echo "Execution: $0 [Width x Height] [Past Days]"
-echo "Example:   $0 22x10 30"
+
+# End Date
+if [ -z "$3" ]; then
+	EndDate=''
+else
+	EndDate="-e `grep -oP '\d+-\w+-\d+' <<<$3`"
+fi
+
+echo "Execution: $0 [Width x Height] [Past Days] [End Date]"
+echo "Example:   $0 22x10 30 31-Dec-20"
 echo ""
 if [ -z "$XargY" ] || [ -z "$Past" ]; then exit; fi
 
-echo -e "Days:\t$Past"
-echo -e "Wide:\t$Xcm"
-echo -e "Height:\t$Ycm"
-
-echo -e "\nMaking 4 plots in backgroud...\n"
+echo -e "Making 4 plots in backgroud...\n"
+echo -e "Wide x Height:\t${Xcm}x${Ycm}"
 XnY="-W $Xcm -H $Ycm"
-$PyEx ./tuptime-plot1.py $XnY -p $Past > /dev/null &
-$PyEx ./tuptime-plot1.py $XnY -p $Past -x > /dev/null &
-$PyEx ./tuptime-plot2.py $XnY -p $Past > /dev/null &
-$PyEx ./tuptime-plot2.py $XnY -p $Past -x
+$PyEx ./tuptime-plot1.py $XnY $EndDate -p $Past > /dev/null &
+$PyEx ./tuptime-plot1.py $XnY $EndDate -p $Past -x > /dev/null &
+$PyEx ./tuptime-plot2.py $XnY $EndDate -p $Past > /dev/null &
+$PyEx ./tuptime-plot2.py $XnY $EndDate -p $Past -x
