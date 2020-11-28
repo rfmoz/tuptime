@@ -19,7 +19,7 @@ tuptime_start()
 {
 	echo "Starting $name."
 	command_args="-x"
-	
+
 	su -m ${tuptime_user} -c "$name $command_args" 2> /dev/null || $name $command_args 2> /dev/null
 }
 

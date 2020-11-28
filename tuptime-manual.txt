@@ -93,7 +93,7 @@ For Linux systems:
            # install -m 644 tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
 
        If it use systemd, copy service file and enable it:
-	
+
            # install -m 644 tuptime/src/systemd/tuptime.service /lib/systemd/system/tuptime.service
            # systemctl enable tuptime.service && systemctl start tuptime.service
 
@@ -112,7 +112,7 @@ For Linux systems:
 
            # install -m 755 tuptime/src/init.d/debian/tuptime /etc/init.d/tuptime
            # update-rc.d tuptime defaults
-	   # /etc/init.d/tuptime start
+           # /etc/init.d/tuptime start
 
        That's all, enjoy it.
 
@@ -228,36 +228,36 @@ These are the command line options, no configuration file is used:
   Change the datetime/timestamp format. By default the output use the
   configured system locales. Allow values are:
 
-	%a	Weekday as locale’s abbreviated name.
-	%A	Weekday as locale’s full name.
-	%w	Weekday as a decimal number, where 0 is Sunday and 6 is 
-		Saturday.
-	%d	Day of the month as a zero-padded decimal number.
-	%b	Month as locale’s abbreviated name.
-	%B	Month as locale’s full name.
-	%m	Month as a zero-padded decimal number.
-	%y	Year without century as a zero-padded decimal number.
-	%Y	Year with century as a decimal number.
-	%H	Hour (24-hour clock) as a zero-padded decimal number.
-	%I	Hour (12-hour clock) as a zero-padded decimal number.
-	%p	Locale’s equivalent of either AM or PM.
-	%M	Minute as a zero-padded decimal number.
-	%S	Second as a zero-padded decimal number.
-	%f	Microsecond as a decimal number, zero-padded on the left.
-	%z	UTC offset in the form +HHMM or -HHMM (empty string if the 
-		the object is naive).
-	%Z	Time zone name (empty string if the object is naive).
-	%j	Day of the year as a zero-padded decimal number.
-	%U	Week number of the year (Sunday as the first day of the week) 
-		as a zero padded decimal number. All days in a new year 
-		preceding the first Sunday are considered to be in week 0.
-	%W	Week number of the year (Monday as the first day of the week) 
-		as a decimal number. All days in a new year preceding the 
-		first Monday are considered to be in week 0.
-	%c	Locale’s appropriate date and time representation.
-	%x	Locale’s appropriate date representation.
-	%X	Locale’s appropriate time representation.
-	%%	A literal '%' character.
+        %a	Weekday as locale’s abbreviated name.
+        %A	Weekday as locale’s full name.
+        %w	Weekday as a decimal number, where 0 is Sunday and 6 is 
+        	Saturday.
+        %d	Day of the month as a zero-padded decimal number.
+        %b	Month as locale’s abbreviated name.
+        %B	Month as locale’s full name.
+        %m	Month as a zero-padded decimal number.
+        %y	Year without century as a zero-padded decimal number.
+        %Y	Year with century as a decimal number.
+        %H	Hour (24-hour clock) as a zero-padded decimal number.
+        %I	Hour (12-hour clock) as a zero-padded decimal number.
+        %p	Locale’s equivalent of either AM or PM.
+        %M	Minute as a zero-padded decimal number.
+        %S	Second as a zero-padded decimal number.
+        %f	Microsecond as a decimal number, zero-padded on the left.
+        %z	UTC offset in the form +HHMM or -HHMM (empty string if the 
+        	the object is naive).
+        %Z	Time zone name (empty string if the object is naive).
+        %j	Day of the year as a zero-padded decimal number.
+        %U	Week number of the year (Sunday as the first day of the week) 
+        	as a zero padded decimal number. All days in a new year 
+        	preceding the first Sunday are considered to be in week 0.
+        %W	Week number of the year (Monday as the first day of the week) 
+        	as a decimal number. All days in a new year preceding the 
+        	first Monday are considered to be in week 0.
+        %c	Locale’s appropriate date and time representation.
+        %x	Locale’s appropriate date representation.
+        %X	Locale’s appropriate time representation.
+        %%	A literal '%' character.
 
 
   Examples:
@@ -509,7 +509,7 @@ that value if your requirements are narrow.
 | Default output |
 ==================
 
-System startups:	
+System startups:
  Total number of system startups registered since first timestamp available.
 
 System shutdowns:
@@ -691,28 +691,28 @@ The options --tsince, --tuntil and --tat use epoch timestamp format, as quick
 reference here are some notes:
 
 Seconds equivalences:
-	1 year    31536000 seconds
-	1 month    2592000 seconds
-	1 week      604800 seconds
-	1 day	     86400 seconds
-	1 hour        3600 seconds
+        1 year    31536000 seconds
+        1 month    2592000 seconds
+        1 week      604800 seconds
+        1 day        86400 seconds
+        1 hour        3600 seconds
 
 Convert human datetime to epoch:
-	date --date="JAN-18-2018" +%s
-	date --date="20-JAN-18" +%s
-	date --date="2018-01-20 16:21:42" +%s
-	date --date="2018-01-20 16:21:42 GMT+2" +%s
-	date --date="3 week ago" +%s
-	date --date="1 year ago" +%s
-	date --date="now" +%s
+        date --date="JAN-18-2018" +%s
+        date --date="20-JAN-18" +%s
+        date --date="2018-01-20 16:21:42" +%s
+        date --date="2018-01-20 16:21:42 GMT+2" +%s
+        date --date="3 week ago" +%s
+        date --date="1 year ago" +%s
+        date --date="now" +%s
 
 Convert epoch to human datetime:
-	date --date="@1516748400"
+        date --date="@1516748400"
 
 More info about datetime input formats:
-	man date
-	'https://www.gnu.org/software/coreutils/manual/html_node/
-	Date-input-formats.html#Date-input-formats'
+        man date
+        'https://www.gnu.org/software/coreutils/manual/html_node/
+        Date-input-formats.html#Date-input-formats'
 
 
 

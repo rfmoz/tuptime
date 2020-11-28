@@ -50,8 +50,8 @@ do_stop () {
 }
 
 do_status () {
-	# Status service
-	su -s /bin/sh $USER -c "$PATH_BIN"
+        # Status service
+        su -s /bin/sh $USER -c "$PATH_BIN"
 }
 
 

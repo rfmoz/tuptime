@@ -4,14 +4,14 @@
 # This script update the tuptime database format from version 3.1.0 or above to to 4.0.0
 #
 # Usage:
-#      Execute this script.
-#      It will update the db file on /var/lib/tuptime/tuptime.db
-#      The original db file will be renamed to /var/lib/tuptime/tuptime.[date].back
+# 	Execute this script.
+# 	It will update the db file on /var/lib/tuptime/tuptime.db
+# 	The original db file will be renamed to /var/lib/tuptime/tuptime.[date].back
 #
 # Change the db origin:
-#      btime integer, uptime real, offbtime integer, endst integer, downtime real, kernel text
+# 	btime integer, uptime real, offbtime integer, endst integer, downtime real, kernel text
 # to:
-#      btime integer, uptime real, rntime real, slptime real, offbtime integer, endst integer, downtime real, kernel text
+# 	btime integer, uptime real, rntime real, slptime real, offbtime integer, endst integer, downtime real, kernel text
 
 SOURCE_DB='/var/lib/tuptime/tuptime.db'
 USER_DB=$(stat -c '%U' "${SOURCE_DB}")
@@ -20,23 +20,23 @@ BKP_DATE=$(date +%s)
 
 # Check bash execution
 if [ ! -n "$BASH" ]; then
-  echo "--- WARNING - execute only with BASH ---"
+	echo "--- WARNING - execute only with BASH ---"
 fi
 
 # Test file permissions
 if [ -w "${SOURCE_DB}" ]; then
-   echo -e "\n## Migrating tuptime database format ##\n"
-   echo "Source file: ${SOURCE_DB}"
+	echo -e "\n## Migrating tuptime database format ##\n"
+	echo "Source file: ${SOURCE_DB}"
 else
-   echo "Please, execute this script with a privileged user that can write in: ${SOURCE_DB}"
-   exit 1
+	echo "Please, execute this script with a privileged user that can write in: ${SOURCE_DB}"
+	exit 1
 fi
 
 # Test sqlite3 command
 sqlite3 -version > /dev/null
 if [ $? -ne 0 ]; then
 	echo "Please, install \"sqlite3\" command for manage sqlite v3 databases."
-        exit 2
+	exit 2
 fi
 
 # Work with a db copy

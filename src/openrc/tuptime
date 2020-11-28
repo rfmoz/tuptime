@@ -6,9 +6,9 @@ command_user='_tuptime'
 command_args='-x'
 
 depend() {
-	need localmount
-	after bootmisc
-	after clock
+        need localmount
+        after bootmisc
+        after clock
 }
 
 start() {
