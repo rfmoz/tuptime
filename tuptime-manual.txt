@@ -404,7 +404,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime --tat 1555280149
-         tuptime --tat `date --date="1 day ago" +%s`
+         tuptime --tat `date -d "1 day ago" +%s`
          tuptime -cs --tat 1555281311
 
 
@@ -414,7 +414,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime --tsince 1454998872
-         tuptime --tsince `date --date="20-JAN-18" +%s`
+         tuptime --tsince `date -d "20-JAN-18" +%s`
          tuptime --tsince -31536000  # Since one year ago
 
 
@@ -424,7 +424,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime --tuntil 1454999619
-         tuptime --tuntil `date --date="2018-01-20 16:21:42" +%s`
+         tuptime --tuntil `date -d "2018-01-20 16:21:42" +%s`
          tuptime --tuntil -2592000  # Until one month ago
 
 
@@ -698,16 +698,19 @@ Seconds equivalences:
         1 hour        3600 seconds
 
 Convert human datetime to epoch:
-        date --date="JAN-18-2018" +%s
-        date --date="20-JAN-18" +%s
-        date --date="2018-01-20 16:21:42" +%s
-        date --date="2018-01-20 16:21:42 GMT+2" +%s
-        date --date="3 week ago" +%s
-        date --date="1 year ago" +%s
-        date --date="now" +%s
+        date -d "JAN-18-2018" +%s
+        date -d "20-JAN-18" +%s
+        date -d "2018-01-20 16:21:42" +%s
+        date -d "2018-01-20 16:21:42 GMT+2" +%s
+        date -d "3 week ago" +%s
+        date -d "1 year ago" +%s
+        date -d "now" +%s
 
 Convert epoch to human datetime:
-        date --date="@1516748400"
+        date -d "@1516748400"
+
+Preceding conversions uses GNU date, on FreeBSD install "coreutils" and call
+them with "gdate".
 
 More info about datetime input formats:
         man date
