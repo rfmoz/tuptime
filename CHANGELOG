@@ -1,3 +1,10 @@
+tuptime (5.0.2) unstable; urgency=low
+
+  * Option --decp usable but deprecated
+  * Using subprocess module on BSDs
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 28 Nov 2020 20:54:00 +0100
+
 tuptime (5.0.1) unstable; urgency=low
 
   * Identify new startups with boot_id on FreeBSD
