@@ -626,8 +626,10 @@ with high load or with high disk I/O, wrong computation of jiffies / HZ and the
 problema of lost ticks.
 
 A slightly drift is compensate over the uptime value, but a very high drift can cause
-inconsistent registers and output, for example, Raspberry Pi don't have any clock and
-initializes from 1 January 1970.
+abnormal registers and output, for example, Raspberry Pi don't have any clock and
+initializes from 1 January 1970. A downtime of 0, when it's clear than it was
+physically impossible, it's a common indicator than the clock had a large backward
+sync jump.
 
 As Tuptime have time dependency, their Systemd service unit pulls time-sync.target
 and it's ordered before it. Note that it doesn't assure that the clock is syncronized,
