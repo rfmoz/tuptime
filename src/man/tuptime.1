@@ -1,10 +1,10 @@
-.TH TUPTIME 1 "Oct 2020" "5.0.1" "Linux Manual"
+.TH TUPTIME 1 "Nov 2020" "5.0.2" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [{\-h | \-\-help}] [{\-A | \-\-at}=<startup>] [{\-b | \-\-bootid}] [{\-c | \-\-csv}] [{\-d | \-\-date}=<date\ format>] [\-e | \-\-dec=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-i | \-\-invert}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}=[u|r|s|e|d|k]] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<startup>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<startup>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}]
+tuptime [{\-h | \-\-help}] [{\-A | \-\-at}=<startup>] [{\-b | \-\-bootid}] [{\-c | \-\-csv}] [{\-d | \-\-date}=<datetime\ format>] [\-e | \-\-dec=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-i | \-\-invert}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}=[u|r|s|e|d|k]] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<startup>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<startup>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}]
 
 .SH DESCRIPTION
 .RS
@@ -58,8 +58,8 @@ T}
 \-c | \-\-csv@T{
 Output in csv format
 T}
-\-d | \-\-date TIMESTAMP@T{
-Date format output
+\-d | \-\-date DATETM_FORMAT@T{
+Datetime/timestamp format output
 T}
 \-e | \-\-dec DECIMALS@T{
 Number of decimals in percentages
@@ -135,7 +135,7 @@ precedence over this.
 .RE
 System startups:
 .RS
-Total number of system startups from since first date available.
+Total number of system startups from since first timestamp available.
 
 .RE
 System shutdowns:
@@ -145,7 +145,7 @@ Total number of shutdowns done correctly or incorrectly.
 .RE
 System life:
 .RS
-Time counter since first startup date available.
+Time counter since first startup timestamp available.
 
 .RE
 System uptime:
@@ -164,7 +164,7 @@ Time counter with the average time.
 .RE
 Current uptime:
 .RS
-Actual time counter and date since registered boot date.
+Actual time counter and datetime since registered boot timestamp.
 
 .SH EXAMPLES
 .TP 
@@ -184,11 +184,12 @@ Add kernel information to the output.
 Report in csv format.
 .TP
 .B tuptime -s
-Change default human readable date style and print times in seconds and
-dates in epoch.
+Change default human readable datetime/timestamp style and print times in
+seconds and datetimes in epoch.
 .TP
 .B tuptime -d '%H:%M:%S   %m-%d-%Y'
-Change the date format. By default it's printed based on system locales.
+Change the datetime/timestamp format. By default the output use the
+configured system locales.
 .TP
 .B tuptime --tsince -31557600
 Report since one year ago.
@@ -233,7 +234,7 @@ Ricardo Fraile <rfraile@rfraile.eu>
 
 .SH "COPYRIGHT"
 .PP
-Copyright (C) 2020 by Ricardo F. All Rights Reserved.
+Copyright (C) 2021 by Ricardo F. All Rights Reserved.
 
 This product is distributed in the hope that it will be useful, but
 WITHOUT any warranty; without even the implied warranty of 

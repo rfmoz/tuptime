@@ -4,37 +4,37 @@
 # This script update the tuptime database format from versions previous 3.0.00
 
 # Change the db origin:
-#      uptime real, btime integer, shutdown integer
+# 	uptime real, btime integer, shutdown integer
 # to:
-#      btime integer, uptime real, offbtime integer, endst integer, downtime real
+# 	btime integer, uptime real, offbtime integer, endst integer, downtime real
 
 SOURCE_DB='/var/lib/tuptime/tuptime.db'
 
 # Check bash execution
 if [ ! -n "$BASH" ]; then
-  echo "--- WARNING - execute only with BASH ---"
+	echo "--- WARNING - execute only with BASH ---"
 fi
 
 # Test file permissions
 if [ -w "${SOURCE_DB}" ]; then
-   echo "Migrating tuptime database format"
+	echo "Migrating tuptime database format"
 else
-   echo "Please, execute this script with a privileged user that can write in: ${SOURCE_DB}"
-   exit 1
+	echo "Please, execute this script with a privileged user that can write in: ${SOURCE_DB}"
+	exit 1
 fi
 
 # Test sqlite3 command
 sqlite3 -version > /dev/null
 if [ $? -ne 0 ]; then
 	echo "Please, install \"sqlite3\" command for manage sqlite v3 databases"
-        exit 2
+	exit 2
 fi
 
 # Test bc command
 bc -version > /dev/null
 if [ $? -ne 0 ]; then
-        echo "Please, install \"bc\" command"
-        exit 2
+	echo "Please, install \"bc\" command"
+	exit 2
 fi
 
 TMP_DB=$(mktemp)  # For temporary process db
@@ -45,7 +45,7 @@ cp "${SOURCE_DB}" "${TMP_DB}"
 sqlite3 "${TMP_DB}" "PRAGMA table_info(tuptime);" | grep -E 'end_state|downtime|offbtime' > /dev/null 
 if [ $? -eq 0 ]; then
 	echo "Database is already in new format"
-        exit 3
+	exit 3
 fi
 
 # Change shutdown column to end_state
@@ -60,14 +60,13 @@ ROWS=$(sqlite3 "${TMP_DB}" "select max(oid) from tuptime;")
 for I in $(seq 1 "${ROWS}"); do
 	UPTIME=$(sqlite3 "${TMP_DB}" "SELECT uptime from tuptime where oid = ${I};")
 	BTIME=$(sqlite3 "${TMP_DB}" "SELECT btime from tuptime where oid = ${I};")
-        Z=$((I+1))
+	Z=$((I+1))
 	NEXT_BTIME=$(sqlite3 "${TMP_DB}" "SELECT btime from tuptime where oid = ${Z};")
 
 	OFFBTIME=$(echo "${UPTIME}" + "${BTIME}" | bc)
 	DOWNBTIME=$(echo "${NEXT_BTIME}" - "${OFFBTIME}" | bc)
 
 	sqlite3 "${TMP_DB}" "UPDATE tuptime SET downtime = ${DOWNBTIME}, offbtime = ${OFFBTIME} where oid = ${I}"
-	
 done
 
 # Clear last row shutdown values
@@ -94,4 +93,3 @@ rm -f "${TMP_DB}"
 
 echo "Backup file in: ${SOURCE_DB}.back"
 echo "Process completed OK"
-

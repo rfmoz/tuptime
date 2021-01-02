@@ -11,7 +11,7 @@ tuptime_join.py
 
 tuptime_modify.py
     Modify registers keeping nearest values in sycn.
-    Allow change 'end status', 'startup date' and 'shutdown date'.
+    Allow change 'end status', 'startup timestamp' and 'shutdown timestamp'.
 
 
 
@@ -38,6 +38,12 @@ db-tuptime-migrate-4.0-to-5.0.sh
 
 ____Plots____
 
-tuptime-barchart.py
-    Graph a plot with all hours per state inside each day from tuptime
-    csv output. Playground script.
+tuptime-plot1.py
+    Graph a plot with the number of hours (default) or events (-x swich)
+    per state along each day. It gets the info from tuptime csv output.
+    Playground script.
+
+tuptime-plot2.py
+    Graph a plot with the state events per hour along each day (default)
+    or accumulated events per hour (-x swich). It gets the info from
+    tuptime csv output. Playground script.

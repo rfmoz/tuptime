@@ -8,35 +8,35 @@ Tuptime is a tool for report the historical and statistical real time of the sys
 
 Just after install:
 
-	System startups:	1  since  21:54:09 24/09/15
-	System shutdowns:	0 ok  +  0 bad
-	System life: 		21m 30s
+	System startups:        1  since  21:54:09 24/09/15
+	System shutdowns:       0 ok  +  0 bad
+	System life:            21m 30s
 
-	System uptime: 		100.0%  =  21m 30s
-	System downtime: 	0.0%  =  0s
+	System uptime:          100.0%  =  21m 30s
+	System downtime:        0.0%  =  0s
 
-	Average uptime: 	21m 30s
-	Average downtime: 	0s
+	Average uptime:         21m 30s
+	Average downtime:       0s
 
-	Current uptime: 	21m 30s  since  21:54:09 24/09/15
+	Current uptime:         21m 30s  since  21:54:09 24/09/15
 
 A few days later:
 
-	System startups:	110  since  10:15:27 08/08/15
-	System shutdowns:	107 ok  +  2 bad
-	System life: 		47d 12h 2m 15s
+	System startups:        110  since  10:15:27 08/08/15
+	System shutdowns:       107 ok  +  2 bad
+	System life:            47d 12h 2m 15s
 
-	System uptime: 		4.04%  =  1d 22h 4m 44s
-	System downtime: 	95.96%  =  45d 13h 57m 30s
+	System uptime:          4.04%  =  1d 22h 4m 44s
+	System downtime:        95.96%  =  45d 13h 57m 30s
 
-	Average uptime: 	25m 8s
-	Average downtime: 	9h 56m 42s
+	Average uptime:         25m 8s
+	Average downtime:       9h 56m 42s
 
-	Current uptime: 	23m 33s  since  21:54:09 24/09/15
+	Current uptime:         23m 33s  since  21:54:09 24/09/15
 
 Swich to -t | --table option:
 
-	No.      Startup Date        Uptime       Shutdown Date   End    Downtime
+	No.        Startup T.        Uptime         Shutdown T.   End    Downtime
                                                                                                                                     
 	1   10:15:27 08/08/15           42s   10:16:09 08/08/15    OK         16s
 	2   10:16:26 08/08/15           49s   10:17:15 08/08/15    OK         16s

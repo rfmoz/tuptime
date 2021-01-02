@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 5.0.1
+                              version 5.0.2
                                 Ricardo F.
-                               31/Oct/2020
+                               02/Jan/2021
 
 
 
@@ -93,7 +93,7 @@ For Linux systems:
            # install -m 644 tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
 
        If it use systemd, copy service file and enable it:
-	
+
            # install -m 644 tuptime/src/systemd/tuptime.service /lib/systemd/system/tuptime.service
            # systemctl enable tuptime.service && systemctl start tuptime.service
 
@@ -112,7 +112,7 @@ For Linux systems:
 
            # install -m 755 tuptime/src/init.d/debian/tuptime /etc/init.d/tuptime
            # update-rc.d tuptime defaults
-	   # /etc/init.d/tuptime start
+           # /etc/init.d/tuptime start
 
        That's all, enjoy it.
 
@@ -161,8 +161,8 @@ These are the command line options, no configuration file is used:
                         restrict to this startup number
   -b, --bootid          show boot identifier
   -c, --csv             csv output
-  -d DATE_FORMAT, --date DATE_FORMAT
-                        date format output
+  -d DATETM_FORMAT, --date DATETM_FORMAT
+                        datetime/timestamp format output
   -e DECIMALS, --dec DECIMALS
                         number of decimals in percentages
   -f FILE, --filedb FILE
@@ -224,40 +224,40 @@ These are the command line options, no configuration file is used:
          tuptime --csv -t
 
 
--d <DATE_FORMAT>, --date=<DATE_FORMAT>
-  Change the date format. By default it's printed based on system locales.
-  Allow values are:
+-d <DATETM_FORMAT>, --date=<DATETM_FORMAT>
+  Change the datetime/timestamp format. By default the output use the
+  configured system locales. Allow values are:
 
-	%a	Weekday as locale’s abbreviated name.
-	%A	Weekday as locale’s full name.
-	%w	Weekday as a decimal number, where 0 is Sunday and 6 is 
-		Saturday.
-	%d	Day of the month as a zero-padded decimal number.
-	%b	Month as locale’s abbreviated name.
-	%B	Month as locale’s full name.
-	%m	Month as a zero-padded decimal number.
-	%y	Year without century as a zero-padded decimal number.
-	%Y	Year with century as a decimal number.
-	%H	Hour (24-hour clock) as a zero-padded decimal number.
-	%I	Hour (12-hour clock) as a zero-padded decimal number.
-	%p	Locale’s equivalent of either AM or PM.
-	%M	Minute as a zero-padded decimal number.
-	%S	Second as a zero-padded decimal number.
-	%f	Microsecond as a decimal number, zero-padded on the left.
-	%z	UTC offset in the form +HHMM or -HHMM (empty string if the 
-		the object is naive).
-	%Z	Time zone name (empty string if the object is naive).
-	%j	Day of the year as a zero-padded decimal number.
-	%U	Week number of the year (Sunday as the first day of the week) 
-		as a zero padded decimal number. All days in a new year 
-		preceding the first Sunday are considered to be in week 0.
-	%W	Week number of the year (Monday as the first day of the week) 
-		as a decimal number. All days in a new year preceding the 
-		first Monday are considered to be in week 0.
-	%c	Locale’s appropriate date and time representation.
-	%x	Locale’s appropriate date representation.
-	%X	Locale’s appropriate time representation.
-	%%	A literal '%' character.
+        %a	Weekday as locale’s abbreviated name.
+        %A	Weekday as locale’s full name.
+        %w	Weekday as a decimal number, where 0 is Sunday and 6 is 
+        	Saturday.
+        %d	Day of the month as a zero-padded decimal number.
+        %b	Month as locale’s abbreviated name.
+        %B	Month as locale’s full name.
+        %m	Month as a zero-padded decimal number.
+        %y	Year without century as a zero-padded decimal number.
+        %Y	Year with century as a decimal number.
+        %H	Hour (24-hour clock) as a zero-padded decimal number.
+        %I	Hour (12-hour clock) as a zero-padded decimal number.
+        %p	Locale’s equivalent of either AM or PM.
+        %M	Minute as a zero-padded decimal number.
+        %S	Second as a zero-padded decimal number.
+        %f	Microsecond as a decimal number, zero-padded on the left.
+        %z	UTC offset in the form +HHMM or -HHMM (empty string if the 
+        	the object is naive).
+        %Z	Time zone name (empty string if the object is naive).
+        %j	Day of the year as a zero-padded decimal number.
+        %U	Week number of the year (Sunday as the first day of the week) 
+        	as a zero padded decimal number. All days in a new year 
+        	preceding the first Sunday are considered to be in week 0.
+        %W	Week number of the year (Monday as the first day of the week) 
+        	as a decimal number. All days in a new year preceding the 
+        	first Monday are considered to be in week 0.
+        %c	Locale’s appropriate date and time representation.
+        %x	Locale’s appropriate date representation.
+        %X	Locale’s appropriate time representation.
+        %%	A literal '%' character.
 
 
   Examples:
@@ -372,8 +372,8 @@ These are the command line options, no configuration file is used:
 
 
 -s, --seconds
-  Change default human readable date style and print times in seconds and
-  dates in epoch.
+  Change default human readable datetime/timestamp style and print times in seconds
+  and datetimes in epoch.
 
   Examples:
          tuptime -s
@@ -404,7 +404,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime --tat 1555280149
-         tuptime --tat `date --date="1 day ago" +%s`
+         tuptime --tat `date -d "1 day ago" +%s`
          tuptime -cs --tat 1555281311
 
 
@@ -414,7 +414,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime --tsince 1454998872
-         tuptime --tsince `date --date="20-JAN-18" +%s`
+         tuptime --tsince `date -d "20-JAN-18" +%s`
          tuptime --tsince -31536000  # Since one year ago
 
 
@@ -424,7 +424,7 @@ These are the command line options, no configuration file is used:
 
   Examples:
          tuptime --tuntil 1454999619
-         tuptime --tuntil `date --date="2018-01-20 16:21:42" +%s`
+         tuptime --tuntil `date -d "2018-01-20 16:21:42" +%s`
          tuptime --tuntil -2592000  # Until one month ago
 
 
@@ -509,14 +509,14 @@ that value if your requirements are narrow.
 | Default output |
 ==================
 
-System startups:	
- Total number of system startups registered since first date available.
+System startups:
+ Total number of system startups registered since first timestamp available.
 
 System shutdowns:
   Total number of shutdowns done correctly or incorrectly.
 
 System life:
-  Time counter since first startup date available.
+  Time counter since first startup timestamp available.
 
 System uptime:
 System downtime:
@@ -527,7 +527,7 @@ Average downtime:
   Time counter with the average time.
 
 Current uptime:
-  Actual time counter and date since registered boot date.
+  Actual time counter and datetime since registered boot timestamp.
 
 
 Removed on version 5 and equivalent output:
@@ -582,11 +582,11 @@ tuptime (bootid text,
          kernel text)
 
 bootid   Unique boot identifier (if it exists)
-btime    Startup date in epoch
+btime    Startup timestamp in epoch
 uptime   Uptime seconds  
 rntime   Running time seconds
 slptime  Sleeping time seconds
-offbtime Shutdown date in epoch
+offbtime Shutdown timestamp in epoch
 endst    Type of shutdown [1 ok | 0 bad]
 downtime Downtime seconds
 kernel   Name of the kernel
@@ -613,20 +613,23 @@ Large jumps over the date and time in a system can cause problems, expecially
 when the uptime value is low.
 
 Take care of the harware clock RTC (if the system have), or how the operating
-system initializes their clock at startup. Tuptime register the date reported by
-the system at first execution after boot and use it to calculate the previous
-shutdown time and the current uptime value. The command 'who -b' do more less
-the same.
+system initializes their clock at startup. Tuptime register the timestamp
+reported by the system at first execution after boot and use it to calculate
+the previous shutdown time and the current uptime value. The command 'who -b'
+do more less the same.
 
-If the system starts with a incorrect date and time and some external time sync is
-used, like ntpd or timesyncd, a few time after boot the startup date reported by
-the system may change. This behaviour is also related with adjustments performed by
-adjtime(3), systems running inside virtualized enviroments, servers with high load or
-with high disk I/O, wrong computation of jiffies / HZ and the problema of lost ticks.
+If the system starts with a incorrect datetime and some external time sync is
+used, like ntpd or timesyncd, a few time after boot the startup datetime reported
+by the system may change. This behaviour is also related with adjustments
+performed by adjtime(3), systems running inside virtualized enviroments, servers
+with high load or with high disk I/O, wrong computation of jiffies / HZ and the
+problema of lost ticks.
 
 A slightly drift is compensate over the uptime value, but a very high drift can cause
-inconsistent registers and output, for example, Raspberry Pi don't have any clock and
-initializes from 1 January 1970.
+abnormal registers and output, for example, Raspberry Pi don't have any clock and
+initializes from 1 January 1970. A downtime of 0, when it's clear than it was
+physically impossible, it's a common indicator than the clock had a large backward
+sync jump.
 
 As Tuptime have time dependency, their Systemd service unit pulls time-sync.target
 and it's ordered before it. Note that it doesn't assure that the clock is syncronized,
@@ -690,28 +693,31 @@ The options --tsince, --tuntil and --tat use epoch timestamp format, as quick
 reference here are some notes:
 
 Seconds equivalences:
-	1 year    31536000 seconds
-	1 month    2592000 seconds
-	1 week      604800 seconds
-	1 day	     86400 seconds
-	1 hour        3600 seconds
+        1 year    31536000 seconds
+        1 month    2592000 seconds
+        1 week      604800 seconds
+        1 day        86400 seconds
+        1 hour        3600 seconds
 
-Convert human date to epoch:
-	date --date="JAN-18-2018" +%s
-	date --date="20-JAN-18" +%s
-	date --date="2018-01-20 16:21:42" +%s
-	date --date="2018-01-20 16:21:42 GMT+2" +%s
-	date --date="3 week ago" +%s
-	date --date="1 year ago" +%s
-	date --date="now" +%s
+Convert human datetime to epoch:
+        date -d "JAN-18-2018" +%s
+        date -d "20-JAN-18" +%s
+        date -d "2018-01-20 16:21:42" +%s
+        date -d "2018-01-20 16:21:42 GMT+2" +%s
+        date -d "3 week ago" +%s
+        date -d "1 year ago" +%s
+        date -d "now" +%s
 
-Convert epoch to human date:
-	date --date="@1516748400"
+Convert epoch to human datetime:
+        date -d "@1516748400"
 
-More info about date input formats:
-	man date
-	'https://www.gnu.org/software/coreutils/manual/html_node/
-	Date-input-formats.html#Date-input-formats'
+Preceding conversions uses GNU date, on FreeBSD install "coreutils" and call
+them with "gdate".
+
+More info about datetime input formats:
+        man date
+        'https://www.gnu.org/software/coreutils/manual/html_node/
+        Date-input-formats.html#Date-input-formats'
 
 
 
@@ -744,7 +750,7 @@ If the system have configured a time zone with daylight saving time (DST),
 to avoid problems when the time change, the real time clock (RTC) should have
 set to universal time coordinated (UTC), not local time. Check it with 
 'timedatectl' command.  Reports involving DST changes are completely right.
-The system current local time zone is the reference for all dates printed.
+The system current local time zone is the reference for all timestamps printed.
 https://tldp.org/HOWTO/Clock-2.html
 
 The name of the tool is based on the contraction of the words Total Uptime.

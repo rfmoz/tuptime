@@ -5,8 +5,8 @@
 # v.1.8.8
 #
 # Usage:
-#	bash tuptime-install.sh		Normal installation
-#	bash tuptime-install.sh -d 	Installation using dev branch
+# 	 bash tuptime-install.sh	Default master install
+# 	 bash tuptime-install.sh -d	Install using dev branch
 #
 
 # Execution user
@@ -24,22 +24,21 @@ DEV=0
 
 # Check bash execution
 if [ ! -n "$BASH" ]; then
-  echo "--- WARNING - execute only with BASH ---"
+	echo "--- WARNING - execute only with BASH ---"
 fi
 
 # Check root execution
 if [ "$(id -u)" != "0" ]; then
-  echo "Please run this script as root"
-  exit
+	echo "Please run this script as root"
+	exit
 fi
 
 # Test arguments
 while test $# -gt 0; do
-    case "$1" in
-        -d) DEV=1
-           ;;
-    esac
-    shift
+	case "$1" in
+		-d) DEV=1 ;;
+	esac
+	shift
 done
 
 # Test if it is a linux system
@@ -65,22 +64,22 @@ fi
 # Test if python is installed
 pyver=$(python3 --version 2> /dev/null)
 if [ $? -ne 0 ]; then
-        echo "ERROR: Python not available"
-        echo "Please, install version 3 or greater"; exit 1
+	echo "ERROR: Python not available"
+	echo "Please, install version 3 or greater"; exit 1
 else
 	# Test if version 3 or avobe of python is installed
 	pynum=$(echo "${pyver}" | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2)
-        if [ "$pynum" -lt 30 ] ; then
-                echo "ERROR: Its needed Python version 3, not ${pyver}"
-                echo "Please, upgrade it."; exit 1
-        else
+	if [ "$pynum" -lt 30 ] ; then
+		echo "ERROR: Its needed Python version 3, not ${pyver}"
+		echo "Please, upgrade it."; exit 1
+	else
 		# Test if all modules needed are available
 		pymod=$(python3 -c "import sys, os, argparse, locale, platform, signal, logging, sqlite3, datetime")
-                if [ $? -ne 0 ]; then
-                        echo "ERROR: Please, ensure that these Python modules are available in the local system:"
-                        echo "sys, os, optparse, sqlite3, locale, platform, datetime, logging"; exit 1
-                fi
-        fi
+		if [ $? -ne 0 ]; then
+			echo "ERROR: Please, ensure that these Python modules are available in the local system:"
+			echo "sys, os, optparse, sqlite3, locale, platform, datetime, logging"; exit 1
+		fi
+	fi
 fi
 
 # Set SystemD path
@@ -108,7 +107,7 @@ echo ""
 
 echo "+ Getting source tar file"
 if [ ${DEV} -eq 1 ]; then
-        echo "  ...using dev branch"
+	echo "  ...using dev branch"
 	tar xz --strip 1 -C "${F_TMP1}" -f <(curl -sL https://github.com/rfrail3/tuptime/archive/dev.tar.gz) || exit
 else
 	tar xz --strip 1 -C "${F_TMP1}" -f <(curl -sL https://github.com/rfrail3/tuptime/archive/master.tar.gz) || exit
@@ -124,7 +123,7 @@ echo "+ Creating Tuptime execution user '_tuptime'"
 useradd -h > /dev/null 2>&1
 if [ $? -eq 0 ]; then
 	useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
-        	--shell '/bin/false' --comment 'Tuptime execution user' "${EXUSR}"
+	        --shell '/bin/false' --comment 'Tuptime execution user' "${EXUSR}"
 else
 	adduser -S -H -h '/var/lib/tuptime' -s '/bin/false' "${EXUSR}"
 fi

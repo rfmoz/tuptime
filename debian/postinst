@@ -6,53 +6,53 @@
 set -e
 
 # summary of how this script can be called:
-#        * <postinst> `configure' <most-recently-configured-version>
-#        * <old-postinst> `abort-upgrade' <new version>
-#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
-#          <new-version>
-#        * <postinst> `abort-remove'
-#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
-#          <failed-install-package> <version> `removing'
-#          <conflicting-package> <version>
+# 	 * <postinst> `configure' <most-recently-configured-version>
+# 	 * <old-postinst> `abort-upgrade' <new version>
+# 	 * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+# 	   <new-version>
+# 	 * <postinst> `abort-remove'
+# 	 * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+# 	   <failed-install-package> <version> `removing'
+# 	   <conflicting-package> <version>
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
 
 case "$1" in
-    configure)
+	configure)
 
-	# Rename to underscore if previous exists
-        getent passwd tuptime >/dev/null && usermod -l _tuptime tuptime
-	getent group tuptime > /dev/null && groupmod -n _tuptime tuptime
+		# Rename to underscore if previous exists
+		getent passwd tuptime >/dev/null && usermod -l _tuptime tuptime
+		getent group tuptime > /dev/null && groupmod -n _tuptime tuptime
 
-	# Create user if not exists
-        if ! getent passwd _tuptime >/dev/null ; then
-            echo "Adding _tuptime user..."
-            adduser --quiet --system --group --disabled-password \
-                --home "/var/lib/tuptime" \
-                --shell '/usr/sbin/nologin' \
-                --gecos 'Tuptime execution user,,,' \
-		--force-badname _tuptime
-        fi
-
-	# Ensure right ownership
-	if [ -d /var/lib/tuptime ]; then
-		chown _tuptime:_tuptime /var/lib/tuptime
-		if [ -f /var/lib/tuptime/tuptime.db ]; then
-			chown _tuptime:_tuptime /var/lib/tuptime/tuptime.db
+		# Create user if not exists
+		if ! getent passwd _tuptime >/dev/null ; then
+			echo "Adding _tuptime user..."
+			adduser --quiet --system --group --disabled-password \
+			        --home "/var/lib/tuptime" \
+			        --shell '/usr/sbin/nologin' \
+			        --gecos 'Tuptime execution user,,,' \
+			        --force-badname _tuptime
 		fi
-	fi
 
-	su -s /bin/sh _tuptime -c "tuptime -x"
-    ;;
+		# Ensure right ownership
+		if [ -d /var/lib/tuptime ]; then
+			chown _tuptime:_tuptime /var/lib/tuptime
+			if [ -f /var/lib/tuptime/tuptime.db ]; then
+				chown _tuptime:_tuptime /var/lib/tuptime/tuptime.db
+			fi
+		fi
 
-    abort-upgrade|abort-remove|abort-deconfigure)
-    ;;
+		su -s /bin/sh _tuptime -c "tuptime -x"
+	;;
 
-    *)
-        echo "postinst called with unknown argument \`$1'" >&2
-        exit 1
-    ;;
+	abort-upgrade|abort-remove|abort-deconfigure)
+	;;
+
+	*)
+		echo "postinst called with unknown argument \`$1'" >&2
+		exit 1
+	;;
 esac
 
 # dh_installdeb will replace this with shell code automatically

@@ -3,7 +3,7 @@
 
 """tuptime - Report the historical and statistical real time of the system,
 keeping it between restarts"""
-# Copyright (C) 2011-2020 - Ricardo F.
+# Copyright (C) 2011-2021 - Ricardo F.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,11 +19,12 @@ keeping it between restarts"""
 
 import sys, os, argparse, locale, platform, signal, logging, sqlite3, time
 from datetime import datetime
+# On os_bsd(): import subprocess
 
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
-DATE_FORMAT = '%X %x'
-__version__ = '5.0.1'
+DATETM_FORMAT = '%X %x'
+__version__ = '5.0.2'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -65,10 +66,11 @@ def get_arguments():
     )
     parser.add_argument(
         '-d', '--date',
-        dest='date_format',
-        default=DATE_FORMAT,
+        dest='dtm_format',
+        metavar='DATETM_FORMAT',
+        default=DATETM_FORMAT,
         action='store',
-        help='date format output'
+        help='datetime/timestamp format output'
     )
     parser.add_argument(
         '-e', '--dec',
@@ -78,6 +80,14 @@ def get_arguments():
         action='store',
         type=int,
         help='number of decimals in percentages'
+    )
+    parser.add_argument(
+        '--decp',
+        dest='decp',
+        default=None,
+        action='store',
+        type=int,
+        help=argparse.SUPPRESS
     )
     parser.add_argument(
         '-f', '--filedb',
@@ -243,6 +253,10 @@ def get_arguments():
     if arg.at is not None:
         arg.since = arg.until = arg.at
 
+    if arg.decp:
+        arg.dec = arg.decp
+        logging.warning('Argument \'--decp\' is deprecated in favour of \'-e\' or \'--dec\'.' )
+
     logging.info('Arguments = %s', str(vars(arg)))
     return arg
 
@@ -256,19 +270,13 @@ def get_os_values():
         """Get values from BSD"""
 
         logging.info('System = BSD')
-
-        def _sysctl():
-            """Set sysctl execution path"""
-            for path in os.environ["PATH"].split(os.pathsep):
-                sysctl_path = os.path.join(path, 'sysctl')
-                if os.path.isfile(sysctl_path) and os.access(sysctl_path, os.X_OK):
-                    return sysctl_path
+        import subprocess
 
         try:
             sis['btime'] = time.clock_gettime(time.CLOCK_REALTIME) - time.clock_gettime(time.CLOCK_MONOTONIC)
         except Exception as exp:
             logging.info('Old btime assignment. %s', str(exp))
-            sysctl_out = os.popen(_sysctl() + ' -n kern.boottime').read()
+            sysctl_out = subprocess.run(['sysctl', '-n', 'kern.boottime'], stdout=subprocess.PIPE, text=True, check=True).stdout
             # Some BSDs report the value assigned to 'sec', others do it directly
             if 'sec' in sysctl_out:  # FreeBSD, Darwin
                 sis['btime'] = sysctl_out.split(' sec = ')[1].split(',')[0]
@@ -296,7 +304,7 @@ def get_os_values():
             sis['rntime'] = sis['uptime']
 
         try:
-            sysctl_out = os.popen(_sysctl() + ' -xn kern.boot_id 2>&1').read()
+            sysctl_out = subprocess.run(['sysctl', '-xn', 'kern.boot_id'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, check=False).stdout
             if 'Dump' in sysctl_out:
                 sis['bootid'] = sysctl_out.split('Dump:')[-1].rstrip()
             else:
@@ -352,14 +360,14 @@ def get_os_values():
         logging.error('System = %s not supported', sys.platform)
         sys.exit(-1)
 
-    # Check right allocation of variables before continue
+    # Check right allocation of core variables before continue
     for key in sis:
         if key in ('btime', 'uptime', 'rntime'):
             if sis[key] is None:
-                logging.error('%s value unallocate from system. Can\'t continue.', str(sis[key]))
+                logging.error('"%s" value unallocate from system. Can\'t continue.', str(key))
                 sys.exit(-1)
         if key in ('uptime', 'rntime') and float(sis[key]) < 0:
-            logging.warning('Reset invalid %s value \"%s\"', str(key), str(sis[key]))
+            logging.warning('Reset invalid "%s" value "%s"', str(key), str(sis[key]))
             if key == 'uptime': sis['uptime'] = 1
             if key == 'rntime': sis['rntime'] = 1
 
@@ -414,9 +422,8 @@ def gain_db(sis, arg):
     # Test path
     arg.db_file = os.path.abspath(arg.db_file)  # Get absolute or relative path
     try:
-        if not os.path.isdir(os.path.dirname(arg.db_file)):
+        if os.makedirs(os.path.dirname(arg.db_file), exist_ok=True):
             logging.info('Making path = %s', str(os.path.dirname(arg.db_file)))
-            os.makedirs(os.path.dirname(arg.db_file))
     except Exception as exp_path:
         logging.error('Checking DB path "%s": %s', str(os.path.dirname(arg.db_file)), str(exp_path))
         sys.exit(-1)
@@ -560,7 +567,7 @@ def time_conv(secs):
     dtm['d'], dtm['h'] = divmod(dtm['h'], 24)
     dtm['yr'], dtm['d'] = divmod(dtm['d'], 365)
 
-    # Build date sentence with this order
+    # Build datetime sentence with this order
     for key in ('yr', 'd', 'h', 'm', 's'):
 
         # Avoid print empty values at the beginning, except seconds
@@ -723,7 +730,7 @@ def format_output(db_rows, arg):
             row['btime'] = ''
         else:
             if not arg.seconds:
-                row['btime'] = datetime.fromtimestamp(row['btime']).strftime(arg.date_format)
+                row['btime'] = datetime.fromtimestamp(row['btime']).strftime(arg.dtm_format)
 
         if row['uptime'] is False:
             row['uptime'] = row['rntime'] = row['slptime'] = ''
@@ -748,7 +755,7 @@ def format_output(db_rows, arg):
             row['offbtime'] = ''
         else:
             if not arg.seconds:
-                row['offbtime'] = datetime.fromtimestamp(row['offbtime']).strftime(arg.date_format)
+                row['offbtime'] = datetime.fromtimestamp(row['offbtime']).strftime(arg.dtm_format)
 
         if row['downtime'] is False:
             row['downtime'] = ''
@@ -810,7 +817,7 @@ def print_list(db_rows, last_st, arg):
 def print_table(db_rows, last_st, arg):
     """Print values as a table"""
 
-    tbl = [['No.', 'Boot ID', 'Startup Date', 'Uptime', 'Running', 'Sleeping', 'Shutdown Date', 'End', 'Downtime', 'Kernel']]
+    tbl = [['No.', 'Boot ID', 'Startup T.', 'Uptime', 'Running', 'Sleeping', 'Shutdown T.', 'End', 'Downtime', 'Kernel']]
     align_left, colpad = [], []
     side_spaces = 3
 
@@ -928,7 +935,7 @@ def print_tat(db_rows, sis, last_st, arg):
             report['startup'] = report['startup'] - last_st
 
     if not arg.seconds:
-        report['at'] = datetime.fromtimestamp(report['at']).strftime(arg.date_format)
+        report['at'] = datetime.fromtimestamp(report['at']).strftime(arg.dtm_format)
         report['time'] = time_conv(report['time'])
         report['time_fwd'] = time_conv(report['time_fwd'])
 
@@ -994,7 +1001,7 @@ def print_default(db_rows, sis, arg):
         # Get values from all DB rows
         cal, shdown, updown, cnt = parse_rows(db_rows, cal, shdown, updown, cnt)
 
-        # Max timestamp - until date
+        # Max timestamp - until datetime
         # Get rightmost (older) value from last row if arg.tu is not used
         if tstamp['max'] is None:
             if db_rows[-1]['offbtime'] is not False:
@@ -1002,7 +1009,7 @@ def print_default(db_rows, sis, arg):
             elif db_rows[-1]['btime'] is not False:
                 tstamp['max'] = db_rows[-1]['btime'] + db_rows[-1]['uptime']
 
-        # Min timestamp - since date
+        # Min timestamp - since datetime
         # Get leftmost (newer) value, always btime, from first row value if arg.ts is not used
         if tstamp['min'] is None:
             tstamp['min'] = db_rows[0]['btime']
@@ -1032,10 +1039,10 @@ def print_default(db_rows, sis, arg):
     # Ouput style: Apply human or keep seconds
     if not arg.seconds:
         if tstamp['max'] is not None:
-            tstamp['max'] = datetime.fromtimestamp(tstamp['max']).strftime(arg.date_format)
+            tstamp['max'] = datetime.fromtimestamp(tstamp['max']).strftime(arg.dtm_format)
 
         if tstamp['min'] is not None:
-            tstamp['min'] = datetime.fromtimestamp(tstamp['min']).strftime(arg.date_format)
+            tstamp['min'] = datetime.fromtimestamp(tstamp['min']).strftime(arg.dtm_format)
 
         # Look into the keys to set right values
         for k in cal:
@@ -1045,7 +1052,7 @@ def print_default(db_rows, sis, arg):
         sis['uptime'] = time_conv(sis['uptime'])
         sis['rntime'] = time_conv(sis['rntime'])
         sis['slptime'] = time_conv(sis['slptime'])
-        sis['btime'] = datetime.fromtimestamp(sis['btime']).strftime(arg.date_format)
+        sis['btime'] = datetime.fromtimestamp(sis['btime']).strftime(arg.dtm_format)
         sys_life = time_conv(sys_life)
 
     # Finally print all
