@@ -1190,10 +1190,11 @@ def main():
     sis = get_os_values()
     db_conn, conn = gain_db(sis, arg)
 
-    conn.execute('select bootid, btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
-    prev = dict(zip(['bootid', 'btime', 'uptime', 'endst'], conn.fetchone()))
+    conn.execute('select rowid, bootid, btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
+    prev = dict(zip(['rowid', 'bootid', 'btime', 'uptime', 'endst'], conn.fetchone()))
     prev['buptime'] = prev['btime'] + prev['uptime']
 
+    logging.info('Last rowid from DB = %s', str(prev['rowid']))
     logging.info('Last bootid from DB = %s', str(prev['bootid']))
     logging.info('Last btime from DB = %s', str(prev['btime']))
     logging.info('Last uptime from DB = %s', str(prev['uptime']))
