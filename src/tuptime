@@ -24,7 +24,7 @@ from datetime import datetime
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATETM_FORMAT = '%X %x'
-__version__ = '5.0.2'
+__version__ = '5.0.3'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -1215,7 +1215,7 @@ def main():
             # Save downtimes for previous boot
             conn.execute('update tuptime set \
                          offbtime = ' + str(sis['offbtime']) + ', downtime = ' + str(sis['downtime']) +
-                         ' where rowid = (select max(rowid) from tuptime)')
+                         ' where rowid = ' + str(prev['rowid']))
 
             # Create a new boot register
             conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
@@ -1244,7 +1244,7 @@ def main():
                 conn.execute('update tuptime set uptime = ' + str(sis['uptime']) +
                              ', rntime = ' + str(sis['rntime']) + ', slptime = ' + str(sis['slptime']) +
                              ', endst = ' + str(arg.endst) + ', kernel = \'' + str(sis['kernel']) +
-                             '\' where rowid = (select max(rowid) from tuptime)')
+                             ' where rowid = ' + str(prev['rowid']))
                 logging.info('DB info = update ok')
 
             except sqlite3.OperationalError:
