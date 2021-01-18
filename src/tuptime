@@ -1024,12 +1024,12 @@ def print_default(db_rows, sis, arg):
         rate['slp'] = round((cal['tot']['slptime'] * 100) / sys_life, arg.dec)
         rate['down'] = round((cal['tot']['downtime'] * 100) / sys_life, arg.dec)
 
-    if len(cnt['uptime']) > 0:
+    if cnt['uptime']:
         cal['ave']['uptime'] = int(round(float(cal['tot']['uptime'] / len(cnt['uptime'])), 0))
         cal['ave']['rntime'] = int(round(float(cal['tot']['rntime'] / len(cnt['uptime'])), 0))
         cal['ave']['slptime'] = int(round(float(cal['tot']['slptime'] / len(cnt['uptime'])), 0))
 
-    if len(cnt['downtime']) > 0:
+    if cnt['downtime']:
         cal['ave']['downtime'] = int(round(float(cal['tot']['downtime'] / len(cnt['downtime'])), 0))
 
     # Get kernel and boot_id counters, remove duplicate and empty elements
