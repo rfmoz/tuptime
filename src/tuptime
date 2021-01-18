@@ -448,10 +448,16 @@ def gain_db(sis, arg):
         logging.error('Checking DB file "%s": %s', str(arg.db_file), str(exp_file))
         sys.exit(-1)
 
-    # Get DB connection
-    db_conn = sqlite3.connect(arg.db_file)
-    db_conn.row_factory = sqlite3.Row
-    conn = db_conn.cursor()
+    # Get DB connection and begin transaction
+    try:
+        logging.info('Getting DB connection')
+        db_conn = sqlite3.connect(arg.db_file)
+        db_conn.row_factory = sqlite3.Row
+        conn = db_conn.cursor()
+        conn.execute('begin deferred')
+    except Exception as exp_conn:
+        logging.error('DB connection failed: %s', str(exp_conn))
+        sys.exit(-1)
 
     # Check if DB have the old format
     columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
@@ -1221,13 +1227,15 @@ def main():
             conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
                          (str(sis['bootid']), str(sis['btime']), str(sis['uptime']), str(sis['rntime']),
                           str(sis['slptime']), None, str(arg.endst), None, str(sis['kernel'])))
+            db_conn.commit()
             logging.info('DB info = insert ok')
 
-        except Exception:
+        except Exception as exp:
             # If you see this error, maybe the systemd script isn't executed at startup
             # or the DB file (DB_FILE) have wrong permissions
             logging.error('Detected a new system startup but the values have not been saved into DB')
             logging.error('Tuptime execution user can\'t write into DB file: %s', str(arg.db_file))
+            logging.error('%s', str(exp))
             sys.exit(-1)
 
     elif arg.update:
@@ -1244,7 +1252,8 @@ def main():
                 conn.execute('update tuptime set uptime = ' + str(sis['uptime']) +
                              ', rntime = ' + str(sis['rntime']) + ', slptime = ' + str(sis['slptime']) +
                              ', endst = ' + str(arg.endst) + ', kernel = \'' + str(sis['kernel']) +
-                             ' where rowid = ' + str(prev['rowid']))
+                             '\' where rowid = ' + str(prev['rowid']))
+                db_conn.commit()
                 logging.info('DB info = update ok')
 
             except sqlite3.OperationalError:
@@ -1252,8 +1261,6 @@ def main():
 
     else:
         logging.info('DB info = skip by arg.update')
-
-    db_conn.commit()
 
     if arg.silent:
         db_conn.close()
