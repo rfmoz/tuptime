@@ -35,7 +35,7 @@ echo "Example:   $0 22x10 30 31-Dec-20"
 echo ""
 if [ -z "$XargY" ] || [ -z "$Past" ]; then exit; fi
 
-echo -e "Making 4 plots in backgroud...\n"
+echo -e "Making 4 plots in background...\n"
 echo -e "Wide x Height:\t${Xcm}x${Ycm}"
 XnY="-W $Xcm -H $Ycm"
 $PyEx ./tuptime-plot1.py $XnY $EndDate -p $Past > /dev/null &

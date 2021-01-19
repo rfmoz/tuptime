@@ -328,7 +328,7 @@ def get_os_values():
                     if line.startswith('btime'):
                         sis['btime'] = line.split()[1]
 
-        try:  # uptime and rntime must be toghether to avoid time mismatch between them
+        try:  # uptime and rntime must be together to avoid time mismatch between them
             # Time since some unspecified starting point. Contains sleep time on linux
             sis['uptime'] = time.clock_gettime(time.CLOCK_BOOTTIME)
             # Time since some unspecified starting point. Not contains sleep time on linux
@@ -376,7 +376,7 @@ def get_os_values():
     sis['uptime'] = int(round(float(sis['uptime']), 0))
     sis['rntime'] = int(round(float(sis['rntime']), 0))
 
-    # Avoid missmatch whith elapsed time between getting counters and/or rounded values,
+    # Avoid mismatch with elapsed time between getting counters and/or rounded values,
     # whit less than 1 seconds, values are equal
     if (sis['uptime'] - 1) <= sis['rntime'] <= (sis['uptime'] + 1):
         sis['rntime'] = sis['uptime']
@@ -556,7 +556,7 @@ def control_drift(prev, sis):
 
 
 def time_conv(secs):
-    """Convert seconds to human readable syle"""
+    """Convert seconds to human readable style"""
 
     dtm = {'yr': 0, 'd': 0, 'h': 0, 'm': 0, 's': 0}
     line = ''
@@ -1036,7 +1036,7 @@ def print_default(db_rows, sis, arg):
     cnt['kernel'] = len(set(cnt['kernel']))
     cnt['bootid'] = len(set(cnt['bootid']))
 
-    # Ouput style: Apply human or keep seconds
+    # Output style: Apply human or keep seconds
     if not arg.seconds:
         if tstamp['max'] is not None:
             tstamp['max'] = datetime.fromtimestamp(tstamp['max']).strftime(arg.dtm_format)
@@ -1111,7 +1111,7 @@ def output_hub(db_rows, sis, arg):
 
     if arg.update:
         # If the user can only read DB, the select query over DB return outdated numbers in last row
-        # because the DB was not updated previously. The following snippet update them in memmory
+        # because the DB was not updated previously. The following snippet update them in memory
         # If the user wrote into DB, the values are the same
         db_rows[-1]['uptime'] = sis['uptime']
         db_rows[-1]['rntime'] = sis['rntime']
@@ -1233,7 +1233,7 @@ def main():
         # Adjust time drift. Check only when system wasn't restarted
         sis = control_drift(prev, sis)
 
-        # If a graceful shutdown was just registered before, let 5 seconds to next update to avoid being overlaped
+        # If a graceful shutdown was just registered before, let 5 seconds to next update to avoid being overlapped
         # with regular schedule execution (it can happen at shutdown)
         if prev['endst'] and (prev['uptime'] + 5 > sis['uptime']) and not arg.endst:
             logging.info('DB info = graceful pass')
