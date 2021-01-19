@@ -224,7 +224,7 @@ tuptime (2.5.20) stable; urgency=low
 tuptime (2.5.12) stable; urgency=low
 
   * Setting max decimals in the output
-  * Fix data type for the ok/bad shutdown registry in db wich cause incorrect
+  * Fix data type for the ok/bad shutdown registry in db which cause incorrect
     counter output
 
  -- Ricardo Fraile <rfraile@rfraile.eu>  Fri, 07 Aug 2015 11:00:00 -0400
