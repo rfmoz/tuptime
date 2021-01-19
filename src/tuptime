@@ -432,9 +432,9 @@ def gain_db(sis, arg):
             db_conn = sqlite3.connect(arg.db_file)
             conn = db_conn.cursor()
             conn.execute('create table if not exists tuptime'
-                         '(bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
-                         'offbtime integer, endst integer, downtime integer, kernel text)')
-            conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
+                         ' (bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
+                         ' offbtime integer, endst integer, downtime integer, kernel text)')
+            conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?) ',
                          (str(sis['bootid']), str(sis['btime']), str(sis['uptime']), str(sis['rntime']),
                           str(sis['slptime']), None, str(arg.endst), None, str(sis['kernel'])))
             db_conn.commit()
@@ -477,15 +477,15 @@ def upgrade_db(db_conn, conn, columns, arg):
         if 'rntime' and 'slptime' not in columns:  # new in tuptime v4
             logging.warning('Upgrading DB with power states')
             conn.execute('create table if not exists tuptimeNew'
-                         '(btime integer, uptime integer, rntime integer, slptime integer,'
-                         'offbtime integer, endst integer, downtime integer, kernel text)')
+                         ' (btime integer, uptime integer, rntime integer, slptime integer,'
+                         ' offbtime integer, endst integer, downtime integer, kernel text)')
             conn.execute('update tuptime set uptime = cast(round(uptime) as int)')
             conn.execute('update tuptime set offbtime = cast(round(offbtime) as int)')
             conn.execute('update tuptime set downtime = cast(round(downtime) as int)')
-            conn.execute('insert into tuptimeNew '
-                         '(btime, uptime, offbtime, endst, downtime, kernel) '
-                         'SELECT btime, uptime, offbtime, endst, downtime, kernel '
-                         'FROM tuptime')
+            conn.execute('insert into tuptimeNew'
+                         ' (btime, uptime, offbtime, endst, downtime, kernel)'
+                         ' SELECT btime, uptime, offbtime, endst, downtime, kernel'
+                         ' FROM tuptime')
             conn.execute('update tuptimeNew set rntime = uptime')
             conn.execute('update tuptimeNew set slptime = 0')
             conn.execute('drop table tuptime')
@@ -495,12 +495,12 @@ def upgrade_db(db_conn, conn, columns, arg):
         if 'bootid' not in columns:  # new in tuptime v5
             logging.warning('Upgrading DB with boot ID')
             conn.execute('create table if not exists tuptimeNew'
-                         '(bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
-                         'offbtime integer, endst integer, downtime integer, kernel text)')
-            conn.execute('insert into tuptimeNew '
-                         '(btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel) '
-                         'SELECT btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel '
-                         'FROM tuptime')
+                         ' (bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
+                         ' offbtime integer, endst integer, downtime integer, kernel text)')
+            conn.execute('insert into tuptimeNew'
+                         ' (btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel)'
+                         ' SELECT btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel'
+                         ' FROM tuptime')
             conn.execute('update tuptimeNew set bootid = "None"')
             conn.execute('update tuptimeNew set kernel = "None" where kernel = ""')
             conn.execute('drop table tuptime')
@@ -1205,8 +1205,8 @@ def main():
 
         try:
             # Save downtimes for previous boot
-            conn.execute('update tuptime set \
-                         offbtime = ' + str(sis['offbtime']) + ', downtime = ' + str(sis['downtime']) +
+            conn.execute('update tuptime set'
+                         ' offbtime = ' + str(sis['offbtime']) + ', downtime = ' + str(sis['downtime']) +
                          ' where rowid = ' + str(prev['rowid']))
 
             # Create a new boot register
