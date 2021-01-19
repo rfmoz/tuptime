@@ -451,7 +451,7 @@ def gain_db(sis, arg):
     # Get DB connection and begin transaction
     try:
         logging.info('Getting DB connection')
-        db_conn = sqlite3.connect(arg.db_file)
+        db_conn = sqlite3.connect(arg.db_file, isolation_level=None)
         db_conn.row_factory = sqlite3.Row
         conn = db_conn.cursor()
         conn.execute('begin deferred')
