@@ -1120,13 +1120,11 @@ def output_hub(db_rows, sis, arg):
         db_rows[-1]['slptime'] = sis['slptime']
         db_rows[-1]['endst'] = arg.endst
         db_rows[-1]['kernel'] = sis['kernel']
-        db_rows[-1]['offbtime'] = False
-        db_rows[-1]['downtime'] = False
-    else:
-        # Convert last line None sqlite registers to False
-        for key in db_rows[-1].keys():
-            if db_rows[-1][key] is None:
-                db_rows[-1][key] = False
+
+    # Convert last line None sqlite registers to False
+    for key in db_rows[-1].keys():
+        if db_rows[-1][key] is None:
+            db_rows[-1][key] = False
 
     # Pass rows to arguments that can trim the range
     if arg.until is not None:
