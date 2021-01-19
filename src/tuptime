@@ -393,12 +393,7 @@ def get_os_values():
         logging.info('Current locale = %s', str(locale.getlocale()))
     except Exception:
         logging.info('Current locale = None')
-    logging.info('Boot ID = %s', str(sis['bootid']))
-    logging.info('Uptime = %s', str(sis['uptime']))
-    logging.info('Rntime = %s', str(sis['rntime']))
-    logging.info('Slptime = %s', str(sis['slptime']))
-    logging.info('Btime = %s', str(sis['btime']))
-    logging.info('Kernel = %s', str(sis['kernel']))
+    logging.info('Sys values = %s', str(sis))
     logging.info('Execution user = %s', str(os.getuid()))
 
     # Avoid executing when OS clock is too out of phase
@@ -453,6 +448,7 @@ def gain_db(sis, arg):
         logging.info('Getting DB connection')
         db_conn = sqlite3.connect(arg.db_file, isolation_level=None)
         db_conn.row_factory = sqlite3.Row
+        db_conn.set_trace_callback(logging.info)
         conn = db_conn.cursor()
         conn.execute('begin deferred')
     except Exception as exp_conn:
@@ -1199,13 +1195,7 @@ def main():
     conn.execute('select rowid, bootid, btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
     prev = dict(zip(['rowid', 'bootid', 'btime', 'uptime', 'endst'], conn.fetchone()))
     prev['buptime'] = prev['btime'] + prev['uptime']
-
-    logging.info('Last rowid from DB = %s', str(prev['rowid']))
-    logging.info('Last bootid from DB = %s', str(prev['bootid']))
-    logging.info('Last btime from DB = %s', str(prev['btime']))
-    logging.info('Last uptime from DB = %s', str(prev['uptime']))
-    logging.info('Last buptime from DB = %s', str(prev['buptime']))
-    logging.info('Last endst from DB = %s', str(prev['endst']))
+    logging.info('Last DB values = %s', str(prev))
 
     # Check if system was restarted
     if arg.update and check_new_boot(prev, sis):
@@ -1214,8 +1204,6 @@ def main():
         if sis['offbtime'] > sis['btime']:  # Assure btime. Never lower than shutdown
             sis['btime'] = sis['offbtime']
         sis['downtime'] = sis['btime'] - prev['buptime']
-        logging.info('Recording offbtime into DB = %s', str(sis['offbtime']))
-        logging.info('Recording downtime into DB = %s', str(sis['downtime']))
 
         try:
             # Save downtimes for previous boot
