@@ -430,7 +430,9 @@ def gain_db(sis, arg):
         else:
             logging.info('Making DB file = %s', str(arg.db_file))
             db_conn = sqlite3.connect(arg.db_file)
+            db_conn.set_trace_callback(logging.info)
             conn = db_conn.cursor()
+            conn.execute('BEGIN deferred')
             conn.execute('create table if not exists tuptime'
                          ' (bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
                          ' offbtime integer, endst integer, downtime integer, kernel text)')
