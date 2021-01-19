@@ -267,7 +267,7 @@ These are the command line options, no configuration file is used:
 
 
 -e, DECIMALS, --dec DECIMALS
-  Change the decimal lenght in percentages. The number is rounded to this value.
+  Change the decimal length in percentages. The number is rounded to this value.
 
   Examples:
          tuptime -e 7
@@ -609,10 +609,10 @@ it if the verbose mode is enabled.
 | About sync date and time |
 ============================
 
-Large jumps over the date and time in a system can cause problems, expecially
+Large jumps over the date and time in a system can cause problems, especially
 when the uptime value is low.
 
-Take care of the harware clock RTC (if the system have), or how the operating
+Take care of the hardware clock RTC (if the system have), or how the operating
 system initializes their clock at startup. Tuptime register the timestamp
 reported by the system at first execution after boot and use it to calculate
 the previous shutdown time and the current uptime value. The command 'who -b'
@@ -621,7 +621,7 @@ do more less the same.
 If the system starts with a incorrect datetime and some external time sync is
 used, like ntpd or timesyncd, a few time after boot the startup datetime reported
 by the system may change. This behaviour is also related with adjustments
-performed by adjtime(3), systems running inside virtualized enviroments, servers
+performed by adjtime(3), systems running inside virtualized environments, servers
 with high load or with high disk I/O, wrong computation of jiffies / HZ and the
 problema of lost ticks.
 
@@ -632,12 +632,12 @@ physically impossible, it's a common indicator than the clock had a large backwa
 sync jump.
 
 As Tuptime have time dependency, their Systemd service unit pulls time-sync.target
-and it's ordered before it. Note that it doesn't assure that the clock is syncronized,
+and it's ordered before it. Note that it doesn't assure that the clock is synchronized,
 only that it needs it. On last releases of Systemd, there is a new unit that delays
 reaching time-sync.target until stay on sync 'systemd-time-wait-sync',but it isn't
 enable by default nowadays.
 
-A few recomendations / workarounds are:
+A few recommendations / workarounds are:
 
 Enable 'systemd-time-wait-sync'. But take care because it can delay the execution
 more than expected and a startup can be lost. Check open issues on Systemd's GitHub.
@@ -645,7 +645,7 @@ more than expected and a startup can be lost. Check open issues on Systemd's Git
 Use 'systemd-timesyncd' if it is available (timedatectl set-ntp true), it can also
 keep the time in systems without hardware clock. Disable any other time sync service
 like 'ntp', 'chrony', 'openntpd' to avoid issues, most related with the use in
-conjuntion with 'systemd-time-wait-sync'.
+conjunction with 'systemd-time-wait-sync'.
 
 Use any time sync service like 'ntp', 'chrony' or 'openntpd' and disable
 'systemd-timesyncd'. Add the time sync service requirement on 'tuptime.service' at
@@ -737,12 +737,12 @@ Kernel name is registered each time that tuptime update values. If ksplice is
 used to update the kernel, last kernel will have the whole time assignment
 since the last system start.
 
-Tuptime is backed by a SQLite dabase. It is highly resilient but fails can
+Tuptime is backed by a SQLite database. It is highly resilient but fails can
 occur in any software and hardware level, producing a database corruption. Here
 is an excellent documentation about it https://www.sqlite.org/howtocorrupt.html
 
 The uptime reference is linked with the wall clock time elapsed since boot, not
-the running efective time. Running (efective time) and hibernate power states
+the running effective time. Running (effective time) and hibernate power states
 are childs of the uptime and report accumulated values inside their time range,
 which counts since the startup until the shutdown.
 

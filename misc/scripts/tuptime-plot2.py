@@ -153,7 +153,7 @@ def main():
         for elem in tst['up']: pie['up'].append(str(elem.hour))
         for elem in tst['down']: pie['down'].append(str(elem.hour))
 
-        # Count elements on list or set '0' if emtpy. Get list with items
+        # Count elements on list or set '0' if empty. Get list with items
         pie['up'] = dict(Counter(pie['up'])).items() if pie['up'] else [('0', 0)]
         pie['down'] = dict(Counter(pie['down'])).items() if pie['down'] else [('0', 0)]
 
