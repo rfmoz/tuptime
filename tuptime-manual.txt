@@ -158,7 +158,7 @@ These are the command line options, no configuration file is used:
 
   -h, --help            show this help message and exit
   -A STARTUP, --at STARTUP
-                        restrict to this startup number
+                        limit to this startup number
   -b, --bootid          show boot identifier
   -c, --csv             csv output
   -d DATETM_FORMAT, --date DATETM_FORMAT
@@ -178,20 +178,20 @@ These are the command line options, no configuration file is used:
   -r, --reverse         reverse order in list or table output
   -s, --seconds         output time in seconds and epoch
   -S STARTUP, --since STARTUP
-                        restrict from this startup number
+                        limit from this startup number
   -t, --table           enumerate system life as table
   --tat TIMESTAMP       system status at epoch timestamp
-  --tsince TIMESTAMP    restrict from this epoch timestamp
-  --tuntil TIMESTAMP    restrict until this epoch timestamp
+  --tsince TIMESTAMP    limit from this epoch timestamp
+  --tuntil TIMESTAMP    limit until this epoch timestamp
   -U STARTUP, --until STARTUP
-                        restrict up until this startup number
+                        limit up until this startup number
   -v, --verbose         verbose output
   -V, --version         show version
   -x, --silent          update values into DB without output
 
 
 -A <STARTUP>, --at <STARTUP>
-  Restrict values only to this startup number. Take it from (-t) table or
+  Limit values only to this startup number. Take it from (-t) table or
   (-l) list reports. Negative values allowed.
 
   Examples:
@@ -381,7 +381,7 @@ These are the command line options, no configuration file is used:
 
 
 -S <STARTUP>, --since <STARTUP>
-  Restrict values only from this startup number. Take it from (-t) table or
+  Limit values only from this startup number. Take it from (-t) table or
   (-l) list reports. Negative values allowed.
 
   Examples:
@@ -409,7 +409,7 @@ These are the command line options, no configuration file is used:
 
 
 --tsince <TIMESTAMP>
-  Restrict report from the given epoch timestamp. Negative values allowed.
+  Limit report from the given epoch timestamp. Negative values allowed.
   Options (-S) and (-U) have precedence over this one.
 
   Examples:
@@ -419,7 +419,7 @@ These are the command line options, no configuration file is used:
 
 
 --tuntil <TIMESTAMP>
-  Restrict report until the given epoch timestamp. Negative values allowed.
+  Limit report until the given epoch timestamp. Negative values allowed.
   Options (-S) and (-U) have precedence over this one.
 
   Examples:
@@ -429,7 +429,7 @@ These are the command line options, no configuration file is used:
 
 
 -U <STARTUP>, --until <STARTUP>
-  Restrict values only up until this startup number. Take it from (-t) table or
+  Limit values only up until this startup number. Take it from (-t) table or
   (-l) list reports. Negative values allowed.
 
   Examples:
