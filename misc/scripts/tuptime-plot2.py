@@ -74,14 +74,14 @@ def date_check(arg):
 
     # Set user provided or default end date
     if arg.edate:
-        end_date = dateutil.parser.parse(arg.edate)
+        end_date = dateutil.parser.parse(arg.edate, dayfirst=True)
     else:
         end_date = datetime.today()
         print('Default end:\tnow')
 
     # Set user provided or default begind date. Days ago...
     if arg.bdate:
-        begin_date = dateutil.parser.parse(arg.bdate)
+        begin_date = dateutil.parser.parse(arg.bdate, dayfirst=True)
     else:
         begin_date = end_date - timedelta(days=arg.pdays)
         print('Default begin:\tsince ' + str(arg.pdays) + ' days ago')
