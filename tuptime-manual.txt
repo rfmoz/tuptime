@@ -741,6 +741,10 @@ Tuptime is backed by a SQLite database. It is highly resilient but fails can
 occur in any software and hardware level, producing a database corruption. Here
 is an excellent documentation about it https://www.sqlite.org/howtocorrupt.html
 
+If a backup of the DB file is needed in other place, take a look to Litestream.
+This is a streaming replication tool for SQLite databases, it works fine with
+Tuptime. https://litestream.io/
+
 The uptime reference is linked with the wall clock time elapsed since boot, not
 the running effective time. Running (effective time) and hibernate power states
 are childs of the uptime and report accumulated values inside their time range,
