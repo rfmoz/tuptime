@@ -464,6 +464,9 @@ def gain_db(sis, arg):
         logging.warning('DB format outdated')
         upgrade_db(db_conn, conn, columns, arg)
 
+    if arg.verbose:
+        logging.info('DB user_version: %s', str(conn.execute('PRAGMA user_version').fetchone()[0]))
+
     return db_conn, conn
 
 
