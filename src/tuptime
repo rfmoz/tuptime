@@ -459,18 +459,17 @@ def gain_db(sis, arg):
         sys.exit(-1)
 
     # Check if DB have the old format
-    columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'slptime' and 'bootid' not in columns:
-        logging.warning('DB format outdated')
-        upgrade_db(db_conn, conn, columns, arg)
-
+    user_version = conn.execute('PRAGMA user_version').fetchone()[0]
     if arg.verbose:
-        logging.info('DB user_version: %s', str(conn.execute('PRAGMA user_version').fetchone()[0]))
+        logging.info('DB user_version: %s', str(user_version))
+    if user_version < 5:
+        logging.warning('DB format outdated')
+        upgrade_db(db_conn, conn, arg)
 
     return db_conn, conn
 
 
-def upgrade_db(db_conn, conn, columns, arg):
+def upgrade_db(db_conn, conn, arg):
     """Upgrade DB to current format"""
 
     if not os.access(arg.db_file, os.W_OK):
@@ -479,6 +478,7 @@ def upgrade_db(db_conn, conn, columns, arg):
     logging.warning('Upgrading DB file = %s', str(arg.db_file))
 
     try:
+        columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
 
         if 'rntime' and 'slptime' not in columns:  # new in tuptime v4
             logging.warning('Upgrading DB with power states')
@@ -512,8 +512,11 @@ def upgrade_db(db_conn, conn, columns, arg):
             conn.execute('update tuptimeNew set kernel = "None" where kernel = ""')
             conn.execute('drop table tuptime')
             conn.execute('alter table tuptimeNew RENAME TO tuptime')
-            conn.execute('PRAGMA user_version = 5')
             db_conn.commit()
+
+        logging.info('Set DB user_version')
+        conn.execute('PRAGMA user_version = 5')
+        db_conn.commit()
 
     except Exception as exp_db:
         logging.error('Upgrading DB format failed. "%s"', str(exp_db))
