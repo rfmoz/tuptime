@@ -514,7 +514,7 @@ def upgrade_db(db_conn, conn, arg):
             conn.execute('alter table tuptimeNew RENAME TO tuptime')
             db_conn.commit()
 
-        logging.info('Set DB user_version')
+        logging.warning('Set DB user_version')
         conn.execute('PRAGMA user_version = 5')
         db_conn.commit()
 
@@ -631,13 +631,10 @@ def tuntil_opt(db_rows, sis, arg):
         arg.tu = sis['btime'] + sis['uptime'] + arg.tu
 
     # Parse rows trying to look for the rightmost (older) value
-    remap = []
-    for row in db_rows:
+    for row in db_rows[:]:
 
         if arg.tu > row['offbtime'] and arg.tu <= (row['offbtime'] + row['downtime']):
             row['downtime'] = arg.tu - row['offbtime']
-            remap.append(row)
-            break
 
         elif arg.tu > row['btime'] and arg.tu <= (row['btime'] + row['uptime']):
             row['uptime'] = arg.tu - row['btime']
@@ -645,16 +642,14 @@ def tuntil_opt(db_rows, sis, arg):
             row['offbtime'] = False
             row['endst'] = False
             row['downtime'] = False
-            remap.append(row)
-            break
 
         elif arg.tu <= row['btime']:
-            break
+            db_rows.remove(row)
 
         else:
-            remap.append(row)
+            continue
 
-    return remap, arg
+    return db_rows, arg
 
 
 def tsince_opt(db_rows, sis, arg):
@@ -670,23 +665,20 @@ def tsince_opt(db_rows, sis, arg):
         arg.ts = sis['btime'] + sis['uptime'] + arg.ts
 
     # Parse rows trying to look for the leftmost (newer) value
-    remap = []
-    for row in db_rows:
+    for row in db_rows[:]:
 
         if arg.ts <= row['btime']:
-            remap.append(row)
+            continue
 
         elif arg.ts > row['btime'] and arg.ts < (row['btime'] + row['uptime']):
             row['uptime'] = row['btime'] + row['uptime'] - arg.ts
             row['btime'] = False
             row['rntime'] = row['slptime'] = False
-            remap.append(row)
 
         elif arg.ts == row['offbtime']:
             row['btime'] = False
             row['uptime'] = False
             row['rntime'] = row['slptime'] = False
-            remap.append(row)
 
         elif arg.ts > row['offbtime'] and arg.ts < (row['offbtime'] + row['downtime']):
             row['downtime'] = row['offbtime'] + row['downtime'] - arg.ts
@@ -695,12 +687,11 @@ def tsince_opt(db_rows, sis, arg):
             row['rntime'] = row['slptime'] = False
             row['offbtime'] = False
             row['endst'] = False
-            remap.append(row)
 
         else:
-            continue
+            db_rows.remove(row)
 
-    return remap, arg
+    return db_rows, arg
 
 
 def ordering_output(db_rows, arg, last_st):
@@ -730,7 +721,6 @@ def ordering_output(db_rows, arg, last_st):
 def format_output(db_rows, arg):
     """Set the right output format"""
 
-    remap = []
     for row in db_rows:
 
         if row['bootid'] is False:
@@ -776,8 +766,7 @@ def format_output(db_rows, arg):
         if row['kernel'] is False:
             row['kernel'] = ''
 
-        remap.append(row)
-    return remap
+    return db_rows
 
 
 def print_list(db_rows, last_st, arg):
