@@ -512,6 +512,7 @@ def upgrade_db(db_conn, conn, arg):
             conn.execute('update tuptimeNew set kernel = "None" where kernel = ""')
             conn.execute('drop table tuptime')
             conn.execute('alter table tuptimeNew RENAME TO tuptime')
+            conn.execute('PRAGMA user_version = 5')
             db_conn.commit()
 
         logging.warning('Set DB user_version')
@@ -774,7 +775,7 @@ def print_list(db_rows, last_st, arg):
 
     db_rows = ordering_output(db_rows, arg, last_st)
 
-    if arg.csv:  # Define content/spaces between values
+    if arg.csv:  # Set content/spaces between values
         sp0, sp8 = '"', ''
         sp1 = sp2 = '","'
     else:
@@ -820,7 +821,7 @@ def print_table(db_rows, last_st, arg):
     align_left, colpad = [], []
     side_spaces = 3
 
-    # Define header row, remove unused optional cols
+    # Set header row, remove unused optional cols
     if not arg.bootid:
         tbl[0].remove('Boot ID')
 
@@ -938,7 +939,7 @@ def print_tat(db_rows, sis, last_st, arg):
         report['time'] = time_conv(report['time'])
         report['time_fwd'] = time_conv(report['time_fwd'])
 
-    if arg.csv:  # Define content/spaces between values
+    if arg.csv:  # Set content/spaces between values
         sp0, sp8 = '"', ''
         sp2 = sp5 = sp9 = '","'
     else:
@@ -1055,7 +1056,7 @@ def print_default(db_rows, sis, arg):
         sys_life = time_conv(sys_life)
 
     # Finally print all
-    if arg.csv:  # Define content/spaces between values
+    if arg.csv:  # Set content/spaces between values
         sp0, sp8 = '"', ''
         sp1 = sp4 = sp5 = sp7 = sp9 = '","'
     else:

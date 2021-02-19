@@ -33,7 +33,7 @@ Ycm=$(cut -dx -f2 <<< $Size)
 XnY="-W $Xcm -H $Ycm"
 
 echo "Execution: $0 [-s Width x Height] [ -p Past Days] [ -e End Date]"
-echo "Example:   $0 -s 22x10 -d 30 -e 31-Dec-20"
+echo "Example:   $0 -s 22x10 -p 30 -e 31-Dec-20"
 echo ""
 
 echo -e "Making 4 plots in background...\n"
