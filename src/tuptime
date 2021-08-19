@@ -1113,6 +1113,7 @@ def output_hub(db_rows, sis, arg):
         # If the user can only read DB, the select query over DB return outdated numbers in last row
         # because the DB was not updated previously. The following snippet update them in memory
         # If the user wrote into DB, the values are the same
+        logging.info('Refresh last row values')
         db_rows[-1]['uptime'] = sis['uptime']
         db_rows[-1]['rntime'] = sis['rntime']
         db_rows[-1]['slptime'] = sis['slptime']
