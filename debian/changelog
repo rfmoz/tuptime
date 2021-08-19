@@ -1,3 +1,12 @@
+tuptime (5.0.3) unstable; urgency=low
+
+  * Cover DB writes with transactions
+  * Register DB version on PRAGMA user_version
+  * Code refactoring
+  * Update .deb package
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Thu, 19 Ago 2021 20:09:00 +0100
+
 tuptime (5.0.2) unstable; urgency=low
 
   * Option --decp usable but deprecated
