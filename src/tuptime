@@ -1118,7 +1118,7 @@ def output_hub(db_rows, sis, arg):
         db_rows[-1]['slptime'] = sis['slptime']
         db_rows[-1]['endst'] = arg.endst
         db_rows[-1]['kernel'] = sis['kernel']
-        logging.info('Refresh last row values = ' + str(db_rows[-1]))
+        logging.info('Refresh last row values = %s', str(db_rows[-1]))
 
     # Convert last line None sqlite registers to False
     for key in db_rows[-1].keys():
