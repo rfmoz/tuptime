@@ -5,7 +5,7 @@ tuptime (5.0.3) unstable; urgency=low
   * Code refactoring
   * Update .deb package
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Thu, 19 Ago 2021 20:09:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Thu, 19 Aug 2021 20:09:00 +0100
 
 tuptime (5.0.2) unstable; urgency=low
 
