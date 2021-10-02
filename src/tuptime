@@ -247,7 +247,7 @@ def get_arguments():
         # - power states report accumulated time across an uptime range, it isn't possible to
         # know if the state was running or sleeping between specific points inside it.
         # - tat work within startups numbers, not in narrow ranges.
-        parser.error('Used operators can\'t be combined together')
+        parser.error('Improper argument combination')
 
     # Wrap 'at' over since and until
     if arg.at is not None:
@@ -399,7 +399,7 @@ def get_os_values():
     # Avoid executing when OS clock is too out of phase
     if sis['btime'] < 946684800:   # 01/01/2000 00:00
         logging.error('Epoch boot time value is too old \'%s\'. Check system clock sync', str(sis['btime']))
-        logging.error('Tuptime execution can\'t continue')
+        logging.error('Tuptime execution aborted')
         sys.exit(-1)
 
     return sis
@@ -1219,7 +1219,7 @@ def main():
             # If you see this error, maybe the systemd script isn't executed at startup
             # or the DB file (DB_FILE) have wrong permissions
             logging.error('Detected a new system startup but the values have not been saved into DB')
-            logging.error('Tuptime execution user can\'t write into DB file: %s', str(arg.db_file))
+            logging.error('Tuptime execution user failed to write into DB file: %s', str(arg.db_file))
             logging.error('%s', str(exp))
             sys.exit(-1)
 
