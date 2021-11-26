@@ -810,8 +810,7 @@ def print_list(db_rows, last_st, arg):
         if arg.kernel and row_dict['kernel']:
             print(sp0 + 'Kernel' + sp2 + (sp8 * 2) + str(row_dict['kernel']) + sp0)
 
-        if not arg.csv:
-            print('')
+        print('') if not arg.csv else None
 
 
 def print_table(db_rows, last_st, arg):
@@ -832,8 +831,8 @@ def print_table(db_rows, last_st, arg):
     if not arg.kernel:
         tbl[0].remove('Kernel')
 
-    if not arg.csv:   # Add empty brake up line if csv is not used
-        tbl.append([''] * len(tbl[0]))
+    # Add empty brake up line if csv is not used
+    tbl.append([''] * len(tbl[0])) if not arg.csv else None
 
     db_rows = ordering_output(db_rows, arg, last_st)
 
@@ -1076,25 +1075,23 @@ def print_default(db_rows, sis, arg):
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp5 + 'until' + sp5 + str(tstamp['max']) + sp0)
     else:
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp0)
+
     print(sp0 + 'System shutdowns' + sp1 + str(shdown['ok']) + sp4 + 'ok' + sp7 + str(shdown['bad']) + sp4 + 'bad' + sp0)
     print(sp0 + 'System life' + sp1 + (sp8 * 8) + str(sys_life) + sp0)
     if arg.bootid:
         print(sp0 + 'System boot IDs' + sp1 + str(cnt['bootid']) + sp0)
     if arg.kernel:
         print(sp0 + 'System kernels' + sp1 + str(cnt['kernel']) + sp0)
-    if not arg.csv:
-        print('')
+    print('') if not arg.csv else None
 
     print(sp0 + 'System uptime' + sp1 + (sp8 * 8) + uptime['sys_rate'] + sp9 + uptime['sys_time'] + sp0)
     print(sp0 + 'System downtime' + sp1 + str(rate['down']) + '%' + sp9 + str(cal['tot']['downtime']) + sp0)
-    if not arg.csv:
-        print('')
+    print('') if not arg.csv else None
 
     print(sp0 + 'Average uptime' + sp1 + uptime['average'] + sp0)
     print(sp0 + 'Average downtime' + sp1 + str(cal['ave']['downtime']) + sp0)
     if arg.update and not (arg.until or arg.tu):
-        if not arg.csv:
-            print('')
+        print('') if not arg.csv else None
         print(sp0 + 'Current uptime' + sp1 + uptime['current'] + sp5 + 'since' + sp5 + str(sis['btime']) + sp0)
         if arg.bootid:
             print(sp0 + (sp8 * 4) + '...boot ID' + sp1 + str(sis['bootid']) + sp0)
