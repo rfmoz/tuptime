@@ -1024,12 +1024,21 @@ def print_default(db_rows, sis, arg):
         rate['down'] = round((cal['tot']['downtime'] * 100) / sys_life, arg.dec)
 
     if cnt['uptime']:
-        cal['ave']['uptime'] = int(round(float(cal['tot']['uptime'] / len(cnt['uptime'])), 0))
-        cal['ave']['rntime'] = int(round(float(cal['tot']['rntime'] / len(cnt['uptime'])), 0))
-        cal['ave']['slptime'] = int(round(float(cal['tot']['slptime'] / len(cnt['uptime'])), 0))
+        cal['ave']['uptime'] = int(round(cal['tot']['uptime'] / len(cnt['uptime']), 0))
+        cal['ave']['rntime'] = int(round(cal['tot']['rntime'] / len(cnt['uptime']), 0))
+        cal['ave']['slptime'] = int(round(cal['tot']['slptime'] / len(cnt['uptime']), 0))
 
     if cnt['downtime']:
-        cal['ave']['downtime'] = int(round(float(cal['tot']['downtime'] / len(cnt['downtime'])), 0))
+        cal['ave']['downtime'] = int(round(cal['tot']['downtime'] / len(cnt['downtime']), 0))
+
+    if arg.percentile:
+        cal.update({'pctl': {'uupp': 0, 'ulow': 0, 'umid': 0, 'rupp': 0, 'rlow': 0, 'rmid': 0,
+                             'supp': 0, 'slow': 0, 'smid': 0, 'dupp': 0, 'dlow': 0, 'dmid': 0}})
+
+        cal['pctl']['ulow'], cal['pctl']['uupp'], cal['pctl']['umid'] = get_pctl(db_rows, 'uptime')
+        cal['pctl']['rlow'], cal['pctl']['rupp'], cal['pctl']['rmid'] = get_pctl(db_rows, 'rntime')
+        cal['pctl']['slow'], cal['pctl']['supp'], cal['pctl']['smid'] = get_pctl(db_rows, 'slptime')
+        cal['pctl']['dlow'], cal['pctl']['dupp'], cal['pctl']['dmid'] = get_pctl(db_rows, 'downtime')
 
     # Get kernel and boot_id counters, remove duplicate and empty elements
     cnt['kernel'] = len(set(cnt['kernel']))
