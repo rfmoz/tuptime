@@ -372,9 +372,9 @@ def get_os_values():
             if key == 'rntime': sis['rntime'] = 1
 
     # Set number OS values as integer
-    sis['btime'] = int(round(float(sis['btime']), 0))
-    sis['uptime'] = int(round(float(sis['uptime']), 0))
-    sis['rntime'] = int(round(float(sis['rntime']), 0))
+    sis['btime'] = int(round(float(sis['btime'])))
+    sis['uptime'] = int(round(float(sis['uptime'])))
+    sis['rntime'] = int(round(float(sis['rntime'])))
 
     # Avoid mismatch with elapsed time between getting counters and/or rounded values,
     # whit less than 1 seconds, values are equal
@@ -1024,12 +1024,12 @@ def print_default(db_rows, sis, arg):
         rate['down'] = round((cal['tot']['downtime'] * 100) / sys_life, arg.dec)
 
     if cnt['uptime']:
-        cal['ave']['uptime'] = int(round(cal['tot']['uptime'] / len(cnt['uptime']), 0))
-        cal['ave']['rntime'] = int(round(cal['tot']['rntime'] / len(cnt['uptime']), 0))
-        cal['ave']['slptime'] = int(round(cal['tot']['slptime'] / len(cnt['uptime']), 0))
+        cal['ave']['uptime'] = int(round(cal['tot']['uptime'] / len(cnt['uptime'])))
+        cal['ave']['rntime'] = int(round(cal['tot']['rntime'] / len(cnt['uptime'])))
+        cal['ave']['slptime'] = int(round(cal['tot']['slptime'] / len(cnt['uptime'])))
 
     if cnt['downtime']:
-        cal['ave']['downtime'] = int(round(cal['tot']['downtime'] / len(cnt['downtime']), 0))
+        cal['ave']['downtime'] = int(round(cal['tot']['downtime'] / len(cnt['downtime'])))
 
     if arg.percentile:
         cal.update({'pctl': {'uupp': 0, 'ulow': 0, 'umid': 0, 'rupp': 0, 'rlow': 0, 'rmid': 0,
