@@ -1018,10 +1018,8 @@ def print_default(db_rows, sis, arg):
 
     # Get rates and average uptime / downtime
     if sys_life > 0:
-        rate['up'] = round((cal['tot']['uptime'] * 100) / sys_life, arg.dec)
-        rate['rn'] = round((cal['tot']['rntime'] * 100) / sys_life, arg.dec)
-        rate['slp'] = round((cal['tot']['slptime'] * 100) / sys_life, arg.dec)
-        rate['down'] = round((cal['tot']['downtime'] * 100) / sys_life, arg.dec)
+        for key in ['up', 'rn', 'slp', 'down']:
+            rate[key] = round((cal['tot'][key + 'time'] * 100) / sys_life, arg.dec)
 
     if cnt['uptime']:
         cal['ave']['uptime'] = int(round(cal['tot']['uptime'] / len(cnt['uptime'])))
