@@ -707,14 +707,9 @@ def format_output(db_rows, arg):
 
     for row in db_rows:
 
-        if row['bootid'] is False:
-            row['bootid'] = ''
-
-        if row['btime'] is False:
-            row['btime'] = ''
-        else:
-            if not arg.seconds:
-                row['btime'] = datetime.fromtimestamp(row['btime']).strftime(arg.dtm_format)
+        for key in ['bootid', 'kernel']:
+            if row[key] is False:
+                row[key] = ''
 
         if row['uptime'] is False:
             row['uptime'] = row['rntime'] = row['slptime'] = ''
@@ -735,20 +730,15 @@ def format_output(db_rows, arg):
                 elif row['endst'] == 0:
                     row['endst'] = 'BAD'
 
-        if row['offbtime'] is False:
-            row['offbtime'] = ''
-        else:
-            if not arg.seconds:
-                row['offbtime'] = datetime.fromtimestamp(row['offbtime']).strftime(arg.dtm_format)
-
-        if row['downtime'] is False:
-            row['downtime'] = ''
-        else:
-            if not arg.seconds:
-                row['downtime'] = time_conv(row['downtime'])
-
-        if row['kernel'] is False:
-            row['kernel'] = ''
+        for key in ['btime', 'offbtime', 'downtime']:
+            if row[key] is False:
+                row[key] = ''
+            else:
+                if not arg.seconds:
+                    if key == 'downtime':
+                        row[key] = time_conv(row[key])
+                    else:
+                        row[key] = datetime.fromtimestamp(row[key]).strftime(arg.dtm_format)
 
     return db_rows
 
