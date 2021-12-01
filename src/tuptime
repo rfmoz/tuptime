@@ -628,10 +628,8 @@ def tuntil_opt(db_rows, sis, arg):
 
         elif arg.tu > row['btime'] and arg.tu <= (row['btime'] + row['uptime']):
             row['uptime'] = arg.tu - row['btime']
-            row['rntime'] = row['slptime'] = False
-            row['offbtime'] = False
-            row['endst'] = False
-            row['downtime'] = False
+            for key in ['rntime', 'slptime', 'offbtime', 'endst', 'downtime']:
+                row[key] = False
 
         elif arg.tu <= row['btime']:
             db_rows.remove(row)
@@ -662,21 +660,17 @@ def tsince_opt(db_rows, sis, arg):
 
         elif arg.ts > row['btime'] and arg.ts < (row['btime'] + row['uptime']):
             row['uptime'] = row['btime'] + row['uptime'] - arg.ts
-            row['btime'] = False
-            row['rntime'] = row['slptime'] = False
+            for key in ['btime', 'rntime', 'slptime']:
+                row[key] = False
 
         elif arg.ts == row['offbtime']:
-            row['btime'] = False
-            row['uptime'] = False
-            row['rntime'] = row['slptime'] = False
+            for key in ['btime', 'uptime', 'rntime', 'slptime']:
+                row[key] = False
 
         elif arg.ts > row['offbtime'] and arg.ts < (row['offbtime'] + row['downtime']):
             row['downtime'] = row['offbtime'] + row['downtime'] - arg.ts
-            row['btime'] = False
-            row['uptime'] = False
-            row['rntime'] = row['slptime'] = False
-            row['offbtime'] = False
-            row['endst'] = False
+            for key in ['btime', 'uptime', 'rntime', 'slptime', 'offbtime', 'endst']:
+                row[key] = False
 
         else:
             db_rows.remove(row)
