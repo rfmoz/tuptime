@@ -971,7 +971,7 @@ def print_default(db_rows, sis, arg):
 
     cal = {'tot': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0},
            'ave': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}}
-    rate = {'up': 0.0, 'rn': 0.0, 'slp': 0.0, 'down': 0.0}
+    rate = {'uptime': 0.0, 'rntime': 0.0, 'slptime': 0.0, 'downtime': 0.0}
     shdown = {'ok': 0, 'bad': 0}
     updown = {'startups': 0, 'shutdowns': 0}
     tstamp = {'min': arg.ts, 'max': arg.tu}  # Args as init values
@@ -1001,8 +1001,8 @@ def print_default(db_rows, sis, arg):
 
     # Get rates and average uptime / downtime
     if sys_life > 0:
-        for key in ['up', 'rn', 'slp', 'down']:
-            rate[key] = round((cal['tot'][key + 'time'] * 100) / sys_life, arg.dec)
+        for key in ['uptime', 'rntime', 'slptime', 'downtime']:
+            rate[key] = round((cal['tot'][key] * 100) / sys_life, arg.dec)
 
     if cnt['uptime']:
         cal['ave']['uptime'] = int(round(cal['tot']['uptime'] / len(cnt['uptime'])))
@@ -1053,12 +1053,12 @@ def print_default(db_rows, sis, arg):
         sp9, sp7, sp0 = '  =  ', '  +  ', ''
         sp4 = sp8 = ' '
 
-    uptime = {'average': str(cal['ave']['uptime']), 'current': str(sis['uptime']), 'sys_rate': str(rate['up']) + '%', 'sys_time': str(cal['tot']['uptime'])}
+    uptime = {'average': str(cal['ave']['uptime']), 'current': str(sis['uptime']), 'sys_rate': str(rate['uptime']) + '%', 'sys_time': str(cal['tot']['uptime'])}
 
     if arg.power:
         uptime['average'] += str(sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')')
         uptime['current'] += str(sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')')
-        uptime['sys_rate'] += str(sp4 + '(rn: ' + str(rate['rn']) + '% + slp: ' + str(rate['slp']) + '%)')
+        uptime['sys_rate'] += str(sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)')
         uptime['sys_time'] += str(sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')')
 
     if arg.tu or arg.until:
