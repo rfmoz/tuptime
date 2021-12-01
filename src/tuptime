@@ -944,18 +944,13 @@ def print_default(db_rows, sis, arg):
                 if row['endst'] == 1:
                     shdown['ok'] += 1
                 updown['shutdowns'] += 1
-            cal['tot']['uptime'] += row['uptime']
-            cal['tot']['rntime'] += row['rntime']
-            cal['tot']['slptime'] += row['slptime']
-            cal['tot']['downtime'] += row['downtime']
+            for key in ['uptime', 'rntime', 'slptime', 'downtime']:
+                cal['tot'][key] += row[key]
 
             # Get lists with all values
-            cnt['bootid'].append(row['bootid'])
-            if row['uptime'] is not False:
-                cnt['uptime'].append(row['uptime'])
-            if row['downtime'] is not False:
-                cnt['downtime'].append(row['downtime'])
-            cnt['kernel'].append(row['kernel'])
+            for key in ['bootid', 'uptime', 'downtime', 'kernel']:
+                if row[key] is not False:
+                    cnt[key].append(row[key])
 
         return cal, shdown, updown, cnt
 
