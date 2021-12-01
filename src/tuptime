@@ -591,29 +591,18 @@ def time_conv(secs):
     return str(line[:-1])
 
 
-def since_opt(db_rows, last_st, arg):
-    """Get rows since a given row startup number"""
+def since_until_opt(db_rows, last_st, arg, key):
+    """Get rows since or until a given row startup number"""
 
-    if arg.since <= 0:  # Negative value start from bottom
-        arg.since = last_st + arg.since
+    matx = {'since': arg.since, 'until': arg.until}
 
-    # Remove rows if the startup is lower
+    if matx[key] <= 0:  # Negative value start from bottom
+        matx[key] = last_st + matx[key]
+
+    # Remove row if the startup is out of range
     for row in db_rows[:]:
-        if arg.since > row['startup']:
-            db_rows.remove(row)
-
-    return db_rows, arg
-
-
-def until_opt(db_rows, last_st, arg):
-    """Get rows until a given row startup number"""
-
-    if arg.until <= 0:  # Negative value start from bottom
-        arg.until = last_st + arg.until
-
-    # Remove row if the startup is greater
-    for row in db_rows[:]:
-        if arg.until < row['startup']:
+        if (key == 'since' and matx[key] > row['startup']) or \
+           (key == 'until' and matx[key] < row['startup']):
             db_rows.remove(row)
 
     return db_rows, arg
@@ -1131,9 +1120,9 @@ def output_hub(db_rows, sis, arg):
 
     # Pass rows to arguments that can trim the range
     if arg.until is not None:
-        db_rows, arg = until_opt(db_rows, last_st, arg)
+        db_rows, arg = since_until_opt(db_rows, last_st, arg, 'until')
     if arg.since is not None:
-        db_rows, arg = since_opt(db_rows, last_st, arg)
+        db_rows, arg = since_until_opt(db_rows, last_st, arg, 'since')
 
     if arg.tu is not None:
         db_rows, arg = tuntil_opt(db_rows, sis, arg)
