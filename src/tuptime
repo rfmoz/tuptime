@@ -151,6 +151,16 @@ def get_arguments():
         help='show power states run + sleep'
     )
     parser.add_argument(
+        '--pctl',
+        dest='percentile',
+        default=False,
+        action='store',
+        type=int,
+        choices=range(1, 100),
+        metavar="[1-99]",
+        help='show percentile over average'
+    )
+    parser.add_argument(
         '-r', '--reverse',
         dest='reverse',
         default=False,
@@ -954,6 +964,51 @@ def print_default(db_rows, sis, arg):
 
         return cal, shdown, updown, cnt
 
+    def get_pctl(db_rows, target):
+        """Get percentil values from target column"""
+
+        pct = {'total': 0, 'range': 0, 'up': {}, 'mid': {}, 'low': {}}
+        units = []
+
+        # Get list with values available
+        for row in db_rows:
+            if row[target] is not False:
+                units.append(row[target])
+        units.sort()  # Sort from short to large
+
+        # Percentil extension over values in list
+        pct['total'] = len(units)
+        pct['range'] = int(round((arg.percentile * len(units)) / 100))
+
+        # Populate dicts with percentil range limits and values
+        pct['up']['start'] = pct['total'] - pct['range']
+        pct['up']['end'] = pct['total']
+        pct['up']['len'] = pct['up']['end'] - pct['up']['start']
+
+        pct['mid']['start'] = int(round((pct['up']['start'] / 2)))
+        pct['mid']['end'] = pct['mid']['start'] + pct['range']
+        pct['mid']['len'] = pct['mid']['end'] - pct['mid']['start']
+
+        pct['low']['start'] = 0
+        pct['low']['end'] = pct['range']
+        pct['low']['len'] = pct['low']['end'] - pct['low']['start']
+
+        if not pct['range'] == pct['up']['len'] == pct['mid']['len'] == pct['low']['len']:
+            logging.warning('Percentil ranges diverged')
+
+        # Sum values inside target range
+        pct['up']['total'] = sum(units[pct['up']['start']:pct['up']['end']])
+        pct['mid']['total'] = sum(units[pct['mid']['start']:pct['mid']['end']])
+        pct['low']['total'] = sum(units[pct['low']['start']:pct['low']['end']])
+
+        # Compute averages
+        for key in ['up', 'mid', 'low']:
+            pct[key]['total'] = pct['range'] and (pct[key]['total'] / pct['range'])
+            pct[key]['total'] = int(round(pct[key]['total']))
+
+        logging.info('Percentil = ' + str(target) + ': ' + str(pct))
+        return pct['up']['total'], pct['mid']['total'], pct['low']['total']
+
     cal = {'tot': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0},
            'ave': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}}
     rate = {'uptime': 0.0, 'rntime': 0.0, 'slptime': 0.0, 'downtime': 0.0}
@@ -998,13 +1053,11 @@ def print_default(db_rows, sis, arg):
         cal['ave']['downtime'] = int(round(cal['tot']['downtime'] / len(cnt['downtime'])))
 
     if arg.percentile:
-        cal.update({'pctl': {'uupp': 0, 'ulow': 0, 'umid': 0, 'rupp': 0, 'rlow': 0, 'rmid': 0,
-                             'supp': 0, 'slow': 0, 'smid': 0, 'dupp': 0, 'dlow': 0, 'dmid': 0}})
 
-        cal['pctl']['ulow'], cal['pctl']['uupp'], cal['pctl']['umid'] = get_pctl(db_rows, 'uptime')
-        cal['pctl']['rlow'], cal['pctl']['rupp'], cal['pctl']['rmid'] = get_pctl(db_rows, 'rntime')
-        cal['pctl']['slow'], cal['pctl']['supp'], cal['pctl']['smid'] = get_pctl(db_rows, 'slptime')
-        cal['pctl']['dlow'], cal['pctl']['dupp'], cal['pctl']['dmid'] = get_pctl(db_rows, 'downtime')
+        cal.update({'pctl': {}})
+
+        for key in ['uptime', 'rntime', 'slptime', 'downtime']:
+            cal['pctl'][key + '_upp'], cal['pctl'][key + '_mid'], cal['pctl'][key + '_low'] = get_pctl(db_rows, key)
 
     # Get kernel and boot_id counters, remove duplicate and empty elements
     cnt['kernel'] = len(set(cnt['kernel']))
@@ -1046,6 +1099,13 @@ def print_default(db_rows, sis, arg):
         uptime['sys_rate'] += str(sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)')
         uptime['sys_time'] += str(sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')')
 
+    if arg.percentile:
+        uptime.update({'upp': str(cal['pctl']['uptime_upp']), 'mid': str(cal['pctl']['uptime_mid']), 'low': str(cal['pctl']['uptime_low'])})
+        if arg.power:
+            for key in ['upp', 'mid', 'low']:
+                uptime[key] += str(sp4 + '(rn: ' + str(cal['pctl']['rntime_' + key]) + ' + slp: ' + str(cal['pctl']['slptime_' + key]) + ')')
+        arg.percentile = str(arg.percentile).zfill(2)
+
     if arg.tu or arg.until:
         print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']) + sp5 + 'until' + sp5 + str(tstamp['max']) + sp0)
     else:
@@ -1064,7 +1124,18 @@ def print_default(db_rows, sis, arg):
     if not arg.csv: print('')
 
     print(sp0 + 'Average uptime' + sp1 + uptime['average'] + sp0)
+    if arg.percentile:
+        print(sp0 + (sp8 * 1) + '...upper P.' + str(arg.percentile) + sp1 + str(uptime['upp']) + sp0)
+        print(sp0 + (sp8 * 3) + '...mid P.' + str(arg.percentile) + sp1 + str(uptime['mid']) + sp0)
+        print(sp0 + (sp8 * 1) + '...lower P.' + str(arg.percentile) + sp1 + str(uptime['low']) + sp0)
+        if not arg.csv: print('')
+
     print(sp0 + 'Average downtime' + sp1 + str(cal['ave']['downtime']) + sp0)
+    if arg.percentile:
+        print(sp0 + (sp8 * 3) + '...upper P.' + str(arg.percentile) + sp1 + str(cal['pctl']['downtime_upp']) + sp0)
+        print(sp0 + (sp8 * 5) + '...mid P.' + str(arg.percentile) + sp1 + str(cal['pctl']['downtime_mid']) + sp0)
+        print(sp0 + (sp8 * 3) + '...lower P.' + str(arg.percentile) + sp1 + str(cal['pctl']['downtime_low']) + sp0)
+
     if arg.update and not (arg.until or arg.tu):
         if not arg.csv: print('')
         print(sp0 + 'Current uptime' + sp1 + uptime['current'] + sp5 + 'since' + sp5 + str(sis['btime']) + sp0)
