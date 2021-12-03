@@ -3,7 +3,7 @@
                          ----------------------
                               version 5.0.2
                                 Ricardo F.
-                               02/Jan/2021
+                               02/Dec/2021
 
 
 
@@ -175,6 +175,7 @@ These are the command line options, no configuration file is used:
   -o TYPE, --order TYPE
                         order enumerate by [u|r|s|e|d|k]
   -p, --power           show power states run + sleep
+  --pctl [1-99]         show percentile over average
   -r, --reverse         reverse order in list or table output
   -s, --seconds         output time in seconds and epoch
   -S STARTUP, --since STARTUP
@@ -359,6 +360,15 @@ These are the command line options, no configuration file is used:
          tuptime --power
          tuptime -tp
          tuptime -l --power
+
+
+--pctl [1-99]
+  Print the percentil from the passed argument applied over uptime and downtime average
+  values on default output. The upper, mid and lower matching ranges are shown.
+
+  Examples:
+         tuptime --pctl 95
+         tuptime -p --pctl 50
 
 
 -r, --reverse

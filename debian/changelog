@@ -1,11 +1,12 @@
 tuptime (5.0.3) unstable; urgency=low
 
+  * Adding --pctl option. Show the passed percentil over average values
   * Cover DB writes with transactions
   * Register DB version on PRAGMA user_version
   * Code refactoring
   * Update .deb package
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Thu, 19 Aug 2021 20:09:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Fri, 03 Dec 2021 20:09:00 +0100
 
 tuptime (5.0.2) unstable; urgency=low
 

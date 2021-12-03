@@ -1,10 +1,10 @@
-.TH TUPTIME 1 "Nov 2020" "5.0.2" "Linux Manual"
+.TH TUPTIME 1 "Nov 2021" "5.0.2" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [{\-h | \-\-help}] [{\-A | \-\-at}=<startup>] [{\-b | \-\-bootid}] [{\-c | \-\-csv}] [{\-d | \-\-date}=<datetime\ format>] [\-e | \-\-dec=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-i | \-\-invert}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}=[u|r|s|e|d|k]] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<startup>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<startup>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}]
+tuptime [{\-h | \-\-help}] [{\-A | \-\-at}=<startup>] [{\-b | \-\-bootid}] [{\-c | \-\-csv}] [{\-d | \-\-date}=<datetime\ format>] [\-e | \-\-dec=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-i | \-\-invert}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}=[u|r|s|e|d|k]] [{\-p | \-\-power}] [\-\-pctl=[1\-99]] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<startup>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<startup>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}]
 
 .SH DESCRIPTION
 .RS
@@ -87,6 +87,9 @@ Order enumerate by [u|r|s|e|d|k] (u = uptime | r = runtime | s = sleep time | e 
 T}
 \-p | \-\-power@T{
 Show power states run + sleep
+T}
+\-\-pctl@T{
+Show percentile in range [1-99] over average
 T}
 \-r | \-\-reverse@T{
 Reverse order in list or table output
