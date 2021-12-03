@@ -682,6 +682,7 @@ Good reads:
     https://unix.stackexchange.com/questions/118631/how-can-i-measure-and-prevent-clock-drift
     Timekeeping in VMware Virtual Machines (Document)
     https://venam.nixers.net/blog/unix/2020/05/02/time-on-unix.html
+    https://papers.freebsd.org/2002/phk-timecounters.files/timecounter.pdf
 
 
 
