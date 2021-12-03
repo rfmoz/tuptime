@@ -767,10 +767,10 @@ def print_list(db_rows, last_st, arg):
 
     for row_dict in format_output(db_rows, arg):
 
+        print(sp0 + 'Startup' + sp2 + sp8 + str(row_dict['startup']), end='')
         if row_dict['btime']:
-            print(sp0 + 'Startup' + sp2 + sp8 + str(row_dict['startup']) + sp1 + 'at' + sp1 + str(row_dict['btime']) + sp0)
-        else:
-            print(sp0 + 'Startup' + sp2 + sp8 + str(row_dict['startup']) + sp0)
+            print(sp1 + 'at' + sp1 + str(row_dict['btime']), end='')
+        print(sp0)
 
         if arg.bootid and row_dict['bootid']:
             print(sp0 + 'Boot ID' + sp2 + sp8 + str(row_dict['bootid']) + sp0)
@@ -782,10 +782,8 @@ def print_list(db_rows, last_st, arg):
                 print(sp0 + 'Running' + sp2 + sp8 + str(row_dict['rntime']) + sp0)
                 print(sp0 + 'Sleeping' + sp2 + str(row_dict['slptime']) + sp0)
 
-        if row_dict['offbtime'] and row_dict['endst']:
+        if row_dict['offbtime']:
             print(sp0 + 'Shutdown' + sp2 + str(row_dict['endst']) + sp1 + 'at' + sp1 + str(row_dict['offbtime']) + sp0)
-        elif row_dict['endst']:
-            print(sp0 + 'Shutdown' + sp2 + str(row_dict['endst']) + sp0)
 
         if row_dict['downtime']:
             print(sp0 + 'Downtime' + sp2 + str(row_dict['downtime']) + sp0)
