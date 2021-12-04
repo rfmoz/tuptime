@@ -601,24 +601,30 @@ def time_conv(secs):
     return str(line[:-1])
 
 
-def since_until_opt(db_rows, last_st, arg, key):
+def since_until_opt(db_rows, last_st, arg):
     """Get rows since or until a given row startup number"""
 
-    matx = {'since': arg.since, 'until': arg.until}
+    def since_until(db_rows, last_st, arg, key):
+        matx = {'since': arg.since, 'until': arg.until}
+        if matx[key] <= 0:  # Negative value start from bottom
+            matx[key] = last_st + matx[key]
 
-    if matx[key] <= 0:  # Negative value start from bottom
-        matx[key] = last_st + matx[key]
+        # Remove row if the startup is out of range
+        for row in db_rows[:]:
+            if (key == 'since' and matx[key] > row['startup']) or \
+               (key == 'until' and matx[key] < row['startup']):
+                db_rows.remove(row)
+        return db_rows, matx[key]
 
-    # Remove row if the startup is out of range
-    for row in db_rows[:]:
-        if (key == 'since' and matx[key] > row['startup']) or \
-           (key == 'until' and matx[key] < row['startup']):
-            db_rows.remove(row)
+    if arg.until is not None:
+        db_rows, arg.until = since_until(db_rows, last_st, arg, 'until')
+    if arg.since is not None:
+        db_rows, arg.since = since_until(db_rows, last_st, arg, 'since')
 
     return db_rows, arg
 
 
-def tsince_tuntil_opt(db_rows, sis, arg, key):
+def tsince_tuntil_opt(db_rows, sis, arg):
     """Split and report rows since or until a given timestamp
 
     Conventions:
@@ -626,7 +632,7 @@ def tsince_tuntil_opt(db_rows, sis, arg, key):
         - Empty values are False
     """
 
-    if key == 'tuntil':
+    def tuntil(db_rows, sis, arg):
         # Negative value decrease actual timestamp
         if arg.tu < 0:
             arg.tu = sis['btime'] + sis['uptime'] + arg.tu
@@ -647,8 +653,9 @@ def tsince_tuntil_opt(db_rows, sis, arg, key):
 
             else:
                 continue
+        return db_rows, arg
 
-    if key == 'tsince':
+    def tsince(db_rows, sis, arg):
         # Negative value decrease actual timestamp
         if arg.ts < 0:
             arg.ts = sis['btime'] + sis['uptime'] + arg.ts
@@ -675,6 +682,12 @@ def tsince_tuntil_opt(db_rows, sis, arg, key):
 
             else:
                 db_rows.remove(row)
+        return db_rows, arg
+
+    if arg.tu is not None:
+        db_rows, arg = tuntil(db_rows, sis, arg)
+    if arg.ts is not None:
+        db_rows, arg = tsince(db_rows, sis, arg)
 
     return db_rows, arg
 
@@ -1161,15 +1174,10 @@ def output_hub(db_rows, sis, arg):
             db_rows[-1][key] = False
 
     # Pass rows to arguments that can trim the range
-    if arg.until is not None:
-        db_rows, arg = since_until_opt(db_rows, last_st, arg, 'until')
-    if arg.since is not None:
-        db_rows, arg = since_until_opt(db_rows, last_st, arg, 'since')
-
-    if arg.tu is not None:
-        db_rows, arg = tsince_tuntil_opt(db_rows, sis, arg, 'tuntil')
-    if arg.ts is not None:
-        db_rows, arg = tsince_tuntil_opt(db_rows, sis, arg, 'tsince')
+    if (arg.until is not None) or (arg.since is not None):
+        db_rows, arg = since_until_opt(db_rows, last_st, arg)
+    if (arg.tu is not None) or (arg.ts is not None):
+        db_rows, arg = tsince_tuntil_opt(db_rows, sis, arg)
 
     # Print values with the chosen output
     if arg.list:
