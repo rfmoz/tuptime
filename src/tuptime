@@ -604,28 +604,15 @@ def time_conv(secs):
 def since_until_opt(db_rows, last_st, arg):
     """Get rows since or until a given row startup number"""
 
-    def until(db_rows, arg):
-        for row in db_rows[:]:  # Remove row if the startup is greater
-            if arg.until < row['startup']:
-                db_rows.remove(row)
-        return db_rows
-
-    def since(db_rows, arg):
-        for row in db_rows[:]:  # Remove rows if the startup is lower
-            if arg.since > row['startup']:
-                db_rows.remove(row)
-        return db_rows
-
-    # Filter based on argument
     if arg.until is not None:
         if arg.until <= 0:  # Negative value start from bottom
             arg.until = last_st + arg.until
-        db_rows = until(db_rows, arg)
+        db_rows = [row for row in db_rows if arg.until >= row['startup']]
 
     if arg.since is not None:
         if arg.since <= 0:  # Negative value start from bottom
             arg.since = last_st + arg.since
-        db_rows = since(db_rows, arg)
+        db_rows = [row for row in db_rows if arg.since <= row['startup']]
 
     return db_rows, arg
 
