@@ -618,72 +618,63 @@ def since_until_opt(db_rows, last_st, arg, key):
     return db_rows, arg
 
 
-def tuntil_opt(db_rows, sis, arg):
-    """Split and report rows until a given timestamp
+def tsince_tuntil_opt(db_rows, sis, arg, key):
+    """Split and report rows since or until a given timestamp
 
     Conventions:
         - Keep startup number, boot ID and kernel
         - Empty values are False
     """
 
-    # Negative value decrease actual timestamp
-    if arg.tu < 0:
-        arg.tu = sis['btime'] + sis['uptime'] + arg.tu
+    if key == 'tuntil':
+        # Negative value decrease actual timestamp
+        if arg.tu < 0:
+            arg.tu = sis['btime'] + sis['uptime'] + arg.tu
 
-    # Parse rows trying to look for the rightmost (older) value
-    for row in db_rows[:]:
+        # Parse rows trying to look for the rightmost (older) value
+        for row in db_rows[:]:
 
-        if arg.tu > row['offbtime'] and arg.tu <= (row['offbtime'] + row['downtime']):
-            row['downtime'] = arg.tu - row['offbtime']
+            if arg.tu > row['offbtime'] and arg.tu <= (row['offbtime'] + row['downtime']):
+                row['downtime'] = arg.tu - row['offbtime']
 
-        elif arg.tu > row['btime'] and arg.tu <= (row['btime'] + row['uptime']):
-            row['uptime'] = arg.tu - row['btime']
-            for key in ['rntime', 'slptime', 'offbtime', 'endst', 'downtime']:
-                row[key] = False
+            elif arg.tu > row['btime'] and arg.tu <= (row['btime'] + row['uptime']):
+                row['uptime'] = arg.tu - row['btime']
+                for key in ['rntime', 'slptime', 'offbtime', 'endst', 'downtime']:
+                    row[key] = False
 
-        elif arg.tu <= row['btime']:
-            db_rows.remove(row)
+            elif arg.tu <= row['btime']:
+                db_rows.remove(row)
 
-        else:
-            continue
+            else:
+                continue
 
-    return db_rows, arg
+    if key == 'tsince':
+        # Negative value decrease actual timestamp
+        if arg.ts < 0:
+            arg.ts = sis['btime'] + sis['uptime'] + arg.ts
 
+        # Parse rows trying to look for the leftmost (newer) value
+        for row in db_rows[:]:
 
-def tsince_opt(db_rows, sis, arg):
-    """Split and report rows since a given timestamp
+            if arg.ts <= row['btime']:
+                continue
 
-    Conventions:
-        - Keep startup number, boot ID and kernel
-        - Empty values are False
-    """
+            elif arg.ts > row['btime'] and arg.ts < (row['btime'] + row['uptime']):
+                row['uptime'] = row['btime'] + row['uptime'] - arg.ts
+                for key in ['btime', 'rntime', 'slptime']:
+                    row[key] = False
 
-    # Negative value decrease actual timestamp
-    if arg.ts < 0:
-        arg.ts = sis['btime'] + sis['uptime'] + arg.ts
+            elif arg.ts == row['offbtime']:
+                for key in ['btime', 'uptime', 'rntime', 'slptime']:
+                    row[key] = False
 
-    # Parse rows trying to look for the leftmost (newer) value
-    for row in db_rows[:]:
+            elif arg.ts > row['offbtime'] and arg.ts < (row['offbtime'] + row['downtime']):
+                row['downtime'] = row['offbtime'] + row['downtime'] - arg.ts
+                for key in ['btime', 'uptime', 'rntime', 'slptime', 'offbtime', 'endst']:
+                    row[key] = False
 
-        if arg.ts <= row['btime']:
-            continue
-
-        elif arg.ts > row['btime'] and arg.ts < (row['btime'] + row['uptime']):
-            row['uptime'] = row['btime'] + row['uptime'] - arg.ts
-            for key in ['btime', 'rntime', 'slptime']:
-                row[key] = False
-
-        elif arg.ts == row['offbtime']:
-            for key in ['btime', 'uptime', 'rntime', 'slptime']:
-                row[key] = False
-
-        elif arg.ts > row['offbtime'] and arg.ts < (row['offbtime'] + row['downtime']):
-            row['downtime'] = row['offbtime'] + row['downtime'] - arg.ts
-            for key in ['btime', 'uptime', 'rntime', 'slptime', 'offbtime', 'endst']:
-                row[key] = False
-
-        else:
-            db_rows.remove(row)
+            else:
+                db_rows.remove(row)
 
     return db_rows, arg
 
@@ -1004,7 +995,7 @@ def print_default(db_rows, sis, arg):
             pct[key]['total'] = pct['range'] and (pct[key]['total'] / pct['range'])
             pct[key]['total'] = int(round(pct[key]['total']))
 
-        logging.info('Percentil = ' + str(target) + ': ' + str(pct))
+        logging.info('Percentil = %s: %s',  target, pct)
         return pct['up']['total'], pct['mid']['total'], pct['low']['total']
 
     cal = {'tot': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0},
@@ -1176,9 +1167,9 @@ def output_hub(db_rows, sis, arg):
         db_rows, arg = since_until_opt(db_rows, last_st, arg, 'since')
 
     if arg.tu is not None:
-        db_rows, arg = tuntil_opt(db_rows, sis, arg)
+        db_rows, arg = tsince_tuntil_opt(db_rows, sis, arg, 'tuntil')
     if arg.ts is not None:
-        db_rows, arg = tsince_opt(db_rows, sis, arg)
+        db_rows, arg = tsince_tuntil_opt(db_rows, sis, arg, 'tsince')
 
     # Print values with the chosen output
     if arg.list:
