@@ -373,7 +373,7 @@ def get_os_values():
     for key in sis:
         if key in ('btime', 'uptime', 'rntime'):
             if sis[key] is None:
-                logging.error('"%s" value unallocate from system. Can\'t continue', str(key))
+                logging.error('"%s" value unallocate from system. Execution aborted', str(key))
                 sys.exit(-1)
         if key in ('uptime', 'rntime') and float(sis[key]) < 0:
             logging.warning('Reset invalid "%s" value "%s"', str(key), str(sis[key]))
