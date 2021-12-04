@@ -604,22 +604,28 @@ def time_conv(secs):
 def since_until_opt(db_rows, last_st, arg):
     """Get rows since or until a given row startup number"""
 
-    def since_until(db_rows, last_st, arg, key):
-        matx = {'since': arg.since, 'until': arg.until}
-        if matx[key] <= 0:  # Negative value start from bottom
-            matx[key] = last_st + matx[key]
-
-        # Remove row if the startup is out of range
-        for row in db_rows[:]:
-            if (key == 'since' and matx[key] > row['startup']) or \
-               (key == 'until' and matx[key] < row['startup']):
+    def until(db_rows, arg):
+        for row in db_rows[:]:  # Remove row if the startup is greater
+            if arg.until < row['startup']:
                 db_rows.remove(row)
-        return db_rows, matx[key]
+        return db_rows
 
+    def since(db_rows, arg):
+        for row in db_rows[:]:  # Remove rows if the startup is lower
+            if arg.since > row['startup']:
+                db_rows.remove(row)
+        return db_rows
+
+    # Filter based on argument
     if arg.until is not None:
-        db_rows, arg.until = since_until(db_rows, last_st, arg, 'until')
+        if arg.until <= 0:  # Negative value start from bottom
+            arg.until = last_st + arg.until
+        db_rows = until(db_rows, arg)
+
     if arg.since is not None:
-        db_rows, arg.since = since_until(db_rows, last_st, arg, 'since')
+        if arg.since <= 0:  # Negative value start from bottom
+            arg.since = last_st + arg.since
+        db_rows = since(db_rows, arg)
 
     return db_rows, arg
 
@@ -632,13 +638,8 @@ def tsince_tuntil_opt(db_rows, sis, arg):
         - Empty values are False
     """
 
-    def tuntil(db_rows, sis, arg):
-        # Negative value decrease actual timestamp
-        if arg.tu < 0:
-            arg.tu = sis['btime'] + sis['uptime'] + arg.tu
-
-        # Parse rows trying to look for the rightmost (older) value
-        for row in db_rows[:]:
+    def tuntil(db_rows, arg):
+        for row in db_rows[:]:  # Parse rows trying to look for the rightmost (older) value
 
             if arg.tu > row['offbtime'] and arg.tu <= (row['offbtime'] + row['downtime']):
                 row['downtime'] = arg.tu - row['offbtime']
@@ -653,15 +654,10 @@ def tsince_tuntil_opt(db_rows, sis, arg):
 
             else:
                 continue
-        return db_rows, arg
+        return db_rows
 
-    def tsince(db_rows, sis, arg):
-        # Negative value decrease actual timestamp
-        if arg.ts < 0:
-            arg.ts = sis['btime'] + sis['uptime'] + arg.ts
-
-        # Parse rows trying to look for the leftmost (newer) value
-        for row in db_rows[:]:
+    def tsince(db_rows, arg):
+        for row in db_rows[:]:  # Parse rows trying to look for the leftmost (newer) value
 
             if arg.ts <= row['btime']:
                 continue
@@ -682,12 +678,18 @@ def tsince_tuntil_opt(db_rows, sis, arg):
 
             else:
                 db_rows.remove(row)
-        return db_rows, arg
+        return db_rows
 
+    # Filter based on argument
     if arg.tu is not None:
-        db_rows, arg = tuntil(db_rows, sis, arg)
+        if arg.tu < 0:  # Negative value decrease actual timestamp
+            arg.tu = sis['btime'] + sis['uptime'] + arg.tu
+        db_rows = tuntil(db_rows, arg)
+
     if arg.ts is not None:
-        db_rows, arg = tsince(db_rows, sis, arg)
+        if arg.ts < 0:  # Negative value decrease actual timestamp
+            arg.ts = sis['btime'] + sis['uptime'] + arg.ts
+        db_rows = tsince(db_rows, arg)
 
     return db_rows, arg
 
