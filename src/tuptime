@@ -335,8 +335,7 @@ def get_os_values():
             logging.info('Old btime assignment. %s', str(exp))
             with open('/proc/stat') as fl2:
                 for line in fl2:
-                    if line.startswith('btime'):
-                        sis['btime'] = line.split()[1]
+                    if line.startswith('btime'): sis['btime'] = line.split()[1]
 
         try:  # uptime and rntime must be together to avoid time mismatch between them
             # Time since some unspecified starting point. Contains sleep time on linux
@@ -599,22 +598,6 @@ def time_conv(secs):
 
     # Return without last space char
     return str(line[:-1])
-
-
-def since_until_opt(db_rows, last_st, arg):
-    """Get rows since or until a given row startup number"""
-
-    if arg.until is not None:
-        if arg.until <= 0:  # Negative value start from bottom
-            arg.until = last_st + arg.until
-        db_rows = [row for row in db_rows if arg.until >= row['startup']]
-
-    if arg.since is not None:
-        if arg.since <= 0:  # Negative value start from bottom
-            arg.since = last_st + arg.since
-        db_rows = [row for row in db_rows if arg.since <= row['startup']]
-
-    return db_rows, arg
 
 
 def tsince_tuntil_opt(db_rows, sis, arg):
@@ -1162,9 +1145,17 @@ def output_hub(db_rows, sis, arg):
         if db_rows[-1][key] is None:
             db_rows[-1][key] = False
 
-    # Pass rows to arguments that can trim the range
-    if (arg.until is not None) or (arg.since is not None):
-        db_rows, arg = since_until_opt(db_rows, last_st, arg)
+    # Trim rows based on arguments
+    if arg.until is not None:
+        if arg.until <= 0:  # Negative value start from bottom
+            arg.until = last_st + arg.until
+        db_rows = [row for row in db_rows if arg.until >= row['startup']]
+
+    if arg.since is not None:
+        if arg.since <= 0:  # Negative value start from bottom
+            arg.since = last_st + arg.since
+        db_rows = [row for row in db_rows if arg.since <= row['startup']]
+
     if (arg.tu is not None) or (arg.ts is not None):
         db_rows, arg = tsince_tuntil_opt(db_rows, sis, arg)
 
