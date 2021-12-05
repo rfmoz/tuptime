@@ -4,7 +4,7 @@
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [\-hbcgiklnprstvVx] [\-A=<startup>] [\-d=<datetime\ format>] [\-e=<decimals>] [\-f=<file>] [\-o=[u|r|s|e|d|k]] [\-\-pctl=[1\-99]] [\-S=<startup>] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [\-U=<startup>]
+tuptime [\-h] [\-A STARTUP] [\-b] [\-c] [\-d DATETM_FORMAT] [\-e DECIMALS] [\-f FILE] [\-g] [\-i] [\-k] [\-l] [\-n] [\-o TYPE] [\-p] [\-\-pctl [1\-99]] [\-r] [\-s] [\-S STARTUP] [\-t] [\-\-tat TIMESTAMP] [\-\-tsince TIMESTAMP] [\-\-tuntil TIMESTAMP] [\-U STARTUP] [\-v] [\-V] [\-x]
 
 .SH DESCRIPTION
 .RS
@@ -88,8 +88,8 @@ T}
 \-p | \-\-power@T{
 Show power states run + sleep
 T}
-\-\-pctl@T{
-Show percentile in range [1-99] over average
+\-\-pctl [1\-99]@T{
+Show percentile in range over average
 T}
 \-r | \-\-reverse@T{
 Reverse order in list or table output
