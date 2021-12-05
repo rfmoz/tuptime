@@ -447,7 +447,7 @@ def gain_db(sis, arg):
             conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?) ',
                          (str(sis['bootid']), str(sis['btime']), str(sis['uptime']), str(sis['rntime']),
                           str(sis['slptime']), None, str(arg.endst), None, str(sis['kernel'])))
-            conn.execute('PRAGMA user_version = ' + str(int(__version__.split('.')[0])))
+            conn.execute('PRAGMA user_version = ' + str(__version__.partition('.')[0]))
             db_conn.commit()
             db_conn.close()
     except Exception as exp_file:
@@ -488,7 +488,7 @@ def upgrade_db(db_conn, conn, arg):
     try:
         columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
 
-        if 'rntime' and 'slptime' not in columns:  # new in tuptime v4
+        if 'rntime' not in columns or 'slptime' not in columns:  # new in tuptime v4
             logging.warning('Upgrading DB with power states')
             conn.execute('create table if not exists tuptimeNew'
                          ' (btime integer, uptime integer, rntime integer, slptime integer,'
