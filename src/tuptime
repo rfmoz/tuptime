@@ -600,8 +600,8 @@ def time_conv(secs):
     return str(line[:-1])
 
 
-def tsince_tuntil_opt(db_rows, sis, arg):
-    """Split and report rows since or until a given timestamp
+def trim_rows(db_rows, sis, last_st, arg):
+    """Report rows since or until a given startup number or timestamp
 
     Conventions:
         - Keep startup number, boot ID and kernel
@@ -651,6 +651,16 @@ def tsince_tuntil_opt(db_rows, sis, arg):
         return db_rows
 
     # Filter based on argument
+    if arg.until is not None:
+        if arg.until <= 0:  # Negative value start from bottom
+            arg.until = last_st + arg.until
+        db_rows = [row for row in db_rows if arg.until >= row['startup']]
+
+    if arg.since is not None:
+        if arg.since <= 0:  # Negative value start from bottom
+            arg.since = last_st + arg.since
+        db_rows = [row for row in db_rows if arg.since <= row['startup']]
+
     if arg.tu is not None:
         if arg.tu < 0:  # Negative value decrease actual timestamp
             arg.tu = sis['btime'] + sis['uptime'] + arg.tu
@@ -1145,19 +1155,9 @@ def output_hub(db_rows, sis, arg):
         if db_rows[-1][key] is None:
             db_rows[-1][key] = False
 
-    # Trim rows based on arguments
-    if arg.until is not None:
-        if arg.until <= 0:  # Negative value start from bottom
-            arg.until = last_st + arg.until
-        db_rows = [row for row in db_rows if arg.until >= row['startup']]
-
-    if arg.since is not None:
-        if arg.since <= 0:  # Negative value start from bottom
-            arg.since = last_st + arg.since
-        db_rows = [row for row in db_rows if arg.since <= row['startup']]
-
-    if (arg.tu is not None) or (arg.ts is not None):
-        db_rows, arg = tsince_tuntil_opt(db_rows, sis, arg)
+    # Get narrow range of rows if it applies
+    if not (None == arg.until == arg.since == arg.tu == arg.ts):
+        db_rows, arg = trim_rows(db_rows, sis, last_st, arg)
 
     # Print values with the chosen output
     if arg.list:
