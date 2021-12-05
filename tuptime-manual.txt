@@ -363,8 +363,8 @@ These are the command line options, no configuration file is used:
 
 
 --pctl [1-99]
-  Print the percentil from the passed argument applied over uptime and downtime average
-  values on default output. The upper, mid and lower matching ranges are shown.
+  Print the percentil, from the passed argument, applied over uptime and downtime average
+  values on default output. The upper, mid and lower matching range values are shown.
 
   Examples:
          tuptime --pctl 95
