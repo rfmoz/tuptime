@@ -783,7 +783,6 @@ def print_table(db_rows, last_st, arg):
     """Print values as a table"""
 
     tbl = [['No.', 'Boot ID', 'Startup T.', 'Uptime', 'Running', 'Sleeping', 'Shutdown T.', 'End', 'Downtime', 'Kernel']]
-    align_left, colpad = [], []
     side_spaces = 3
 
     # Set header row, remove unused optional cols
@@ -830,13 +829,10 @@ def print_table(db_rows, last_st, arg):
 
     else:
         # Get index position of elements left aligned
-        for i in ('End', 'Kernel'):
-            if i in tbl[0]:
-                align_left.extend([tbl[0].index(i)])
+        align_left = [tbl[0].index(i) for i in ('End', 'Kernel') if i in tbl[0]]
 
-        for i in range(len(tbl[0])):
-            # Get the maximum width of the given column index
-            colpad.append(max([len(str(row[i])) for row in tbl]))
+        # Get the maximum width of the given column index
+        colpad = [max([len(str(row[i])) for row in tbl]) for i in range(len(tbl[0]))]
 
         # Print cols by row
         for row in tbl:
@@ -951,13 +947,9 @@ def print_default(db_rows, sis, arg):
         """Get percentil values from target column"""
 
         pct = {'total': 0, 'range': 0, 'up': {}, 'mid': {}, 'low': {}}
-        units = []
 
-        # Get list with values available
-        for row in db_rows:
-            if row[target] is not False:
-                units.append(row[target])
-        units.sort()  # Sort from short to large
+        # Get list with values available sorted from short to large
+        units = sorted([row[target] for row in db_rows if row[target] is not False])
 
         # Percentil extension over values in list
         pct['total'] = len(units)
