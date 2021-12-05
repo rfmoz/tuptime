@@ -1150,8 +1150,8 @@ def output_hub(db_rows, sis, arg):
         logging.info('Refresh last row values = %s', str(db_rows[-1]))
 
     # Convert last line None sqlite registers to False
-    for key in db_rows[-1].keys():
-        if db_rows[-1][key] is None:
+    for key, value in db_rows[-1].items():
+        if value is None:
             db_rows[-1][key] = False
 
     # Get narrow range of rows if it applies
