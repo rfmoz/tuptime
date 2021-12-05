@@ -370,13 +370,12 @@ def get_os_values():
         sys.exit(-1)
 
     # Check right allocation of core variables before continue
-    for key in sis:
-        if key in ('btime', 'uptime', 'rntime'):
-            if sis[key] is None:
-                logging.error('"%s" value unallocate from system. Execution aborted', str(key))
-                sys.exit(-1)
-        if key in ('uptime', 'rntime') and float(sis[key]) < 0:
-            logging.warning('Reset invalid "%s" value "%s"', str(key), str(sis[key]))
+    for key, value in sis.items():
+        if key in ('btime', 'uptime', 'rntime') and value is None:
+            logging.error('"%s" value unallocate from system. Execution aborted', str(key))
+            sys.exit(-1)
+        if key in ('uptime', 'rntime') and float(value) < 0:
+            logging.warning('Reset invalid "%s" value "%s"', str(key), str(value))
             if key == 'uptime': sis['uptime'] = 1
             if key == 'rntime': sis['rntime'] = 1
 
