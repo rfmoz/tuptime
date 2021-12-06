@@ -1145,7 +1145,7 @@ def output_hub(db_rows, sis, arg):
             db_rows[-1][key] = False
 
     # Get narrow range of rows if it applies
-    if not (None == arg.until == arg.since == arg.tu == arg.ts):
+    if not (None is arg.until is arg.since is arg.tu is arg.ts):
         db_rows, arg = trim_rows(db_rows, sis, last_st, arg)
 
     # Print values with the chosen output
