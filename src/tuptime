@@ -876,8 +876,6 @@ def print_tat(db_rows, sis, last_st, arg):
                 report['status'] = 'DOWN-OK'
             elif row['endst'] == 0:
                 report['status'] = 'DOWN-BAD'
-            else:
-                report['status'] = 'DOWN'
             report['time_total'] = row['downtime']
             break
 
