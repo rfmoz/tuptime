@@ -464,7 +464,7 @@ def gain_db(sis, arg):
         logging.error('DB connection failed: %s', str(exp_conn))
         sys.exit(-1)
 
-    # Check if DB have the old format
+    # Check if DB has the old format
     user_version = conn.execute('PRAGMA user_version').fetchone()[0]
     if arg.verbose:
         logging.info('DB user_version: %s', str(user_version))
@@ -548,7 +548,7 @@ def control_drift(prev, sis):
             sis['uptime'] = sis['uptime'] + offset
             sis['btime'] = sis['btime'] - offset
 
-            # Apply offset to rntime if it have room for it, else, to slptime too
+            # Apply offset to rntime if it has room for it, else, to slptime too
             sis['rntime'] = sis['rntime'] + offset
             if sis['rntime'] < 1:
                 sis['slptime'] = sis['slptime'] + sis['rntime'] - 1
@@ -1027,8 +1027,8 @@ def print_default(db_rows, sis, arg):
 
     if arg.percentile:
 
+        # Extend cal dict and set percentile values
         cal.update({'pctl': {}})
-
         for key in ['uptime', 'rntime', 'slptime', 'downtime']:
             cal['pctl'][key + '_upp'], cal['pctl'][key + '_mid'], cal['pctl'][key + '_low'] = get_pctl(db_rows, key)
 
@@ -1074,8 +1074,8 @@ def print_default(db_rows, sis, arg):
         uptime['sys_time'] += str(sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')')
 
     if arg.percentile:
-        downtime.update({'upp': str(cal['pctl']['downtime_upp']), 'mid': str(cal['pctl']['downtime_mid']), 'low': str(cal['pctl']['downtime_low'])})
         uptime.update({'upp': str(cal['pctl']['uptime_upp']), 'mid': str(cal['pctl']['uptime_mid']), 'low': str(cal['pctl']['uptime_low'])})
+        downtime.update({'upp': str(cal['pctl']['downtime_upp']), 'mid': str(cal['pctl']['downtime_mid']), 'low': str(cal['pctl']['downtime_low'])})
         if arg.power:
             for key in ['upp', 'mid', 'low']:
                 uptime[key] += str(sp4 + '(rn: ' + str(cal['pctl']['rntime_' + key]) + ' + slp: ' + str(cal['pctl']['slptime_' + key]) + ')')
@@ -1160,7 +1160,7 @@ def output_hub(db_rows, sis, arg):
 
 
 def check_new_boot(prev, sis):
-    """Test if system have new boot"""
+    """Test if system has new boot"""
 
     # How tuptime does it:
     #
@@ -1174,7 +1174,7 @@ def check_new_boot(prev, sis):
     # In some particular cases the btime value from /proc/stat or from the system clock functions may change.
     # When tuptime doesn't register a new boot, only an update of the records, it tries to fix the drift.
     #
-    # To avoid lost an uptime record, please be sure that the system have time sync enabled, the init/systemd
+    # To avoid lost an uptime record, please be sure that the system has time sync enabled, the init/systemd
     # script and the cron task works as expected.
 
     if prev['bootid'] != 'None' and sis['bootid'] != 'None':
@@ -1229,7 +1229,7 @@ def main():
 
         except Exception as exp:
             # If you see this error, maybe the systemd script isn't executed at startup
-            # or the DB file (DB_FILE) have wrong permissions
+            # or the DB file (DB_FILE) has wrong permissions
             logging.error('Detected a new system startup but the values have not been saved into DB')
             logging.error('Tuptime execution user failed to write into DB file: %s', str(arg.db_file))
             logging.error('%s', str(exp))
