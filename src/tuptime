@@ -445,7 +445,7 @@ def gain_db(sis, arg):
             conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?) ',
                          (str(sis['bootid']), str(sis['btime']), str(sis['uptime']), str(sis['rntime']),
                           str(sis['slptime']), None, str(arg.endst), None, str(sis['kernel'])))
-            conn.execute('PRAGMA user_version = ' + str(__version__.partition('.')[0]))
+            conn.execute('PRAGMA user_version = ' + str(int(__version__.partition('.')[0])))
             db_conn.commit()
             db_conn.close()
     except Exception as exp_file:
