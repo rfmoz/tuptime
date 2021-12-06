@@ -926,7 +926,7 @@ def print_default(db_rows, sis, arg):
             if row['offbtime'] is not False:
                 if row['endst'] == 0:
                     shdown['bad'] += 1
-                if row['endst'] == 1:
+                elif row['endst'] == 1:
                     shdown['ok'] += 1
                 updown['shutdowns'] += 1
             for key in ['uptime', 'rntime', 'slptime', 'downtime']:
