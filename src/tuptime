@@ -880,7 +880,7 @@ def print_tat(db_rows, sis, last_st, arg):
             break
 
     # If status keep their default value, no match, clean all other variables
-    if report['status'] is None:
+    if report['status'] is None or report['time_total'] == 0:
         report['startup'] = report['time'] = report['time_fwd'] = 0
         report['bootid'] = report['kernel'] = 'None'
         perctg_1 = perctg_2 = 0.0
