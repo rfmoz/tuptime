@@ -920,7 +920,7 @@ def print_default(db_rows, sis, arg):
 
         for row in db_rows:
 
-            # Sum totals
+            # Sum counters
             if row['btime'] is not False:
                 updown['startups'] += 1
             if row['offbtime'] is not False:
@@ -929,13 +929,15 @@ def print_default(db_rows, sis, arg):
                 elif row['endst'] == 1:
                     shdown['ok'] += 1
                 updown['shutdowns'] += 1
-            for key in ['uptime', 'rntime', 'slptime', 'downtime']:
-                cal['tot'][key] += row[key]
 
             # Get lists with all values
-            for key in ['bootid', 'uptime', 'downtime', 'kernel']:
+            for key in ['bootid', 'uptime', 'rntime', 'slptime', 'downtime', 'kernel']:
                 if row[key] is not False:
                     cnt[key].append(row[key])
+
+        # Sum totals
+        for key in ['uptime', 'rntime', 'slptime', 'downtime']:
+            cal['tot'][key] += sum(cnt[key])
 
         return cal, shdown, updown, cnt
 
@@ -986,7 +988,7 @@ def print_default(db_rows, sis, arg):
     shdown = {'ok': 0, 'bad': 0}
     updown = {'startups': 0, 'shutdowns': 0}
     tstamp = {'min': arg.ts, 'max': arg.tu}  # Args as init values
-    cnt = {'bootid': [], 'uptime': [], 'downtime': [], 'kernel': []}
+    cnt = {'bootid': [], 'uptime': [], 'rntime': [], 'slptime': [], 'downtime': [], 'kernel': []}
     sys_life = 0
 
     if db_rows:
