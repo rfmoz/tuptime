@@ -956,30 +956,24 @@ def print_default(db_rows, sis, arg):
         # Populate dicts with percentil range limits and values
         pct['up']['start'] = pct['total'] - pct['range']
         pct['up']['end'] = pct['total']
-        pct['up']['len'] = pct['up']['end'] - pct['up']['start']
 
         pct['mid']['start'] = int(round((pct['up']['start'] / 2)))
         pct['mid']['end'] = pct['mid']['start'] + pct['range']
-        pct['mid']['len'] = pct['mid']['end'] - pct['mid']['start']
 
         pct['low']['start'] = 0
         pct['low']['end'] = pct['range']
-        pct['low']['len'] = pct['low']['end'] - pct['low']['start']
+
+        for key in ['up', 'mid', 'low']:
+            pct[key]['len'] = pct[key]['end'] - pct[key]['start']
+            # Sum values inside target range
+            pct[key]['total'] = sum(units[pct[key]['start']:pct[key]['end']])
+            # Compute averages
+            pct[key]['total'] = pct['range'] and int(round((pct[key]['total'] / pct['range'])))
 
         if not pct['range'] == pct['up']['len'] == pct['mid']['len'] == pct['low']['len']:
             logging.warning('Percentil ranges diverged')
 
-        # Sum values inside target range
-        pct['up']['total'] = sum(units[pct['up']['start']:pct['up']['end']])
-        pct['mid']['total'] = sum(units[pct['mid']['start']:pct['mid']['end']])
-        pct['low']['total'] = sum(units[pct['low']['start']:pct['low']['end']])
-
-        # Compute averages
-        for key in ['up', 'mid', 'low']:
-            pct[key]['total'] = pct['range'] and (pct[key]['total'] / pct['range'])
-            pct[key]['total'] = int(round(pct[key]['total']))
-
-        logging.info('Percentil = %s: %s',  target, pct)
+        logging.info('Percentil = %s: %s', target, pct)
         return pct['up']['total'], pct['mid']['total'], pct['low']['total']
 
     cal = {'tot': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0},
@@ -1026,7 +1020,6 @@ def print_default(db_rows, sis, arg):
         cal['ave']['downtime'] = int(round(cal['tot']['downtime'] / len(cnt['downtime'])))
 
     if arg.percentile:
-
         # Extend cal dict and set percentile values
         cal.update({'pctl': {}})
         for key in ['uptime', 'rntime', 'slptime', 'downtime']:
@@ -1066,20 +1059,20 @@ def print_default(db_rows, sis, arg):
 
     uptime = {'average': str(cal['ave']['uptime']), 'sys_rate': str(rate['uptime']) + '%', 'sys_time': str(cal['tot']['uptime']), 'current': str(sis['uptime'])}
     downtime = {'average': str(cal['ave']['downtime']), 'sys_rate': str(rate['downtime']) + '%', 'sys_time': str(cal['tot']['downtime'])}
+    if arg.percentile:
+        for key in ['upp', 'mid', 'low']:
+            uptime.update({key: str(cal['pctl']['uptime_' + key])})
+            downtime.update({key: str(cal['pctl']['downtime_' + key])})
+        arg.percentile = str(arg.percentile).zfill(2)
 
     if arg.power:
         uptime['average'] += str(sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')')
         uptime['current'] += str(sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')')
         uptime['sys_rate'] += str(sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)')
         uptime['sys_time'] += str(sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')')
-
-    if arg.percentile:
-        uptime.update({'upp': str(cal['pctl']['uptime_upp']), 'mid': str(cal['pctl']['uptime_mid']), 'low': str(cal['pctl']['uptime_low'])})
-        downtime.update({'upp': str(cal['pctl']['downtime_upp']), 'mid': str(cal['pctl']['downtime_mid']), 'low': str(cal['pctl']['downtime_low'])})
-        if arg.power:
+        if arg.percentile:
             for key in ['upp', 'mid', 'low']:
                 uptime[key] += str(sp4 + '(rn: ' + str(cal['pctl']['rntime_' + key]) + ' + slp: ' + str(cal['pctl']['slptime_' + key]) + ')')
-        arg.percentile = str(arg.percentile).zfill(2)
 
     # Finally print all
     print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']), end='')
