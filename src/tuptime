@@ -915,7 +915,7 @@ def print_tat(db_rows, sis, last_st, arg):
 def print_default(db_rows, sis, arg):
     """Print values with default output"""
 
-    def parse_rows(db_rows, cal, shdown, updown, cnt):
+    def parse_rows(db_rows, shdown, updown, cnt):
         """Loop along all DB rows"""
 
         for row in db_rows:
@@ -935,11 +935,7 @@ def print_default(db_rows, sis, arg):
                 if row[key] is not False:
                     cnt[key].append(row[key])
 
-        # Sum totals
-        for key in ['uptime', 'rntime', 'slptime', 'downtime']:
-            cal['tot'][key] += sum(cnt[key])
-
-        return cal, shdown, updown, cnt
+        return shdown, updown, cnt
 
     def get_pctl(db_rows, target):
         """Get percentil values from target column"""
@@ -988,7 +984,7 @@ def print_default(db_rows, sis, arg):
     if db_rows:
 
         # Get values from all DB rows
-        cal, shdown, updown, cnt = parse_rows(db_rows, cal, shdown, updown, cnt)
+        shdown, updown, cnt = parse_rows(db_rows, shdown, updown, cnt)
 
         # Max timestamp - until datetime
         # Get rightmost (older) value from last row if arg.tu is not used
@@ -1003,8 +999,14 @@ def print_default(db_rows, sis, arg):
         if tstamp['min'] is None:
             tstamp['min'] = db_rows[0]['btime']
 
-    # Get system life
+    # Get totals and system life
+    for key in ['uptime', 'rntime', 'slptime', 'downtime']:
+        cal['tot'][key] += sum(cnt[key])
     sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
+
+    # Get kernel and boot_id counters, remove duplicate and empty elements
+    cnt['kernel'] = len(set(cnt['kernel']))
+    cnt['bootid'] = len(set(cnt['bootid']))
 
     # Get rates and average uptime / downtime
     if sys_life > 0:
@@ -1012,9 +1014,8 @@ def print_default(db_rows, sis, arg):
             rate[key] = round((cal['tot'][key] * 100) / sys_life, arg.dec)
 
     if cnt['uptime']:
-        cal['ave']['uptime'] = int(round(cal['tot']['uptime'] / len(cnt['uptime'])))
-        cal['ave']['rntime'] = int(round(cal['tot']['rntime'] / len(cnt['uptime'])))
-        cal['ave']['slptime'] = int(round(cal['tot']['slptime'] / len(cnt['uptime'])))
+        for key in ['uptime', 'rntime', 'slptime']:
+            cal['ave'][key] = int(round(cal['tot'][key] / len(cnt['uptime'])))
 
     if cnt['downtime']:
         cal['ave']['downtime'] = int(round(cal['tot']['downtime'] / len(cnt['downtime'])))
@@ -1024,10 +1025,6 @@ def print_default(db_rows, sis, arg):
         cal.update({'pctl': {}})
         for key in ['uptime', 'rntime', 'slptime', 'downtime']:
             cal['pctl'][key + '_upp'], cal['pctl'][key + '_mid'], cal['pctl'][key + '_low'] = get_pctl(db_rows, key)
-
-    # Get kernel and boot_id counters, remove duplicate and empty elements
-    cnt['kernel'] = len(set(cnt['kernel']))
-    cnt['bootid'] = len(set(cnt['bootid']))
 
     # Output style: Apply human or keep seconds
     if not arg.seconds:
