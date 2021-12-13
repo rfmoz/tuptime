@@ -1028,19 +1028,16 @@ def print_default(db_rows, sis, arg):
         for k in cal:
             for key in cal[k]:
                 cal[k][key] = time_conv(cal[k][key])
-
-        sis['uptime'] = time_conv(sis['uptime'])
-        sis['rntime'] = time_conv(sis['rntime'])
-        sis['slptime'] = time_conv(sis['slptime'])
+        for key in ['uptime', 'rntime', 'slptime']:
+            sis[key] = time_conv(sis[key])
         sis['btime'] = datetime.fromtimestamp(sis['btime']).strftime(arg.dtm_format)
         sys_life = time_conv(sys_life)
 
+    # To append content to uptime values if power option is used
     uptime = {'average': str(cal['ave']['uptime']), 'sys_rate': str(rate['uptime']) + '%', 'sys_time': str(cal['tot']['uptime']), 'current': str(sis['uptime'])}
-    downtime = {'average': str(cal['ave']['downtime']), 'sys_rate': str(rate['downtime']) + '%', 'sys_time': str(cal['tot']['downtime'])}
     if arg.percentile:
         for key in ['upp', 'mid', 'low']:
             uptime.update({key: str(cal['pctl']['uptime_' + key])})
-            downtime.update({key: str(cal['pctl']['downtime_' + key])})
         arg.percentile = str(arg.percentile).zfill(2)
 
     # Prepare values for print
@@ -1076,7 +1073,7 @@ def print_default(db_rows, sis, arg):
     if not arg.csv: print('')
 
     print(sp0 + 'System uptime' + sp1 + (sp8 * 8) + uptime['sys_rate'] + sp9 + uptime['sys_time'] + sp0)
-    print(sp0 + 'System downtime' + sp1 + downtime['sys_rate'] + sp9 + downtime['sys_time'] + sp0)
+    print(sp0 + 'System downtime' + sp1 + str(rate['downtime']) + '%' + sp9 + str(cal['tot']['downtime']) + sp0)
     if not arg.csv: print('')
 
     print(sp0 + 'Average uptime' + sp1 + uptime['average'] + sp0)
@@ -1086,11 +1083,11 @@ def print_default(db_rows, sis, arg):
         print(sp0 + (sp8 * 1) + '...lower P.' + str(arg.percentile) + sp1 + uptime['low'] + sp0)
         if not arg.csv: print('')
 
-    print(sp0 + 'Average downtime' + sp1 + downtime['average'] + sp0)
+    print(sp0 + 'Average downtime' + sp1 + str(cal['ave']['downtime']) + sp0)
     if arg.percentile:
-        print(sp0 + (sp8 * 3) + '...upper P.' + str(arg.percentile) + sp1 + downtime['upp'] + sp0)
-        print(sp0 + (sp8 * 5) + '...mid P.' + str(arg.percentile) + sp1 + downtime['mid'] + sp0)
-        print(sp0 + (sp8 * 3) + '...lower P.' + str(arg.percentile) + sp1 + downtime['low'] + sp0)
+        print(sp0 + (sp8 * 3) + '...upper P.' + str(arg.percentile) + sp1 + cal['pctl']['downtime_upp'] + sp0)
+        print(sp0 + (sp8 * 5) + '...mid P.' + str(arg.percentile) + sp1 + cal['pctl']['downtime_mid'] + sp0)
+        print(sp0 + (sp8 * 3) + '...lower P.' + str(arg.percentile) + sp1 + cal['pctl']['downtime_low'] + sp0)
 
     if arg.update and not (arg.until or arg.tu):
         if not arg.csv: print('')
