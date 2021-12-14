@@ -613,7 +613,7 @@ def trim_rows(db_rows, sis, last_st, arg):
 
             elif arg.tu > row['btime'] and arg.tu <= (row['btime'] + row['uptime']):
                 row['uptime'] = arg.tu - row['btime']
-                for key in ['rntime', 'slptime', 'offbtime', 'endst', 'downtime']:
+                for key in ('rntime', 'slptime', 'offbtime', 'endst', 'downtime'):
                     row[key] = False
 
             elif arg.tu <= row['btime']:
@@ -631,16 +631,16 @@ def trim_rows(db_rows, sis, last_st, arg):
 
             elif arg.ts > row['btime'] and arg.ts < (row['btime'] + row['uptime']):
                 row['uptime'] = row['btime'] + row['uptime'] - arg.ts
-                for key in ['btime', 'rntime', 'slptime']:
+                for key in ('btime', 'rntime', 'slptime'):
                     row[key] = False
 
             elif arg.ts == row['offbtime']:
-                for key in ['btime', 'uptime', 'rntime', 'slptime']:
+                for key in ('btime', 'uptime', 'rntime', 'slptime'):
                     row[key] = False
 
             elif arg.ts > row['offbtime'] and arg.ts < (row['offbtime'] + row['downtime']):
                 row['downtime'] = row['offbtime'] + row['downtime'] - arg.ts
-                for key in ['btime', 'uptime', 'rntime', 'slptime', 'offbtime', 'endst']:
+                for key in ('btime', 'uptime', 'rntime', 'slptime', 'offbtime', 'endst'):
                     row[key] = False
 
             else:
@@ -700,7 +700,7 @@ def format_output(db_rows, arg):
 
     for row in db_rows:
 
-        for key in ['bootid', 'kernel']:
+        for key in ('bootid', 'kernel'):
             if row[key] is False:
                 row[key] = ''
 
@@ -708,9 +708,8 @@ def format_output(db_rows, arg):
             row['uptime'] = row['rntime'] = row['slptime'] = ''
         else:
             if not arg.seconds:
-                row['uptime'] = time_conv(row['uptime'])
-                row['rntime'] = time_conv(row['rntime'])
-                row['slptime'] = time_conv(row['slptime'])
+                for key in ('uptime', 'rntime', 'slptime'):
+                    row[key] = time_conv(row[key])
 
         if row['endst'] is False:
             row['endst'] = ''
@@ -723,7 +722,7 @@ def format_output(db_rows, arg):
                 elif row['endst'] == 0:
                     row['endst'] = 'BAD'
 
-        for key in ['btime', 'offbtime', 'downtime']:
+        for key in ('btime', 'offbtime', 'downtime'):
             if row[key] is False:
                 row[key] = ''
             else:
@@ -856,9 +855,8 @@ def print_tat(db_rows, sis, last_st, arg):
     report = {'at': arg.tat, 'status': None}
 
     for row in db_rows:
-        report['startup'] = row['startup']
-        report['bootid'] = row['bootid']
-        report['kernel'] = row['kernel']
+        for key in ('startup', 'bootid', 'kernel'):
+            report[key] = row[key]
 
         # Report UP if tat fall into btime + uptime range
         if (arg.tat >= row['btime']) and (arg.tat < (row['btime'] + row['uptime'])):
@@ -931,7 +929,7 @@ def print_default(db_rows, sis, arg):
                 updown['shutdowns'] += 1
 
             # Get lists with all values
-            for key in ['bootid', 'uptime', 'rntime', 'slptime', 'downtime', 'kernel']:
+            for key in ('bootid', 'uptime', 'rntime', 'slptime', 'downtime', 'kernel'):
                 if row[key] is not False:
                     cnt[key].append(row[key])
 
@@ -959,7 +957,7 @@ def print_default(db_rows, sis, arg):
         pct['low']['start'] = 0
         pct['low']['end'] = pct['range']
 
-        for key in ['up', 'mid', 'low']:
+        for key in ('up', 'mid', 'low'):
             pct[key]['len'] = pct[key]['end'] - pct[key]['start']
             # Sum values inside target range
             pct[key]['total'] = sum(units[pct[key]['start']:pct[key]['end']])
@@ -996,17 +994,17 @@ def print_default(db_rows, sis, arg):
         tstamp['min'] = db_rows[0]['btime']
 
     # Get totals and system life
-    for key in ['uptime', 'rntime', 'slptime', 'downtime']:
+    for key in ('uptime', 'rntime', 'slptime', 'downtime'):
         cal['tot'][key] += sum(cnt[key])
     sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
 
     # Get rates and average uptime / downtime
     if sys_life > 0:
-        for key in ['uptime', 'rntime', 'slptime', 'downtime']:
+        for key in ('uptime', 'rntime', 'slptime', 'downtime'):
             rate[key] = round((cal['tot'][key] * 100) / sys_life, arg.dec)
 
         if cnt['uptime']:
-            for key in ['uptime', 'rntime', 'slptime']:
+            for key in ('uptime', 'rntime', 'slptime'):
                 cal['ave'][key] = int(round(cal['tot'][key] / len(cnt['uptime'])))
 
         if cnt['downtime']:
@@ -1015,12 +1013,12 @@ def print_default(db_rows, sis, arg):
     if arg.percentile:
         # Extend cal dict and set percentile values
         cal.update({'pctl': {}})
-        for key in ['uptime', 'rntime', 'slptime', 'downtime']:
+        for key in ('uptime', 'rntime', 'slptime', 'downtime'):
             cal['pctl'][key + '_upp'], cal['pctl'][key + '_mid'], cal['pctl'][key + '_low'] = get_pctl(db_rows, key)
 
     # Output style: Apply human or keep seconds
     if not arg.seconds:
-        for key in ['max', 'min']:
+        for key in ('max', 'min'):
             if tstamp[key] is not None:
                 tstamp[key] = datetime.fromtimestamp(tstamp[key]).strftime(arg.dtm_format)
 
@@ -1028,7 +1026,7 @@ def print_default(db_rows, sis, arg):
         for k in cal:
             for key in cal[k]:
                 cal[k][key] = time_conv(cal[k][key])
-        for key in ['uptime', 'rntime', 'slptime']:
+        for key in ('uptime', 'rntime', 'slptime'):
             sis[key] = time_conv(sis[key])
         sis['btime'] = datetime.fromtimestamp(sis['btime']).strftime(arg.dtm_format)
         sys_life = time_conv(sys_life)
@@ -1045,7 +1043,7 @@ def print_default(db_rows, sis, arg):
     # To append content to uptime values if power option is used
     uptime = {'average': str(cal['ave']['uptime']), 'sys_rate': str(rate['uptime']) + '%', 'sys_time': str(cal['tot']['uptime']), 'current': str(sis['uptime'])}
     if arg.percentile:
-        for key in ['upp', 'mid', 'low']:
+        for key in ('upp', 'mid', 'low'):
             uptime.update({key: str(cal['pctl']['uptime_' + key])})
         arg.percentile = str(arg.percentile).zfill(2)
 
@@ -1055,7 +1053,7 @@ def print_default(db_rows, sis, arg):
         uptime['sys_rate'] += str(sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)')
         uptime['sys_time'] += str(sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')')
         if arg.percentile:
-            for key in ['upp', 'mid', 'low']:
+            for key in ('upp', 'mid', 'low'):
                 uptime[key] += str(sp4 + '(rn: ' + str(cal['pctl']['rntime_' + key]) + ' + slp: ' + str(cal['pctl']['slptime_' + key]) + ')')
 
     # Finally print all
@@ -1109,7 +1107,7 @@ def output_hub(db_rows, sis, arg):
         # If the user can only read DB, the select query over DB return outdated numbers in last row
         # because the DB was not updated previously. The following snippet update them in memory
         # If the user wrote into DB, the values are the same
-        for key in ['uptime', 'rntime', 'slptime', 'kernel']:
+        for key in ('uptime', 'rntime', 'slptime', 'kernel'):
             db_rows[-1][key] = sis[key]
         db_rows[-1]['endst'] = arg.endst
         logging.info('Refresh last row values = %s', str(db_rows[-1]))
