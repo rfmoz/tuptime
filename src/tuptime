@@ -33,7 +33,7 @@ signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 try:
     locale.setlocale(locale.LC_ALL, '')
 except Exception:
-    pass  # Fast than locale.setlocale(locale.LC_ALL, 'C')
+    pass  # Falling back to default locale.setlocale(locale.LC_ALL, 'C')
 
 
 def get_arguments():
