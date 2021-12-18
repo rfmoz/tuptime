@@ -378,9 +378,8 @@ def get_os_values():
             if key == 'rntime': sis['rntime'] = 1
 
     # Set number OS values as integer
-    sis['btime'] = int(round(float(sis['btime'])))
-    sis['uptime'] = int(round(float(sis['uptime'])))
-    sis['rntime'] = int(round(float(sis['rntime'])))
+    for key in ('btime', 'uptime', 'rntime'):
+        sis[key] = int(round(float(sis[key])))
 
     # Avoid mismatch with elapsed time between getting counters and/or rounded values,
     # whit less than 1 seconds, values are equal
@@ -1048,13 +1047,13 @@ def print_default(db_rows, sis, arg):
         arg.percentile = str(arg.percentile).zfill(2)
 
     if arg.power:
-        uptime['average'] += str(sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')')
-        uptime['current'] += str(sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')')
-        uptime['sys_rate'] += str(sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)')
-        uptime['sys_time'] += str(sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')')
+        uptime['average'] += sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')'
+        uptime['current'] += sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')'
+        uptime['sys_rate'] += sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)'
+        uptime['sys_time'] += sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')'
         if arg.percentile:
             for key in ('upp', 'mid', 'low'):
-                uptime[key] += str(sp4 + '(rn: ' + str(cal['pctl']['rntime_' + key]) + ' + slp: ' + str(cal['pctl']['slptime_' + key]) + ')')
+                uptime[key] += sp4 + '(rn: ' + str(cal['pctl']['rntime_' + key]) + ' + slp: ' + str(cal['pctl']['slptime_' + key]) + ')'
 
     # Finally print all
     print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']), end='')
