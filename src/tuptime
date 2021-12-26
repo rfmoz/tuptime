@@ -438,7 +438,7 @@ def gain_db(sis, arg):
             db_conn.set_trace_callback(logging.info)
             conn = db_conn.cursor()
             conn.execute('BEGIN deferred')
-            conn.execute('create table if not exists tuptime'
+            conn.execute('create table tuptime'
                          ' (bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
                          ' offbtime integer, endst integer, downtime integer, kernel text)')
             conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?) ',
@@ -1139,8 +1139,7 @@ def check_new_boot(prev, sis):
     #    If boot id exists (only on Linux and FreeBSD), checking if its value has changed
     #
     #    If not exists, checking if the value resultant from previous btime plus previous uptime (both
-    #    saved into DB) is lower than current btime or (to catch shutdowns lower than a second) equal
-    #    to current btime and current uptime is lower than previous uptime
+    #    saved into DB) is lower than current btime with at least 1 second of diference.
     #
     # Checking boot id is the most secure way to detect a new boot. Working with time values is not 100% relialible.
     # In some particular cases the btime value from /proc/stat or from the system clock functions may change.
@@ -1157,7 +1156,7 @@ def check_new_boot(prev, sis):
             logging.info('System restarted = False from bootid')
             return False
 
-    elif prev['buptime'] < sis['btime'] or (prev['buptime'] == sis['btime'] and sis['uptime'] < prev['uptime']):
+    elif prev['buptime'] < sis['btime']:
         logging.info('System restarted = True from btime')
         return True
 
