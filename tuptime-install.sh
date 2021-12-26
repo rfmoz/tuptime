@@ -225,7 +225,7 @@ else
 	echo '  [BAD]'
 fi
 
-echo "+ Enjoy!"
+echo "+ Finished, all steps done."
 echo ""
 
 tuptime

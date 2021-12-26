@@ -382,7 +382,7 @@ def get_os_values():
         sis[key] = int(round(float(sis[key])))
 
     # Avoid mismatch with elapsed time between getting counters and/or rounded values,
-    # whit less than 1 seconds, values are equal
+    # with less than 1 seconds, values are equal
     if (sis['uptime'] - 1) <= sis['rntime'] <= (sis['uptime'] + 1):
         sis['rntime'] = sis['uptime']
 
@@ -425,7 +425,7 @@ def gain_db(sis, arg):
         if os.makedirs(os.path.dirname(arg.db_file), exist_ok=True):
             logging.info('Making path = %s', str(os.path.dirname(arg.db_file)))
     except Exception as exp_path:
-        logging.error('Checking DB path "%s": %s', str(os.path.dirname(arg.db_file)), str(exp_path))
+        logging.error('Check DB path "%s": %s', str(os.path.dirname(arg.db_file)), str(exp_path))
         sys.exit(-1)
 
     # Test and create DB with the initial values
@@ -448,7 +448,7 @@ def gain_db(sis, arg):
             db_conn.commit()
             db_conn.close()
     except Exception as exp_file:
-        logging.error('Checking DB file "%s": %s', str(arg.db_file), str(exp_file))
+        logging.error('Check DB file "%s": %s', str(arg.db_file), str(exp_file))
         sys.exit(-1)
 
     # Get DB connection and begin transaction
