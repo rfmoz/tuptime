@@ -65,7 +65,7 @@ For Linux systems:
       
        Download and execute the installation script:
 
-           # bash <(curl -Ls https://git.io/tuptime-install.sh)
+           # bash < <(curl -Ls https://git.io/tuptime-install.sh)
 
    + Manual install:
 
