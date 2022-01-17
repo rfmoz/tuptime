@@ -71,8 +71,7 @@ Or swich to -l | --list option:
 
 * Debian: https://packages.debian.org/tuptime
 * Ubuntu: https://packages.ubuntu.com/tuptime
-* ArchLinux: https://aur.archlinux.org/packages/tuptime
-* CentOS, Fedora: https://copr.fedorainfracloud.org/coprs/frankcrawford/tuptime/
+* Fedora, EPEL: https://src.fedoraproject.org/rpms/tuptime
 * FreeBSD: https://www.freshports.org/sysutils/tuptime
 
 

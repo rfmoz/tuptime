@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 5.0.2
+                              version 5.1.0
                                 Ricardo F.
-                               02/Dec/2021
+                               16/Jan/2022
 
 
 
@@ -58,9 +58,7 @@ For Linux systems:
 
        Ubuntu  - https://packages.ubuntu.com/tuptime
 
-       Arch    - https://aur.archlinux.org/packages/tuptime/
-
-       Fedora, CentOS  - https://copr.fedorainfracloud.org/coprs/frankcrawford/tuptime/
+       Fedora, EPEL  - https://src.fedoraproject.org/rpms/tuptime
 
 
    + Using bash script:
@@ -767,5 +765,9 @@ set to universal time coordinated (UTC), not local time. Check it with
 'timedatectl' command.  Reports involving DST changes are completely right.
 The system current local time zone is the reference for all timestamps printed.
 https://tldp.org/HOWTO/Clock-2.html
+
+If the Linux system execute a full force shutdown or reboot, like for example
+"systemctl --force --force reboot", as it doesn't follow the steps to produce
+a clean shutdown, the "End status" remains in bad state.
 
 The name of the tool is based on the contraction of the words Total Uptime.
