@@ -11,35 +11,44 @@ Source0:	https://github.com/rfrail3/tuptime/archive/%{version}.tar.gz
 %{?systemd_requires}
 # Check for EPEL Python (python34, python36)
 %if 0%{?python3_pkgversion}
-Requires:	python%{python3_pkgversion}
+BuildRequires:	python%{python3_pkgversion}-devel
 %else
-Requires:	python3
+BuildRequires:	python3-devel
 %endif
-BuildRequires:	sed python3-rpm-macros python-srpm-macros systemd
+%if 0%{?el7}
+BuildRequires:	systemd
+%else
+BuildRequires:	systemd-rpm-macros
+%endif
 Requires:	systemd
 Requires(pre):	shadow-utils
 
 
 %description
 Tuptime track and report historical and statistical real time of the
- system, keeping the uptime and downtime between shutdowns.
+system, keeping the uptime and downtime between shutdowns.
 
 
 %prep
 %setup -q
 # Fix python shebang
-sed -i '1s=^#!/usr/bin/\(python\|env python\)[23]\?=#!%{__python3}=' src/tuptime
+%if %{?py3_shebang_fix:1}%{!?py3_shebang_fix:0}
+%py3_shebang_fix src/tuptime
+%else
+# EPEL7 does not have py3_shebang_fix
+/usr/bin/pathfix.py -pni "%{__python3} -s" src/tuptime
+%endif
 
 
 %pre
-getent group tuptime >/dev/null && groupmod -n _tuptime tuptime
-getent passwd tuptime >/dev/null && usermod -l _tuptime tuptime
-getent group _tuptime >/dev/null || groupadd -r _tuptime
+# Conversion to new group and usernames for previously installed version
+getent group tuptime >/dev/null && groupmod --new-name _tuptime tuptime
+getent passwd tuptime >/dev/null && usermod --login _tuptime tuptime
+getent group _tuptime >/dev/null || groupadd --system _tuptime
 getent passwd _tuptime >/dev/null || useradd --system --gid _tuptime --home-dir "/var/lib/tuptime" --shell '/sbin/nologin' --comment 'Tuptime execution user' _tuptime > /dev/null
 
 
 %build
-exit 0
 
 
 %install
@@ -47,17 +56,19 @@ install -d %{buildroot}%{_bindir}/
 install -d %{buildroot}%{_unitdir}/
 install -d %{buildroot}%{_mandir}/man1/
 install -d %{buildroot}%{_sharedstatedir}/tuptime/
-install -d %{buildroot}%{_docdir}/tuptime/
-cp -R %{_topdir}/BUILD/%{name}-%{version}/src/tuptime %{buildroot}%{_bindir}/
-cp -R %{_topdir}/BUILD/%{name}-%{version}/src/systemd/tuptime.service %{buildroot}%{_unitdir}/
-cp -R %{_topdir}/BUILD/%{name}-%{version}/src/systemd/tuptime-cron.service %{buildroot}%{_unitdir}/
-cp -R %{_topdir}/BUILD/%{name}-%{version}/src/systemd/tuptime-cron.timer %{buildroot}%{_unitdir}/
-cp -R %{_topdir}/BUILD/%{name}-%{version}/src/man/tuptime.1 %{buildroot}%{_mandir}/man1/
-cp -R %{_topdir}/BUILD/%{name}-%{version}/tuptime-manual.txt %{buildroot}%{_docdir}/tuptime/
-cp -R %{_topdir}/BUILD/%{name}-%{version}/CHANGELOG %{buildroot}%{_docdir}/tuptime/
+install -d %{buildroot}%{_datadir}/tuptime/
+cp src/tuptime %{buildroot}%{_bindir}/
+cp src/systemd/tuptime.service %{buildroot}%{_unitdir}/
+cp src/systemd/tuptime-cron.service %{buildroot}%{_unitdir}/
+cp src/systemd/tuptime-cron.timer %{buildroot}%{_unitdir}/
+cp src/man/tuptime.1 %{buildroot}%{_mandir}/man1/
+cp misc/scripts/* %{buildroot}%{_datadir}/tuptime/
+chmod +x %{buildroot}%{_datadir}/tuptime/*.sh
+chmod +x %{buildroot}%{_datadir}/tuptime/*.py
 
 
 %post
+# Create and initialise the tuptime DB with consistent permissions, etc.
 su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 %systemd_post tuptime.service
 %systemd_post tuptime-cron.service
@@ -65,9 +76,9 @@ su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 
 
 %preun
-%systemd_user_preun tuptime.service
-%systemd_user_preun tuptime-cron.service
-%systemd_user_preun tuptime-cron.timer
+%systemd_preun tuptime.service
+%systemd_preun tuptime-cron.service
+%systemd_preun tuptime-cron.timer
 
 
 %postun
@@ -77,18 +88,35 @@ su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 
 
 %files
-%defattr(-,root,root)
 %{_unitdir}/tuptime.service
 %{_unitdir}/tuptime-cron.service
 %{_unitdir}/tuptime-cron.timer
 %attr(0755, root, root) %{_bindir}/tuptime
 %dir %attr(0755, _tuptime, _tuptime) %{_sharedstatedir}/tuptime/
-%docdir %{_docdir}/tuptime/
-%{_docdir}/tuptime/tuptime-manual.txt
-%{_docdir}/tuptime/CHANGELOG
-%{_mandir}/man1/tuptime.1.gz
+%doc tuptime-manual.txt
+%doc CHANGELOG README.md CONTRIBUTING.md
+%license LICENSE
+%{_mandir}/man1/tuptime.1.*
+%dir %{_datadir}/tuptime
+%{_datadir}/tuptime/*
 
 
 %changelog
 * Sun Jan 16 2022 Ricardo Fraile <rfraile@rfraile.eu> 5.1.0-1
+- Bump new release
+
+* Thu Jan 06 2022 Frank Crawford <frank@crawford.emu.id.au> 5.0.2-5
+- First offical release in Fedora
+
+* Tue Jan 04 2022 Frank Crawford <frank@crawford.emu.id.au> 5.0.2-4
+- Futher updates to spec file following review comments
+
+* Mon Dec 13 2021 Frank Crawford <frank@crawford.emu.id.au> 5.0.2-3
+- Update spec file following review comments
+
+* Sun Sep 26 2021 Frank Crawford <frank@crawford.emu.id.au> 5.0.2-2
+- Update spec file for Fedora package review
+- Copy all relevant documentation
+
+* Sat Jan 02 2021 Ricardo Fraile <rfraile@rfraile.eu> 5.0.2-1
 - RPM release
