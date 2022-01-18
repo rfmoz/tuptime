@@ -55,10 +55,15 @@ For Linux systems:
    + From distribution repository:
 
        Debian  - https://packages.debian.org/tuptime
-
        Ubuntu  - https://packages.ubuntu.com/tuptime
 
+           # apt install tuptime
+
        Fedora, EPEL  - https://src.fedoraproject.org/rpms/tuptime
+
+           # dnf install tuptime
+           # systemctl enable tuptime.service && systemctl start tuptime.service
+           # systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
 
 
    + Using bash script:
