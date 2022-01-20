@@ -1,3 +1,13 @@
+tuptime (5.1.0) unstable; urgency=low
+
+  * Cover DB writes with transactions
+  * Register DB version on PRAGMA user_version
+  * Adding --pctl option. Show percentil over average values
+  * Code refactoring
+  * Update .deb package
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 16 Jan 2022 13:09:00 +0100
+
 tuptime (5.0.2) unstable; urgency=low
 
   * Option --decp usable but deprecated
@@ -224,7 +234,7 @@ tuptime (2.5.20) stable; urgency=low
 tuptime (2.5.12) stable; urgency=low
 
   * Setting max decimals in the output
-  * Fix data type for the ok/bad shutdown registry in db wich cause incorrect
+  * Fix data type for the ok/bad shutdown registry in db which cause incorrect
     counter output
 
  -- Ricardo Fraile <rfraile@rfraile.eu>  Fri, 07 Aug 2015 11:00:00 -0400

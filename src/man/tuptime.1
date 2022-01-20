@@ -1,10 +1,10 @@
-.TH TUPTIME 1 "Nov 2020" "5.0.2" "Linux Manual"
+.TH TUPTIME 1 "Jan 2022" "5.1.0" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [{\-h | \-\-help}] [{\-A | \-\-at}=<startup>] [{\-b | \-\-bootid}] [{\-c | \-\-csv}] [{\-d | \-\-date}=<datetime\ format>] [\-e | \-\-dec=<decimals>] [{\-f | \-\-filedb}=<file>]  [{\-g | \-\-graceful}] [{\-i | \-\-invert}] [{\-k | \-\-kernel}] [{\-l | \-\-list}] [{\-n | \-\-noup}]  [{\-o | \-\-order}=[u|r|s|e|d|k]] [{\-p | \-\-power}] [{\-r | \-\-reverse}] [{\-s | \-\-seconds}] [{\-S | \-\-since}=<startup>] [{\-t | \-\-table}] [\-\-tat=<timestamp>] [\-\-tsince=<timestamp>] [\-\-tuntil=<timestamp>] [{\-U | \-\-until}=<startup>] [{\-v | \-\-verbose}]  [{\-V | \-\-version}] [{\-x | \-\-silent}]
+tuptime [\-h] [\-A STARTUP] [\-b] [\-c] [\-d DATETM_FORMAT] [\-e DECIMALS] [\-f FILE] [\-g] [\-i] [\-k] [\-l] [\-n] [\-o TYPE] [\-p] [\-\-pctl [1\-99]] [\-r] [\-s] [\-S STARTUP] [\-t] [\-\-tat TIMESTAMP] [\-\-tsince TIMESTAMP] [\-\-tuntil TIMESTAMP] [\-U STARTUP] [\-v] [\-V] [\-x]
 
 .SH DESCRIPTION
 .RS
@@ -50,7 +50,7 @@ l lx.
 Show this help message and exit
 T}
 \-A | \-\-at STARTUP@T{
-Restrict to this startup number
+Limit to this startup number
 T}
 \-b | \-\-bootid@T{
 Show boot identifier
@@ -88,6 +88,9 @@ T}
 \-p | \-\-power@T{
 Show power states run + sleep
 T}
+\-\-pctl [1\-99]@T{
+Show percentile number applied over average
+T}
 \-r | \-\-reverse@T{
 Reverse order in list or table output
 T}
@@ -95,7 +98,7 @@ T}
 Output time in seconds and epoch
 T}
 \-S | \-\-since STARTUP@T{
-Restrict from this startup number
+Limit from this startup number
 T}
 \-t | \-\-table@T{
 Enumerate system life as table
@@ -104,13 +107,13 @@ T}
 Report system status at specific timestamp
 T}
 \-\-tsince TIMESTAMP@T{
-Restrict from this epoch timestamp
+Limit from this epoch timestamp
 T}
 \-\-tuntil TIMESTAMP@T{
-Restrict until this epoch timestamp
+Limit until this epoch timestamp
 T}
 \-U | \-\-until STARTUP@T{
-Restrict up until this startup number
+Limit up until this startup number
 T}
 \-v | \-\-verbose@T{
 Verbose output

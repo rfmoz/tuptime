@@ -6,7 +6,7 @@
 1.- Install dependencies:
 
     Latest releases of Fedora, RedHat 8, Centos 8:
-        dnf -y install rpmdevtools wget python3-rpm-macros python-srpm-macros rpmlint
+        dnf -y install rpmdevtools wget python3-rpm-macros python-srpm-macros rpmlint systemd python3-devel
 
     Older releases of Fedora, Redhat 7, CentOS 7, install from EPEL:
         yum -y install rpmdevtools wget python3-rpm-macros python-srpm-macros
@@ -39,10 +39,11 @@
 
 Z.- For testing with "dev" branch. Install "git" on step "1" and replace step "2" with the following:
 
+    dnf -y install git
     cd ~
-    git clone -b dev --depth=1 https://github.com/rfrail3/tuptime.git tuptime-5.0.2
+    git clone -b dev --depth=1 https://github.com/rfrail3/tuptime.git tuptime-5.1.0
     rpmdev-setuptree
     cd ~/rpmbuild/SPECS/
-    cp ../../tuptime-5.0.2/misc/rpm/tuptime.spec .
-    tar -czvf ../SOURCES/5.0.2.tar.gz ../../tuptime-5.0.2
+    cp ../../tuptime-5.1.0/misc/rpm/tuptime.spec .
+    tar -czvf ../SOURCES/5.1.0.tar.gz ../../tuptime-5.1.0
     rpmbuild -ba --target=noarch tuptime.spec

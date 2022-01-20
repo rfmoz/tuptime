@@ -74,14 +74,14 @@ def date_check(arg):
 
     # Set user provided or default end date
     if arg.edate:
-        end_date = dateutil.parser.parse(arg.edate)
+        end_date = dateutil.parser.parse(arg.edate, dayfirst=True)
     else:
         end_date = datetime.today()
         print('Default end:\tnow')
 
     # Set user provided or default begind date. Days ago...
     if arg.bdate:
-        begin_date = dateutil.parser.parse(arg.bdate)
+        begin_date = dateutil.parser.parse(arg.bdate, dayfirst=True)
     else:
         begin_date = end_date - timedelta(days=arg.pdays)
         print('Default begin:\tsince ' + str(arg.pdays) + ' days ago')
@@ -153,7 +153,7 @@ def main():
         for elem in tst['up']: pie['up'].append(str(elem.hour))
         for elem in tst['down']: pie['down'].append(str(elem.hour))
 
-        # Count elements on list or set '0' if emtpy. Get list with items
+        # Count elements on list or set '0' if empty. Get list with items
         pie['up'] = dict(Counter(pie['up'])).items() if pie['up'] else [('0', 0)]
         pie['down'] = dict(Counter(pie['down'])).items() if pie['down'] else [('0', 0)]
 

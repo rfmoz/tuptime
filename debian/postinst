@@ -38,6 +38,9 @@ case "$1" in
 		# Ensure right ownership
 		if [ -d /var/lib/tuptime ]; then
 			chown _tuptime:_tuptime /var/lib/tuptime
+			# When adduser is configured for DIR_MODE=0750,
+			# the file mode ends up more closed than intended.
+			chmod 0755 /var/lib/tuptime
 			if [ -f /var/lib/tuptime/tuptime.db ]; then
 				chown _tuptime:_tuptime /var/lib/tuptime/tuptime.db
 			fi

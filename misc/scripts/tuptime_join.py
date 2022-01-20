@@ -7,7 +7,7 @@ This script join two tuptime db files into an other one. It works as follows:
     - Takes two paths of db files and an output file as destination of the join.
     - Look for first btime on both files and take the one with the older value as starting DB
     - Look on starting DB for last register and sum (btime + uptime)
-    - Look on the newer file for a btime greather than previous sum value
+    - Look on the newer file for a btime greater than previous sum value
     - Insert registers that match on destination file DB
 
  # tuptime_join.py /path/to/old.db /path/to/new.db -d /path/to/joined.db
@@ -95,7 +95,7 @@ def order_files(arg):
     for conn, fname in ((conn0, arg.files[0]), (conn1, arg.files[1])):
         columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
         if 'rntime' and 'slptime' and 'bootid' not in columns:
-            logging.error('DB format outdated on file: ' + str(fname))
+            logging.error('DB format outdated on file: %', str(fname))
             sys.exit(-1)
 
     # Check older file
@@ -148,7 +148,7 @@ def main():
     fl0['startup'], fl0['btime'], fl0['uptime'] = conn0.fetchone()
     fl0['offbtime'] = fl0['btime'] + fl0['uptime']
 
-    # Get all rows from file1 where btime is greather than file0 offbtime
+    # Get all rows from file1 where btime is greater than file0 offbtime
     conn1.execute('select rowid as startup, * from tuptime where btime > ' + str(fl0['offbtime']))
     db_rows = conn1.fetchall()
 
