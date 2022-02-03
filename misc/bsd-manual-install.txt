@@ -49,10 +49,6 @@ Install dependencies, latest versions:
 
     # pkg_add git python
 
-Create a symlink for the Python3 interpreter:
-
-    # ln -s /usr/local/bin/python3.? /usr/local/bin/python3 
-     
 Clone repository and copy executable file:
 
     # git clone --depth=1 https://github.com/rfrail3/tuptime.git
@@ -60,7 +56,7 @@ Clone repository and copy executable file:
 
 Add tuptime user:
 
-    # adduser -home /var/empty -shell /sbin/nologin -batch _tuptime
+    # useradd -s /bin/sh -d /var/empty -L daemon _tuptime
 
 Execute tuptime with a privileged user for create db path:
 
@@ -83,11 +79,11 @@ Set the right permissions to cron file and restart the service:
 
 Add execution at startup:
 
-    # echo 'su - _tuptime -c "/usr/local/bin/python3 /usr/local/bin/tuptime -x"' >> /etc/rc.local
+    # echo 'su -l _tuptime -c "/usr/local/bin/tuptime -x"' >> /etc/rc.local
 
 Add execution at shutdown:
 
-    # echo 'su - _tuptime -c "/usr/local/bin/python3 /usr/local/bin/tuptime -xg"' >> /etc/rc.shutdown
+    # echo 'su -l _tuptime -c "/usr/local/bin/tuptime -xg"' >> /etc/rc.shutdown
 
 It's all done.
 
