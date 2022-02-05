@@ -1,2 +1,2 @@
-src/systemd/tuptime-cron.timer
-src/systemd/tuptime-cron.service
+src/systemd/tuptime-sync.timer
+src/systemd/tuptime-sync.service

@@ -1,3 +1,9 @@
+tuptime (5.1.1) unstable; urgency=low
+
+  * Rename timer units to tuptime-sync.timer and tuptime-sync.service
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 16 Jan 2022 13:09:00 +0100
+
 tuptime (5.1.0) unstable; urgency=low
 
   * Cover DB writes with transactions

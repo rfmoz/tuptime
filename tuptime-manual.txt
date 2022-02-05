@@ -63,7 +63,7 @@ For Linux systems:
 
            # dnf install tuptime
            # systemctl enable tuptime.service && systemctl start tuptime.service
-           # systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
+           # systemctl enable tuptime-sync.timer && systemctl start tuptime-sync.timer
 
 
    + Using bash script:
@@ -102,8 +102,8 @@ For Linux systems:
 
            (Alternative) Using systemd timer instead of cron file:
 
-               # install -m 644 tuptime/src/systemd/tuptime-cron.* /lib/systemd/system/
-               # systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
+               # install -m 644 tuptime/src/systemd/tuptime-sync.* /lib/systemd/system/
+               # systemctl enable tuptime-sync.timer && systemctl start tuptime-sync.timer
                # rm /etc/cron.d/tuptime
 
        Or if it is an old RedHat system or derivate, copy the init file:
@@ -506,9 +506,9 @@ It's important to have a schedule execution. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
 shutdown, but if the system fails, hangs or whatever, the uptime time will
 be lost. Be sure that the cron entry or, in other case, the systemd
-tuptime-cron.[timer|service] units are installed as expected.
+tuptime-syncn.[timer|service] units are installed as expected.
 
-Why it's needed the use of an other .service file with the name tuptime-cron?
+Why it's needed the use of an other .service file with the name tuptime-sync?
 The default tuptime.service file uses the option 'RemainAfterExit=true' and
 nowadays the systemd timer can't restart an already running service, so, this
 is the best workaround.

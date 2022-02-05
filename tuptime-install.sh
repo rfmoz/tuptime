@@ -200,10 +200,10 @@ if [ -d /etc/cron.d/ ]; then
 	echo '  [OK]'
 
 elif [ -d "${SYSDPATH}" ]; then
-	echo "+ Copying tuptime-cron.timer and .service"
-	install -m 644 "${F_TMP1}"/src/systemd/tuptime-cron.*  "${SYSDPATH}" || exit
-	((SELX)) && restorecon -vF "${SYSDPATH}"tuptime-cron.*
-	systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
+	echo "+ Copying tuptime-sync.timer and .service"
+	install -m 644 "${F_TMP1}"/src/systemd/tuptime-sync.*  "${SYSDPATH}" || exit
+	((SELX)) && restorecon -vF "${SYSDPATH}"tuptime-sync.*
+	systemctl enable tuptime-sync.timer && systemctl start tuptime-sync.timer
 	echo '  [OK]'
 
 elif [ -d /etc/cron.hourly/ ]; then
