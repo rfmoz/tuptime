@@ -74,7 +74,7 @@ def get_arguments():
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
         logging.info('Version: %s', (__version__))
 
-    logging.info('Arguments: %s', str(vars(arg)))
+    logging.info('Arguments: %s', vars(arg))
     return arg
 
 

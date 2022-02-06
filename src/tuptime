@@ -267,7 +267,7 @@ def get_arguments():
         arg.dec = arg.decp
         logging.warning('Argument \'--decp\' is deprecated in favour of \'-e\' or \'--dec\'')
 
-    logging.info('Arguments = %s', str(vars(arg)))
+    logging.info('Arguments = %s', vars(arg))
     return arg
 
 
@@ -285,7 +285,7 @@ def get_os_values():
         try:
             sis['btime'] = time.clock_gettime(time.CLOCK_REALTIME) - time.clock_gettime(time.CLOCK_MONOTONIC)
         except Exception as exp:
-            logging.info('Old btime assignment. %s', str(exp))
+            logging.info('Old btime assignment. %s', exp)
             sysctl_out = subprocess.run(['sysctl', '-n', 'kern.boottime'], stdout=subprocess.PIPE, text=True, check=True).stdout
             # Some BSDs report the value assigned to 'sec', others do it directly
             if 'sec' in sysctl_out:  # FreeBSD, Darwin
@@ -306,7 +306,7 @@ def get_os_values():
                 # Time the system has been running. Not contains sleep time on BSDs
                 sis['rntime'] = time.clock_gettime(time.CLOCK_UPTIME)
         except Exception as exp:
-            logging.info('Old uptime/rntime assignment. %s', str(exp))
+            logging.info('Old uptime/rntime assignment. %s', exp)
             logging.info('Power states disabled, values assigned from uptime')
             sis['uptime'] = time.time() - sis['btime']
             sis['rntime'] = sis['uptime']
@@ -330,7 +330,7 @@ def get_os_values():
         try:
             sis['btime'] = time.clock_gettime(time.CLOCK_REALTIME) - time.clock_gettime(time.CLOCK_BOOTTIME)
         except Exception as exp:
-            logging.info('Old btime assignment. %s', str(exp))
+            logging.info('Old btime assignment. %s', exp)
             with open('/proc/stat') as fl2:
                 for line in fl2:
                     if line.startswith('btime'): sis['btime'] = line.split()[1]
@@ -341,7 +341,7 @@ def get_os_values():
             # Time since some unspecified starting point. Not contains sleep time on linux
             sis['rntime'] = time.clock_gettime(time.CLOCK_MONOTONIC)
         except Exception as exp:
-            logging.info('Old uptime/rntime assignment. %s', str(exp))
+            logging.info('Old uptime/rntime assignment. %s', exp)
             logging.info('Power states disabled, values assigned from uptime')
             with open('/proc/uptime') as fl1:
                 sis['uptime'] = fl1.readline().split()[0]
@@ -370,10 +370,10 @@ def get_os_values():
     # Check right allocation of core variables before continue
     for key, value in sis.items():
         if key in ('btime', 'uptime', 'rntime') and value is None:
-            logging.error('"%s" value unallocate from system. Execution aborted', str(key))
+            logging.error('"%s" value unallocate from system. Execution aborted', key)
             sys.exit(-1)
         if key in ('uptime', 'rntime') and float(value) < 0:
-            logging.warning('Reset invalid "%s" value "%s"', str(key), str(value))
+            logging.warning('Reset invalid "%s" value "%s"', key, value)
             if key == 'uptime': sis['uptime'] = 1
             if key == 'rntime': sis['rntime'] = 1
 
@@ -393,17 +393,17 @@ def get_os_values():
     sis['bootid'] = str(sis['bootid'])
     sis['kernel'] = str(platform.platform())
 
-    logging.info('Python = %s', str(platform.python_version()))
+    logging.info('Python = %s', platform.python_version())
     try:
-        logging.info('Current locale = %s', str(locale.getlocale()))
+        logging.info('Current locale = %s', locale.getlocale())
     except Exception:
         logging.info('Current locale = None')
-    logging.info('Sys values = %s', str(sis))
-    logging.info('Execution user = %s', str(os.getuid()))
+    logging.info('Sys values = %s', sis)
+    logging.info('Execution user = %s', os.getuid())
 
     # Avoid executing when OS clock is too out of phase
     if sis['btime'] < 946684800:   # 01/01/2000 00:00
-        logging.error('Epoch boot time value is too old \'%s\'. Check system clock sync', str(sis['btime']))
+        logging.error('Epoch boot time value is too old \'%s\'. Check system clock sync', sis['btime'])
         logging.error('Tuptime execution aborted')
         sys.exit(-1)
 
@@ -417,23 +417,23 @@ def gain_db(sis, arg):
     if arg.db_file == DB_FILE:
         if os.environ.get('TUPTIME_DBF'):
             arg.db_file = os.environ.get('TUPTIME_DBF')
-            logging.info('DB environ var = %s', str(arg.db_file))
+            logging.info('DB environ var = %s', arg.db_file)
 
     # Test path
     arg.db_file = os.path.abspath(arg.db_file)  # Get absolute or relative path
     try:
         if os.makedirs(os.path.dirname(arg.db_file), exist_ok=True):
-            logging.info('Making path = %s', str(os.path.dirname(arg.db_file)))
+            logging.info('Making path = %s', os.path.dirname(arg.db_file))
     except Exception as exp_path:
-        logging.error('Check DB path "%s": %s', str(os.path.dirname(arg.db_file)), str(exp_path))
+        logging.error('Check DB path "%s": %s', os.path.dirname(arg.db_file), exp_path)
         sys.exit(-1)
 
     # Test and create DB with the initial values
     try:
         if os.path.isfile(arg.db_file):
-            logging.info('DB file exists = %s', str(arg.db_file))
+            logging.info('DB file exists = %s', arg.db_file)
         else:
-            logging.info('Making DB file = %s', str(arg.db_file))
+            logging.info('Making DB file = %s', arg.db_file)
             db_conn = sqlite3.connect(arg.db_file)
             db_conn.set_trace_callback(logging.info)
             conn = db_conn.cursor()
@@ -448,7 +448,7 @@ def gain_db(sis, arg):
             db_conn.commit()
             db_conn.close()
     except Exception as exp_file:
-        logging.error('Check DB file "%s": %s', str(arg.db_file), str(exp_file))
+        logging.error('Check DB file "%s": %s', arg.db_file, exp_file)
         sys.exit(-1)
 
     # Get DB connection and begin transaction
@@ -460,13 +460,13 @@ def gain_db(sis, arg):
         conn = db_conn.cursor()
         conn.execute('BEGIN deferred')
     except Exception as exp_conn:
-        logging.error('DB connection failed: %s', str(exp_conn))
+        logging.error('DB connection failed: %s', exp_conn)
         sys.exit(-1)
 
     # Check if DB has the old format
     user_version = conn.execute('PRAGMA user_version').fetchone()[0]
     if arg.verbose:
-        logging.info('DB user_version: %s', str(user_version))
+        logging.info('DB user_version: %s', user_version)
     if user_version < 5:
         logging.warning('DB format outdated')
         upgrade_db(db_conn, conn, arg)
@@ -478,9 +478,9 @@ def upgrade_db(db_conn, conn, arg):
     """Upgrade DB to current format"""
 
     if not os.access(arg.db_file, os.W_OK):
-        logging.error('"%s" file not writable by execution user', str(arg.db_file))
+        logging.error('"%s" file not writable by execution user', arg.db_file)
         sys.exit(-1)
-    logging.warning('Upgrading DB file = %s', str(arg.db_file))
+    logging.warning('Upgrading DB file = %s', arg.db_file)
 
     try:
         columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
@@ -525,7 +525,7 @@ def upgrade_db(db_conn, conn, arg):
         db_conn.commit()
 
     except Exception as exp_db:
-        logging.error('Upgrading DB format failed. "%s"', str(exp_db))
+        logging.error('Upgrading DB format failed. "%s"', exp_db)
         sys.exit(-1)
 
     logging.warning('Upgraded')
@@ -535,14 +535,14 @@ def control_drift(prev, sis):
     """Check time drift due inconsistencies with system clock"""
 
     offset = sis['btime'] - prev['btime']  # Calculate time offset
-    logging.info('Drift over btime = %s', str(offset))
+    logging.info('Drift over btime = %s', offset)
 
     if offset:
         logging.info('Fixing drift...')
 
         # Apply offset to btime, uptime and related
         if (sis['uptime'] + offset) > 0:
-            logging.info('System timestamp = %s', str(sis['btime'] + sis['uptime']))
+            logging.info('System timestamp = %s', sis['btime'] + sis['uptime'])
 
             sis['uptime'] = sis['uptime'] + offset
             sis['btime'] = sis['btime'] - offset
@@ -559,14 +559,14 @@ def control_drift(prev, sis):
 
             # Fixed timestamp must be equal to system timestamp after drift values
             # Fixed btime must be equal to last btime from DB
-            logging.info('Fixed timestamp = %s', str(sis['btime'] + sis['uptime']))
-            logging.info('Fixed sys values = %s', str(sis))
+            logging.info('Fixed timestamp = %s', sis['btime'] + sis['uptime'])
+            logging.info('Fixed sys values = %s', sis)
 
         else:
             # Keep btime from DB with current uptime until it can be fixed
             sis['btime'] = prev['btime']
             logging.info('Drift decreases uptime under 1. Skipping fix')
-            logging.info('Unfixed btime = %s', str(sis['btime']))
+            logging.info('Unfixed btime = %s', sis['btime'])
 
     return sis
 
@@ -1109,7 +1109,7 @@ def output_hub(db_rows, sis, arg):
         for key in ('uptime', 'rntime', 'slptime', 'kernel'):
             db_rows[-1][key] = sis[key]
         db_rows[-1]['endst'] = arg.endst
-        logging.info('Refresh last row values = %s', str(db_rows[-1]))
+        logging.info('Refresh last row values = %s', db_rows[-1])
 
     # Convert last line None sqlite registers to False
     for key, value in db_rows[-1].items():
@@ -1175,7 +1175,7 @@ def main():
     conn.execute('select rowid, bootid, btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
     prev = dict(zip(['rowid', 'bootid', 'btime', 'uptime', 'endst'], conn.fetchone()))
     prev['buptime'] = prev['btime'] + prev['uptime']
-    logging.info('Last DB values = %s', str(prev))
+    logging.info('Last DB values = %s', prev)
 
     # Check if system was restarted
     if arg.update and check_new_boot(prev, sis):
@@ -1202,8 +1202,8 @@ def main():
             # If you see this error, maybe the systemd script isn't executed at startup
             # or the DB file (DB_FILE) has wrong permissions
             logging.error('Detected a new system startup but the values have not been saved into DB')
-            logging.error('Tuptime execution user failed to write into DB file: %s', str(arg.db_file))
-            logging.error('%s', str(exp))
+            logging.error('Tuptime execution user failed to write into DB file: %s', arg.db_file)
+            logging.error('%s', exp)
             sys.exit(-1)
 
     elif arg.update:

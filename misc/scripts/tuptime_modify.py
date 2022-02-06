@@ -97,7 +97,7 @@ def get_arguments():
     if arg.change == 'endst' and arg.seconds:
         parser.error('Operator \"seconds\" can\'t be combined with \"endst\"')
 
-    logging.info('Arguments: %s', str(vars(arg)))
+    logging.info('Arguments: %s', vars(arg))
     return arg
 
 
@@ -110,7 +110,7 @@ def backup_dbf(arg):
         copyfile(arg.db_file, tmp_file)
         print('Backup file:\t' + tmp_file)
     except Exception as exp:
-        logging.error('Can\'t create backup file. %s', str(exp))
+        logging.error('Can\'t create backup file. %s', exp)
         sys.exit(-1)
 
 
