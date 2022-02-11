@@ -442,8 +442,8 @@ def gain_db(sis, arg):
                          ' (bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
                          ' offbtime integer, endst integer, downtime integer, kernel text)')
             conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?) ',
-                         (str(sis['bootid']), str(sis['btime']), str(sis['uptime']), str(sis['rntime']),
-                          str(sis['slptime']), None, str(arg.endst), None, str(sis['kernel'])))
+                         (sis['bootid'], sis['btime'], sis['uptime'], sis['rntime'],
+                          sis['slptime'], None, arg.endst, None, sis['kernel']))
             conn.execute('PRAGMA user_version = ' + str(int(__version__.partition('.')[0])))
             db_conn.commit()
             db_conn.close()
@@ -1187,14 +1187,13 @@ def main():
 
         try:
             # Save downtimes for previous boot
-            conn.execute('update tuptime set'
-                         ' offbtime = ' + str(sis['offbtime']) + ', downtime = ' + str(sis['downtime']) +
-                         ' where rowid = ' + str(prev['rowid']))
+            conn.execute('update tuptime set offbtime =?, downtime =? where rowid =? ',
+                         (sis['offbtime'], sis['downtime'], prev['rowid']))
 
             # Create a new boot register
             conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
-                         (str(sis['bootid']), str(sis['btime']), str(sis['uptime']), str(sis['rntime']),
-                          str(sis['slptime']), None, str(arg.endst), None, str(sis['kernel'])))
+                         (sis['bootid'], sis['btime'], sis['uptime'], sis['rntime'],
+                          sis['slptime'], None, arg.endst, None, sis['kernel']))
             db_conn.commit()
             logging.info('DB info = insert ok')
 
@@ -1217,10 +1216,8 @@ def main():
         else:
             try:
                 # Update current boot records
-                conn.execute('update tuptime set uptime = ' + str(sis['uptime']) +
-                             ', rntime = ' + str(sis['rntime']) + ', slptime = ' + str(sis['slptime']) +
-                             ', endst = ' + str(arg.endst) + ', kernel = \'' + str(sis['kernel']) +
-                             '\' where rowid = ' + str(prev['rowid']))
+                conn.execute('update tuptime set uptime =?, rntime =?, slptime =?, endst =?, kernel =? where rowid =?',
+                             (sis['uptime'], sis['rntime'], sis['slptime'], arg.endst, sis['kernel'], prev['rowid']))
                 db_conn.commit()
                 logging.info('DB info = update ok')
 
