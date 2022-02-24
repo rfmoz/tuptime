@@ -73,6 +73,7 @@ Or swich to -l | --list option:
 * Ubuntu: https://packages.ubuntu.com/tuptime
 * Fedora, EPEL: https://src.fedoraproject.org/rpms/tuptime
 * FreeBSD: https://www.freshports.org/sysutils/tuptime
+* Arch: https://aur.archlinux.org/packages/tuptime
 
 
 #### By one-liner script
