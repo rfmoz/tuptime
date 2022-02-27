@@ -56,7 +56,7 @@ Clone repository and copy executable file:
 
 Add tuptime user:
 
-    # useradd -s /bin/sh -d /var/empty -L daemon _tuptime
+    # useradd -s /sbin/nologin -d /var/empty -L daemon _tuptime
 
 Execute tuptime with a privileged user for create db path:
 
@@ -77,13 +77,11 @@ Set the right permissions to cron file and restart the service:
     # chown _tuptime:crontab /var/cron/tabs/_tuptime 
     # chmod 600 /var/cron/tabs/_tuptime 
 
-Add execution at startup:
+Copy rc.d file:
 
-    # echo 'su -l _tuptime -c "/usr/local/bin/tuptime -x"' >> /etc/rc.local
-
-Add execution at shutdown:
-
-    # echo 'su -l _tuptime -c "/usr/local/bin/tuptime -xg"' >> /etc/rc.shutdown
+    # install -m 555 tuptime/src/rc.d/openbsd/tuptime /etc/rc.d/tuptime
+    # rcctl enable tuptime
+    # rcctl start tuptime
 
 It's all done.
 
