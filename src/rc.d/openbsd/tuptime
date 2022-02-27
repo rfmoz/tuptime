@@ -1,0 +1,29 @@
+#!/bin/ksh
+
+daemon="/usr/local/bin/tuptime"
+daemon_user="_tuptime"
+
+. /etc/rc.d/rc.subr
+
+rc_reload=NO
+
+rc_check() {
+	# Fake daemon, not running in background
+	# Verify if started at boot
+	if [[ -e ${_RC_RUNFILE} ]]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+rc_start() {
+	${rcexec} "${daemon} -x"
+}
+
+rc_stop() {
+	${rcexec} "${daemon} -xg"
+	_rc_rm_runfile
+}
+
+rc_cmd $1
