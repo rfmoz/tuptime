@@ -1,6 +1,11 @@
 tuptime (5.1.1) unstable; urgency=low
 
   * Rename timer units to tuptime-sync.timer and tuptime-sync.service
+  * Using StateDirectory= on systemd unit
+  * Available systemd-sysusers file
+  * Add rc script for OpenBSD and update installation doc
+  * Update distribution packages
+  * Code refactoring
 
  -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 16 Jan 2022 13:09:00 +0100
 
