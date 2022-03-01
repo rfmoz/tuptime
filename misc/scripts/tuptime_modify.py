@@ -111,7 +111,7 @@ def backup_dbf(arg):
         print('Backup file:\t' + tmp_file)
     except Exception as exp:
         logging.error('Can\'t create backup file. %s', exp)
-        sys.exit(-1)
+        sys.exit(1)
 
 
 def fix_endst(arg, reg, conn, modt, orgt):
@@ -155,7 +155,7 @@ def fix_shutdown(arg, reg, conn, modt, orgt):
        modt['offbtime'] is None or modt['offbtime'] < 0 or \
        modt['uptime'] < 1 or modt['rntime'] < 1 or modt['slptime'] < 0:
         logging.error('modified values can\'t be None or under limits')
-        sys.exit(-1)
+        sys.exit(1)
 
     # Update values
     conn.execute('update tuptime set uptime =? where rowid =?', (modt['uptime'], reg['target']))
@@ -186,7 +186,7 @@ def fix_startup(arg, reg, conn, modt, orgt, modp, orgp):
     # Limit check
     if modt['uptime'] < 1 or modt['rntime'] < 1 or modt['slptime'] < 0:
         logging.error('modified values can\'t be under limits')
-        sys.exit(-1)
+        sys.exit(1)
 
     # Get previous registers to modify except from first row
     if reg['prev'] > 0:
@@ -204,7 +204,7 @@ def fix_startup(arg, reg, conn, modt, orgt, modp, orgp):
         # Limit check
         if modp['downtime'] < 0:
             logging.error('downtime can\'t be lower than 0')
-            sys.exit(-1)
+            sys.exit(1)
 
         conn.execute('update tuptime set downtime =? where rowid =?', (modp['downtime'], reg['prev']))
 
@@ -237,7 +237,7 @@ def main():
     columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
     if 'rntime' and 'slptime' and 'bootid' not in columns:
         logging.error('DB format outdated')
-        sys.exit(-1)
+        sys.exit(1)
 
     # Print raw rows
     if arg.verbose:
@@ -253,7 +253,7 @@ def main():
     max_register = conn.fetchone()[0]
     if reg['target'] > max_register or reg['target'] < 1:
         logging.error('Invalid register to modify. Out of range')
-        sys.exit(-1)
+        sys.exit(1)
 
     # Get values from target row
     conn.execute('select btime, uptime, rntime, slptime, offbtime, endst, downtime from tuptime where rowid =?', (reg['target'],))

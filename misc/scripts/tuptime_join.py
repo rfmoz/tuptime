@@ -98,7 +98,7 @@ def order_files(arg):
         columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
         if 'rntime' and 'slptime' and 'bootid' not in columns:
             logging.error('DB format outdated on file: %', str(fname))
-            sys.exit(-1)
+            sys.exit(1)
 
     # Check older file
     conn0.execute('select btime from tuptime where rowid = (select min(rowid) from tuptime)')

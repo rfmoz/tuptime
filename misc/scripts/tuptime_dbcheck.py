@@ -221,7 +221,7 @@ def main():
     columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
     if 'rntime' and 'slptime' and 'bootid' not in columns:
         logging.error('DB format outdated')
-        sys.exit(-1)
+        sys.exit(1)
 
     print('Processing ' + str(arg.db_file) + ' --->')
 
