@@ -10,6 +10,7 @@ User=_tuptime
 RemainAfterExit=true
 ExecStart=/usr/bin/tuptime -x
 ExecStop=/usr/bin/tuptime -xg
+StateDirectory=tuptime
 
 [Install]
 WantedBy=multi-user.target
