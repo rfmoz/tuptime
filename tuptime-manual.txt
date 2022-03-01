@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 5.1.0
+                              version 5.1.1
                                 Ricardo F.
-                               16/Jan/2022
+                              01/March/2022
 
 
 
@@ -78,10 +78,17 @@ For Linux systems:
 
            # install -m 755 tuptime/src/tuptime /usr/bin/tuptime
 
-       Add _tuptime user:
+       Add _tuptime user with sysusers or useradd, choose one:
 
-           # useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
-             --shell '/bin/false' --comment 'Tuptime execution user' _tuptime
+           With sysusers:
+
+               # install -m 644 tuptime/src/systemd/tuptime.sysusers /usr/lib/sysusers.d/tuptime.conf
+               # systemd-sysusers /usr/lib/sysusers.d/tuptime.conf
+
+           With useradd:
+
+               # useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
+                 --shell '/bin/false' --comment 'Tuptime execution user' _tuptime
 
        Execute tuptime with a privilege user for create DB path:
 
@@ -91,20 +98,21 @@ For Linux systems:
 
            # chown -R _tuptime:_tuptime /var/lib/tuptime
 
-       Copy cron file:
+       Add sync execution with cron or timer, choose one:
 
-           # install -m 644 tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
+           With cron file:
 
-       If it use systemd, copy service file and enable it:
+               # install -m 644 tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
 
-           # install -m 644 tuptime/src/systemd/tuptime.service /lib/systemd/system/tuptime.service
-           # systemctl enable tuptime.service && systemctl start tuptime.service
-
-           (Alternative) Using systemd timer instead of cron file:
+           With systemd timer:
 
                # install -m 644 tuptime/src/systemd/tuptime-sync.* /lib/systemd/system/
                # systemctl enable tuptime-sync.timer && systemctl start tuptime-sync.timer
-               # rm /etc/cron.d/tuptime
+
+       Copy systemd service file and enable it:
+
+           # install -m 644 tuptime/src/systemd/tuptime.service /lib/systemd/system/tuptime.service
+           # systemctl enable tuptime.service && systemctl start tuptime.service
 
        Or if it is an old RedHat system or derivate, copy the init file:
 
