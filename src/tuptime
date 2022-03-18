@@ -3,7 +3,7 @@
 
 """tuptime - Report the historical and statistical real time of the system,
 keeping it between restarts"""
-# Copyright (C) 2011-2021 - Ricardo F.
+# Copyright (C) 2011-2022 - Ricardo F.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -153,12 +153,10 @@ def get_arguments():
     parser.add_argument(
         '--pctl',
         dest='percentile',
-        default=False,
+        default=None,
         action='store',
         type=int,
-        choices=range(1, 100),
-        metavar="[1-99]",
-        help='show percentile over average'
+        help=argparse.SUPPRESS
     )
     parser.add_argument(
         '-r', '--reverse',
@@ -266,6 +264,8 @@ def get_arguments():
     if arg.decp:
         arg.dec = arg.decp
         logging.warning('Argument \'--decp\' is deprecated in favour of \'-e\' or \'--dec\'')
+    if arg.percentile:
+        logging.warning('Argument \'--pctl\' deprecated without functionality')
 
     logging.info('Arguments = %s', vars(arg))
     return arg
@@ -934,41 +934,6 @@ def print_default(db_rows, sis, arg):
 
         return updown, cnt
 
-    def get_pctl(db_rows, target):
-        """Get percentil values from target column"""
-
-        pct = {'total': 0, 'range': 0, 'up': {}, 'mid': {}, 'low': {}}
-
-        # Get list with values available sorted from short to large
-        units = sorted([row[target] for row in db_rows if row[target] is not False])
-
-        # Percentil extension over values in list
-        pct['total'] = len(units)
-        pct['range'] = int(round((arg.percentile * len(units)) / 100))
-
-        # Populate dicts with percentil range limits and values
-        pct['up']['start'] = pct['total'] - pct['range']
-        pct['up']['end'] = pct['total']
-
-        pct['mid']['start'] = int(round((pct['up']['start'] / 2)))
-        pct['mid']['end'] = pct['mid']['start'] + pct['range']
-
-        pct['low']['start'] = 0
-        pct['low']['end'] = pct['range']
-
-        for key in ('up', 'mid', 'low'):
-            pct[key]['len'] = pct[key]['end'] - pct[key]['start']
-            # Sum values inside target range
-            pct[key]['total'] = sum(units[pct[key]['start']:pct[key]['end']])
-            # Compute averages
-            pct[key]['total'] = pct['range'] and int(round((pct[key]['total'] / pct['range'])))
-
-        if not pct['range'] == pct['up']['len'] == pct['mid']['len'] == pct['low']['len']:
-            logging.warning('Percentil ranges diverged')
-
-        logging.info('Percentil = %s: %s', target, pct)
-        return pct['up']['total'], pct['mid']['total'], pct['low']['total']
-
     cal = {'tot': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0},
            'ave': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}}
     rate = {'uptime': 0.0, 'rntime': 0.0, 'slptime': 0.0, 'downtime': 0.0}
@@ -1009,12 +974,6 @@ def print_default(db_rows, sis, arg):
         if cnt['downtime']:
             cal['ave']['downtime'] = int(round(cal['tot']['downtime'] / len(cnt['downtime'])))
 
-    if arg.percentile:
-        # Extend cal dict and set percentile values
-        cal.update({'pctl': {}})
-        for key in ('uptime', 'rntime', 'slptime', 'downtime'):
-            cal['pctl'][key + '_upp'], cal['pctl'][key + '_mid'], cal['pctl'][key + '_low'] = get_pctl(db_rows, key)
-
     # Output style: Apply human or keep seconds
     if not arg.seconds:
         for key in ('max', 'min'):
@@ -1039,21 +998,14 @@ def print_default(db_rows, sis, arg):
         sp9, sp7, sp0 = '  =  ', '  +  ', ''
         sp4 = sp8 = ' '
 
-    # To append content to uptime values if power option is used
     uptime = {'average': str(cal['ave']['uptime']), 'sys_rate': str(rate['uptime']) + '%', 'sys_time': str(cal['tot']['uptime']), 'current': str(sis['uptime'])}
-    if arg.percentile:
-        for key in ('upp', 'mid', 'low'):
-            uptime.update({key: str(cal['pctl']['uptime_' + key])})
-        arg.percentile = str(arg.percentile).zfill(2)
+    downtime = {'average': str(cal['ave']['downtime']), 'sys_rate': str(rate['downtime']) + '%', 'sys_time': str(cal['tot']['downtime'])}
 
     if arg.power:
         uptime['average'] += sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')'
         uptime['current'] += sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')'
         uptime['sys_rate'] += sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)'
         uptime['sys_time'] += sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')'
-        if arg.percentile:
-            for key in ('upp', 'mid', 'low'):
-                uptime[key] += sp4 + '(rn: ' + str(cal['pctl']['rntime_' + key]) + ' + slp: ' + str(cal['pctl']['slptime_' + key]) + ')'
 
     # Finally print all
     print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']), end='')
@@ -1070,21 +1022,11 @@ def print_default(db_rows, sis, arg):
     if not arg.csv: print('')
 
     print(sp0 + 'System uptime' + sp1 + (sp8 * 8) + uptime['sys_rate'] + sp9 + uptime['sys_time'] + sp0)
-    print(sp0 + 'System downtime' + sp1 + str(rate['downtime']) + '%' + sp9 + str(cal['tot']['downtime']) + sp0)
+    print(sp0 + 'System downtime' + sp1 + downtime['sys_rate'] + sp9 + downtime['sys_time'] + sp0)
     if not arg.csv: print('')
 
     print(sp0 + 'Average uptime' + sp1 + uptime['average'] + sp0)
-    if arg.percentile:
-        print(sp0 + (sp8 * 1) + '...upper P.' + str(arg.percentile) + sp1 + uptime['upp'] + sp0)
-        print(sp0 + (sp8 * 3) + '...mid P.' + str(arg.percentile) + sp1 + uptime['mid'] + sp0)
-        print(sp0 + (sp8 * 1) + '...lower P.' + str(arg.percentile) + sp1 + uptime['low'] + sp0)
-        if not arg.csv: print('')
-
-    print(sp0 + 'Average downtime' + sp1 + str(cal['ave']['downtime']) + sp0)
-    if arg.percentile:
-        print(sp0 + (sp8 * 3) + '...upper P.' + str(arg.percentile) + sp1 + str(cal['pctl']['downtime_upp']) + sp0)
-        print(sp0 + (sp8 * 5) + '...mid P.' + str(arg.percentile) + sp1 + str(cal['pctl']['downtime_mid']) + sp0)
-        print(sp0 + (sp8 * 3) + '...lower P.' + str(arg.percentile) + sp1 + str(cal['pctl']['downtime_low']) + sp0)
+    print(sp0 + 'Average downtime' + sp1 + downtime['average'] + sp0)
 
     if arg.update and not (arg.until or arg.tu):
         if not arg.csv: print('')

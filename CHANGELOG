@@ -4,6 +4,7 @@ tuptime (5.1.1) unstable; urgency=low
   * Using StateDirectory= on systemd unit
   * Available systemd-sysusers file
   * Add rc script for OpenBSD and update installation doc
+  * Deprecate --pctl option
   * Update distribution packages
   * Code refactoring
 
