@@ -1,10 +1,10 @@
-.TH TUPTIME 1 "Jan 2022" "5.1.0" "Linux Manual"
+.TH TUPTIME 1 "May 2022" "5.1.1" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [\-h] [\-A STARTUP] [\-b] [\-c] [\-d DATETM_FORMAT] [\-e DECIMALS] [\-f FILE] [\-g] [\-i] [\-k] [\-l] [\-n] [\-o TYPE] [\-p] [\-r] [\-s] [\-S STARTUP] [\-t] [\-\-tat TIMESTAMP] [\-\-tsince TIMESTAMP] [\-\-tuntil TIMESTAMP] [\-U STARTUP] [\-v] [\-V] [\-x]
+tuptime [\-h] [\-A STARTUP] [\-b] [\-c] [\-d DATETM_FORMAT] [\-\-dec DECIMALS] [\-E EXCLUDE] [\-f FILE] [\-g] [\-i] [\-k] [\-l] [\-n] [\-o TYPE] [\-p] [\-r] [\-s] [\-S STARTUP] [\-t] [\-\-tat TIMESTAMP] [\-\-tsince TIMESTAMP] [\-\-tuntil TIMESTAMP] [\-U STARTUP] [\-v] [\-V] [\-x]
 
 .SH DESCRIPTION
 .RS
@@ -61,8 +61,11 @@ T}
 \-d | \-\-date DATETM_FORMAT@T{
 Datetime/timestamp format output
 T}
-\-e | \-\-dec DECIMALS@T{
+\-\-dec DECIMALS@T{
 Number of decimals in percentages
+T}
+\-E | \-\-exclude EXCLUDE@T{
+Startup numbers to exclude
 T}
 \-f | \-\-file FILE@T{
 Database file (file path)
@@ -234,7 +237,7 @@ Ricardo Fraile <rfraile@rfraile.eu>
 
 .SH "COPYRIGHT"
 .PP
-Copyright (C) 2021 by Ricardo F. All Rights Reserved.
+Copyright (C) 2022 by Ricardo F. All Rights Reserved.
 
 This product is distributed in the hope that it will be useful, but
 WITHOUT any warranty; without even the implied warranty of 

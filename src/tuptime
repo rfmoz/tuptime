@@ -24,7 +24,7 @@ from datetime import datetime
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATETM_FORMAT = '%X %x'
-__version__ = '5.1.0'
+__version__ = '5.1.1'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -73,13 +73,21 @@ def get_arguments():
         help='datetime/timestamp format output'
     )
     parser.add_argument(
-        '-e', '--dec',
+        '--dec',
         dest='dec',
         default=2,
         metavar='DECIMALS',
         action='store',
         type=int,
         help='number of decimals in percentages'
+    )
+    parser.add_argument(
+        '-E', '--exclude',
+        dest='exclude',
+        default=None,
+        action='store',
+        metavar='EXCLUDE',
+        help='startup numbers to exclude'
     )
     parser.add_argument(
         '--decp',
@@ -261,9 +269,19 @@ def get_arguments():
     if arg.at is not None:
         arg.since = arg.until = arg.at
 
+    # Expand exclude range
+    if arg.exclude is not None:
+        try:
+            ex_extend = [ss.split('-') for ss in arg.exclude.split(',')]
+            ex_extend = [range(int(i[0]), int(i[1])+1) if len(i) == 2 else i for i in ex_extend]
+            arg.exclude = sorted({int(item) for sublist in ex_extend for item in sublist})
+        except:
+            logging.warning('Invalid exclude argument value. Not applied')
+            arg.exclude = None
+
     if arg.decp:
         arg.dec = arg.decp
-        logging.warning('Argument \'--decp\' is deprecated in favour of \'-e\' or \'--dec\'')
+        logging.warning('Argument \'--decp\' is deprecated in favour of \'--dec\'')
     if arg.percentile:
         logging.warning('Argument \'--pctl\' deprecated without functionality')
 
@@ -667,6 +685,9 @@ def trim_rows(db_rows, sis, last_st, arg):
             arg.ts = sis['btime'] + sis['uptime'] + arg.ts
         db_rows = tsince(db_rows, arg)
 
+    if db_rows and arg.exclude is not None:
+        db_rows = [row for row in db_rows if row['startup'] not in arg.exclude]
+
     return db_rows, arg
 
 
@@ -1008,9 +1029,11 @@ def print_default(db_rows, sis, arg):
         uptime['sys_time'] += sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')'
 
     # Finally print all
-    print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']), end='')
-    if arg.tu or arg.until:
-        print(sp5 + 'until' + sp5 + str(tstamp['max']), end='')
+    print(sp0 + 'System startups' + sp1 + str(updown['startups']), end='')
+    if arg.exclude is None:
+        print(sp5 + 'since' + sp5 + str(tstamp['min']), end='')
+        if arg.tu or arg.until:
+            print(sp5 + 'until' + sp5 + str(tstamp['max']), end='')
     print(sp0)
 
     print(sp0 + 'System shutdowns' + sp1 + str(updown['ok']) + sp4 + 'ok' + sp7 + str(updown['bad']) + sp4 + 'bad' + sp0)
@@ -1059,7 +1082,7 @@ def output_hub(db_rows, sis, arg):
             db_rows[-1][key] = False
 
     # Get narrow range of rows if it applies
-    if not (None is arg.until is arg.since is arg.tu is arg.ts):
+    if not (None is arg.exclude is arg.until is arg.since is arg.tu is arg.ts):
         db_rows, arg = trim_rows(db_rows, sis, last_st, arg)
 
     # Print values with the chosen output

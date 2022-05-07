@@ -3,7 +3,7 @@
                          ----------------------
                               version 5.1.1
                                 Ricardo F.
-                              01/March/2022
+                               01/May/2022
 
 
 
@@ -174,8 +174,10 @@ These are the command line options, no configuration file is used:
   -c, --csv             csv output
   -d DATETM_FORMAT, --date DATETM_FORMAT
                         datetime/timestamp format output
-  -e DECIMALS, --dec DECIMALS
+  --dec DECIMALS
                         number of decimals in percentages
+  -E, --exclude EXCLUDE
+                        startup numbers to exclude
   -f FILE, --filedb FILE
                         database file (/var/lib/tuptime/tuptime.db)
   -g, --graceful        register a graceful shutdown
@@ -203,7 +205,7 @@ These are the command line options, no configuration file is used:
 
 -A <STARTUP>, --at <STARTUP>
   Limit values only to this startup number. Take it from (-t) table or
-  (-l) list reports. Negative values allowed.
+  (-l) list reports. Negative values are allowed.
 
   Examples:
           tuptime -A 34
@@ -277,12 +279,22 @@ These are the command line options, no configuration file is used:
          tuptime -d '%H:%M:%S   %d-%b-%Y'  # Spanish style
 
 
--e, DECIMALS, --dec DECIMALS
+--dec DECIMALS
   Change the decimal length in percentages. The number is rounded to this value.
 
   Examples:
-         tuptime -e 7
          tuptime --dec 9
+         tuptime --power --dec 9
+
+
+-E <EXCLUDE>, --exclude <EXCLUDE>
+  Avoid take into account the startup numbers defined. Multiple values must be
+  separated by comma ',' and ranges with dash '-'.
+
+  Examples:
+         tuptime -E 9
+         tuptime -E '9-20'
+         tuptime --exclude '2,10-20,50'
 
 
 -f <FILE>, --filedb=<FILE>
@@ -393,7 +405,7 @@ These are the command line options, no configuration file is used:
 
 -S <STARTUP>, --since <STARTUP>
   Limit values only from this startup number. Take it from (-t) table or
-  (-l) list reports. Negative values allowed.
+  (-l) list reports. Negative values are allowed.
 
   Examples:
           tuptime -S 34
@@ -420,7 +432,7 @@ These are the command line options, no configuration file is used:
 
 
 --tsince <TIMESTAMP>
-  Limit report from the given epoch timestamp. Negative values allowed.
+  Limit report from the given epoch timestamp. Negative values are allowed.
   Options (-S) and (-U) have precedence over this one.
 
   Examples:
@@ -430,7 +442,7 @@ These are the command line options, no configuration file is used:
 
 
 --tuntil <TIMESTAMP>
-  Limit report until the given epoch timestamp. Negative values allowed.
+  Limit report until the given epoch timestamp. Negative values are allowed.
   Options (-S) and (-U) have precedence over this one.
 
   Examples:
@@ -441,7 +453,7 @@ These are the command line options, no configuration file is used:
 
 -U <STARTUP>, --until <STARTUP>
   Limit values only up until this startup number. Take it from (-t) table or
-  (-l) list reports. Negative values allowed.
+  (-l) list reports. Negative values are allowed.
 
   Examples:
           tuptime -U 45
