@@ -4,7 +4,7 @@
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [\-h] [\-A STARTUP] [\-b] [\-c] [\-d DATETM_FORMAT] [\-\-dec DECIMALS] [\-E EXCLUDE] [\-f FILE] [\-g] [\-i] [\-k] [\-l] [\-n] [\-o TYPE] [\-p] [\-r] [\-s] [\-S STARTUP] [\-t] [\-\-tat TIMESTAMP] [\-\-tsince TIMESTAMP] [\-\-tuntil TIMESTAMP] [\-U STARTUP] [\-v] [\-V] [\-x]
+tuptime [\-h] [\-A STARTUP] [\-b] [\-c] [\-d DATETIME_FMT] [\-\-dec DECIMALS] [\-E STARTUP] [\-f FILE] [\-g] [\-i] [\-k] [\-l] [\-n] [\-o TYPE] [\-p] [\-r] [\-s] [\-S STARTUP] [\-t] [\-\-tat TIMESTAMP] [\-\-tsince TIMESTAMP] [\-\-tuntil TIMESTAMP] [\-U STARTUP] [\-v] [\-V] [\-x]
 
 .SH DESCRIPTION
 .RS
@@ -58,13 +58,13 @@ T}
 \-c | \-\-csv@T{
 Output in csv format
 T}
-\-d | \-\-date DATETM_FORMAT@T{
+\-d | \-\-date DATETIME_FMT@T{
 Datetime/timestamp format output
 T}
 \-\-dec DECIMALS@T{
 Number of decimals in percentages
 T}
-\-E | \-\-exclude EXCLUDE@T{
+\-E | \-\-exclude STARTUP@T{
 Startup numbers to exclude
 T}
 \-f | \-\-file FILE@T{

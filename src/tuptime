@@ -23,7 +23,7 @@ from datetime import datetime
 
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
-DATETM_FORMAT = '%X %x'
+DATETIME_FMT = '%X %x'
 __version__ = '5.1.1'
 
 # Terminate when SIGPIPE signal is received
@@ -67,8 +67,8 @@ def get_arguments():
     parser.add_argument(
         '-d', '--date',
         dest='dtm_format',
-        metavar='DATETM_FORMAT',
-        default=DATETM_FORMAT,
+        metavar='DATETIME_FMT',
+        default=DATETIME_FMT,
         action='store',
         help='datetime/timestamp format output'
     )
@@ -86,7 +86,7 @@ def get_arguments():
         dest='exclude',
         default=None,
         action='store',
-        metavar='EXCLUDE',
+        metavar='STARTUP',
         help='startup numbers to exclude'
     )
     parser.add_argument(
