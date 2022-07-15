@@ -918,16 +918,16 @@ def print_tat(db_rows, sis, last_st, arg):
         sp0, sp8 = '"', ''
         sp2 = sp5 = sp9 = '","'
     else:
-        sp0, sp2, sp9 = '', ':\t', '  =  '
+        sp0, sp2, sp9 = '', ':\t\t', '  =  '
         sp8, sp5 = ' ', '  '
 
-    print(sp0 + 'Timestamp status' + sp2 + str(report['status']) + sp5 + 'at' + sp5 + str(report['at']) + sp5 + 'on' + sp5 + str(report['startup']) + sp0)
+    print(sp0 + 'System status' + sp2 + str(report['status']) + sp5 + 'at' + sp5 + str(report['at']) + sp5 + 'on' + sp5 + str(report['startup']) + sp0)
     if arg.bootid:
-        print(sp0 + (sp8 * 6) + '...boot ID' + sp2 + str(report['bootid']) + sp0)
+        print(sp0 + (sp8 * 3) + '...boot ID' + sp2 + str(report['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp8 * 7) + '...kernel' + sp2 + str(report['kernel']) + sp0)
-    print(sp0 + (sp8 * 6) + 'elapsed in' + sp2 + str(perctg_1) + '%' + sp9 + str(report['time']) + sp0)
-    print(sp0 + (sp8 * 4) + 'remaining in' + sp2 + str(perctg_2) + '%' + sp9 + str(report['time_fwd']) + sp0)
+        print(sp0 + (sp8 * 4) + '...kernel' + sp2 + str(report['kernel']) + sp0)
+    print(sp0 + (sp8 * 3) + 'elapsed in' + sp2 + str(perctg_1) + '%' + sp9 + str(report['time']) + sp0)
+    print(sp0 + (sp8 * 1) + 'remaining in' + sp2 + str(perctg_2) + '%' + sp9 + str(report['time_fwd']) + sp0)
 
 
 def print_default(db_rows, sis, arg):
