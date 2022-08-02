@@ -1,4 +1,4 @@
-tuptime (5.1.1) unstable; urgency=low
+tuptime (5.2.0) unstable; urgency=low
 
   * Rename timer units to tuptime-sync.timer and tuptime-sync.service
   * Using StateDirectory= on systemd unit
@@ -6,10 +6,11 @@ tuptime (5.1.1) unstable; urgency=low
   * Add rc script for OpenBSD and update installation doc
   * Deprecate --pctl option
   * Adding -E, --exclude option
+  * Print largest uptime and downtime values on default output
   * Update distribution packages
   * Code refactoring
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 07 May 2022 12:55:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Tue, 02 Aug 2022 21:55:00 +0100
 
 tuptime (5.1.0) unstable; urgency=low
 

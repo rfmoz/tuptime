@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 5.1.1
+                              version 5.2.0
                                 Ricardo F.
-                               01/May/2022
+                               02/Aug/2022
 
 
 
@@ -545,20 +545,16 @@ System uptime:
 System downtime:
   Percentage of time and time counter.
 
+Largest uptime:
+Largest downtime:
+  Time counter and date with the largest/shortest uptime register. 
+
 Average uptime:
 Average downtime: 
-  Time counter with the average time.
+  Average time counter.
 
 Current uptime:
   Actual time counter and datetime since registered boot timestamp.
-
-
-Removed on version 5 and equivalent output:
-
-  Largest uptime:      tuptime -tor u | head -3
-  Shortest uptime:     tuptime -to u | head -3
-  Largest downtime:    tuptime -tor d | head -3
-  Shortest downtime:   tuptime -to d | head -3
 
 
 

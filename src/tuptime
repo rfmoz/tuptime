@@ -24,7 +24,7 @@ from datetime import datetime
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATETIME_FMT = '%X %x'
-__version__ = '5.1.1'
+__version__ = '5.2.0'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -955,12 +955,37 @@ def print_default(db_rows, sis, arg):
 
         return updown, cnt
 
+    def get_limits(db_rows, option, key):
+        """Extract max/min values for uptime/downtime"""
+
+        # Based on key requested (uptime|downtime), get rows only with values on it
+        dbr = [row for row in db_rows if row[key] is not False ]
+
+        # Get max/min values or set nothing
+        if dbr and option == 'max':
+            row = max(dbr, key=lambda x: x[key])
+        elif dbr and option == 'min':
+            row = min(dbr, key=lambda x: x[key])
+        else:
+            row = {'bootid': None, 'btime': False, 'uptime': 0, 'rntime': 0, 'slptime': 0, 'offbtime': False, 'downtime': 0, 'kernel': None}
+
+        # Report based on the key requested
+        if key == 'uptime':
+            return {'uptime': row['uptime'], 'btime': row['btime'], 'bootid': row['bootid'], 'kernel': row['kernel'],
+                    'rntime': row['rntime'], 'slptime': row['slptime']}
+        elif key == 'downtime':
+            return {'downtime': row['downtime'], 'offbtime': row['offbtime'], 'bootid': row['bootid'], 'kernel': row['kernel']}
+        else:
+            return None
+
     cal = {'tot': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0},
            'ave': {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}}
     rate = {'uptime': 0.0, 'rntime': 0.0, 'slptime': 0.0, 'downtime': 0.0}
     updown = {'startups': 0, 'shutdowns': 0, 'ok': 0, 'bad': 0}
     tstamp = {'min': arg.ts, 'max': arg.tu}  # Args as init values
     cnt = {'bootid': [], 'uptime': [], 'rntime': [], 'slptime': [], 'downtime': [], 'kernel': []}
+
+    lrg = {'up': get_limits(db_rows, 'max', 'uptime'), 'down': get_limits(db_rows, 'max', 'downtime')}
 
     # Get values from all DB rows
     updown, cnt = parse_rows(db_rows, updown, cnt)
@@ -1007,7 +1032,14 @@ def print_default(db_rows, sis, arg):
                 cal[k][key] = time_conv(cal[k][key])
         for key in ('uptime', 'rntime', 'slptime'):
             sis[key] = time_conv(sis[key])
+            lrg['up'][key] = time_conv(lrg['up'][key])
+        lrg['down']['downtime'] = time_conv(lrg['down']['downtime'])
+
         sis['btime'] = datetime.fromtimestamp(sis['btime']).strftime(arg.dtm_format)
+        if lrg['up']['btime'] is not False:
+            lrg['up']['btime'] = datetime.fromtimestamp(lrg['up']['btime']).strftime(arg.dtm_format)
+        if lrg['down']['offbtime'] is not False:
+            lrg['down']['offbtime'] = datetime.fromtimestamp(lrg['down']['offbtime']).strftime(arg.dtm_format)
         sys_life = time_conv(sys_life)
 
     # Prepare values for print
@@ -1019,11 +1051,13 @@ def print_default(db_rows, sis, arg):
         sp9, sp7, sp0 = '  =  ', '  +  ', ''
         sp4 = sp8 = ' '
 
-    uptime = {'average': str(cal['ave']['uptime']), 'sys_rate': str(rate['uptime']) + '%', 'sys_time': str(cal['tot']['uptime']), 'current': str(sis['uptime'])}
+    uptime = {'average': str(cal['ave']['uptime']), 'sys_rate': str(rate['uptime']) + '%', 'sys_time': str(cal['tot']['uptime']), 'current': str(sis['uptime']),
+              'large': str(lrg['up']['uptime'])}
     downtime = {'average': str(cal['ave']['downtime']), 'sys_rate': str(rate['downtime']) + '%', 'sys_time': str(cal['tot']['downtime'])}
 
     if arg.power:
         uptime['average'] += sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')'
+        uptime['large'] += sp4 + '(rn: ' + str(lrg['up']['rntime']) + ' + slp: ' + str(lrg['up']['slptime']) + ')'
         uptime['current'] += sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')'
         uptime['sys_rate'] += sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)'
         uptime['sys_time'] += sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')'
@@ -1044,12 +1078,28 @@ def print_default(db_rows, sis, arg):
         print(sp0 + 'System kernels' + sp1 + str(len(set(cnt['kernel']))) + sp0)
     if not arg.csv: print('')
 
+    if lrg['up']['btime'] is not False:
+        print(sp0 + 'Largest uptime' + sp1 + uptime['large'] + sp5 + 'from' + sp5 + str(lrg['up']['btime']) + sp0)
+    else:
+        print(sp0 + 'Largest uptime' + sp1 + uptime['large'] + sp0)
+    if arg.bootid:
+        print(sp0 + (sp8 * 4) + '...boot ID' + sp1 + str(lrg['up']['bootid']) + sp0)
+    if arg.kernel:
+        print(sp0 + (sp8 * 5) + '...kernel' + sp1 + str(lrg['up']['kernel']) + sp0)
+    print(sp0 + 'Average uptime' + sp1 + uptime['average'] + sp0)
     print(sp0 + 'System uptime' + sp1 + (sp8 * 8) + uptime['sys_rate'] + sp9 + uptime['sys_time'] + sp0)
-    print(sp0 + 'System downtime' + sp1 + downtime['sys_rate'] + sp9 + downtime['sys_time'] + sp0)
     if not arg.csv: print('')
 
-    print(sp0 + 'Average uptime' + sp1 + uptime['average'] + sp0)
+    if lrg['down']['offbtime'] is not False:
+        print(sp0 + 'Largest downtime' + sp1 + str(lrg['down']['downtime']) + sp5 + 'from' + sp5 + str(lrg['down']['offbtime']) + sp0)
+    else:
+        print(sp0 + 'Largest downtime' + sp1 + str(lrg['down']['downtime']) + sp0)
+    if arg.bootid:
+        print(sp0 + (sp8 * 6) + '...boot ID' + sp1 + str(lrg['down']['bootid']) + sp0)
+    if arg.kernel:
+        print(sp0 + (sp8 * 7) + '...kernel' + sp1 + str(lrg['down']['kernel']) + sp0)
     print(sp0 + 'Average downtime' + sp1 + downtime['average'] + sp0)
+    print(sp0 + 'System downtime' + sp1 + downtime['sys_rate'] + sp9 + downtime['sys_time'] + sp0)
 
     if arg.update:
         if not arg.csv: print('')
