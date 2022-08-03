@@ -213,7 +213,7 @@ Scheduled cron file.
 Init file.
 .TP
 .I /lib/systemd/system/tuptime.service
-Systemd service unit file.
+Systemd service unit file. Register time values into database.
 .TP
 .I /usr/bin/tuptime
 Main and only executable file.
@@ -221,11 +221,11 @@ Main and only executable file.
 .I /usr/share/doc/tuptime/
 Directory with multiple documentation files.
 .TP
-.I /usr/share/doc/tuptime/examples/tuptime-sync.timer
-Optional .timer unit for use instead of cron.
+.I /lib/systemd/system/tuptime-sync.timer
+Systemd .timer unit for use instead of cron. Only executes tuptime-sync.service.
 .TP
-.I /usr/share/doc/tuptime/examples/tuptime-sync.service
-Optional .service unit required by tuptime-sync.timer
+.I /lib/systemd/system/tuptime-sync.service
+Systemd .service unit required by tuptime-sync.timer. Updates time values into database.
 .TP
 .I /usr/share/man/man1/tuptime.1
 Manual page.
