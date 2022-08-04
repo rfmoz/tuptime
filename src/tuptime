@@ -707,11 +707,6 @@ def ordering_output(db_rows, arg, last_st):
             for ind, _ in enumerate(db_rows):
                 db_rows[ind]['startup'] = db_rows[ind]['startup'] - last_st
 
-    else:
-        # Return default empty row
-        db_rows = [{'startup': 0, 'bootid': False, 'uptime': False, 'rntime': False, 'slptime': False,
-                    'endst': False, 'offbtime': False, 'btime': False, 'downtime': False, 'kernel': False}]
-
     return db_rows
 
 
@@ -949,7 +944,7 @@ def print_default(db_rows, sis, arg):
                 updown['shutdowns'] += 1
 
             # Get lists with all values
-            for key in ('bootid', 'uptime', 'rntime', 'slptime', 'downtime', 'kernel'):
+            for key in cnt:
                 if row[key] is not False:
                     cnt[key].append(row[key])
 
