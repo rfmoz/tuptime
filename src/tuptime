@@ -1055,10 +1055,10 @@ def print_default(db_rows, sis, arg):
 
     # Finally print all
     print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']), end='')
-    if range_trim:
-        print(sp5 + 'trimmed', end='')
     if arg.tu or arg.until:
         print(sp5 + 'until' + sp5 + str(tstamp['max']), end='')
+    if range_trim:
+        print(sp5 + 'trimmed', end='')
     print(sp0)
 
     print(sp0 + 'System shutdowns' + sp1 + str(updown['ok']) + sp4 + 'ok' + sp7 + str(updown['bad']) + sp4 + 'bad' + sp0)
