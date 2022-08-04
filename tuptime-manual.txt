@@ -289,7 +289,8 @@ These are the command line options, no configuration file is used:
 
 -E <STARTUP>, --exclude <STARTUP>
   Avoid take into account the startup numbers defined. Multiple values must be
-  separated by comma ',' and ranges with dash '-'.
+  separated by comma ',' and ranges with dash '-'. Default output prints
+  'trimmed' if the excluded numbers are in middle of the range.
 
   Examples:
          tuptime -E 9
