@@ -1043,7 +1043,8 @@ def print_default(db_rows, sis, arg):
 
     uptime = {'average': str(cal['ave']['uptime']), 'sys_rate': str(rate['uptime']) + '%', 'sys_time': str(cal['tot']['uptime']), 'current': str(sis['uptime']),
               'large': str(far['max-up']['uptime'])}
-    downtime = {'average': str(cal['ave']['downtime']), 'sys_rate': str(rate['downtime']) + '%', 'sys_time': str(cal['tot']['downtime'])}
+    downtime = {'average': str(cal['ave']['downtime']), 'sys_rate': str(rate['downtime']) + '%', 'sys_time': str(cal['tot']['downtime']),
+                'large': str(far['max-down']['downtime'])}
 
     if arg.power:
         uptime['average'] += sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')'
@@ -1081,9 +1082,9 @@ def print_default(db_rows, sis, arg):
     if not arg.csv: print('')
 
     if far['max-down']['offbtime'] is not False:
-        print(sp0 + 'Largest downtime' + sp1 + str(far['max-down']['downtime']) + sp5 + 'from' + sp5 + str(far['max-down']['offbtime']) + sp0)
+        print(sp0 + 'Largest downtime' + sp1 + downtime['large'] + sp5 + 'from' + sp5 + str(far['max-down']['offbtime']) + sp0)
     else:
-        print(sp0 + 'Largest downtime' + sp1 + str(far['max-down']['downtime']) + sp0)
+        print(sp0 + 'Largest downtime' + sp1 + downtime['large'] + sp0)
     if arg.bootid:
         print(sp0 + (sp8 * 6) + '...boot ID' + sp1 + str(far['max-down']['bootid']) + sp0)
     if arg.kernel:
