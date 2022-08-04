@@ -960,6 +960,7 @@ def print_default(db_rows, sis, arg):
     updown = {'startups': 0, 'shutdowns': 0, 'ok': 0, 'bad': 0}
     tstamp = {'min': arg.ts, 'max': arg.tu}  # Args as init values
     cnt = {'bootid': [], 'uptime': [], 'rntime': [], 'slptime': [], 'downtime': [], 'kernel': []}
+    range_trim = False
 
     def1 = {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}
     def2 = {'bootid': None, 'btime': False, 'offbtime': False, 'kernel': None, 'startup': None}
@@ -983,6 +984,11 @@ def print_default(db_rows, sis, arg):
     # Get leftmost (newer) value, always btime, from first row value if arg.ts is not used
     if db_rows and tstamp['min'] is None:
         tstamp['min'] = db_rows[0]['btime']
+
+    # Check if range is trimmed
+    if db_rows and arg.exclude:
+        if db_rows[-1]['startup'] - db_rows[0]['startup'] != len(db_rows) - 1:
+            range_trim = True
 
     # Get totals and system life
     for key in cal['tot']:
@@ -1047,11 +1053,11 @@ def print_default(db_rows, sis, arg):
         uptime['sys_time'] += sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')'
 
     # Finally print all
-    print(sp0 + 'System startups' + sp1 + str(updown['startups']), end='')
-    if arg.exclude is None:
-        print(sp5 + 'since' + sp5 + str(tstamp['min']), end='')
-        if arg.tu or arg.until:
-            print(sp5 + 'until' + sp5 + str(tstamp['max']), end='')
+    print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']), end='')
+    if range_trim:
+        print(sp5 + 'trimmed', end='')
+    if arg.tu or arg.until:
+        print(sp5 + 'until' + sp5 + str(tstamp['max']), end='')
     print(sp0)
 
     print(sp0 + 'System shutdowns' + sp1 + str(updown['ok']) + sp4 + 'ok' + sp7 + str(updown['bad']) + sp4 + 'bad' + sp0)
