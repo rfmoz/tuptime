@@ -1071,9 +1071,9 @@ def print_default(db_rows, sis, arg):
     if not arg.csv: print('')
 
     if far['max-up']['btime'] is not False:
-        print(sp0 + 'Largest uptime' + sp1 + uptime['large'] + sp5 + 'from' + sp5 + str(far['max-up']['btime']) + sp0)
+        print(sp0 + 'Longest uptime' + sp1 + uptime['large'] + sp5 + 'from' + sp5 + str(far['max-up']['btime']) + sp0)
     else:
-        print(sp0 + 'Largest uptime' + sp1 + uptime['large'] + sp0)
+        print(sp0 + 'Longest uptime' + sp1 + uptime['large'] + sp0)
     if arg.bootid:
         print(sp0 + (sp8 * 4) + '...boot ID' + sp1 + str(far['max-up']['bootid']) + sp0)
     if arg.kernel:
@@ -1083,9 +1083,9 @@ def print_default(db_rows, sis, arg):
     if not arg.csv: print('')
 
     if far['max-down']['offbtime'] is not False:
-        print(sp0 + 'Largest downtime' + sp1 + downtime['large'] + sp5 + 'from' + sp5 + str(far['max-down']['offbtime']) + sp0)
+        print(sp0 + 'Longest downtime' + sp1 + downtime['large'] + sp5 + 'from' + sp5 + str(far['max-down']['offbtime']) + sp0)
     else:
-        print(sp0 + 'Largest downtime' + sp1 + downtime['large'] + sp0)
+        print(sp0 + 'Longest downtime' + sp1 + downtime['large'] + sp0)
     if arg.bootid:
         print(sp0 + (sp8 * 6) + '...boot ID' + sp1 + str(far['max-down']['bootid']) + sp0)
     if arg.kernel:

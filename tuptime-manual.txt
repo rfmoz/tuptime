@@ -546,8 +546,8 @@ System uptime:
 System downtime:
   Percentage of time and time counter.
 
-Largest uptime:
-Largest downtime:
+Longest uptime:
+Longest downtime:
   Time counter and date with the largest/shortest uptime register. 
 
 Average uptime:
