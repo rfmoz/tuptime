@@ -7,7 +7,7 @@ tuptime (5.2.0) unstable; urgency=low
   * Add rc script for OpenBSD and update installation doc
   * Deprecate --pctl option
   * Adding -E, --exclude option
-  * Print largest uptime and downtime values on default output
+  * Print longest uptime and downtime values on default output
   * Update distribution packages
   * Code refactoring
 

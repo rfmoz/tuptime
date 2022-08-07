@@ -548,7 +548,7 @@ System downtime:
 
 Longest uptime:
 Longest downtime:
-  Time counter and date with the largest/shortest uptime register. 
+  Time counter and date with the longest/shortest uptime register. 
 
 Average uptime:
 Average downtime: 
