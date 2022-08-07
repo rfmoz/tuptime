@@ -961,6 +961,7 @@ def print_default(db_rows, sis, arg):
     tstamp = {'min': arg.ts, 'max': arg.tu}  # Args as init values
     cnt = {'bootid': [], 'uptime': [], 'rntime': [], 'slptime': [], 'downtime': [], 'kernel': []}
     range_trim = False
+    sys_life = 0
 
     def1 = {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}
     def2 = {'bootid': None, 'btime': False, 'offbtime': False, 'kernel': None, 'startup': None}
