@@ -1,10 +1,10 @@
-.TH TUPTIME 1 "Jan 2022" "5.1.0" "Linux Manual"
+.TH TUPTIME 1 "Aug 2022" "5.2.0" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [\-h] [\-A STARTUP] [\-b] [\-c] [\-d DATETM_FORMAT] [\-e DECIMALS] [\-f FILE] [\-g] [\-i] [\-k] [\-l] [\-n] [\-o TYPE] [\-p] [\-\-pctl [1\-99]] [\-r] [\-s] [\-S STARTUP] [\-t] [\-\-tat TIMESTAMP] [\-\-tsince TIMESTAMP] [\-\-tuntil TIMESTAMP] [\-U STARTUP] [\-v] [\-V] [\-x]
+tuptime [\-h] [\-A STARTUP] [\-b] [\-c] [\-d DATETIME_FMT] [\-\-dec DECIMALS] [\-E STARTUP] [\-f FILE] [\-g] [\-i] [\-k] [\-l] [\-n] [\-o TYPE] [\-p] [\-r] [\-s] [\-S STARTUP] [\-t] [\-\-tat TIMESTAMP] [\-\-tsince TIMESTAMP] [\-\-tuntil TIMESTAMP] [\-U STARTUP] [\-v] [\-V] [\-x]
 
 .SH DESCRIPTION
 .RS
@@ -58,11 +58,14 @@ T}
 \-c | \-\-csv@T{
 Output in csv format
 T}
-\-d | \-\-date DATETM_FORMAT@T{
+\-d | \-\-date DATETIME_FMT@T{
 Datetime/timestamp format output
 T}
-\-e | \-\-dec DECIMALS@T{
+\-\-dec DECIMALS@T{
 Number of decimals in percentages
+T}
+\-E | \-\-exclude STARTUP@T{
+Startup numbers to exclude
 T}
 \-f | \-\-file FILE@T{
 Database file (file path)
@@ -87,9 +90,6 @@ Order enumerate by [u|r|s|e|d|k] (u = uptime | r = runtime | s = sleep time | e 
 T}
 \-p | \-\-power@T{
 Show power states run + sleep
-T}
-\-\-pctl [1\-99]@T{
-Show percentile number applied over average
 T}
 \-r | \-\-reverse@T{
 Reverse order in list or table output
@@ -158,11 +158,18 @@ System downtime:
 Percentage of time and time counter.
 
 .RE
+Longest uptime:
+.RE
+Longest downtime:
+.RS
+Time counter and date with the complete longest uptime/downtime register.
+
+.RE
 Average uptime:
 .RE
 Average downtime:
 .RS
-Time counter with the average time.
+Average time counter.
 
 .RE
 Current uptime:
@@ -206,7 +213,7 @@ Scheduled cron file.
 Init file.
 .TP
 .I /lib/systemd/system/tuptime.service
-Systemd service unit file.
+Systemd service unit file. Register time values into database.
 .TP
 .I /usr/bin/tuptime
 Main and only executable file.
@@ -214,11 +221,11 @@ Main and only executable file.
 .I /usr/share/doc/tuptime/
 Directory with multiple documentation files.
 .TP
-.I /usr/share/doc/tuptime/examples/tuptime-cron.timer
-Optional .timer unit for use instead of cron.
+.I /lib/systemd/system/tuptime-sync.timer
+Systemd .timer unit for use instead of cron. Only executes tuptime-sync.service.
 .TP
-.I /usr/share/doc/tuptime/examples/tuptime-cron.service
-Optional .service unit required by tuptime-cron.timer
+.I /lib/systemd/system/tuptime-sync.service
+Systemd .service unit required by tuptime-sync.timer. Updates time values into database.
 .TP
 .I /usr/share/man/man1/tuptime.1
 Manual page.
@@ -237,7 +244,7 @@ Ricardo Fraile <rfraile@rfraile.eu>
 
 .SH "COPYRIGHT"
 .PP
-Copyright (C) 2021 by Ricardo F. All Rights Reserved.
+Copyright (C) 2022 by Ricardo F. All Rights Reserved.
 
 This product is distributed in the hope that it will be useful, but
 WITHOUT any warranty; without even the implied warranty of 

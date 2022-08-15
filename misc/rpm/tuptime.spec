@@ -59,8 +59,8 @@ install -d %{buildroot}%{_sharedstatedir}/tuptime/
 install -d %{buildroot}%{_datadir}/tuptime/
 cp src/tuptime %{buildroot}%{_bindir}/
 cp src/systemd/tuptime.service %{buildroot}%{_unitdir}/
-cp src/systemd/tuptime-cron.service %{buildroot}%{_unitdir}/
-cp src/systemd/tuptime-cron.timer %{buildroot}%{_unitdir}/
+cp src/systemd/tuptime-sync.service %{buildroot}%{_unitdir}/
+cp src/systemd/tuptime-sync.timer %{buildroot}%{_unitdir}/
 cp src/man/tuptime.1 %{buildroot}%{_mandir}/man1/
 cp misc/scripts/* %{buildroot}%{_datadir}/tuptime/
 chmod +x %{buildroot}%{_datadir}/tuptime/*.sh
@@ -71,26 +71,26 @@ chmod +x %{buildroot}%{_datadir}/tuptime/*.py
 # Create and initialise the tuptime DB with consistent permissions, etc.
 su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 %systemd_post tuptime.service
-%systemd_post tuptime-cron.service
-%systemd_post tuptime-cron.timer
+%systemd_post tuptime-sync.service
+%systemd_post tuptime-sync.timer
 
 
 %preun
 %systemd_preun tuptime.service
-%systemd_preun tuptime-cron.service
-%systemd_preun tuptime-cron.timer
+%systemd_preun tuptime-sync.service
+%systemd_preun tuptime-sync.timer
 
 
 %postun
 %systemd_postun_with_restart tuptime.service
-%systemd_postun_with_restart tuptime-cron.service
-%systemd_postun_with_restart tuptime-cron.timer
+%systemd_postun_with_restart tuptime-sync.service
+%systemd_postun_with_restart tuptime-sync.timer
 
 
 %files
 %{_unitdir}/tuptime.service
-%{_unitdir}/tuptime-cron.service
-%{_unitdir}/tuptime-cron.timer
+%{_unitdir}/tuptime-sync.service
+%{_unitdir}/tuptime-sync.timer
 %attr(0755, root, root) %{_bindir}/tuptime
 %dir %attr(0755, _tuptime, _tuptime) %{_sharedstatedir}/tuptime/
 %doc tuptime-manual.txt

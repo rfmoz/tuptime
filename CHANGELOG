@@ -1,3 +1,18 @@
+tuptime (5.2.0) unstable; urgency=low
+
+  * Rename timer units to tuptime-sync.timer and tuptime-sync.service
+  * Using StateDirectory= on systemd unit
+  * Available tuptime.sysusers file for systemd-sysusers
+  * Replace cron file with systemd timer on .deb package
+  * Add rc script for OpenBSD and update installation doc
+  * Deprecate --pctl option
+  * Adding -E, --exclude option
+  * Print longest uptime and downtime values on default output
+  * Update distribution packages
+  * Code refactoring
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Tue, 02 Aug 2022 21:55:00 +0100
+
 tuptime (5.1.0) unstable; urgency=low
 
   * Cover DB writes with transactions

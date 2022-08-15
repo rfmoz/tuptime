@@ -28,12 +28,12 @@
 
     dnf install tuptime-*rpm   # (old way: rpm -i tuptime-*.rpm)
     systemctl enable tuptime.service && systemctl start tuptime.service
-    systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
+    systemctl enable tuptime-sync.timer && systemctl start tuptime-sync.timer
 
 5.- Check it all was ok:
 
     systemctl status tuptime.service
-    systemctl status tuptime-cron.timer
+    systemctl status tuptime-sync.timer
 
 
 

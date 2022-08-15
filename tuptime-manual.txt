@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 5.1.0
+                              version 5.2.0
                                 Ricardo F.
-                               16/Jan/2022
+                               02/Aug/2022
 
 
 
@@ -63,7 +63,7 @@ For Linux systems:
 
            # dnf install tuptime
            # systemctl enable tuptime.service && systemctl start tuptime.service
-           # systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
+           # systemctl enable tuptime-sync.timer && systemctl start tuptime-sync.timer
 
 
    + Using bash script:
@@ -78,10 +78,17 @@ For Linux systems:
 
            # install -m 755 tuptime/src/tuptime /usr/bin/tuptime
 
-       Add _tuptime user:
+       Add _tuptime user with sysusers or useradd, choose one:
 
-           # useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
-             --shell '/bin/false' --comment 'Tuptime execution user' _tuptime
+           With sysusers:
+
+               # install -m 644 tuptime/src/systemd/tuptime.sysusers /usr/lib/sysusers.d/tuptime.conf
+               # systemd-sysusers /usr/lib/sysusers.d/tuptime.conf
+
+           With useradd:
+
+               # useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
+                 --shell '/bin/false' --comment 'Tuptime execution user' _tuptime
 
        Execute tuptime with a privilege user for create DB path:
 
@@ -91,20 +98,21 @@ For Linux systems:
 
            # chown -R _tuptime:_tuptime /var/lib/tuptime
 
-       Copy cron file:
+       Add sync execution with cron or timer, choose one:
 
-           # install -m 644 tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
+           With cron file:
 
-       If it use systemd, copy service file and enable it:
+               # install -m 644 tuptime/src/cron.d/tuptime /etc/cron.d/tuptime
+
+           With systemd timer:
+
+               # install -m 644 tuptime/src/systemd/tuptime-sync.* /lib/systemd/system/
+               # systemctl enable tuptime-sync.timer && systemctl start tuptime-sync.timer
+
+       Copy systemd service file and enable it:
 
            # install -m 644 tuptime/src/systemd/tuptime.service /lib/systemd/system/tuptime.service
            # systemctl enable tuptime.service && systemctl start tuptime.service
-
-           (Alternative) Using systemd timer instead of cron file:
-
-               # install -m 644 tuptime/src/systemd/tuptime-cron.* /lib/systemd/system/
-               # systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
-               # rm /etc/cron.d/tuptime
 
        Or if it is an old RedHat system or derivate, copy the init file:
 
@@ -164,10 +172,12 @@ These are the command line options, no configuration file is used:
                         limit to this startup number
   -b, --bootid          show boot identifier
   -c, --csv             csv output
-  -d DATETM_FORMAT, --date DATETM_FORMAT
+  -d DATETIME_FMT, --date DATETIME_FMT
                         datetime/timestamp format output
-  -e DECIMALS, --dec DECIMALS
+  --dec DECIMALS
                         number of decimals in percentages
+  -E, --exclude STARTUP
+                        startup numbers to exclude
   -f FILE, --filedb FILE
                         database file (/var/lib/tuptime/tuptime.db)
   -g, --graceful        register a graceful shutdown
@@ -178,7 +188,6 @@ These are the command line options, no configuration file is used:
   -o TYPE, --order TYPE
                         order enumerate by [u|r|s|e|d|k]
   -p, --power           show power states run + sleep
-  --pctl [1-99]         show percentile over average
   -r, --reverse         reverse order in list or table output
   -s, --seconds         output time in seconds and epoch
   -S STARTUP, --since STARTUP
@@ -196,7 +205,7 @@ These are the command line options, no configuration file is used:
 
 -A <STARTUP>, --at <STARTUP>
   Limit values only to this startup number. Take it from (-t) table or
-  (-l) list reports. Negative values allowed.
+  (-l) list reports. Negative values are allowed.
 
   Examples:
           tuptime -A 34
@@ -228,7 +237,7 @@ These are the command line options, no configuration file is used:
          tuptime --csv -t
 
 
--d <DATETM_FORMAT>, --date=<DATETM_FORMAT>
+-d <DATETIME_FMT>, --date=<DATETIME_FMT>
   Change the datetime/timestamp format. By default the output use the
   configured system locales. Allow values are:
 
@@ -270,12 +279,23 @@ These are the command line options, no configuration file is used:
          tuptime -d '%H:%M:%S   %d-%b-%Y'  # Spanish style
 
 
--e, DECIMALS, --dec DECIMALS
+--dec DECIMALS
   Change the decimal length in percentages. The number is rounded to this value.
 
   Examples:
-         tuptime -e 7
          tuptime --dec 9
+         tuptime --power --dec 9
+
+
+-E <STARTUP>, --exclude <STARTUP>
+  Avoid take into account the startup numbers defined. Multiple values must be
+  separated by comma ',' and ranges with dash '-'. Default output prints
+  'trimmed' if the excluded numbers are in middle of the range.
+
+  Examples:
+         tuptime -E 9
+         tuptime -E '9-20'
+         tuptime --exclude '2,10-20,50'
 
 
 -f <FILE>, --filedb=<FILE>
@@ -365,15 +385,6 @@ These are the command line options, no configuration file is used:
          tuptime -l --power
 
 
---pctl [1-99]
-  Print the percentil, from the passed argument, applied over uptime and downtime average
-  values on default output. The upper, mid and lower matching range values are shown.
-
-  Examples:
-         tuptime --pctl 95
-         tuptime -p --pctl 50
-
-
 -r, --reverse
   Reverse order for table or list output.
 
@@ -395,7 +406,7 @@ These are the command line options, no configuration file is used:
 
 -S <STARTUP>, --since <STARTUP>
   Limit values only from this startup number. Take it from (-t) table or
-  (-l) list reports. Negative values allowed.
+  (-l) list reports. Negative values are allowed.
 
   Examples:
           tuptime -S 34
@@ -422,7 +433,7 @@ These are the command line options, no configuration file is used:
 
 
 --tsince <TIMESTAMP>
-  Limit report from the given epoch timestamp. Negative values allowed.
+  Limit report from the given epoch timestamp. Negative values are allowed.
   Options (-S) and (-U) have precedence over this one.
 
   Examples:
@@ -432,7 +443,7 @@ These are the command line options, no configuration file is used:
 
 
 --tuntil <TIMESTAMP>
-  Limit report until the given epoch timestamp. Negative values allowed.
+  Limit report until the given epoch timestamp. Negative values are allowed.
   Options (-S) and (-U) have precedence over this one.
 
   Examples:
@@ -443,7 +454,7 @@ These are the command line options, no configuration file is used:
 
 -U <STARTUP>, --until <STARTUP>
   Limit values only up until this startup number. Take it from (-t) table or
-  (-l) list reports. Negative values allowed.
+  (-l) list reports. Negative values are allowed.
 
   Examples:
           tuptime -U 45
@@ -506,9 +517,9 @@ It's important to have a schedule execution. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
 shutdown, but if the system fails, hangs or whatever, the uptime time will
 be lost. Be sure that the cron entry or, in other case, the systemd
-tuptime-cron.[timer|service] units are installed as expected.
+tuptime-syncn.[timer|service] units are installed as expected.
 
-Why it's needed the use of an other .service file with the name tuptime-cron?
+Why it's needed the use of an other .service file with the name tuptime-sync?
 The default tuptime.service file uses the option 'RemainAfterExit=true' and
 nowadays the systemd timer can't restart an already running service, so, this
 is the best workaround.
@@ -535,20 +546,16 @@ System uptime:
 System downtime:
   Percentage of time and time counter.
 
+Longest uptime:
+Longest downtime:
+  Time counter and date with the longest/shortest uptime register. 
+
 Average uptime:
 Average downtime: 
-  Time counter with the average time.
+  Average time counter.
 
 Current uptime:
   Actual time counter and datetime since registered boot timestamp.
-
-
-Removed on version 5 and equivalent output:
-
-  Largest uptime:      tuptime -tor u | head -3
-  Shortest uptime:     tuptime -to u | head -3
-  Largest downtime:    tuptime -tor d | head -3
-  Shortest downtime:   tuptime -to d | head -3
 
 
 

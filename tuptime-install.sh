@@ -2,7 +2,7 @@
 
 #
 # Tuptime installation linux script
-# v.1.8.8
+# v.1.8.9
 #
 # Usage:
 # 	 bash tuptime-install.sh	Default master install
@@ -23,14 +23,15 @@ DEV=0
 
 
 # Check bash execution
-if [ ! -n "$BASH" ]; then
-	echo "--- WARNING - execute only with BASH ---"
+if [ -z "$BASH" ]; then
+	echo "--- ERROR - execute only with BASH ---"
+	exit 1
 fi
 
 # Check root execution
 if [ "$(id -u)" != "0" ]; then
 	echo "Please run this script as root"
-	exit
+	exit 1
 fi
 
 # Test arguments
@@ -48,34 +49,30 @@ if [ "$(expr substr "$(uname -s)" 1 5)" != "Linux" ]; then
 fi
 
 # Test if curl is installed
-curl --version > /dev/null 2>&1
-if [ $? -ne 0 ]; then
+if ! curl --version > /dev/null 2>&1; then
 	echo "ERROR: \"curl\" command not available"
 	echo "Please, install it"; exit 1
 fi
 
 # Test if tar is installed
-tar --version > /dev/null 2>&1
-if [ $? -ne 0 ]; then
+if ! tar --version > /dev/null 2>&1; then
 	echo "ERROR: \"tar\" command not available"
 	echo "Please, install it"; exit 1
 fi
 
 # Test if python is installed
-pyver=$(python3 --version 2> /dev/null)
-if [ $? -ne 0 ]; then
+if ! python3 --version > /dev/null; then
 	echo "ERROR: Python not available"
 	echo "Please, install version 3 or greater"; exit 1
 else
 	# Test if version 3 or avobe of python is installed
-	pynum=$(echo "${pyver}" | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2)
+	pynum=$(python3 --version | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2)
 	if [ "$pynum" -lt 30 ] ; then
-		echo "ERROR: Its needed Python version 3, not ${pyver}"
+		echo "ERROR: Its needed Python version 3"
 		echo "Please, upgrade it."; exit 1
 	else
 		# Test if all modules needed are available
-		pymod=$(python3 -c "import sys, os, argparse, locale, platform, signal, logging, sqlite3, datetime")
-		if [ $? -ne 0 ]; then
+		if ! python3 -c "import sys, os, argparse, locale, platform, signal, logging, sqlite3, datetime"; then
 			echo "ERROR: Please, ensure that these Python modules are available in the local system:"
 			echo "sys, os, optparse, sqlite3, locale, platform, datetime, logging"; exit 1
 		fi
@@ -120,18 +117,28 @@ install -m 755 "${F_TMP1}"/src/tuptime "${D_BIN}"/tuptime || exit
 echo '  [OK]'
 
 echo "+ Creating Tuptime execution user '_tuptime'"
-useradd -h > /dev/null 2>&1
-if [ $? -eq 0 ]; then
+if systemd-sysusers --version > /dev/null 2>&1; then
+	echo "  ...using systemd-sysusers"
+        install -m 644 "${F_TMP1}"/src/systemd/tuptime.sysusers /usr/lib/sysusers.d/tuptime.conf || exit
+        ((SELX)) && restorecon -vF /usr/lib/sysusers.d/tuptime.conf
+	systemd-sysusers /usr/lib/sysusers.d/tuptime.conf && echo '  [OK]'
+
+elif useradd -h > /dev/null 2>&1; then
+	echo "  ...using useradd"
 	useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
-	        --shell '/bin/false' --comment 'Tuptime execution user' "${EXUSR}"
+        	--shell '/bin/false' --comment 'Tuptime execution user' "${EXUSR}" && echo '  [OK]'
+elif adduser -h > /dev/null 2>&1; then
+	echo "  ...using adduser"
+	adduser -S -H -h '/var/lib/tuptime' -s '/bin/false' "${EXUSR}" && echo '  [OK]'
 else
-	adduser -S -H -h '/var/lib/tuptime' -s '/bin/false' "${EXUSR}"
+	echo "#######################################"
+	echo " WARNING - _tuptime user not available"
+	echo "#######################################"
+	echo '  [BAD]'
 fi
-echo '  [OK]'
 
 echo "+ Creating Tuptime db"
-tuptime -x
-echo '  [OK]'
+tuptime -x && echo '  [OK]'
 
 echo "+ Setting Tuptime db ownership"
 ( chown -R "${EXUSR}":"${EXUSR}" /var/lib/tuptime || chown -R "${EXUSR}" /var/lib/tuptime ) || exit
@@ -145,7 +152,7 @@ echo '  [OK]'
 # Install init
 if [ "${PID1}" = 'systemd' ]; then
 	echo "+ Copying Systemd file"
-	cp -a "${F_TMP1}"/src/systemd/tuptime.service "${SYSDPATH}" || exit
+	install -m 644 "${F_TMP1}"/src/systemd/tuptime.service "${SYSDPATH}" || exit
 	((SELX)) && restorecon -vF "${SYSDPATH}"tuptime.service
 	systemctl daemon-reload || exit
 	systemctl enable tuptime.service && systemctl start tuptime.service || exit
@@ -193,17 +200,17 @@ else
 fi
 
 # Install cron
-if [ -d /etc/cron.d/ ]; then
+if [ -d "${SYSDPATH}" ]; then
+	echo "+ Copying tuptime-sync.timer and .service"
+	install -m 644 "${F_TMP1}"/src/systemd/tuptime-sync.*  "${SYSDPATH}" || exit
+	((SELX)) && restorecon -vF "${SYSDPATH}"tuptime-sync.*
+	systemctl enable tuptime-sync.timer && systemctl start tuptime-sync.timer
+	echo '  [OK]'
+
+elif [ -d /etc/cron.d/ ]; then
 	echo "+ Copying Cron file"
 	install -m 644 "${F_TMP1}"/src/cron.d/tuptime /etc/cron.d/tuptime || exit
 	((SELX)) && restorecon -vF /etc/cron.d/tuptime
-	echo '  [OK]'
-
-elif [ -d "${SYSDPATH}" ]; then
-	echo "+ Copying tuptime-cron.timer and .service"
-	install -m 644 "${F_TMP1}"/src/systemd/tuptime-cron.*  "${SYSDPATH}" || exit
-	((SELX)) && restorecon -vF "${SYSDPATH}"tuptime-cron.*
-	systemctl enable tuptime-cron.timer && systemctl start tuptime-cron.timer
 	echo '  [OK]'
 
 elif [ -d /etc/cron.hourly/ ]; then

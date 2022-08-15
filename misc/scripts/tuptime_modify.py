@@ -26,7 +26,7 @@ from shutil import copyfile
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATE_FORMAT = '%X %x'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -97,7 +97,7 @@ def get_arguments():
     if arg.change == 'endst' and arg.seconds:
         parser.error('Operator \"seconds\" can\'t be combined with \"endst\"')
 
-    logging.info('Arguments: %s', str(vars(arg)))
+    logging.info('Arguments: %s', vars(arg))
     return arg
 
 
@@ -110,8 +110,8 @@ def backup_dbf(arg):
         copyfile(arg.db_file, tmp_file)
         print('Backup file:\t' + tmp_file)
     except Exception as exp:
-        logging.error('Can\'t create backup file. %s', str(exp))
-        sys.exit(-1)
+        logging.error('Can\'t create backup file. %s', exp)
+        sys.exit(1)
 
 
 def fix_endst(arg, reg, conn, modt, orgt):
@@ -123,7 +123,7 @@ def fix_endst(arg, reg, conn, modt, orgt):
     print('\t   modified\tendst: ' + str(modt['endst']))
 
     # Update values
-    conn.execute('update tuptime set endst = ' + str(modt['endst']) + ' where rowid = ' + str(reg['target']))
+    conn.execute('update tuptime set endst =? where rowid =?', (modt['endst'], reg['target']))
 
 
 def fix_shutdown(arg, reg, conn, modt, orgt):
@@ -148,21 +148,21 @@ def fix_shutdown(arg, reg, conn, modt, orgt):
         modt['rntime'] = modt['uptime']
         modt['slptime'] = 0
 
-    print('\t   modified\tbtime:    n/a     | uptime: ' + str(modt['uptime']) + ' | rntime: ' + str(modt['rntime']) + ' | slptime: ' + str(modt['slptime']) + ' | offbtime: ' + str(modt['offbtime']) + ' | downtime: ' + str(modt['downtime']))
+    print('\t   modified\tbtime:   --n/a--  | uptime: ' + str(modt['uptime']) + ' | rntime: ' + str(modt['rntime']) + ' | slptime: ' + str(modt['slptime']) + ' | offbtime: ' + str(modt['offbtime']) + ' | downtime: ' + str(modt['downtime']))
 
     # Limit check
     if modt['downtime'] is None or modt['downtime'] < 0 or \
        modt['offbtime'] is None or modt['offbtime'] < 0 or \
        modt['uptime'] < 1 or modt['rntime'] < 1 or modt['slptime'] < 0:
         logging.error('modified values can\'t be None or under limits')
-        sys.exit(-1)
+        sys.exit(1)
 
     # Update values
-    conn.execute('update tuptime set uptime = ' + str(modt['uptime']) + ' where rowid = ' + str(reg['target']))
-    conn.execute('update tuptime set rntime = ' + str(modt['rntime']) + ' where rowid = ' + str(reg['target']))
-    conn.execute('update tuptime set slptime = ' + str(modt['slptime']) + ' where rowid = ' + str(reg['target']))
-    conn.execute('update tuptime set downtime = ' + str(modt['downtime']) + ' where rowid = ' + str(reg['target']))
-    conn.execute('update tuptime set offbtime = ' + str(modt['offbtime']) + ' where rowid = ' + str(reg['target']))
+    conn.execute('update tuptime set uptime =? where rowid =?', (modt['uptime'], reg['target']))
+    conn.execute('update tuptime set rntime =? where rowid =?', (modt['rntime'], reg['target']))
+    conn.execute('update tuptime set slptime =? where rowid =?', (modt['slptime'], reg['target']))
+    conn.execute('update tuptime set downtime =? where rowid =?', (modt['downtime'], reg['target']))
+    conn.execute('update tuptime set offbtime =? where rowid =?', (modt['offbtime'], reg['target']))
 
 
 def fix_startup(arg, reg, conn, modt, orgt, modp, orgp):
@@ -181,18 +181,18 @@ def fix_startup(arg, reg, conn, modt, orgt, modp, orgp):
         modt['rntime'] = modt['uptime']
         modt['slptime'] = 0
 
-    print('\t   modified\tbtime: ' + str(modt['btime']) + ' | uptime: ' + str(modt['uptime']) + ' | rntime: ' + str(modt['rntime']) + ' | slptime: ' + str(modt['slptime']) + ' | offbtime: ----n/a--- | downtime: --n/a-- ')
+    print('\t   modified\tbtime: ' + str(modt['btime']) + ' | uptime: ' + str(modt['uptime']) + ' | rntime: ' + str(modt['rntime']) + ' | slptime: ' + str(modt['slptime']) + ' | offbtime:   --n/a--  | downtime:  --n/a-- ')
 
     # Limit check
     if modt['uptime'] < 1 or modt['rntime'] < 1 or modt['slptime'] < 0:
         logging.error('modified values can\'t be under limits')
-        sys.exit(-1)
+        sys.exit(1)
 
     # Get previous registers to modify except from first row
     if reg['prev'] > 0:
 
         # Get values from previous row
-        conn.execute('select downtime from tuptime where rowid = ' + str(reg['prev']))
+        conn.execute('select downtime from tuptime where rowid =?', (reg['prev'],))
         orgp['downtime'] = conn.fetchone()[0]
 
         modp['downtime'] = orgp['downtime'] + arg.seconds
@@ -204,15 +204,15 @@ def fix_startup(arg, reg, conn, modt, orgt, modp, orgp):
         # Limit check
         if modp['downtime'] < 0:
             logging.error('downtime can\'t be lower than 0')
-            sys.exit(-1)
+            sys.exit(1)
 
-        conn.execute('update tuptime set downtime = ' + str(modp['downtime']) + ' where rowid = ' + str(reg['prev']))
+        conn.execute('update tuptime set downtime =? where rowid =?', (modp['downtime'], reg['prev']))
 
     # Update values
-    conn.execute('update tuptime set btime = ' + str(modt['btime']) + ' where rowid = ' + str(reg['target']))
-    conn.execute('update tuptime set uptime = ' + str(modt['uptime']) + ' where rowid = ' + str(reg['target']))
-    conn.execute('update tuptime set rntime = ' + str(modt['rntime']) + ' where rowid = ' + str(reg['target']))
-    conn.execute('update tuptime set slptime = ' + str(modt['slptime']) + ' where rowid = ' + str(reg['target']))
+    conn.execute('update tuptime set btime =? where rowid =?', (modt['btime'], reg['target']))
+    conn.execute('update tuptime set uptime =? where rowid =?', (modt['uptime'], reg['target']))
+    conn.execute('update tuptime set rntime =? where rowid =?', (modt['rntime'], reg['target']))
+    conn.execute('update tuptime set slptime =? where rowid =?', (modt['slptime'], reg['target']))
 
 
 def main():
@@ -230,18 +230,19 @@ def main():
 
     db_conn = sqlite3.connect(arg.db_file)
     db_conn.row_factory = sqlite3.Row
+    db_conn.set_trace_callback(logging.info)
     conn = db_conn.cursor()
 
     # Check if DB have the old format
     columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
     if 'rntime' and 'slptime' and 'bootid' not in columns:
         logging.error('DB format outdated')
-        sys.exit(-1)
+        sys.exit(1)
 
     # Print raw rows
     if arg.verbose:
         print('\nTarget registers before: ')
-        conn.execute('select rowid as startup, * from tuptime where rowid between ' + str(reg['prev']) + ' and ' + str(reg['target']))
+        conn.execute('select rowid as startup, * from tuptime where rowid between ? and ?', (reg['prev'], reg['target']))
         db_rows = conn.fetchall()
         for row in db_rows:
             print("\t", end='')
@@ -252,10 +253,10 @@ def main():
     max_register = conn.fetchone()[0]
     if reg['target'] > max_register or reg['target'] < 1:
         logging.error('Invalid register to modify. Out of range')
-        sys.exit(-1)
+        sys.exit(1)
 
     # Get values from target row
-    conn.execute('select btime, uptime, rntime, slptime, offbtime, endst, downtime from tuptime where rowid = ' + str(reg['target']))
+    conn.execute('select btime, uptime, rntime, slptime, offbtime, endst, downtime from tuptime where rowid =?', (reg['target'],))
     orgt['btime'], orgt['uptime'], orgt['rntime'], orgt['slptime'], orgt['offbtime'], orgt['endst'], orgt['downtime'] = conn.fetchone()
 
     print('\nValues:')
@@ -281,7 +282,7 @@ def main():
     # Print raw rows
     if arg.verbose:
         print('\nTarget registers after: ')
-        conn.execute('select rowid as startup, * from tuptime where rowid between ' + str(reg['prev']) + ' and ' + str(reg['target']))
+        conn.execute('select rowid as startup, * from tuptime where rowid between ? and ?', (reg['prev'], reg['target']))
         db_rows = conn.fetchall()
         for row in db_rows:
             print("\t", end='')

@@ -32,7 +32,7 @@ Check owner (usually tuptime:tuptime) and copy modified file to right location. 
 import sys, argparse, locale, signal, logging, sqlite3
 from shutil import copyfile
 
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -74,7 +74,7 @@ def get_arguments():
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
         logging.info('Version: %s', (__version__))
 
-    logging.info('Arguments: %s', str(vars(arg)))
+    logging.info('Arguments: %s', vars(arg))
     return arg
 
 
@@ -84,11 +84,13 @@ def order_files(arg):
     # Open file0 DB
     db_conn0 = sqlite3.connect(arg.files[0])
     db_conn0.row_factory = sqlite3.Row
+    db_conn0.set_trace_callback(logging.info)
     conn0 = db_conn0.cursor()
 
     # Open file1 DB
     db_conn1 = sqlite3.connect(arg.files[1])
     db_conn1.row_factory = sqlite3.Row
+    db_conn1.set_trace_callback(logging.info)
     conn1 = db_conn1.cursor()
 
     # Check if DBs have the old format
@@ -96,7 +98,7 @@ def order_files(arg):
         columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
         if 'rntime' and 'slptime' and 'bootid' not in columns:
             logging.error('DB format outdated on file: %', str(fname))
-            sys.exit(-1)
+            sys.exit(1)
 
     # Check older file
     conn0.execute('select btime from tuptime where rowid = (select min(rowid) from tuptime)')
@@ -127,11 +129,13 @@ def main():
     # Open file0 DB
     db_conn0 = sqlite3.connect(fl0['path'])
     db_conn0.row_factory = sqlite3.Row
+    db_conn0.set_trace_callback(logging.info)
     conn0 = db_conn0.cursor()
 
     # Open file1 DB
     db_conn1 = sqlite3.connect(fl1['path'])
     db_conn1.row_factory = sqlite3.Row
+    db_conn1.set_trace_callback(logging.info)
     conn1 = db_conn1.cursor()
 
     # Get all rows from source file0 and print raw rows
@@ -149,7 +153,7 @@ def main():
     fl0['offbtime'] = fl0['btime'] + fl0['uptime']
 
     # Get all rows from file1 where btime is greater than file0 offbtime
-    conn1.execute('select rowid as startup, * from tuptime where btime > ' + str(fl0['offbtime']))
+    conn1.execute('select rowid as startup, * from tuptime where btime >?', (fl0['offbtime'],))
     db_rows = conn1.fetchall()
 
     print('\nRows to add from newer file: \t' + str(len(db_rows)))
@@ -162,8 +166,8 @@ def main():
 
             print(' Fix shutdown values on row: ' + str(fl0['startup']))
             fl0['downtime'] = row['btime'] - fl0['offbtime']
-            conn0.execute('update tuptime set offbtime = ' + str(fl0['offbtime']) + ', endst = 1, downtime = ' + str(fl0['downtime']) +
-                          ' where rowid = (select max(rowid) from tuptime)')
+            conn0.execute('update tuptime set offbtime =?, endst = 1, downtime =? '
+                          'where rowid = (select max(rowid) from tuptime)', (fl0['offbtime'], fl0['downtime']))
             if arg.verbose:
                 print('\toffbtime = ' + str(fl0['offbtime']))
                 print('\tendst = 1')
@@ -172,7 +176,7 @@ def main():
         # Add registers to file0
         print(' Adding startup row: ' + str(row['startup']))
         conn0.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
-                      (str(row['bootid']), str(row['btime']), str(row['uptime']), str(row['rntime']), str(row['slptime']), str(row['offbtime']), str(row['endst']), str(row['downtime']), str(row['kernel'])))
+                      (row['bootid'], row['btime'], row['uptime'], row['rntime'], row['slptime'], row['offbtime'], row['endst'], row['downtime'], row['kernel']))
         if arg.verbose:
             print('\tbootid = ' + str(row['bootid']))
             print('\tbtime = ' + str(row['btime']))
