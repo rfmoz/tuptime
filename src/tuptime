@@ -73,7 +73,7 @@ def get_arguments():
         help='datetime/timestamp format output'
     )
     parser.add_argument(
-        '--dec',
+        '-e', '--dec',
         dest='dec',
         default=2,
         metavar='DECIMALS',
