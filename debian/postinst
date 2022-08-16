@@ -47,20 +47,6 @@ case "$1" in
 			fi
 		fi
 
-		# Remove obsolete cron configuration
-		if [ -f /etc/cron.d/tuptime ]; then
-			echo -n "Removing obsolete cron configuration... "
-			rm -f /etc/cron.d/tuptime
-			echo "done"
-		fi
-
-		# Remove obsolete example files
-		if [ -d /usr/share/doc/tuptime/examples/ ]; then
-			echo -n "Removing obsolete example files... "
-			rm -rf /usr/share/doc/tuptime/examples/
-			echo "done"
-		fi
-
 		su -s /bin/sh _tuptime -c "tuptime -x"
 	;;
 
