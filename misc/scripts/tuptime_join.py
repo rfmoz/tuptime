@@ -84,13 +84,13 @@ def order_files(arg):
     # Open file0 DB
     db_conn0 = sqlite3.connect(arg.files[0])
     db_conn0.row_factory = sqlite3.Row
-    db_conn0.set_trace_callback(logging.info)
+    db_conn0.set_trace_callback(logging.debug)
     conn0 = db_conn0.cursor()
 
     # Open file1 DB
     db_conn1 = sqlite3.connect(arg.files[1])
     db_conn1.row_factory = sqlite3.Row
-    db_conn1.set_trace_callback(logging.info)
+    db_conn1.set_trace_callback(logging.debug)
     conn1 = db_conn1.cursor()
 
     # Check if DBs have the old format
@@ -129,13 +129,13 @@ def main():
     # Open file0 DB
     db_conn0 = sqlite3.connect(fl0['path'])
     db_conn0.row_factory = sqlite3.Row
-    db_conn0.set_trace_callback(logging.info)
+    db_conn0.set_trace_callback(logging.debug)
     conn0 = db_conn0.cursor()
 
     # Open file1 DB
     db_conn1 = sqlite3.connect(fl1['path'])
     db_conn1.row_factory = sqlite3.Row
-    db_conn1.set_trace_callback(logging.info)
+    db_conn1.set_trace_callback(logging.debug)
     conn1 = db_conn1.cursor()
 
     # Get all rows from source file0 and print raw rows

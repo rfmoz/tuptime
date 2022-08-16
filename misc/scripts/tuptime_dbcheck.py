@@ -214,7 +214,7 @@ def main():
 
     db_conn = sqlite3.connect(arg.db_file)
     db_conn.row_factory = sqlite3.Row
-    db_conn.set_trace_callback(logging.info)
+    db_conn.set_trace_callback(logging.debug)
     conn = db_conn.cursor()
 
     # Check if DB have the old format
