@@ -1,3 +1,12 @@
+tuptime (5.2.1) unstable; urgency=low
+
+  * Set cron file with systemd execute exclusion on .deb package
+  * Return -e option as an argument for --dec decimals
+  * Update .deb package
+  * Update .rpm package
+
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Fri, 19 Aug 2022 16:21:00 +0100
+
 tuptime (5.2.0) unstable; urgency=low
 
   * Rename timer units to tuptime-sync.timer and tuptime-sync.service
