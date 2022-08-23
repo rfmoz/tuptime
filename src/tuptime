@@ -24,7 +24,7 @@ from datetime import datetime
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATETIME_FMT = '%X %x'
-__version__ = '5.2.0'
+__version__ = '5.2.1'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -73,7 +73,7 @@ def get_arguments():
         help='datetime/timestamp format output'
     )
     parser.add_argument(
-        '--dec',
+        '-e', '--dec',
         dest='dec',
         default=2,
         metavar='DECIMALS',
@@ -453,7 +453,7 @@ def gain_db(sis, arg):
         else:
             logging.info('Making DB file = %s', arg.db_file)
             db_conn = sqlite3.connect(arg.db_file)
-            db_conn.set_trace_callback(logging.info)
+            db_conn.set_trace_callback(logging.debug)
             conn = db_conn.cursor()
             conn.execute('BEGIN deferred')
             conn.execute('create table tuptime'
@@ -474,7 +474,7 @@ def gain_db(sis, arg):
         logging.info('Getting DB connection')
         db_conn = sqlite3.connect(arg.db_file)
         db_conn.row_factory = sqlite3.Row
-        db_conn.set_trace_callback(logging.info)
+        db_conn.set_trace_callback(logging.debug)
         conn = db_conn.cursor()
         conn.execute('BEGIN deferred')
     except Exception as exp_conn:
