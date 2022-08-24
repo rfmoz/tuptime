@@ -756,27 +756,26 @@ def print_list(db_rows, last_st, arg):
     db_rows = ordering_output(db_rows, arg, last_st)
 
     if arg.csv:  # Set content/spaces between values
-        sp0, sp8 = '"', ''
+        sp0, sp5 = '"', ''
         sp1 = sp2 = '","'
     else:
-        sp1, sp2 = '  ', ': '
-        sp8, sp0 = ' ', ''
+        sp0, sp1, sp2, sp5 = '', '  ', ': ', ' '
 
     for row_dict in format_output(db_rows, arg):
 
-        print(sp0 + 'Startup' + sp2 + sp8 + str(row_dict['startup']), end='')
+        print(sp0 + 'Startup' + sp2 + sp5 + str(row_dict['startup']), end='')
         if row_dict['btime']:
             print(sp1 + 'at' + sp1 + str(row_dict['btime']), end='')
         print(sp0)
 
         if arg.bootid and row_dict['bootid']:
-            print(sp0 + 'Boot ID' + sp2 + sp8 + str(row_dict['bootid']) + sp0)
+            print(sp0 + 'Boot ID' + sp2 + sp5 + str(row_dict['bootid']) + sp0)
 
         if row_dict['uptime']:
-            print(sp0 + 'Uptime' + sp2 + (sp8 * 2) + str(row_dict['uptime']) + sp0)
+            print(sp0 + 'Uptime' + sp2 + (sp5 * 2) + str(row_dict['uptime']) + sp0)
 
             if arg.power:
-                print(sp0 + 'Running' + sp2 + sp8 + str(row_dict['rntime']) + sp0)
+                print(sp0 + 'Running' + sp2 + sp5 + str(row_dict['rntime']) + sp0)
                 print(sp0 + 'Sleeping' + sp2 + str(row_dict['slptime']) + sp0)
 
         if row_dict['offbtime']:
@@ -786,7 +785,7 @@ def print_list(db_rows, last_st, arg):
             print(sp0 + 'Downtime' + sp2 + str(row_dict['downtime']) + sp0)
 
         if arg.kernel and row_dict['kernel']:
-            print(sp0 + 'Kernel' + sp2 + (sp8 * 2) + str(row_dict['kernel']) + sp0)
+            print(sp0 + 'Kernel' + sp2 + (sp5 * 2) + str(row_dict['kernel']) + sp0)
 
         if not arg.csv: print('')
 
@@ -910,19 +909,19 @@ def print_tat(db_rows, sis, last_st, arg):
         report['time_fwd'] = time_conv(report['time_fwd'])
 
     if arg.csv:  # Set content/spaces between values
-        sp0, sp8 = '"', ''
-        sp2 = sp5 = sp9 = '","'
+        sp0, sp5 = '"', ''
+        sp2 = sp3 = '","'
     else:
-        sp0, sp2, sp9 = '', ':\t\t', '  =  '
-        sp8, sp5 = ' ', '  '
+        sp0, sp2 = '', ':\t\t'
+        sp5, sp3 = ' ', '  '
 
-    print(sp0 + 'System status' + sp2 + str(report['status']) + sp5 + 'at' + sp5 + str(report['at']) + sp5 + 'on' + sp5 + str(report['startup']) + sp0)
+    print(sp0 + 'System status' + sp2 + str(report['status']) + sp3 + 'at' + sp3 + str(report['at']) + sp3 + 'on' + sp3 + str(report['startup']) + sp0)
     if arg.bootid:
-        print(sp0 + (sp8 * 3) + '...boot ID' + sp2 + str(report['bootid']) + sp0)
+        print(sp0 + (sp5 * 3) + '...boot ID' + sp2 + str(report['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp8 * 4) + '...kernel' + sp2 + str(report['kernel']) + sp0)
-    print(sp0 + (sp8 * 3) + 'elapsed in' + sp2 + str(perctg_1) + '%' + sp9 + str(report['time']) + sp0)
-    print(sp0 + (sp8 * 1) + 'remaining in' + sp2 + str(perctg_2) + '%' + sp9 + str(report['time_fwd']) + sp0)
+        print(sp0 + (sp5 * 4) + '...kernel' + sp2 + str(report['kernel']) + sp0)
+    print(sp0 + (sp5 * 3) + 'elapsed in' + sp2 + str(perctg_1) + '%' + sp3 + '=' + sp3 + str(report['time']) + sp0)
+    print(sp0 + (sp5 * 1) + 'remaining in' + sp2 + str(perctg_2) + '%' + sp3 + '=' + sp3 + str(report['time_fwd']) + sp0)
 
 
 def print_default(db_rows, sis, arg):
@@ -1042,12 +1041,11 @@ def print_default(db_rows, sis, arg):
 
     # Prepare values for print
     if arg.csv:  # Set content/spaces between values
-        sp0, sp8 = '"', ''
-        sp1 = sp4 = sp5 = sp7 = sp9 = '","'
+        sp0, sp5 = '"', ''
+        sp1 = sp4 = sp3 = '","'
     else:
-        sp1, sp5 = ': \t', '  '
-        sp9, sp7, sp0 = '  =  ', '  +  ', ''
-        sp4 = sp8 = ' '
+        sp0, sp1, sp3 = '', ': \t', '  '
+        sp4 = sp5 = ' '
 
     uptime = {'average': str(cal['ave']['uptime']), 'sys_rate': str(rate['uptime']) + '%', 'sys_time': str(cal['tot']['uptime']), 'current': str(sis['uptime']),
               'large': str(far['max-up']['uptime']), 'short': str(far['min-up']['uptime'])}
@@ -1063,15 +1061,15 @@ def print_default(db_rows, sis, arg):
         uptime['sys_time'] += sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')'
 
     # System block print
-    print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']), end='')
+    print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp3 + 'since' + sp3 + str(tstamp['min']), end='')
     if arg.tu or arg.until:
-        print(sp5 + 'until' + sp5 + str(tstamp['max']), end='')
+        print(sp3 + 'until' + sp3 + str(tstamp['max']), end='')
     if range_trim:
-        print(sp5 + 'trimmed', end='')
+        print(sp3 + 'trimmed', end='')
     print(sp0)
 
-    print(sp0 + 'System shutdowns' + sp1 + str(updown['ok']) + sp4 + 'ok' + sp7 + str(updown['bad']) + sp4 + 'bad' + sp0)
-    print(sp0 + 'System life' + sp1 + (sp8 * 8) + str(sys_life) + sp0)
+    print(sp0 + 'System shutdowns' + sp1 + str(updown['ok']) + sp4 + 'ok' + sp3 + '+' + sp3 + str(updown['bad']) + sp4 + 'bad' + sp0)
+    print(sp0 + 'System life' + sp1 + (sp5 * 8) + str(sys_life) + sp0)
     if arg.bootid:
         print(sp0 + 'System boot IDs' + sp1 + str(len(set(cnt['bootid']))) + sp0)
     if arg.kernel:
@@ -1084,15 +1082,15 @@ def print_default(db_rows, sis, arg):
     else:
         gest = ['Shortest', 'short', 'min-up']
     if far[gest[2]]['btime'] is not False:
-        print(sp0 + gest[0] + ' uptime' + sp1 + uptime[gest[1]] + sp5 + 'from' + sp5 + str(far[gest[2]]['btime']) + sp0)
+        print(sp0 + gest[0] + ' uptime' + sp1 + uptime[gest[1]] + sp3 + 'from' + sp3 + str(far[gest[2]]['btime']) + sp0)
     else:
         print(sp0 + gest[0] + ' uptime' + sp1 + uptime[gest[1]] + sp0)
     if arg.bootid:
-        print(sp0 + (sp8 * 4) + '...boot ID' + sp1 + str(far[gest[2]]['bootid']) + sp0)
+        print(sp0 + (sp5 * 4) + '...boot ID' + sp1 + str(far[gest[2]]['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp8 * 5) + '...kernel' + sp1 + str(far[gest[2]]['kernel']) + sp0)
+        print(sp0 + (sp5 * 5) + '...kernel' + sp1 + str(far[gest[2]]['kernel']) + sp0)
     print(sp0 + 'Average uptime' + sp1 + uptime['average'] + sp0)
-    print(sp0 + 'System uptime' + sp1 + (sp8 * 8) + uptime['sys_rate'] + sp9 + uptime['sys_time'] + sp0)
+    print(sp0 + 'System uptime' + sp1 + (sp5 * 8) + uptime['sys_rate'] + sp3 + '=' + sp3 + uptime['sys_time'] + sp0)
     if not arg.csv: print('')
 
     # Downtime block print
@@ -1101,24 +1099,24 @@ def print_default(db_rows, sis, arg):
     else:
         gest = ['Shortest', 'short', 'min-down']
     if far[gest[2]]['offbtime'] is not False:
-        print(sp0 + gest[0] + ' downtime' + sp1 + downtime[gest[1]] + sp5 + 'from' + sp5 + str(far[gest[2]]['offbtime']) + sp0)
+        print(sp0 + gest[0] + ' downtime' + sp1 + downtime[gest[1]] + sp3 + 'from' + sp3 + str(far[gest[2]]['offbtime']) + sp0)
     else:
         print(sp0 + gest[0] + ' downtime' + sp1 + downtime[gest[1]] + sp0)
     if arg.bootid:
-        print(sp0 + (sp8 * 6) + '...boot ID' + sp1 + str(far[gest[2]]['bootid']) + sp0)
+        print(sp0 + (sp5 * 6) + '...boot ID' + sp1 + str(far[gest[2]]['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp8 * 7) + '...kernel' + sp1 + str(far[gest[2]]['kernel']) + sp0)
+        print(sp0 + (sp5 * 7) + '...kernel' + sp1 + str(far[gest[2]]['kernel']) + sp0)
     print(sp0 + 'Average downtime' + sp1 + downtime['average'] + sp0)
-    print(sp0 + 'System downtime' + sp1 + downtime['sys_rate'] + sp9 + downtime['sys_time'] + sp0)
+    print(sp0 + 'System downtime' + sp1 + downtime['sys_rate'] + sp3 + '=' + sp3 + downtime['sys_time'] + sp0)
 
     # Current block print
     if arg.update:
         if not arg.csv: print('')
-        print(sp0 + 'Current uptime' + sp1 + uptime['current'] + sp5 + 'since' + sp5 + str(sis['btime']) + sp0)
+        print(sp0 + 'Current uptime' + sp1 + uptime['current'] + sp3 + 'since' + sp3 + str(sis['btime']) + sp0)
         if arg.bootid:
-            print(sp0 + (sp8 * 4) + '...boot ID' + sp1 + str(sis['bootid']) + sp0)
+            print(sp0 + (sp5 * 4) + '...boot ID' + sp1 + str(sis['bootid']) + sp0)
         if arg.kernel:
-            print(sp0 + (sp8 * 5) + '...kernel' + sp1 + str(sis['kernel']) + sp0)
+            print(sp0 + (sp5 * 5) + '...kernel' + sp1 + str(sis['kernel']) + sp0)
 
 
 def output_hub(db_rows, sis, arg):
