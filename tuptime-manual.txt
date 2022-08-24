@@ -1,7 +1,7 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 5.2.1
+                              version 5.2.2
                                 Ricardo F.
                                19/Aug/2022
 
@@ -188,7 +188,8 @@ These are the command line options, no configuration file is used:
   -o TYPE, --order TYPE
                         order enumerate by [u|r|s|e|d|k]
   -p, --power           show power states run + sleep
-  -r, --reverse         reverse order in list or table output
+  -r, --reverse         reverse order in listings | swich between
+                        longest/shortest on default output
   -s, --seconds         output time in seconds and epoch
   -S STARTUP, --since STARTUP
                         limit from this startup number
@@ -386,10 +387,11 @@ These are the command line options, no configuration file is used:
 
 
 -r, --reverse
-  Reverse order for table or list output.
+  Reverse order for table or list output. Change Longest to Shortest values on
+  default output report.
 
   Examples:
-         tuptime -tr
+         tuptime -r
          tuptime -lur
          tuptime -teo --reverse
          tuptime -l --reverse

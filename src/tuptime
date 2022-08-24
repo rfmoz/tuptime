@@ -24,7 +24,7 @@ from datetime import datetime
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATETIME_FMT = '%X %x'
-__version__ = '5.2.1'
+__version__ = '5.2.2'
 
 # Terminate when SIGPIPE signal is received
 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
@@ -171,7 +171,7 @@ def get_arguments():
         dest='reverse',
         default=False,
         action='store_true',
-        help='reverse order in list or table output'
+        help='reverse order in listings | swich between longest/shortest on default output'
     )
     parser.add_argument(
         '-s', '--seconds',
@@ -949,10 +949,16 @@ def print_default(db_rows, sis, arg):
                     cnt[key].append(row[key])
 
             # Get limits for uptime and downtime values
-            if row['uptime'] and far['max-up']['uptime'] <= row['uptime']:
-                far['max-up'] = row.copy()
-            if row['downtime'] and far['max-down']['downtime'] <= row['downtime']:
-                far['max-down'] = row.copy()
+            if row['uptime']:
+                if far['max-up']['bootid'] is None or far['max-up']['uptime'] <= row['uptime']:
+                    far['max-up'] = row.copy()
+                if far['min-up']['bootid'] is None or far['min-up']['uptime'] >= row['uptime']:
+                    far['min-up'] = row.copy()
+            if row['downtime']:
+                if far['max-down']['bootid'] is None or far['max-down']['downtime'] <= row['downtime']:
+                    far['max-down'] = row.copy()
+                if far['min-down']['bootid'] is None or far['min-down']['downtime'] >= row['downtime']:
+                    far['min-down'] = row.copy()
 
         return updown, cnt, far
 
@@ -967,7 +973,8 @@ def print_default(db_rows, sis, arg):
     def2 = {'bootid': None, 'btime': False, 'offbtime': False, 'kernel': None, 'startup': None}
 
     cal = {'tot': def1.copy(), 'ave': def1.copy()}
-    far = {'max-up': {**def1.copy(), **def2.copy()}, 'max-down': {**def1.copy(), **def2.copy()}}
+    far = {'max-up': {**def1.copy(), **def2.copy()}, 'max-down': {**def1.copy(), **def2.copy()},
+           'min-up': {**def1.copy(), **def2.copy()}, 'min-down': {**def1.copy(), **def2.copy()}}
     rate = {k: float(v) for k, v in def1.items()}  # Float values of def1
 
     # Get values from all DB rows
@@ -1043,18 +1050,19 @@ def print_default(db_rows, sis, arg):
         sp4 = sp8 = ' '
 
     uptime = {'average': str(cal['ave']['uptime']), 'sys_rate': str(rate['uptime']) + '%', 'sys_time': str(cal['tot']['uptime']), 'current': str(sis['uptime']),
-              'large': str(far['max-up']['uptime'])}
+              'large': str(far['max-up']['uptime']), 'short': str(far['min-up']['uptime'])}
     downtime = {'average': str(cal['ave']['downtime']), 'sys_rate': str(rate['downtime']) + '%', 'sys_time': str(cal['tot']['downtime']),
-                'large': str(far['max-down']['downtime'])}
+                'large': str(far['max-down']['downtime']), 'short': str(far['min-down']['downtime'])}
 
     if arg.power:
         uptime['average'] += sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')'
         uptime['large'] += sp4 + '(rn: ' + str(far['max-up']['rntime']) + ' + slp: ' + str(far['max-up']['slptime']) + ')'
+        uptime['short'] += sp4 + '(rn: ' + str(far['min-up']['rntime']) + ' + slp: ' + str(far['min-up']['slptime']) + ')'
         uptime['current'] += sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')'
         uptime['sys_rate'] += sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)'
         uptime['sys_time'] += sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')'
 
-    # Finally print all
+    # System block print
     print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp5 + 'since' + sp5 + str(tstamp['min']), end='')
     if arg.tu or arg.until:
         print(sp5 + 'until' + sp5 + str(tstamp['max']), end='')
@@ -1070,29 +1078,40 @@ def print_default(db_rows, sis, arg):
         print(sp0 + 'System kernels' + sp1 + str(len(set(cnt['kernel']))) + sp0)
     if not arg.csv: print('')
 
-    if far['max-up']['btime'] is not False:
-        print(sp0 + 'Longest uptime' + sp1 + uptime['large'] + sp5 + 'from' + sp5 + str(far['max-up']['btime']) + sp0)
+    # Uptime block print
+    if not arg.reverse:
+        gest = ['Longest', 'large', 'max-up']
     else:
-        print(sp0 + 'Longest uptime' + sp1 + uptime['large'] + sp0)
+        gest = ['Shortest', 'short', 'min-up']
+    if far[gest[2]]['btime'] is not False:
+        print(sp0 + gest[0] + ' uptime' + sp1 + uptime[gest[1]] + sp5 + 'from' + sp5 + str(far[gest[2]]['btime']) + sp0)
+    else:
+        print(sp0 + gest[0] + ' uptime' + sp1 + uptime[gest[1]] + sp0)
     if arg.bootid:
-        print(sp0 + (sp8 * 4) + '...boot ID' + sp1 + str(far['max-up']['bootid']) + sp0)
+        print(sp0 + (sp8 * 4) + '...boot ID' + sp1 + str(far[gest[2]]['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp8 * 5) + '...kernel' + sp1 + str(far['max-up']['kernel']) + sp0)
+        print(sp0 + (sp8 * 5) + '...kernel' + sp1 + str(far[gest[2]]['kernel']) + sp0)
     print(sp0 + 'Average uptime' + sp1 + uptime['average'] + sp0)
     print(sp0 + 'System uptime' + sp1 + (sp8 * 8) + uptime['sys_rate'] + sp9 + uptime['sys_time'] + sp0)
     if not arg.csv: print('')
 
-    if far['max-down']['offbtime'] is not False:
-        print(sp0 + 'Longest downtime' + sp1 + downtime['large'] + sp5 + 'from' + sp5 + str(far['max-down']['offbtime']) + sp0)
+    # Downtime block print
+    if not arg.reverse:
+        gest = ['Longest', 'large', 'max-down']
     else:
-        print(sp0 + 'Longest downtime' + sp1 + downtime['large'] + sp0)
+        gest = ['Shortest', 'short', 'min-down']
+    if far[gest[2]]['offbtime'] is not False:
+        print(sp0 + gest[0] + ' downtime' + sp1 + downtime[gest[1]] + sp5 + 'from' + sp5 + str(far[gest[2]]['offbtime']) + sp0)
+    else:
+        print(sp0 + gest[0] + ' downtime' + sp1 + downtime[gest[1]] + sp0)
     if arg.bootid:
-        print(sp0 + (sp8 * 6) + '...boot ID' + sp1 + str(far['max-down']['bootid']) + sp0)
+        print(sp0 + (sp8 * 6) + '...boot ID' + sp1 + str(far[gest[2]]['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp8 * 7) + '...kernel' + sp1 + str(far['max-down']['kernel']) + sp0)
+        print(sp0 + (sp8 * 7) + '...kernel' + sp1 + str(far[gest[2]]['kernel']) + sp0)
     print(sp0 + 'Average downtime' + sp1 + downtime['average'] + sp0)
     print(sp0 + 'System downtime' + sp1 + downtime['sys_rate'] + sp9 + downtime['sys_time'] + sp0)
 
+    # Current block print
     if arg.update:
         if not arg.csv: print('')
         print(sp0 + 'Current uptime' + sp1 + uptime['current'] + sp5 + 'since' + sp5 + str(sis['btime']) + sp0)
