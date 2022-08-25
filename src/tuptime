@@ -927,7 +927,7 @@ def print_tat(db_rows, sis, last_st, arg):
 def print_default(db_rows, sis, arg):
     """Print values with default output"""
 
-    def parse_rows(db_rows, updown, cnt, far):
+    def parse_rows(db_rows, updown, cnt, lmt):
         """Loop along all DB rows"""
 
         for row in db_rows:
@@ -949,17 +949,17 @@ def print_default(db_rows, sis, arg):
 
             # Get limits for uptime and downtime values
             if row['uptime']:
-                if far['max-up']['bootid'] is None or far['max-up']['uptime'] <= row['uptime']:
-                    far['max-up'] = row.copy()
-                if far['min-up']['bootid'] is None or far['min-up']['uptime'] >= row['uptime']:
-                    far['min-up'] = row.copy()
+                if lmt['max-up']['bootid'] is None or lmt['max-up']['uptime'] <= row['uptime']:
+                    lmt['max-up'] = row.copy()
+                if lmt['min-up']['bootid'] is None or lmt['min-up']['uptime'] >= row['uptime']:
+                    lmt['min-up'] = row.copy()
             if row['downtime']:
-                if far['max-down']['bootid'] is None or far['max-down']['downtime'] <= row['downtime']:
-                    far['max-down'] = row.copy()
-                if far['min-down']['bootid'] is None or far['min-down']['downtime'] >= row['downtime']:
-                    far['min-down'] = row.copy()
+                if lmt['max-down']['bootid'] is None or lmt['max-down']['downtime'] <= row['downtime']:
+                    lmt['max-down'] = row.copy()
+                if lmt['min-down']['bootid'] is None or lmt['min-down']['downtime'] >= row['downtime']:
+                    lmt['min-down'] = row.copy()
 
-        return updown, cnt, far
+        return updown, cnt, lmt
 
     # Set default values
     updown = {'startups': 0, 'shutdowns': 0, 'ok': 0, 'bad': 0}
@@ -972,12 +972,12 @@ def print_default(db_rows, sis, arg):
     def2 = {'bootid': None, 'btime': False, 'offbtime': False, 'kernel': None, 'startup': None}
 
     cal = {'tot': def1.copy(), 'ave': def1.copy()}
-    far = {'max-up': {**def1.copy(), **def2.copy()}, 'max-down': {**def1.copy(), **def2.copy()},
+    lmt = {'max-up': {**def1.copy(), **def2.copy()}, 'max-down': {**def1.copy(), **def2.copy()},
            'min-up': {**def1.copy(), **def2.copy()}, 'min-down': {**def1.copy(), **def2.copy()}}
     rate = {k: float(v) for k, v in def1.items()}  # Float values of def1
 
     # Get values from all DB rows
-    updown, cnt, far = parse_rows(db_rows, updown, cnt, far)
+    updown, cnt, lmt = parse_rows(db_rows, updown, cnt, lmt)
 
     # Max timestamp - until datetime
     # Get rightmost (older) value from last row if arg.tu is not used
@@ -1028,16 +1028,16 @@ def print_default(db_rows, sis, arg):
             for k in cal:
                 if cal[k][key] is not False:
                     cal[k][key] = time_conv(cal[k][key])
-            for k in far:
-                if far[k][key] is not False:
-                    far[k][key] = time_conv(far[k][key])
+            for k in lmt:
+                if lmt[k][key] is not False:
+                    lmt[k][key] = time_conv(lmt[k][key])
 
         for key in ('btime', 'offbtime'):
             if sis[key] is not None:
                 sis[key] = datetime.fromtimestamp(sis[key]).strftime(arg.dtm_format)
-            for k in far:
-                if far[k][key] is not False:
-                    far[k][key] = datetime.fromtimestamp(far[k][key]).strftime(arg.dtm_format)
+            for k in lmt:
+                if lmt[k][key] is not False:
+                    lmt[k][key] = datetime.fromtimestamp(lmt[k][key]).strftime(arg.dtm_format)
 
     # Prepare values for print
     if arg.csv:  # Set content/spaces between values
@@ -1047,15 +1047,20 @@ def print_default(db_rows, sis, arg):
         sp0, sp1, sp3 = '', ': \t', '  '
         sp4 = sp5 = ' '
 
+    if arg.reverse:
+        est = ['Shortest', 'short', 'min-up', 'min-down']
+    else:
+        est = ['Longest', 'large', 'max-up', 'max-down']
+
     uptime = {'average': str(cal['ave']['uptime']), 'sys_rate': str(rate['uptime']) + '%', 'sys_time': str(cal['tot']['uptime']), 'current': str(sis['uptime']),
-              'large': str(far['max-up']['uptime']), 'short': str(far['min-up']['uptime'])}
+              'large': str(lmt['max-up']['uptime']), 'short': str(lmt['min-up']['uptime'])}
     downtime = {'average': str(cal['ave']['downtime']), 'sys_rate': str(rate['downtime']) + '%', 'sys_time': str(cal['tot']['downtime']),
-                'large': str(far['max-down']['downtime']), 'short': str(far['min-down']['downtime'])}
+                'large': str(lmt['max-down']['downtime']), 'short': str(lmt['min-down']['downtime'])}
 
     if arg.power:
         uptime['average'] += sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')'
-        uptime['large'] += sp4 + '(rn: ' + str(far['max-up']['rntime']) + ' + slp: ' + str(far['max-up']['slptime']) + ')'
-        uptime['short'] += sp4 + '(rn: ' + str(far['min-up']['rntime']) + ' + slp: ' + str(far['min-up']['slptime']) + ')'
+        uptime['large'] += sp4 + '(rn: ' + str(lmt['max-up']['rntime']) + ' + slp: ' + str(lmt['max-up']['slptime']) + ')'
+        uptime['short'] += sp4 + '(rn: ' + str(lmt['min-up']['rntime']) + ' + slp: ' + str(lmt['min-up']['slptime']) + ')'
         uptime['current'] += sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')'
         uptime['sys_rate'] += sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)'
         uptime['sys_time'] += sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')'
@@ -1077,35 +1082,27 @@ def print_default(db_rows, sis, arg):
     if not arg.csv: print('')
 
     # Uptime block print
-    if not arg.reverse:
-        gest = ['Longest', 'large', 'max-up']
+    if lmt[est[2]]['btime'] is not False:
+        print(sp0 + est[0] + ' uptime' + sp1 + uptime[est[1]] + sp3 + 'from' + sp3 + str(lmt[est[2]]['btime']) + sp0)
     else:
-        gest = ['Shortest', 'short', 'min-up']
-    if far[gest[2]]['btime'] is not False:
-        print(sp0 + gest[0] + ' uptime' + sp1 + uptime[gest[1]] + sp3 + 'from' + sp3 + str(far[gest[2]]['btime']) + sp0)
-    else:
-        print(sp0 + gest[0] + ' uptime' + sp1 + uptime[gest[1]] + sp0)
+        print(sp0 + est[0] + ' uptime' + sp1 + uptime[est[1]] + sp0)
     if arg.bootid:
-        print(sp0 + (sp5 * 4) + '...boot ID' + sp1 + str(far[gest[2]]['bootid']) + sp0)
+        print(sp0 + (sp5 * 4) + '...boot ID' + sp1 + str(lmt[est[2]]['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp5 * 5) + '...kernel' + sp1 + str(far[gest[2]]['kernel']) + sp0)
+        print(sp0 + (sp5 * 5) + '...kernel' + sp1 + str(lmt[est[2]]['kernel']) + sp0)
     print(sp0 + 'Average uptime' + sp1 + uptime['average'] + sp0)
     print(sp0 + 'System uptime' + sp1 + (sp5 * 8) + uptime['sys_rate'] + sp3 + '=' + sp3 + uptime['sys_time'] + sp0)
     if not arg.csv: print('')
 
     # Downtime block print
-    if not arg.reverse:
-        gest = ['Longest', 'large', 'max-down']
+    if lmt[est[3]]['offbtime'] is not False:
+        print(sp0 + est[0] + ' downtime' + sp1 + downtime[est[1]] + sp3 + 'from' + sp3 + str(lmt[est[3]]['offbtime']) + sp0)
     else:
-        gest = ['Shortest', 'short', 'min-down']
-    if far[gest[2]]['offbtime'] is not False:
-        print(sp0 + gest[0] + ' downtime' + sp1 + downtime[gest[1]] + sp3 + 'from' + sp3 + str(far[gest[2]]['offbtime']) + sp0)
-    else:
-        print(sp0 + gest[0] + ' downtime' + sp1 + downtime[gest[1]] + sp0)
+        print(sp0 + est[0] + ' downtime' + sp1 + downtime[est[1]] + sp0)
     if arg.bootid:
-        print(sp0 + (sp5 * 6) + '...boot ID' + sp1 + str(far[gest[2]]['bootid']) + sp0)
+        print(sp0 + (sp5 * 6) + '...boot ID' + sp1 + str(lmt[est[3]]['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp5 * 7) + '...kernel' + sp1 + str(far[gest[2]]['kernel']) + sp0)
+        print(sp0 + (sp5 * 7) + '...kernel' + sp1 + str(lmt[est[3]]['kernel']) + sp0)
     print(sp0 + 'Average downtime' + sp1 + downtime['average'] + sp0)
     print(sp0 + 'System downtime' + sp1 + downtime['sys_rate'] + sp3 + '=' + sp3 + downtime['sys_time'] + sp0)
 
