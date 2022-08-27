@@ -1018,9 +1018,9 @@ def print_default(db_rows, sis, arg):
     if not arg.seconds:
         sys_life = time_conv(sys_life)
 
-        for key in tstamp:
-            if tstamp[key] is not None:
-                tstamp[key] = datetime.fromtimestamp(tstamp[key]).strftime(arg.dtm_format)
+        for key, val in tstamp.items():
+            if val is not None:
+                tstamp[key] = datetime.fromtimestamp(val).strftime(arg.dtm_format)
 
         for key in ('uptime', 'rntime', 'slptime', 'downtime'):
             if sis[key] is not None:
