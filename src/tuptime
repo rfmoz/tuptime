@@ -943,7 +943,7 @@ def print_default(db_rows, sis, arg):
                 updown['shutdowns'] += 1
 
             # Get lists with all values
-            for key in cnt.keys():
+            for key in cnt:
                 if row[key] is not False:
                     cnt[key].append(row[key])
 
@@ -998,13 +998,13 @@ def print_default(db_rows, sis, arg):
             range_trim = True
 
     # Get totals and system life
-    for key in cal['tot'].keys():
+    for key in cal['tot']:
         cal['tot'][key] += sum(cnt[key])
     sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
 
     # Get rates and average uptime / downtime
     if sys_life > 0:
-        for key in rate.keys():
+        for key in rate:
             rate[key] = round((cal['tot'][key] * 100) / sys_life, arg.dec)
 
         if cnt['uptime']:
