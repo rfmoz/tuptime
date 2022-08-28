@@ -943,7 +943,7 @@ def print_default(db_rows, sis, arg):
                 updown['shutdowns'] += 1
 
             # Get lists with all values
-            for key in cnt:
+            for key in cnt.keys():
                 if row[key] is not False:
                     cnt[key].append(row[key])
 
@@ -998,13 +998,13 @@ def print_default(db_rows, sis, arg):
             range_trim = True
 
     # Get totals and system life
-    for key in cal['tot']:
+    for key in cal['tot'].keys():
         cal['tot'][key] += sum(cnt[key])
     sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
 
     # Get rates and average uptime / downtime
     if sys_life > 0:
-        for key in rate:
+        for key in rate.keys():
             rate[key] = round((cal['tot'][key] * 100) / sys_life, arg.dec)
 
         if cnt['uptime']:
@@ -1025,19 +1025,19 @@ def print_default(db_rows, sis, arg):
         for key in ('uptime', 'rntime', 'slptime', 'downtime'):
             if sis[key] is not None:
                 sis[key] = time_conv(sis[key])
-            for k in cal:
-                if cal[k][key] is not False:
-                    cal[k][key] = time_conv(cal[k][key])
-            for k in lmt:
-                if lmt[k][key] is not False:
-                    lmt[k][key] = time_conv(lmt[k][key])
+            for val in cal.values():
+                if val[key] is not False:
+                    val[key] = time_conv(val[key])
+            for val in lmt.values():
+                if val[key] is not False:
+                    val[key] = time_conv(val[key])
 
         for key in ('btime', 'offbtime'):
             if sis[key] is not None:
                 sis[key] = datetime.fromtimestamp(sis[key]).strftime(arg.dtm_format)
-            for k in lmt:
-                if lmt[k][key] is not False:
-                    lmt[k][key] = datetime.fromtimestamp(lmt[k][key]).strftime(arg.dtm_format)
+            for val in lmt.values():
+                if val[key] is not False:
+                    val[key] = datetime.fromtimestamp(val[key]).strftime(arg.dtm_format)
 
     # Prepare values for print
     if arg.csv:  # Set content/spaces between values
