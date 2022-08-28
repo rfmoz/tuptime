@@ -685,7 +685,7 @@ def trim_rows(db_rows, sis, last_st, arg):
             arg.ts = sis['btime'] + sis['uptime'] + arg.ts
         db_rows = tsince(db_rows, arg)
 
-    if db_rows and arg.exclude is not None:
+    if arg.exclude is not None:
         db_rows = [row for row in db_rows if row['startup'] not in arg.exclude]
 
     return db_rows, arg
