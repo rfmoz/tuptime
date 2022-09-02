@@ -47,3 +47,8 @@ tuptime-plot2.py
     Graph a plot with the state events per hour along each day (default)
     or accumulated events per hour (-x swich). It gets the info from
     tuptime csv output. Playground script.
+
+tuptime-powerplot.py
+    Graph a plot with the power consumption for every day uptime. At
+    least, it needs as argument the -k kWh or -m mWh price and the power
+    consumption value. Playground script. 
