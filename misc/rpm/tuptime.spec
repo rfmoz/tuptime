@@ -5,8 +5,8 @@ Summary:	Report historical system real time
 
 License:	GPLv2+
 BuildArch:	noarch
-URL:		https://github.com/rfrail3/tuptime/
-Source0:	https://github.com/rfrail3/tuptime/archive/%{version}.tar.gz
+URL:		https://github.com/rfmoz/tuptime/
+Source0:	https://github.com/rfmoz/tuptime/archive/%{version}.tar.gz
 
 %{?systemd_requires}
 # Check for EPEL Python (python34, python36)

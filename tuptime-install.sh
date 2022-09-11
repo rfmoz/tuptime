@@ -105,9 +105,9 @@ echo ""
 echo "+ Getting source tar file"
 if [ ${DEV} -eq 1 ]; then
 	echo "  ...using dev branch"
-	tar xz --strip 1 -C "${F_TMP1}" -f <(curl -sL https://github.com/rfrail3/tuptime/archive/dev.tar.gz) || exit
+	tar xz --strip 1 -C "${F_TMP1}" -f <(curl -sL https://github.com/rfmoz/tuptime/archive/dev.tar.gz) || exit
 else
-	tar xz --strip 1 -C "${F_TMP1}" -f <(curl -sL https://github.com/rfrail3/tuptime/archive/master.tar.gz) || exit
+	tar xz --strip 1 -C "${F_TMP1}" -f <(curl -sL https://github.com/rfmoz/tuptime/archive/master.tar.gz) || exit
 fi
 echo '  [OK]'
 

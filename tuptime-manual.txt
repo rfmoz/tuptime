@@ -567,21 +567,21 @@ From 2.x to 3.x:
     From 2.x to 3.0, reorder columns, added offbtime, endst and downtime. From 3.0 to 3.1,
     added kernel column. The migration scripts are loated at:
     
-    https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate-2.0-to-3.0.sh
-    https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate-3.0-to-3.1.sh
+    https://github.com/rfmoz/tuptime/blob/master/misc/cripts/db-tuptime-migrate-2.0-to-3.0.sh
+    https://github.com/rfmoz/tuptime/blob/master/misc/cripts/db-tuptime-migrate-3.0-to-3.1.sh
  
 From 3.x to 4.x:
     Added rntime and slptime registers, also uptime, rntime, slptime, downtime are now integers.
     The migrations is done automatically from Tuptime. Also, the migration script
     is located at:
 
-    https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate-3.1-to-4.0.sh
+    https://github.com/rfmoz/tuptime/blob/master/misc/cripts/db-tuptime-migrate-3.1-to-4.0.sh
  
 From 4.x to 5.x:
     Added bootid register. The migrations is done automatically from Tuptime.
     Also, the migration script is located at:
 
-    https://github.com/rfrail3/tuptime/blob/master/misc/cripts/db-tuptime-migrate-4.0-to-5.0.sh
+    https://github.com/rfmoz/tuptime/blob/master/misc/cripts/db-tuptime-migrate-4.0-to-5.0.sh
 
 
 ==================

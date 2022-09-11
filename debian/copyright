@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: tuptime
-Source: https://github.com/rfrail3/tuptime
+Source: https://github.com/rfmoz/tuptime
 
 Files:     *
 Copyright: 2011-2018 Ricardo F.

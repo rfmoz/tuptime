@@ -16,7 +16,7 @@
     cd ~
     rpmdev-setuptree
     cd ~/rpmbuild/SPECS/
-    wget 'https://raw.githubusercontent.com/rfrail3/tuptime/master/misc/rpm/tuptime.spec'
+    wget 'https://raw.githubusercontent.com/rfmoz/tuptime/master/misc/rpm/tuptime.spec'
     spectool -g -R tuptime.spec
     rpmbuild -ba --target=noarch tuptime.spec
 
@@ -41,7 +41,7 @@ Z.- For testing with "dev" branch. Install "git" on step "1" and replace step "2
 
     dnf -y install git
     cd ~
-    git clone -b dev --depth=1 https://github.com/rfrail3/tuptime.git tuptime-5.2.1
+    git clone -b dev --depth=1 https://github.com/rfmoz/tuptime.git tuptime-5.2.1
     rpmdev-setuptree
     cd ~/rpmbuild/SPECS/
     cp ../../tuptime-5.2.1/misc/rpm/tuptime.spec .
