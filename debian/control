@@ -1,11 +1,11 @@
 Source: tuptime
 Section: utils
 Priority: optional
-Maintainer: Ricardo Fraile <rfraile@rfraile.eu>
+Maintainer: Ricardo Fraile <r@rfmoz.eu>
 Build-Depends: debhelper-compat (= 13)
 Rules-Requires-Root: no
 Standards-Version: 4.6.1
-Homepage: https://github.com/rfrail3/tuptime
+Homepage: https://github.com/rfmoz/tuptime
 
 Package: tuptime
 Architecture: all

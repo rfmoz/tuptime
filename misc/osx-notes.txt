@@ -15,7 +15,7 @@ status always.
 
 To install the .plist, copy file to the right location:
 
-    # git clone --depth=1 https://github.com/rfrail3/tuptime.git
+    # git clone --depth=1 https://github.com/rfmoz/tuptime.git
     # cp src/launchd/localhost.tuptime.plist /Library/LaunchDaemons/
 
 Load it:

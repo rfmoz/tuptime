@@ -9,7 +9,7 @@ Install dependencies:
 
 Get the code and copy the executable file:
 
-    # wget https://github.com/rfrail3/tuptime/archive/master.zip
+    # wget https://github.com/rfmoz/tuptime/archive/master.zip
     # unzip master.zip
     # cp tuptime/src/tuptime /usr/bin/ && chmod 755 /usr/bin/tuptime
 

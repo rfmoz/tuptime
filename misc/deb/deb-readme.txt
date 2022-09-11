@@ -10,7 +10,7 @@
 2.- Change to any unprivileged user and create the package. Not build packages using root.
 
     cd ~
-    git clone --depth=1 https://github.com/rfrail3/tuptime.git
+    git clone --depth=1 https://github.com/rfmoz/tuptime.git
     cd tuptime
     dpkg-buildpackage -us -uc
 
@@ -29,6 +29,6 @@
 Z.- For testing with "dev" branch. Replace step "2" with the following:
 
     cd ~
-    git clone -b dev --depth=1 https://github.com/rfrail3/tuptime.git
+    git clone -b dev --depth=1 https://github.com/rfmoz/tuptime.git
     cd tuptime
     dpkg-buildpackage -us -uc
