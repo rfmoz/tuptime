@@ -1050,17 +1050,17 @@ def print_default(db_rows, sis, arg):
     if arg.reverse:
         est = ['Shortest', 'short', 'min']
     else:
-        est = ['Longest', 'large', 'max']
+        est = ['Longest', 'long', 'max']
 
     uptime = {'average': str(cal['ave']['uptime']) + sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')',
-              'large': str(lmt['max-up']['uptime']) + sp4 + '(rn: ' + str(lmt['max-up']['rntime']) + ' + slp: ' + str(lmt['max-up']['slptime']) + ')',
+              'long': str(lmt['max-up']['uptime']) + sp4 + '(rn: ' + str(lmt['max-up']['rntime']) + ' + slp: ' + str(lmt['max-up']['slptime']) + ')',
               'short': str(lmt['min-up']['uptime']) + sp4 + '(rn: ' + str(lmt['min-up']['rntime']) + ' + slp: ' + str(lmt['min-up']['slptime']) + ')',
               'sys_time': str(cal['tot']['uptime']) + sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')',
               'sys_rate': str(rate['uptime']) + '%' + sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)',
               'current': str(sis['uptime']) + sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')'}
 
     downtime = {'average': str(cal['ave']['downtime']),
-                'large': str(lmt['max-down']['downtime']),
+                'long': str(lmt['max-down']['downtime']),
                 'short': str(lmt['min-down']['downtime']),
                 'sys_time': str(cal['tot']['downtime']),
                 'sys_rate': str(rate['downtime']) + '%'}
