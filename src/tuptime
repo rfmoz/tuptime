@@ -793,43 +793,36 @@ def print_list(db_rows, last_st, arg):
 def print_table(db_rows, last_st, arg):
     """Print values as a table"""
 
-    tbl = [['No.', 'Boot ID', 'Startup T.', 'Uptime', 'Running', 'Sleeping', 'Shutdown T.', 'End', 'Downtime', 'Kernel']]
+    tops = {'startup': 'No.', 'bootid': 'Boot ID', 'btime': 'Startup T.', 'uptime': 'Uptime', 'rntime': 'Running', 'slptime': 'Sleeping',
+            'offbtime': 'Shutdown T.', 'endst': 'End', 'downtime': 'Downtime', 'kernel': 'Kernel'}
     side_spaces = 3
 
-    # Set header row, remove unused optional cols
+    # Remove unused optional values
     if not arg.bootid:
-        tbl[0].remove('Boot ID')
+        tops.pop('bootid')
 
     if not arg.power:
-        tbl[0].remove('Running')
-        tbl[0].remove('Sleeping')
+        tops.pop('rntime')
+        tops.pop('slptime')
 
     if not arg.kernel:
-        tbl[0].remove('Kernel')
+        tops.pop('kernel')
+
+    # Assign remaining values for print the header
+    tbl = [tuple(tops.values())]
 
     # Add empty brake up line if csv is not used
-    if not arg.csv: tbl.append([''] * len(tbl[0]))
+    if not arg.csv:
+        tbl.append(tuple(' ') * len(tbl[0]))
 
     db_rows = ordering_output(db_rows, arg, last_st)
 
-    # Build table for print
+    # Assign table values for print
     for row_dict in format_output(db_rows, arg):
-        rowd = ([str(row_dict['startup']), str(row_dict['btime']), str(row_dict['uptime']),
-                 str(row_dict['offbtime']), str(row_dict['endst']), str(row_dict['downtime'])])
-
-        # Add optional cols if exist on header
-        if 'Boot ID' in tbl[0]:
-            rowd.insert(tbl[0].index('Boot ID'), str(row_dict['bootid']))
-
-        if 'Running' in tbl[0]:
-            rowd.insert(tbl[0].index('Running'), str(row_dict['rntime']))
-            rowd.insert(tbl[0].index('Sleeping'), str(row_dict['slptime']))
-
-        if 'Kernel' in tbl[0]:
-            rowd.append(str(row_dict['kernel']))
-
+        rowd = tuple(row_dict[i] for i in tops)
         tbl.append(rowd)
 
+    # Print table values
     if arg.csv:
         for row in tbl:
             for key, value in enumerate(row):
@@ -891,7 +884,7 @@ def print_tat(db_rows, sis, last_st, arg):
             report['time_total'] = row['downtime']
             break
 
-    # If status keep their default value, no match, clean all other variables
+    # If status keep their default value, no match, clean all other variables. Also, cover unexpected division by zero
     if report['status'] is None or report['time_total'] == 0:
         report['startup'] = report['time'] = report['time_fwd'] = 0
         report['bootid'] = report['kernel'] = 'None'
