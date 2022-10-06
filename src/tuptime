@@ -623,7 +623,7 @@ def trim_rows(db_rows, sis, last_st, arg):
     """
 
     def tuntil(db_rows, arg):
-        for row in db_rows[:]:  # Parse rows trying to look for the rightmost (older) value
+        for row in (*db_rows,):  # Parse rows trying to look for the rightmost (older) value
 
             if arg.tu > row['offbtime'] and arg.tu <= (row['offbtime'] + row['downtime']):
                 row['downtime'] = arg.tu - row['offbtime']
@@ -641,7 +641,7 @@ def trim_rows(db_rows, sis, last_st, arg):
         return db_rows
 
     def tsince(db_rows, arg):
-        for row in db_rows[:]:  # Parse rows trying to look for the leftmost (newer) value
+        for row in (*db_rows,):  # Parse rows trying to look for the leftmost (newer) value
 
             if arg.ts <= row['btime']:
                 continue
