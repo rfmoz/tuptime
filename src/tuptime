@@ -1036,11 +1036,6 @@ def print_default(db_rows, sis, arg):
         sp0, sp1, sp3 = '', ': \t', '  '
         sp4 = sp5 = ' '
 
-    if arg.reverse:
-        est = ['Shortest', 'short', 'min']
-    else:
-        est = ['Longest', 'long', 'max']
-
     uptime = {'average': str(cal['ave']['uptime']) + sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')',
               'long': str(lmt['max-up']['uptime']) + sp4 + '(rn: ' + str(lmt['max-up']['rntime']) + ' + slp: ' + str(lmt['max-up']['slptime']) + ')',
               'short': str(lmt['min-up']['uptime']) + sp4 + '(rn: ' + str(lmt['min-up']['rntime']) + ' + slp: ' + str(lmt['min-up']['slptime']) + ')',
@@ -1057,6 +1052,11 @@ def print_default(db_rows, sis, arg):
     if not arg.power:  # Remove parenthesis with run and sleep values
         for key in uptime:
             uptime[key] = uptime[key].split('(', 1)[0]
+
+    if arg.reverse:
+        est = ['Shortest', 'short', 'min']
+    else:
+        est = ['Longest', 'long', 'max']
 
     # System block print
     print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp3 + 'since' + sp3 + str(tstamp['min']), end='')
