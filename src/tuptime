@@ -1051,7 +1051,7 @@ def print_default(db_rows, sis, arg):
 
     if not arg.power:  # Remove parenthesis with run and sleep values
         for key in uptime:
-            uptime[key] = uptime[key].split('(', 1)[0]
+            uptime[key] = uptime[key].split(' (', 1)[0]
 
     if arg.reverse:
         est = ['Shortest', 'short', 'min']
