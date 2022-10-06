@@ -959,10 +959,10 @@ def print_default(db_rows, sis, arg):
 
     def1 = {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}
     def2 = {'bootid': None, 'btime': False, 'offbtime': False, 'kernel': None, 'startup': None}
+    def3 = {**def1, **def2}
 
     cal = {'tot': def1.copy(), 'ave': def1.copy()}
-    lmt = {'max-up': {**def1.copy(), **def2.copy()}, 'max-down': {**def1.copy(), **def2.copy()},
-           'min-up': {**def1.copy(), **def2.copy()}, 'min-down': {**def1.copy(), **def2.copy()}}
+    lmt = {'max-up': def3.copy(), 'max-down': def3.copy(), 'min-up': def3.copy(), 'min-down': def3.copy()}
     rate = {k: float(v) for k, v in def1.items()}  # Float values of def1
 
     # Get values from all DB rows
