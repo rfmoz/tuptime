@@ -782,7 +782,7 @@ def print_list(db_rows, arg):
         if row_dict['downtime']:
             print(sp0 + 'Downtime' + sp2 + str(row_dict['downtime']) + sp0)
 
-        if arg.kernel and row_dict['kernel']:
+        if arg.kernel:
             print(sp0 + 'Kernel' + sp2 + (sp5 * 2) + str(row_dict['kernel']) + sp0)
 
         if not arg.csv: print('')
@@ -1036,22 +1036,19 @@ def print_default(db_rows, sis, arg):
         sp0, sp1, sp3 = '', ': \t', '  '
         sp4 = sp5 = ' '
 
-    uptime = {'average': str(cal['ave']['uptime']) + sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')',
-              'long': str(lmt['max-up']['uptime']) + sp4 + '(rn: ' + str(lmt['max-up']['rntime']) + ' + slp: ' + str(lmt['max-up']['slptime']) + ')',
-              'short': str(lmt['min-up']['uptime']) + sp4 + '(rn: ' + str(lmt['min-up']['rntime']) + ' + slp: ' + str(lmt['min-up']['slptime']) + ')',
-              'sys_time': str(cal['tot']['uptime']) + sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')',
-              'sys_rate': str(rate['uptime']) + '%' + sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)',
-              'current': str(sis['uptime']) + sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')'}
+    uptime = {'average': str(cal['ave']['uptime']), 'long': str(lmt['max-up']['uptime']), 'short': str(lmt['min-up']['uptime']),
+              'sys_time': str(cal['tot']['uptime']), 'sys_rate': str(rate['uptime']) + '%', 'current': str(sis['uptime'])}
 
-    downtime = {'average': str(cal['ave']['downtime']),
-                'long': str(lmt['max-down']['downtime']),
-                'short': str(lmt['min-down']['downtime']),
-                'sys_time': str(cal['tot']['downtime']),
-                'sys_rate': str(rate['downtime']) + '%'}
+    downtime = {'average': str(cal['ave']['downtime']), 'long': str(lmt['max-down']['downtime']), 'short': str(lmt['min-down']['downtime']),
+                'sys_time': str(cal['tot']['downtime']), 'sys_rate': str(rate['downtime']) + '%'}
 
-    if not arg.power:  # Remove parenthesis with run and sleep values
-        for key in uptime:
-            uptime[key] = uptime[key].split(' (', 1)[0]
+    if arg.power:
+        uptime['average'] += sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')'
+        uptime['long'] += sp4 + '(rn: ' + str(lmt['max-up']['rntime']) + ' + slp: ' + str(lmt['max-up']['slptime']) + ')'
+        uptime['short'] += sp4 + '(rn: ' + str(lmt['min-up']['rntime']) + ' + slp: ' + str(lmt['min-up']['slptime']) + ')'
+        uptime['sys_time'] += sp4 + '(rn: ' + str(cal['tot']['rntime']) + ' + slp: ' + str(cal['tot']['slptime']) + ')'
+        uptime['sys_rate'] += sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)'
+        uptime['current'] += sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')'
 
     if arg.reverse:
         est = ['Shortest', 'short', 'min']
