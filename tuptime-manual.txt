@@ -181,7 +181,8 @@ These are the command line options, no configuration file is used:
   -f FILE, --filedb FILE
                         database file (/var/lib/tuptime/tuptime.db)
   -g, --graceful        register a graceful shutdown
-  -i, --invert          startup number in reverse count
+  -i, --invert          startup number in reverse count | swich between
+                        longest/shortest on default output
   -k, --kernel          show kernel version
   -l, --list            enumerate system life as list
   -m, --mini            minimal output
@@ -189,8 +190,7 @@ These are the command line options, no configuration file is used:
   -o TYPE, --order TYPE
                         order enumerate by [u|r|s|e|d|k]
   -p, --power           show power states run + sleep
-  -r, --reverse         reverse order in listings | swich between
-                        longest/shortest on default output
+  -r, --reverse         reverse order in listings
   -s, --seconds         output time in seconds and epoch
   -S STARTUP, --since STARTUP
                         limit from this startup number
@@ -322,14 +322,17 @@ These are the command line options, no configuration file is used:
 
 
 -i, --invert
-  Print startup number in reverse count starting since last boot. Only works in
-  conjunction with (-t), (-l), or (--tat) options. Equal than the output of 
+  Print startup number in reverse count starting since last boot when it's
+  used in conjunction with (-t), (-l), or (--tat) options. Equal than the output of
   'journalctl --list-boots'.
+  Change Longest to Shortest values on default output report.
+  Change Total Uptime to Downtime on (-m) option.
 
   Examples:
          tuptime -t -i
          tuptime -tib
          tuptime -l --invert
+         tuptime -i
 
 
 -k, --kernel
@@ -351,7 +354,7 @@ These are the command line options, no configuration file is used:
 
 
 -m, --mini
-  Only print system total uptime value. Used with (-r) swich to system
+  Only print system total uptime value. Used with (-i) swich to system
   total downtime.
 
   Examples:
@@ -399,8 +402,7 @@ These are the command line options, no configuration file is used:
 
 
 -r, --reverse
-  Reverse order for table or list output. Change Longest to Shortest values on
-  default output report.
+  Reverse order for table or list output.
 
   Examples:
          tuptime -r
