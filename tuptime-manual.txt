@@ -531,9 +531,9 @@ It's important to have a schedule execution. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
 shutdown, but if the system fails, hangs or whatever, the uptime time will
 be lost. Be sure that the cron entry or, in other case, the systemd
-tuptime-syncn.[timer|service] units are installed as expected.
+tuptime-sync.[timer|service] units are installed as expected.
 
-Why it's needed the use of an other .service file with the name tuptime-sync?
+Why is it needed the use of an other .service file with the name tuptime-sync?
 The default tuptime.service file uses the option 'RemainAfterExit=true' and
 nowadays the systemd timer can't restart an already running service, so, this
 is the best workaround.
