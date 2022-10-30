@@ -253,11 +253,19 @@ def get_arguments():
         help='show version'
     )
     parser.add_argument(
+        '-w', '--write',
+        dest='write',
+        default=False,
+        action='store_true',
+        help='write values into DB without output'
+    )
+
+    parser.add_argument(
         '-x', '--silent',
         dest='silent',
         default=False,
         action='store_true',
-        help='update values into DB without output'
+        help=argparse.SUPPRESS
     )
     arg = parser.parse_args()
 
@@ -291,6 +299,9 @@ def get_arguments():
         logging.warning('Argument \'--decp\' is deprecated in favour of \'--dec\'')
     if arg.percentile:
         logging.warning('Argument \'--pctl\' deprecated without functionality')
+    if arg.silent:
+        arg.write = arg.silent
+        logging.warning('Argument \'-x\' is deprecated in favour of \'-w\'')
 
     logging.info('Arguments = %s', vars(arg))
     return arg
@@ -1254,9 +1265,9 @@ def main():
     else:
         logging.info('DB info = skip by arg.update')
 
-    if arg.silent:
+    if arg.write:
         db_conn.close()
-        logging.info('Silent mode')
+        logging.info('Write only mode')
 
     else:
         # Get all rows to determine print values. Convert from sqlite row object to dict to allow item allocation

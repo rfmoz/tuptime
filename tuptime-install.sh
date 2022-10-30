@@ -138,7 +138,7 @@ else
 fi
 
 echo "+ Creating Tuptime db"
-tuptime -x && echo '  [OK]'
+tuptime -w && echo '  [OK]'
 
 echo "+ Setting Tuptime db ownership"
 ( chown -R "${EXUSR}":"${EXUSR}" /var/lib/tuptime || chown -R "${EXUSR}" /var/lib/tuptime ) || exit
@@ -146,7 +146,7 @@ chmod 755 /var/lib/tuptime || exit
 echo '  [OK]'
 
 echo "+ Executing Tuptime with '_tuptime' user for testing"
-su -s /bin/sh "${EXUSR}" -c "tuptime -x" || exit
+su -s /bin/sh "${EXUSR}" -c "tuptime -w" || exit
 echo '  [OK]'
 
 # Install init
@@ -189,8 +189,8 @@ elif [ "${PID1}" = 'openrc-init' ]; then
 
 elif [ "${PID1}" = 'runit' ] && [ -f /etc/rc.local ] && [ -f /etc/rc.shutdown ]; then
 	echo "+ Runit startup and shutdown execution"
-	echo 'tuptime -x' >> /etc/rc.local || exit
-	echo 'tuptime -gx' >> /etc/rc.shutdown || exit
+	echo 'tuptime -w' >> /etc/rc.local || exit
+	echo 'tuptime -wg' >> /etc/rc.shutdown || exit
 
 else
 	echo "#########################################"
@@ -215,13 +215,13 @@ elif [ -d /etc/cron.d/ ]; then
 
 elif [ -d /etc/cron.hourly/ ]; then
 	echo "+ Cron hourly execution"
-	printf '#!/bin/sh \n tuptime -x' > /etc/cron.hourly/tuptime || exit
+	printf '#!/bin/sh \n tuptime -w' > /etc/cron.hourly/tuptime || exit
 	chmod 744 /etc/cron.hourly/tuptime || exit
 	echo '  [OK]'
 
 elif [ -d /etc/periodic/15min/ ]; then
 	echo "+ Periodic execution"
-	printf '#!/bin/sh \n tuptime -x' > /etc/periodic/15min/tuptime || exit
+	printf '#!/bin/sh \n tuptime -w' > /etc/periodic/15min/tuptime || exit
 	chmod 744 /etc/periodic/15min/tuptime || exit
 	echo '  [OK]'
 

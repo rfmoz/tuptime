@@ -1,8 +1,11 @@
 tuptime (5.2.2) unstable; urgency=low
 
   * Swich between longest/shortest on default output with -r
+  * Option -x, --silent renamed to -w, --write
+  * Adding -m, --mini to print only system total uptime
+  * Change repository name
 
- -- Ricardo Fraile <rfraile@rfraile.eu>  Fri, 19 Aug 2022 16:22:00 +0100
+ -- Ricardo Fraile <rfraile@rfraile.eu>  Sun, 30 Oct 2022 06:22:00 +0100
 
 tuptime (5.2.1) unstable; urgency=low
 

@@ -4,7 +4,7 @@
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [\-h] [\-A STARTUP] [\-b] [\-c] [\-d DATETIME_FMT] [\-e DECIMALS] [\-E STARTUP] [\-f FILE] [\-g] [\-i] [\-k] [\-l] [\-m] [\-n] [\-o TYPE] [\-p] [\-r] [\-s] [\-S STARTUP] [\-t] [\-\-tat TIMESTAMP] [\-\-tsince TIMESTAMP] [\-\-tuntil TIMESTAMP] [\-U STARTUP] [\-v] [\-V] [\-x]
+tuptime [\-h] [\-A STARTUP] [\-b] [\-c] [\-d DATETIME_FMT] [\-e DECIMALS] [\-E STARTUP] [\-f FILE] [\-g] [\-i] [\-k] [\-l] [\-m] [\-n] [\-o TYPE] [\-p] [\-r] [\-s] [\-S STARTUP] [\-t] [\-\-tat TIMESTAMP] [\-\-tsince TIMESTAMP] [\-\-tuntil TIMESTAMP] [\-U STARTUP] [\-v] [\-V] [\-w]
 
 .SH DESCRIPTION
 .RS
@@ -124,8 +124,8 @@ T}
 \-V | \-\-version@T{
 Show version
 T}
-\-x | \-\-silent@T{
-Update values into DB without output
+\-w | \-\-write@T{
+Write values into DB without output
 T}
 .TE
 .SS ENVIRONMENT

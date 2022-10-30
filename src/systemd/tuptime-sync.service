@@ -7,4 +7,4 @@ Requires=tuptime.service
 [Service]
 Type=oneshot
 User=_tuptime
-ExecStart=/usr/bin/tuptime -x
+ExecStart=/usr/bin/tuptime -w

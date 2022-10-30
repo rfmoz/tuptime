@@ -3,7 +3,7 @@
                          ----------------------
                               version 5.2.2
                                 Ricardo F.
-                               19/Aug/2022
+                               30/Oct/2022
 
 
 
@@ -202,7 +202,7 @@ These are the command line options, no configuration file is used:
                         limit up until this startup number
   -v, --verbose         verbose output
   -V, --version         show version
-  -x, --silent          update values into DB without output
+  -w, --write           write values into DB without output
 
 
 -A <STARTUP>, --at <STARTUP>
@@ -493,12 +493,12 @@ These are the command line options, no configuration file is used:
          tuptime --version
 
 
--x, --silent
-  Any output is printed. Only update values and save them into disk.
+-w, --write
+  Only write values into database. No output is printed.
 
   Examples:
-         tuptime -x
-         tuptime --silent
+         tuptime -w
+         tuptime --write
 
 
 

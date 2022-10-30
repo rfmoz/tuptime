@@ -27,7 +27,7 @@ Change owner of the db path and file:
 
 Add the cron entry and restart the service:
 
-    # echo '*/5 * * * *  /usr/local/bin/tuptime -x' > /var/cron/tabs/_tuptime
+    # echo '*/5 * * * *  /usr/local/bin/tuptime -w' > /var/cron/tabs/_tuptime
     # service cron restart
 
 Copy rc.d file:
@@ -70,7 +70,7 @@ Add the cron entry, create a '/var/cron/tabs/_tuptime' file with this content:
 
     SHELL=/bin/sh
     PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin/
-    */5       *       *       *       *       tuptime -x
+    */5       *       *       *       *       tuptime -w
 
 Set the right permissions to cron file and restart the service:
 
@@ -127,7 +127,7 @@ Add the cron entry, create a '/var/cron/tabs/_tuptime' file with this content:
 
     SHELL=/bin/sh
     PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin/
-    */5       *       *       *       *       tuptime -x
+    */5       *       *       *       *       tuptime -w
 
 Set the right permissions to cron file and restart the service:
 

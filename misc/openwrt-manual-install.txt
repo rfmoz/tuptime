@@ -20,7 +20,7 @@ As OpenWRT have a symlink from /var/ to /tmp/ and Tuptime saves their db on /var
 
 Add the cron execution. Include the following line in '/etc/crontabs/root':
 
-    */5 * * * * /usr/bin/python3 /usr/bin/tuptime -x
+    */5 * * * * /usr/bin/python3 /usr/bin/tuptime -w
 
 Copy the init file and set the right permissions:
 

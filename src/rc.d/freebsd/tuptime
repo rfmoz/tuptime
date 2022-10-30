@@ -18,7 +18,7 @@ export PATH=$PATH:/usr/local/bin/
 tuptime_start()
 {
 	echo "Starting $name."
-	command_args="-x"
+	command_args="-w"
 
 	su -m ${tuptime_user} -c "$name $command_args" 2> /dev/null || $name $command_args 2> /dev/null
 }
@@ -26,7 +26,7 @@ tuptime_start()
 tuptime_stop()
 {
 	echo "Stopping $name."
-	command_args="-xg"
+	command_args="-wg"
 
 	su -m ${tuptime_user} -c "$name $command_args" 2> /dev/null || $name $command_args 2> /dev/null
 }

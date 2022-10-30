@@ -8,8 +8,8 @@ Wants=time-sync.target
 Type=oneshot
 User=_tuptime
 RemainAfterExit=true
-ExecStart=/usr/bin/tuptime -x
-ExecStop=/usr/bin/tuptime -xg
+ExecStart=/usr/bin/tuptime -w
+ExecStop=/usr/bin/tuptime -wg
 StateDirectory=tuptime
 
 [Install]
