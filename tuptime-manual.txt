@@ -184,6 +184,7 @@ These are the command line options, no configuration file is used:
   -i, --invert          startup number in reverse count
   -k, --kernel          show kernel version
   -l, --list            enumerate system life as list
+  -m, --mini            minimal output
   -n, --noup            avoid update values into DB
   -o TYPE, --order TYPE
                         order enumerate by [u|r|s|e|d|k]
@@ -347,6 +348,17 @@ These are the command line options, no configuration file is used:
   Examples:
          tuptime -l
          tuptime --list
+
+
+-m, --mini
+  Only print system total uptime value. Used with (-r) swich to system
+  total downtime.
+
+  Examples:
+         tuptime -m
+         tuptime -m -r
+         tuptime -m -p
+         tuptime --mini
 
 
 -n, --noup
