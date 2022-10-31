@@ -185,7 +185,7 @@ These are the command line options, no configuration file is used:
                         longest/shortest on default output
   -k, --kernel          show kernel version
   -l, --list            enumerate system life as list
-  -m, --mini            minimal output
+  -m, --min             minimal output with total uptime
   -n, --noup            avoid update values into DB
   -o TYPE, --order TYPE
                         order enumerate by [u|r|s|e|d|k]
@@ -353,7 +353,7 @@ These are the command line options, no configuration file is used:
          tuptime --list
 
 
--m, --mini
+-m, --min
   Only print system total uptime value. Used with (-i) swich to system
   total downtime.
 
@@ -361,7 +361,7 @@ These are the command line options, no configuration file is used:
          tuptime -m
          tuptime -m -r
          tuptime -m -p
-         tuptime --mini
+         tuptime --min
 
 
 -n, --noup

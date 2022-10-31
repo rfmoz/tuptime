@@ -135,11 +135,11 @@ def get_arguments():
         help='enumerate system life as list'
     )
     parser.add_argument(
-        '-m', '--mini',
-        dest='mini',
+        '-m', '--min',
+        dest='min',
         default=False,
         action='store_true',
-        help='minimal output'
+        help='minimal output with total uptime'
     )
     parser.add_argument(
         '-n', '--noup',
@@ -1073,7 +1073,7 @@ def print_default(db_rows, sis, arg):
     else:
         est = ['Longest', 'long', 'max']
 
-    if arg.mini:
+    if arg.min:
         if arg.invert:
             print(sp0 + downtime['sys_time'] + sp0)
         else:

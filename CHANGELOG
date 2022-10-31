@@ -2,7 +2,7 @@ tuptime (5.2.2) unstable; urgency=low
 
   * Swich between longest/shortest on default output with -i
   * Option -x, --silent renamed to -w, --write
-  * Adding -m, --mini to print only system total uptime
+  * Adding -m, --min to print only system total uptime
   * Change repository name
 
  -- Ricardo Fraile <r@rfmoz.eu>  Sun, 30 Oct 2022 06:22:00 +0100
