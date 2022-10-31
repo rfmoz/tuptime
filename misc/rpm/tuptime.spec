@@ -69,7 +69,7 @@ chmod +x %{buildroot}%{_datadir}/tuptime/*.py
 
 %post
 # Create and initialise the tuptime DB with consistent permissions, etc.
-su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -w)"
+su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -q)"
 %systemd_post tuptime.service
 %systemd_post tuptime-sync.service
 %systemd_post tuptime-sync.timer

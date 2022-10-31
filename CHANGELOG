@@ -1,7 +1,7 @@
 tuptime (5.2.2) unstable; urgency=low
 
   * Swich between longest/shortest on default output with -i
-  * Option -x, --silent renamed to -w, --write
+  * Option -x, --silent renamed to -q, --quiet
   * Adding -m, --min to print only system total uptime
   * Change repository name
 

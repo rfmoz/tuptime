@@ -47,7 +47,7 @@ case "$1" in
 			fi
 		fi
 
-		su -s /bin/sh _tuptime -c "tuptime -w"
+		su -s /bin/sh _tuptime -c "tuptime -q"
 	;;
 
 	abort-upgrade|abort-remove|abort-deconfigure)

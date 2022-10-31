@@ -190,6 +190,7 @@ These are the command line options, no configuration file is used:
   -o TYPE, --order TYPE
                         order enumerate by [u|r|s|e|d|k]
   -p, --power           show power states run + sleep
+  -q, --quiet           update values into DB without output
   -r, --reverse         reverse order in listings
   -s, --seconds         output time in seconds and epoch
   -S STARTUP, --since STARTUP
@@ -202,7 +203,6 @@ These are the command line options, no configuration file is used:
                         limit up until this startup number
   -v, --verbose         verbose output
   -V, --version         show version
-  -w, --write           write values into DB without output
 
 
 -A <STARTUP>, --at <STARTUP>
@@ -401,6 +401,14 @@ These are the command line options, no configuration file is used:
          tuptime -l --power
 
 
+-q, --quiet
+  Update values into database without compute and print output values.
+
+  Examples:
+         tuptime -q
+         tuptime --quiet
+
+
 -r, --reverse
   Reverse order for table or list output.
 
@@ -493,14 +501,6 @@ These are the command line options, no configuration file is used:
   Examples:
          tuptime -V
          tuptime --version
-
-
--w, --write
-  Only write values into database. No output is printed.
-
-  Examples:
-         tuptime -w
-         tuptime --write
 
 
 
