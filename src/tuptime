@@ -1073,6 +1073,7 @@ def print_default(db_rows, sis, arg):
     else:
         est = ['Longest', 'long', 'max']
 
+    # Minimal print
     if arg.min:
         if arg.invert:
             print(sp0 + downtime['sys_time'] + sp0)

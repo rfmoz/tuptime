@@ -240,8 +240,10 @@ These are the command line options, no configuration file is used:
 
 
 -d <DATETIME_FMT>, --date=<DATETIME_FMT>
-  Change the datetime/timestamp format. By default the output use the
-  configured system locales. Allow values are:
+  Change the datetime/timestamp format.
+  By default the output use the configured system locales.
+  The following is a list of all the format codes that the 1989 C standard
+  requires, and these work on all platforms with a standard C implementation.
 
         %a	Weekday as locale’s abbreviated name.
         %A	Weekday as locale’s full name.
@@ -274,11 +276,13 @@ These are the command line options, no configuration file is used:
         %X	Locale’s appropriate time representation.
         %%	A literal '%' character.
 
+  To see the full set of format codes supported on your platform, consult the
+  strftime(3) documentation.
 
   Examples:
-         tuptime -d '%X %x'  # (Default)
-         tuptime -d '%H:%M:%S   %m-%d-%Y'  # British style
-         tuptime -d '%H:%M:%S   %d-%b-%Y'  # Spanish style
+         tuptime -d '%X %x'  # (locale by default)
+         tuptime -d '%H:%M:%S   %m-%d-%Y'  # MDY style
+         tuptime -d '%H:%M:%S   %d-%b-%Y'  # DMY style
 
 
 -e DECIMALS, --dec DECIMALS
