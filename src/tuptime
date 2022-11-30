@@ -135,13 +135,6 @@ def get_arguments():
         help='enumerate system life as list'
     )
     parser.add_argument(
-        '-m', '--min',
-        dest='min',
-        default=False,
-        action='store_true',
-        help='minimal output with total uptime'
-    )
-    parser.add_argument(
         '-n', '--noup',
         dest='update',
         default=True,
@@ -1072,14 +1065,6 @@ def print_default(db_rows, sis, arg):
         est = ['Shortest', 'short', 'min']
     else:
         est = ['Longest', 'long', 'max']
-
-    # Minimal print
-    if arg.min:
-        if arg.invert:
-            print(sp0 + downtime['sys_time'] + sp0)
-        else:
-            print(sp0 + uptime['sys_time'] + sp0)
-        return
 
     # System block print
     print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp3 + 'since' + sp3 + str(tstamp['min']), end='')
