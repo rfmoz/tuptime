@@ -4,7 +4,7 @@ tuptime (5.2.2) unstable; urgency=low
   * Option -x, --silent renamed to -q, --quiet
   * Change repository name
 
- -- Ricardo Fraile <r@rfmoz.eu>  Sun, 30 Oct 2022 06:22:00 +0100
+ -- Ricardo Fraile <r@rfmoz.eu>  Thu, 05 Jan 2023 20:17:00 +0100
 
 tuptime (5.2.1) unstable; urgency=low
 
