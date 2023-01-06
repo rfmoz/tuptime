@@ -1,10 +1,10 @@
-.TH TUPTIME 1 "Aug 2022" "5.2.1" "Linux Manual"
+.TH TUPTIME 1 "Jan 2023" "5.2.2" "Linux Manual"
 
 .SH NAME
 tuptime \- Report historical and statistical real time of the system, keeping it between restarts. Total uptime.
 
 .SH SYNOPSIS
-tuptime [\-h] [\-A STARTUP] [\-b] [\-c] [\-d DATETIME_FMT] [\-e DECIMALS] [\-E STARTUP] [\-f FILE] [\-g] [\-i] [\-k] [\-l] [\-n] [\-o TYPE] [\-p] [\-r] [\-s] [\-S STARTUP] [\-t] [\-\-tat TIMESTAMP] [\-\-tsince TIMESTAMP] [\-\-tuntil TIMESTAMP] [\-U STARTUP] [\-v] [\-V] [\-x]
+tuptime [\-h] [\-A STARTUP] [\-b] [\-c] [\-d DATETIME_FMT] [\-e DECIMALS] [\-E STARTUP] [\-f FILE] [\-g] [\-i] [\-k] [\-l] [\-n] [\-o TYPE] [\-p] [\-q] [\-r] [\-s] [\-S STARTUP] [\-t] [\-\-tat TIMESTAMP] [\-\-tsince TIMESTAMP] [\-\-tuntil TIMESTAMP] [\-U STARTUP] [\-v] [\-V]
 
 .SH DESCRIPTION
 .RS
@@ -74,7 +74,7 @@ T}
 Register a graceful shutdown
 T}
 \-i | \-\-invert@T{
-Startup number in reverse count
+Startup number in reverse count | swich between longest/shortest on default output
 T}
 \-k | \-\-kernel@T{
 Show kernel version
@@ -91,8 +91,11 @@ T}
 \-p | \-\-power@T{
 Show power states run + sleep
 T}
+\-q | \-\-quiet@T{
+Update values into DB without output
+T}
 \-r | \-\-reverse@T{
-Reverse order in list or table output
+Reverse order in listings
 T}
 \-s | \-\-seconds@T{
 Output time in seconds and epoch
@@ -120,9 +123,6 @@ Verbose output
 T}
 \-V | \-\-version@T{
 Show version
-T}
-\-x | \-\-silent@T{
-Update values into DB without output
 T}
 .TE
 .SS ENVIRONMENT
@@ -244,7 +244,7 @@ Ricardo Fraile <r@rfmoz.eu>
 
 .SH "COPYRIGHT"
 .PP
-Copyright (C) 2022 by Ricardo F. All Rights Reserved.
+Copyright (C) 2023 by Ricardo F. All Rights Reserved.
 
 This product is distributed in the hope that it will be useful, but
 WITHOUT any warranty; without even the implied warranty of 

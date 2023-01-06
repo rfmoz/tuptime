@@ -27,7 +27,7 @@ RETVAL=0
 do_start () {
         # Start service
         echo -n $"Starting tuptime: "
-        daemon --user $USER $PATH_BIN -x
+        daemon --user $USER $PATH_BIN -q
         RETVAL=$?
          echo
         [ $RETVAL -eq 0 ] && touch ${LOCKFILE}
@@ -37,8 +37,8 @@ do_start () {
 do_stop () {
         # Stop service
         echo -n $"Stopping tuptime: "
-        daemon --user $USER $PATH_BIN -xg
-        $PATH_BIN -xg
+        daemon --user $USER $PATH_BIN -qg
+        $PATH_BIN -qg
         RETVAL=$?
          echo
         [ $RETVAL -eq 0 ] && rm -f ${LOCKFILE}

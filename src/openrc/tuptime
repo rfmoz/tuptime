@@ -3,7 +3,7 @@
 name='tuptime'
 command='/usr/bin/tuptime'
 command_user='_tuptime'
-command_args='-x'
+command_args='-q'
 
 depend() {
         need localmount
@@ -13,18 +13,18 @@ depend() {
 
 start() {
         ebegin "Starting ${name}"
-        su ${command_user} -s /bin/sh -c "${command} -x"
+        su ${command_user} -s /bin/sh -c "${command} -q"
         eend $?
 }
 
 stop() {
         ebegin "Stopping ${name}"
-        su ${command_user} -s /bin/sh -c "${command} -xg"
+        su ${command_user} -s /bin/sh -c "${command} -qg"
         eend $?
 }
 
 status() {
         ebegin "Status ${name}"
-        su ${command_user} -s /bin/sh -c "${command} -x"
+        su ${command_user} -s /bin/sh -c "${command} -q"
         eend $?
 }

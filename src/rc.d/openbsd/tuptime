@@ -18,11 +18,11 @@ rc_check() {
 }
 
 rc_start() {
-	rc_exec "${daemon} -x"
+	rc_exec "${daemon} -q"
 }
 
 rc_stop() {
-	rc_exec "${daemon} -xg"
+	rc_exec "${daemon} -qg"
 	_rc_rm_runfile
 }
 

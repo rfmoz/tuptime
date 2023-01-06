@@ -1,5 +1,5 @@
 Name:		tuptime
-Version:	5.2.1
+Version:	5.2.2
 Release:	1%{?dist}
 Summary:	Report historical system real time
 
@@ -69,7 +69,7 @@ chmod +x %{buildroot}%{_datadir}/tuptime/*.py
 
 %post
 # Create and initialise the tuptime DB with consistent permissions, etc.
-su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
+su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -q)"
 %systemd_post tuptime.service
 %systemd_post tuptime-sync.service
 %systemd_post tuptime-sync.timer
@@ -102,6 +102,9 @@ su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -x)"
 
 
 %changelog
+* Thu Jan 05 2023 Ricardo Fraile <rfraile@rfraile.eu> 5.2.2-1
+- New release
+
 * Fri Aug 19 2022 Ricardo Fraile <rfraile@rfraile.eu> 5.2.1-1
 - New release
 

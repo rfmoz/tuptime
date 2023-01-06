@@ -39,14 +39,14 @@ do_start () {
         # Start service
         log_action_begin_msg "Starting $BIN_NAME"
         log_end_msg 0
-        su -s /bin/sh $USER -c "$PATH_BIN -x" > /dev/null
+        su -s /bin/sh $USER -c "$PATH_BIN -q" > /dev/null
 }
 
 do_stop () {
         # Stop service
         log_action_begin_msg "Stopping $BIN_NAME"
         log_end_msg 0
-        su -s /bin/sh $USER -c "$PATH_BIN -xg" > /dev/null
+        su -s /bin/sh $USER -c "$PATH_BIN -qg" > /dev/null
 }
 
 do_status () {

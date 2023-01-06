@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 5.2.1
+                              version 5.2.2
                                 Ricardo F.
-                               19/Aug/2022
+                               06/Jan/2023
 
 
 
@@ -181,14 +181,16 @@ These are the command line options, no configuration file is used:
   -f FILE, --filedb FILE
                         database file (/var/lib/tuptime/tuptime.db)
   -g, --graceful        register a graceful shutdown
-  -i, --invert          startup number in reverse count
+  -i, --invert          startup number in reverse count | swich between
+                        longest/shortest on default output
   -k, --kernel          show kernel version
   -l, --list            enumerate system life as list
   -n, --noup            avoid update values into DB
   -o TYPE, --order TYPE
                         order enumerate by [u|r|s|e|d|k]
   -p, --power           show power states run + sleep
-  -r, --reverse         reverse order in list or table output
+  -q, --quiet           update values into DB without output
+  -r, --reverse         reverse order in listings
   -s, --seconds         output time in seconds and epoch
   -S STARTUP, --since STARTUP
                         limit from this startup number
@@ -200,7 +202,6 @@ These are the command line options, no configuration file is used:
                         limit up until this startup number
   -v, --verbose         verbose output
   -V, --version         show version
-  -x, --silent          update values into DB without output
 
 
 -A <STARTUP>, --at <STARTUP>
@@ -238,8 +239,10 @@ These are the command line options, no configuration file is used:
 
 
 -d <DATETIME_FMT>, --date=<DATETIME_FMT>
-  Change the datetime/timestamp format. By default the output use the
-  configured system locales. Allow values are:
+  Change the datetime/timestamp format.
+  By default the output use the configured system locales.
+  The following is a list of all the format codes that the 1989 C standard
+  requires, and these work on all platforms with a standard C implementation.
 
         %a	Weekday as locale’s abbreviated name.
         %A	Weekday as locale’s full name.
@@ -272,11 +275,13 @@ These are the command line options, no configuration file is used:
         %X	Locale’s appropriate time representation.
         %%	A literal '%' character.
 
+  To see the full set of format codes supported on your platform, consult the
+  strftime(3) documentation.
 
   Examples:
-         tuptime -d '%X %x'  # (Default)
-         tuptime -d '%H:%M:%S   %m-%d-%Y'  # British style
-         tuptime -d '%H:%M:%S   %d-%b-%Y'  # Spanish style
+         tuptime -d '%X %x'  # (locale by default)
+         tuptime -d '%H:%M:%S   %m-%d-%Y'  # MDY style
+         tuptime -d '%H:%M:%S   %d-%b-%Y'  # DMY style
 
 
 -e DECIMALS, --dec DECIMALS
@@ -320,14 +325,17 @@ These are the command line options, no configuration file is used:
 
 
 -i, --invert
-  Print startup number in reverse count starting since last boot. Only works in
-  conjunction with (-t), (-l), or (--tat) options. Equal than the output of 
+  Print startup number in reverse count starting since last boot when it's
+  used in conjunction with (-t), (-l), or (--tat) options. Equal than the output of
   'journalctl --list-boots'.
+  Change Longest to Shortest values on default output report.
+  Change Total Uptime to Downtime on (-m) option.
 
   Examples:
          tuptime -t -i
          tuptime -tib
          tuptime -l --invert
+         tuptime -i
 
 
 -k, --kernel
@@ -385,11 +393,19 @@ These are the command line options, no configuration file is used:
          tuptime -l --power
 
 
+-q, --quiet
+  Update values into database without compute and print output values.
+
+  Examples:
+         tuptime -q
+         tuptime --quiet
+
+
 -r, --reverse
   Reverse order for table or list output.
 
   Examples:
-         tuptime -tr
+         tuptime -r
          tuptime -lur
          tuptime -teo --reverse
          tuptime -l --reverse
@@ -479,14 +495,6 @@ These are the command line options, no configuration file is used:
          tuptime --version
 
 
--x, --silent
-  Any output is printed. Only update values and save them into disk.
-
-  Examples:
-         tuptime -x
-         tuptime --silent
-
-
 
 =========================
 | Environment variables |
@@ -517,9 +525,9 @@ It's important to have a schedule execution. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
 shutdown, but if the system fails, hangs or whatever, the uptime time will
 be lost. Be sure that the cron entry or, in other case, the systemd
-tuptime-syncn.[timer|service] units are installed as expected.
+tuptime-sync.[timer|service] units are installed as expected.
 
-Why it's needed the use of an other .service file with the name tuptime-sync?
+Why is it needed the use of an other .service file with the name tuptime-sync?
 The default tuptime.service file uses the option 'RemainAfterExit=true' and
 nowadays the systemd timer can't restart an already running service, so, this
 is the best workaround.
