@@ -1,9 +1,9 @@
 Name:		tuptime
 Version:	5.2.2
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Report historical system real time
 
-License:	GPLv2+
+License:	GPL-2.0-or-later
 BuildArch:	noarch
 URL:		https://github.com/rfmoz/tuptime/
 Source0:	https://github.com/rfmoz/tuptime/archive/%{version}.tar.gz
@@ -30,7 +30,7 @@ system, keeping the uptime and downtime between shutdowns.
 
 
 %prep
-%setup -q
+%autosetup
 # Fix python shebang
 %if %{?py3_shebang_fix:1}%{!?py3_shebang_fix:0}
 %py3_shebang_fix src/tuptime
@@ -102,6 +102,9 @@ su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -q)"
 
 
 %changelog
+* Thu Jan 07 2023 Frank Crawford <frank@crawford.emu.id.au> 5.2.2-2
+- Updated to SPDX license
+
 * Thu Jan 05 2023 Ricardo Fraile <rfraile@rfraile.eu> 5.2.2-1
 - New release
 
