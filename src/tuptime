@@ -26,8 +26,11 @@ DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATETIME_FMT = '%X %x'
 __version__ = '5.2.2'
 
-# Terminate when SIGPIPE signal is received
-signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+# Terminate gracefully when SIGPIPE signal is received.
+try:
+    signal.signal(signal.SIGPIPE, signal.SIG_DF)
+except Exception:
+    pass
 
 # Set locale to the user’s default settings (LANG env. var)
 try:
