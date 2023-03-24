@@ -4,6 +4,8 @@
 # REQUIRE: DAEMON
 # KEYWORD: nojail shutdown
 
+tuptime_enable=${tuptime_enable:-"NO"}
+
 . /etc/rc.subr
 
 name="tuptime"
