@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # Tuptime installation linux script
-# v.1.8.9
+# v.1.9.0
 #
 # Usage:
 # 	 bash tuptime-install.sh	Default master install
@@ -35,7 +35,7 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Test arguments
-while test $# -gt 0; do
+while [ "$#" -gt 0 ]; do
 	case "$1" in
 		-d) DEV=1 ;;
 	esac
@@ -51,30 +51,35 @@ fi
 # Test if curl is installed
 if ! curl --version > /dev/null 2>&1; then
 	echo "ERROR: \"curl\" command not available"
-	echo "Please, install it"; exit 1
+	echo "Please, install it"
+	exit 1
 fi
 
 # Test if tar is installed
 if ! tar --version > /dev/null 2>&1; then
 	echo "ERROR: \"tar\" command not available"
-	echo "Please, install it"; exit 1
+	echo "Please, install it"
+	exit 1
 fi
 
 # Test if python is installed
 if ! python3 --version > /dev/null; then
 	echo "ERROR: Python not available"
-	echo "Please, install version 3 or greater"; exit 1
+	echo "Please, install version 3 or greater"
+	exit 1
 else
 	# Test if version 3 or avobe of python is installed
 	pynum=$(python3 --version | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2)
 	if [ "$pynum" -lt 30 ] ; then
 		echo "ERROR: Its needed Python version 3"
-		echo "Please, upgrade it."; exit 1
+		echo "Please, upgrade it."
+		exit 1
 	else
 		# Test if all modules needed are available
 		if ! python3 -c "import sys, os, argparse, locale, platform, signal, logging, sqlite3, datetime"; then
 			echo "ERROR: Please, ensure that these Python modules are available in the local system:"
-			echo "sys, os, optparse, sqlite3, locale, platform, datetime, logging"; exit 1
+			echo "sys, os, optparse, sqlite3, locale, platform, datetime, logging"
+			exit 1
 		fi
 	fi
 fi
