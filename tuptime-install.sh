@@ -1,15 +1,14 @@
 #!/bin/bash
+set -e
 
 #
 # Tuptime installation linux script
-# v.1.9.0
 #
 # Usage:
 # 	 bash tuptime-install.sh	Default master install
 # 	 bash tuptime-install.sh -d	Install using dev branch
 #
-
-set -e
+VERSION=1.9.1
 
 # Execution user
 EXUSR='_tuptime'
@@ -105,7 +104,7 @@ fi
 F_TMP1=$(mktemp -d)
 
 echo ""
-echo "++ Tuptime installation script ++"
+echo "++ Tuptime installation script v.$VERSION ++"
 echo ""
 
 echo "+ Getting source tar file"
