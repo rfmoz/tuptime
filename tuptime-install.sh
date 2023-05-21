@@ -8,16 +8,14 @@ set -e
 # 	 bash tuptime-install.sh	Default master install
 # 	 bash tuptime-install.sh -d	Install using dev branch
 #
-VERSION=1.9.1
+
+VERSION=1.9.2
 
 # Execution user
 EXUSR='_tuptime'
 
 # Destination dir for executable file
 D_BIN='/usr/bin'
-
-# PID 1 process
-PID1=$(grep 'Name' /proc/1/status | cut -f2)
 
 # Swich dev branch
 DEV=0
@@ -36,53 +34,52 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Test arguments
-while [ "$#" -gt 0 ]; do
-	case "$1" in
-		-d) DEV=1 ;;
+while getopts ":d" opt; do
+	case $opt in
+	d)
+		DEV=1
+		;;
+	\?)
+		echo "Invalid option: -$OPTARG"
+		exit 1
+		;;
 	esac
-	shift
 done
 
 # Test if it is a linux system
-if [ "$(expr substr "$(uname -s)" 1 5)" != "Linux" ]; then
+if [ $(uname -s) != "Linux" ]; then
 	echo "Sorry, only for Linux systems"
 	exit 1
 fi
 
-# Test if curl is installed
-if ! curl --version > /dev/null 2>&1; then
-	echo "ERROR: \"curl\" command not available"
-	echo "Please, install it"
-	exit 1
-fi
+# Test required commands
+check_command() {
+	if ! command -v "$1" &> /dev/null; then
+		echo "ERROR: "$1" command not found"
+		echo "Please install it"
+		exit 1
+	fi
+}
 
-# Test if tar is installed
-if ! tar --version > /dev/null 2>&1; then
-	echo "ERROR: \"tar\" command not available"
-	echo "Please, install it"
-	exit 1
-fi
+check_command "curl"
+check_command "tar"
+check_command "python3"
 
-# Test if python is installed
-if ! python3 --version > /dev/null; then
-	echo "ERROR: Python not available"
-	echo "Please, install version 3 or greater"
+# Test python version
+PYTHON_VERSION=$(python3 --version | awk '{print $2}')
+if [[ "$(cut -d'.' -f1 <<<"$PYTHON_VERSION")" -lt 3 ]]; then
+	echo "ERROR: Python 3 or later is required"
+	echo "Please upgrade your Python installation"
 	exit 1
 else
-	# Test if version 3 or avobe of python is installed
-	pynum=$(python3 --version | tr -d '.''' | grep -Eo  '[0-9]*' | head -1 | cut -c 1-2)
-	if [ "$pynum" -lt 30 ] ; then
-		echo "ERROR: Its needed Python version 3"
-		echo "Please, upgrade it."
-		exit 1
-	else
-		# Test if all modules needed are available
-		if ! python3 -c "import sys, os, argparse, locale, platform, signal, logging, sqlite3, datetime"; then
-			echo "ERROR: Please, ensure that these Python modules are available in the local system:"
-			echo "sys, os, optparse, sqlite3, locale, platform, datetime, logging"
+	# Test if all modules needed are available
+	REQUIRED_PYTHON_MODULES=("sys" "os" "argparse" "locale" "platform" "signal" "logging" "sqlite3" "datetime")
+	for module in "${REQUIRED_PYTHON_MODULES[@]}"; do
+		if ! python3 -c "import $module" &> /dev/null; then
+			echo "ERROR: Required Python module '$module' is not available."
 			exit 1
 		fi
-	fi
+	done
 fi
 
 # Set SystemD path
@@ -93,11 +90,11 @@ else
 fi
 
 # Set Selinux swich
-if ! getenforce 2> /dev/null | grep -q 'Enforcing'; then
-	SELX=0
-else
+if getenforce 2> /dev/null | grep -q 'Enforcing'; then
        	echo "Selinux enabled in Enforcing"
 	SELX=1
+else
+	SELX=0
 fi
 
 # Temporary dir to download sources
@@ -150,7 +147,7 @@ tuptime -q
 echo '  [OK]'
 
 echo "+ Setting Tuptime db ownership"
-( chown -R "${EXUSR}":"${EXUSR}" /var/lib/tuptime || chown -R "${EXUSR}" /var/lib/tuptime )
+chown -R "${EXUSR}":"${EXUSR}" /var/lib/tuptime || chown -R "${EXUSR}" /var/lib/tuptime
 chmod 755 /var/lib/tuptime
 echo '  [OK]'
 
@@ -159,6 +156,7 @@ su -s /bin/sh "${EXUSR}" -c "tuptime -q"
 echo '  [OK]'
 
 # Install init
+PID1=$(grep 'Name' /proc/1/status | cut -f2)
 if [ "${PID1}" = 'systemd' ]; then
 	echo "+ Copying Systemd file"
 	install -m 644 "${F_TMP1}"/src/systemd/tuptime.service "${SYSDPATH}"
