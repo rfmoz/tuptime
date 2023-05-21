@@ -126,15 +126,18 @@ if systemd-sysusers --version > /dev/null 2>&1; then
 	echo "  ...using systemd-sysusers"
         install -m 644 "${F_TMP1}"/src/systemd/tuptime.sysusers /usr/lib/sysusers.d/tuptime.conf
         ((SELX)) && restorecon -vF /usr/lib/sysusers.d/tuptime.conf
-	systemd-sysusers /usr/lib/sysusers.d/tuptime.conf && echo '  [OK]'
+	systemd-sysusers /usr/lib/sysusers.d/tuptime.conf
+	echo '  [OK]'
 
 elif useradd -h > /dev/null 2>&1; then
 	echo "  ...using useradd"
 	useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
-        	--shell '/bin/false' --comment 'Tuptime execution user' "${EXUSR}" && echo '  [OK]'
+        	--shell '/bin/false' --comment 'Tuptime execution user' "${EXUSR}"
+	echo '  [OK]'
 elif adduser -h > /dev/null 2>&1; then
 	echo "  ...using adduser"
-	adduser -S -H -h '/var/lib/tuptime' -s '/bin/false' "${EXUSR}" && echo '  [OK]'
+	adduser -S -H -h '/var/lib/tuptime' -s '/bin/false' "${EXUSR}"
+	echo '  [OK]'
 else
 	echo "#######################################"
 	echo " WARNING - _tuptime user not available"
@@ -143,7 +146,8 @@ else
 fi
 
 echo "+ Creating Tuptime db"
-tuptime -q && echo '  [OK]'
+tuptime -q
+echo '  [OK]'
 
 echo "+ Setting Tuptime db ownership"
 ( chown -R "${EXUSR}":"${EXUSR}" /var/lib/tuptime || chown -R "${EXUSR}" /var/lib/tuptime )
@@ -160,7 +164,8 @@ if [ "${PID1}" = 'systemd' ]; then
 	install -m 644 "${F_TMP1}"/src/systemd/tuptime.service "${SYSDPATH}"
 	((SELX)) && restorecon -vF "${SYSDPATH}"tuptime.service
 	systemctl daemon-reload
-	systemctl enable tuptime.service && systemctl start tuptime.service
+	systemctl enable tuptime.service
+	systemctl start tuptime.service
 	echo '  [OK]'
 
 elif [ "${PID1}" = 'init' ] && [ -f /etc/rc.d/init.d/functions ]; then
@@ -182,14 +187,16 @@ elif [ "${PID1}" = 'init' ] && [ -f /etc/rc.conf ]; then
 	echo "+ Copying OpenRC file for init"
 	install -m 755 "${F_TMP1}"/src/openrc/tuptime /etc/init.d/
 	((SELX)) && restorecon -vF /etc/init.d/tuptime
-	rc-update add tuptime default && rc-service tuptime start
+	rc-update add tuptime default
+	rc-service tuptime start
 	echo '  [OK]'
 
 elif [ "${PID1}" = 'openrc-init' ]; then
 	echo "+ Copying OpenRC file for openrc-init"
 	install -m 755 "${F_TMP1}"/src/openrc/tuptime /etc/init.d/
 	((SELX)) && restorecon -vF /etc/init.d/tuptime
-	rc-update add tuptime default && rc-service tuptime start
+	rc-update add tuptime default
+	rc-service tuptime start
 	echo '  [OK]'
 
 elif [ "${PID1}" = 'runit' ] && [ -f /etc/rc.local ] && [ -f /etc/rc.shutdown ]; then
@@ -209,7 +216,8 @@ if [ -d "${SYSDPATH}" ]; then
 	echo "+ Copying tuptime-sync.timer and .service"
 	install -m 644 "${F_TMP1}"/src/systemd/tuptime-sync.*  "${SYSDPATH}"
 	((SELX)) && restorecon -vF "${SYSDPATH}"tuptime-sync.*
-	systemctl enable tuptime-sync.timer && systemctl start tuptime-sync.timer
+	systemctl enable tuptime-sync.timer
+	systemctl start tuptime-sync.timer
 	echo '  [OK]'
 
 elif [ -d /etc/cron.d/ ]; then
