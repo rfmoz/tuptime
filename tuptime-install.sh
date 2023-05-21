@@ -129,12 +129,10 @@ if systemd-sysusers --version > /dev/null 2>&1; then
 elif useradd -h > /dev/null 2>&1; then
 	echo "  ...using useradd"
 	useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
-        	--shell '/bin/false' --comment 'Tuptime execution user' "${EXUSR}"
-	echo '  [OK]'
+        	--shell '/bin/false' --comment 'Tuptime execution user' "${EXUSR}" && echo '  [OK]'
 elif adduser -h > /dev/null 2>&1; then
 	echo "  ...using adduser"
-	adduser -S -H -h '/var/lib/tuptime' -s '/bin/false' "${EXUSR}"
-	echo '  [OK]'
+	adduser -S -H -h '/var/lib/tuptime' -s '/bin/false' "${EXUSR}" && echo '  [OK]'
 else
 	echo "#######################################"
 	echo " WARNING - _tuptime user not available"
