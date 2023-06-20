@@ -28,7 +28,7 @@ __version__ = '5.2.2'
 
 # Terminate gracefully when SIGPIPE signal is received.
 try:
-    signal.signal(signal.SIGPIPE, signal.SIG_DF)
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 except Exception:
     pass
 
