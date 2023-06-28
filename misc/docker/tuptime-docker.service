@@ -1,0 +1,15 @@
+[Unit]
+Description=Tuptime docker service
+After=docker.service
+Requires=docker.service
+Conflicts=tuptime.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/bin/docker run --network none --rm -v /var/lib/tuptime/:/var/lib/tuptime/ tuptime -q
+ExecStop=/usr/bin/docker run --network none --rm -v /var/lib/tuptime/:/var/lib/tuptime/ tuptime -qg
+StateDirectory=tuptime
+
+[Install]
+WantedBy=multi-user.target
