@@ -3,7 +3,7 @@
                          ----------------------
                               version 5.2.2
                                 Ricardo F.
-                               06/Jan/2023
+                               29/Jun/2023
 
 
 
@@ -44,6 +44,7 @@ If a distro is used, all is met with:
     - In Linux:  'python' package >= 3.0
     - In FreeBSD: 'python3' and 'py36-sqlite3'
 
+Also, execution via Docker is available, see note below.
 
 
 ================
@@ -146,6 +147,13 @@ For BSDs systems:
    + Manual install on FreeBSD, OpenBSD, NetBSD and derivates:
 
        Please, read misc/bsd-manual-install.txt
+
+
+Via Docker:
+
+   Tuptime could be executed inside a container via Docker, but it still
+   requires the Systemd integration on the monitored host.
+   Please, read misc/docker/docker-notes.txt
 
 
 Partial support for OSX (Darwin) system:

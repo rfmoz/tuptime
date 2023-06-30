@@ -8,6 +8,9 @@ It only requires the creation of the path /var/lib/tuptime/ on the host to store
 database file, which is done by Systemd automatically. All other runtime requirements
 reside inside the container and their execution is managed via Systemd too.
 
+The container is built over Alpine image, because their small footprint. But it could
+be built over any other OS image.
+
 Begin with this installation method getting the repo and creating the container:
 
     # git clone https://github.com/rfmoz/tuptime.git
