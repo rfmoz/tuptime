@@ -851,14 +851,17 @@ def print_table(db_rows, arg):
         # Print cols by row
         for row in tbl:
 
+            # Convert the entire row to strings
+            row = [str(cell) for cell in row]
+
             # First in raw and next ones with side spaces
-            sys.stdout.write(str(row[0]).rjust(colpad[0]))
+            sys.stdout.write(row[0].rjust(colpad[0]))
             for i in range(1, len(row)):
                 if i in align_left:
-                    col = (side_spaces * ' ') + str(row[i]).ljust(colpad[i])
+                    col = (side_spaces * ' ') + row[i].ljust(colpad[i])
                 else:
-                    col = str(row[i]).rjust(colpad[i] + side_spaces)
-                sys.stdout.write(str('' + col))
+                    col = row[i].rjust(colpad[i] + side_spaces)
+                sys.stdout.write(col)
             print('')
 
 
