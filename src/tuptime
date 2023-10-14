@@ -1068,9 +1068,9 @@ def print_default(db_rows, sis, arg):
         uptime['current'] += sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')'
 
     if arg.invert:
-        est = ['Shortest', 'short', 'min']
+        est = ['Shortest', 'short', 'min-up', 'min-down']
     else:
-        est = ['Longest', 'long', 'max']
+        est = ['Longest', 'long', 'max-up', 'max-down']
 
     # System block print
     print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp3 + 'since' + sp3 + str(tstamp['min']), end='')
@@ -1089,29 +1089,27 @@ def print_default(db_rows, sis, arg):
     if not arg.csv: print('')
 
     # Uptime block print
-    key = est[2] + '-up'
-    if lmt[key]['btime'] is not False:
-        print(sp0 + est[0] + ' uptime' + sp1 + uptime[est[1]] + sp3 + 'from' + sp3 + str(lmt[key]['btime']) + sp0)
+    if lmt[est[2]]['btime'] is not False:
+        print(sp0 + est[0] + ' uptime' + sp1 + uptime[est[1]] + sp3 + 'from' + sp3 + str(lmt[est[2]]['btime']) + sp0)
     else:
         print(sp0 + est[0] + ' uptime' + sp1 + uptime[est[1]] + sp0)
     if arg.bootid:
-        print(sp0 + (sp5 * 4) + '...boot ID' + sp1 + str(lmt[key]['bootid']) + sp0)
+        print(sp0 + (sp5 * 4) + '...boot ID' + sp1 + str(lmt[est[2]]['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp5 * 5) + '...kernel' + sp1 + str(lmt[key]['kernel']) + sp0)
+        print(sp0 + (sp5 * 5) + '...kernel' + sp1 + str(lmt[est[2]]['kernel']) + sp0)
     print(sp0 + 'Average uptime' + sp1 + uptime['average'] + sp0)
     print(sp0 + 'System uptime' + sp1 + (sp5 * 8) + uptime['sys_rate'] + sp3 + '=' + sp3 + uptime['sys_time'] + sp0)
     if not arg.csv: print('')
 
     # Downtime block print
-    key = est[2] + '-down'
-    if lmt[key]['offbtime'] is not False:
-        print(sp0 + est[0] + ' downtime' + sp1 + downtime[est[1]] + sp3 + 'from' + sp3 + str(lmt[key]['offbtime']) + sp0)
+    if lmt[est[3]]['offbtime'] is not False:
+        print(sp0 + est[0] + ' downtime' + sp1 + downtime[est[1]] + sp3 + 'from' + sp3 + str(lmt[est[3]]['offbtime']) + sp0)
     else:
         print(sp0 + est[0] + ' downtime' + sp1 + downtime[est[1]] + sp0)
     if arg.bootid:
-        print(sp0 + (sp5 * 6) + '...boot ID' + sp1 + str(lmt[key]['bootid']) + sp0)
+        print(sp0 + (sp5 * 6) + '...boot ID' + sp1 + str(lmt[est[3]]['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp5 * 7) + '...kernel' + sp1 + str(lmt[key]['kernel']) + sp0)
+        print(sp0 + (sp5 * 7) + '...kernel' + sp1 + str(lmt[est[3]]['kernel']) + sp0)
     print(sp0 + 'Average downtime' + sp1 + downtime['average'] + sp0)
     print(sp0 + 'System downtime' + sp1 + downtime['sys_rate'] + sp3 + '=' + sp3 + downtime['sys_time'] + sp0)
 
