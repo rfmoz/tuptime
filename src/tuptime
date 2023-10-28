@@ -1059,7 +1059,7 @@ def print_default(db_rows, sis, arg):
     downtime = {'average': str(cal['ave']['downtime']), 'long': str(lmt['max-down']['downtime']), 'short': str(lmt['min-down']['downtime']),
                 'sys_time': str(cal['tot']['downtime']), 'sys_rate': str(rate['downtime']) + '%'}
 
-    if arg.power:
+    if arg.power:  # Add power values if needed
         uptime['average'] += sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')'
         uptime['long'] += sp4 + '(rn: ' + str(lmt['max-up']['rntime']) + ' + slp: ' + str(lmt['max-up']['slptime']) + ')'
         uptime['short'] += sp4 + '(rn: ' + str(lmt['min-up']['rntime']) + ' + slp: ' + str(lmt['min-up']['slptime']) + ')'
@@ -1067,10 +1067,10 @@ def print_default(db_rows, sis, arg):
         uptime['sys_rate'] += sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)'
         uptime['current'] += sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')'
 
-    if arg.invert:
-        est = ['Shortest', 'short', 'min-up', 'min-down']
+    if arg.invert:  # Set longest or shortest values for uptime/downtime
+        bfp = { 'name': 'Shortest', 'key': 'short', 'up': lmt['min-up'], 'down': lmt['min-down'] }
     else:
-        est = ['Longest', 'long', 'max-up', 'max-down']
+        bfp = { 'name': 'Longest', 'key': 'long', 'up': lmt['max-up'], 'down': lmt['max-down'] }
 
     # System block print
     print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp3 + 'since' + sp3 + str(tstamp['min']), end='')
@@ -1089,27 +1089,27 @@ def print_default(db_rows, sis, arg):
     if not arg.csv: print('')
 
     # Uptime block print
-    if lmt[est[2]]['btime'] is not False:
-        print(sp0 + est[0] + ' uptime' + sp1 + uptime[est[1]] + sp3 + 'from' + sp3 + str(lmt[est[2]]['btime']) + sp0)
+    if bfp['up']['btime'] is not False:
+        print(sp0 + bfp['name'] + ' uptime' + sp1 + uptime[bfp['key']] + sp3 + 'from' + sp3 + str(bfp['up']['btime']) + sp0)
     else:
-        print(sp0 + est[0] + ' uptime' + sp1 + uptime[est[1]] + sp0)
+        print(sp0 + bfp['name'] + ' uptime' + sp1 + uptime[bfp['key']] + sp0)
     if arg.bootid:
-        print(sp0 + (sp5 * 4) + '...boot ID' + sp1 + str(lmt[est[2]]['bootid']) + sp0)
+        print(sp0 + (sp5 * 4) + '...boot ID' + sp1 + str(bfp['up']['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp5 * 5) + '...kernel' + sp1 + str(lmt[est[2]]['kernel']) + sp0)
+        print(sp0 + (sp5 * 5) + '...kernel' + sp1 + str(bfp['up']['kernel']) + sp0)
     print(sp0 + 'Average uptime' + sp1 + uptime['average'] + sp0)
     print(sp0 + 'System uptime' + sp1 + (sp5 * 8) + uptime['sys_rate'] + sp3 + '=' + sp3 + uptime['sys_time'] + sp0)
     if not arg.csv: print('')
 
     # Downtime block print
-    if lmt[est[3]]['offbtime'] is not False:
-        print(sp0 + est[0] + ' downtime' + sp1 + downtime[est[1]] + sp3 + 'from' + sp3 + str(lmt[est[3]]['offbtime']) + sp0)
+    if bfp['down']['offbtime'] is not False:
+        print(sp0 + bfp['name'] + ' downtime' + sp1 + downtime[bfp['key']] + sp3 + 'from' + sp3 + str(bfp['down']['offbtime']) + sp0)
     else:
-        print(sp0 + est[0] + ' downtime' + sp1 + downtime[est[1]] + sp0)
+        print(sp0 + bfp['name'] + ' downtime' + sp1 + downtime[bfp['key']] + sp0)
     if arg.bootid:
-        print(sp0 + (sp5 * 6) + '...boot ID' + sp1 + str(lmt[est[3]]['bootid']) + sp0)
+        print(sp0 + (sp5 * 6) + '...boot ID' + sp1 + str(bfp['down']['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp5 * 7) + '...kernel' + sp1 + str(lmt[est[3]]['kernel']) + sp0)
+        print(sp0 + (sp5 * 7) + '...kernel' + sp1 + str(bfp['down']['kernel']) + sp0)
     print(sp0 + 'Average downtime' + sp1 + downtime['average'] + sp0)
     print(sp0 + 'System downtime' + sp1 + downtime['sys_rate'] + sp3 + '=' + sp3 + downtime['sys_time'] + sp0)
 
