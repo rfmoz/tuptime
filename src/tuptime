@@ -948,7 +948,7 @@ def print_default(db_rows, sis, arg):
                     updown['ok'] += 1
                 updown['shutdowns'] += 1
 
-            # Get lists with all values
+            # Get lists with all values for later sum and count
             for key in cnt:
                 if row[key] is not False:
                     cnt[key].append(row[key])
@@ -975,11 +975,10 @@ def print_default(db_rows, sis, arg):
     sys_life = 0
 
     def1 = {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}
-    def2 = {'bootid': None, 'btime': False, 'offbtime': False, 'kernel': None, 'startup': None}
-    def3 = {**def1, **def2}
+    def2 = {**def1, 'bootid': None, 'btime': False, 'offbtime': False, 'kernel': None, 'startup': None}
 
     cal = {'tot': def1.copy(), 'ave': def1.copy()}
-    lmt = {'max-up': def3.copy(), 'max-down': def3.copy(), 'min-up': def3.copy(), 'min-down': def3.copy()}
+    lmt = {'max-up': def2.copy(), 'max-down': def2.copy(), 'min-up': def2.copy(), 'min-down': def2.copy()}
     rate = {k: float(v) for k, v in def1.items()}  # Float values of def1
 
     # Get values from all DB rows
@@ -1031,12 +1030,10 @@ def print_default(db_rows, sis, arg):
         for key in ('uptime', 'rntime', 'slptime', 'downtime'):
             if sis[key] is not None:
                 sis[key] = time_conv(sis[key])
-            for val in cal.values():
-                if val[key] is not False:
-                    val[key] = time_conv(val[key])
-            for val in lmt.values():
-                if val[key] is not False:
-                    val[key] = time_conv(val[key])
+            for dval in (cal, lmt):
+                for val in dval.values():
+                    if val[key] is not False:
+                        val[key] = time_conv(val[key])
 
         for key in ('btime', 'offbtime'):
             if sis[key] is not None:
@@ -1068,9 +1065,9 @@ def print_default(db_rows, sis, arg):
         uptime['current'] += sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')'
 
     if arg.invert:  # Set longest or shortest values for uptime/downtime
-        bfp = { 'name': 'Shortest', 'key': 'short', 'up': lmt['min-up'], 'down': lmt['min-down'] }
+        bfp = {'name': 'Shortest', 'key': 'short', 'up': lmt['min-up'], 'down': lmt['min-down']}
     else:
-        bfp = { 'name': 'Longest', 'key': 'long', 'up': lmt['max-up'], 'down': lmt['max-down'] }
+        bfp = {'name': 'Longest', 'key': 'long', 'up': lmt['max-up'], 'down': lmt['max-down']}
 
     # System block print
     print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp3 + 'since' + sp3 + str(tstamp['min']), end='')
