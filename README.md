@@ -78,6 +78,7 @@ Or swich to -l | --list option:
 * Fedora, EPEL: https://src.fedoraproject.org/rpms/tuptime
 * FreeBSD: https://www.freshports.org/sysutils/tuptime
 * Archlinux: https://aur.archlinux.org/packages/tuptime
+* OpenSUSE: https://software.opensuse.org/package/tuptime (Community Maintained / Unofficial)
 
 #### By one-liner script
 
