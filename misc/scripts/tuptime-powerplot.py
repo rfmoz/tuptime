@@ -241,7 +241,7 @@ def main():
     plt.grid(color='lightgrey', linestyle='--', linewidth=0.5, axis='y')
     plt.tight_layout()
     cfig = plt.get_current_fig_manager()
-    cfig.canvas.set_window_title("Tuptime")
+    cfig.canvas.manager.set_window_title("Tuptime")
     plt.show()
 
 
