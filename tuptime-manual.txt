@@ -661,22 +661,24 @@ performed by adjtime(3), systems running inside virtualized environments, server
 with high load or with high disk I/O, wrong computation of jiffies / HZ and the
 problema of lost ticks.
 
-A slightly drift is compensate over the uptime value, but a very high drift can cause
-abnormal registers and output, for example, Raspberry Pi don't have any clock and
+A slightly drift is compensate over the uptime value, but a large drift can cause
+abnormal registers and output. For example, Raspberry Pi doesn't have any clock and
 initializes from 1 January 1970. A downtime of 0, when it's clear than it was
-physically impossible, it's a common indicator than the clock had a large backward
-sync jump.
+physically impossible, it's a common indicator than the clock had a large sync jump.
 
-As Tuptime have time dependency, their Systemd service unit pulls time-sync.target
-and it's ordered before it. Note that it doesn't assure that the clock is synchronized,
-only that it needs it. On last releases of Systemd, there is a new unit that delays
-reaching time-sync.target until stay on sync 'systemd-time-wait-sync',but it isn't
-enable by default nowadays.
+As Tuptime have time dependency, its Systemd service unit pulls time-sync.target
+and, therefore, is ordered to start before it. Note that it doesn't assure that 
+the clock synchronization is achieved, only that it needs the start of the 
+synchronization service. On last releases of Systemd, there is a new unit that 
+delays reaching time-sync.target until stay on sync 'systemd-time-wait-sync', but
+it isn't enable by default nowadays.
 
 A few recommendations / workarounds are:
 
 Enable 'systemd-time-wait-sync'. But take care because it can delay the execution
-more than expected and a startup can be lost. Check open issues on Systemd's GitHub.
+more than expected and a startup can be lost. Note that if it couldn't reach the 
+synchronization before shutdown, Tuptime isn't going to be executed on that startup. 
+Check open issues on Systemd's GitHub related to this scenario.
 
 Use 'systemd-timesyncd' if it is available (timedatectl set-ntp true), it can also
 keep the time in systems without hardware clock. Disable any other time sync service
