@@ -385,6 +385,13 @@ def get_os_values():
         except Exception:
             logging.info('Linux boot_id not assigned')
 
+        try:
+            if os.path.exists('/run/systemd'):
+                if not os.path.exists('/run/systemd/timesync/synchronized'):
+                    logging.warning('System clock not synchronized')
+        except Exception:
+            logging.info('Systemd time sync check fails')
+
         return sis
 
     # Linux
