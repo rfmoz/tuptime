@@ -388,9 +388,9 @@ def get_os_values():
         try:
             if os.path.exists('/run/systemd'):
                 if not os.path.exists('/run/systemd/timesync/synchronized'):
-                    logging.warning('System clock not synchronized')
-        except Exception:
-            logging.info('Systemd time sync check fails')
+                    logging.info('Timesync state file not found = /run/systemd/timesync/synchronized')
+        except Exception as exp:
+            logging.info('Timesync check fails. %s', exp)
 
         return sis
 
