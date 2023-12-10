@@ -386,9 +386,8 @@ def get_os_values():
             logging.info('Linux boot_id not assigned')
 
         try:
-            if os.path.exists('/run/systemd'):
-                if not os.path.exists('/run/systemd/timesync/synchronized'):
-                    logging.info('Timesync state file not found = /run/systemd/timesync/synchronized')
+            if os.path.exists('/run/systemd') and not os.path.exists('/run/systemd/timesync/synchronized'):
+                logging.info('Timesync state file not found = /run/systemd/timesync/synchronized')
         except Exception as exp:
             logging.info('Timesync check fails. %s', exp)
 
