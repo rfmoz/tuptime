@@ -1253,7 +1253,9 @@ def main():
                 logging.info('DB info = update ok')
 
             except sqlite3.OperationalError:
-                logging.info('DB info = update skip')
+                if arg.endst:  # Check execution user and file owner
+                    logging.warning('DB warning = skip register graceful shutdown')
+                logging.info('DB info = skip update')
 
     else:
         logging.info('DB info = skip by arg.update')
