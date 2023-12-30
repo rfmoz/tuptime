@@ -437,7 +437,7 @@ def get_os_values():
     except Exception:
         logging.info('Current locale = None')
     logging.info('Sys values = %s', sis)
-    logging.info('Execution user = %s', os.getuid())
+    logging.info('Execution uid,gid = %s,%s', os.getuid(), os.getgid())
 
     # Avoid executing when OS clock is too out of phase
     if sis['btime'] < 946684800:   # 01/01/2000 00:00
@@ -469,7 +469,9 @@ def gain_db(sis, arg):
     # Test and create DB with the initial values
     try:
         if os.path.isfile(arg.db_file):
-            logging.info('DB file exists = %s', arg.db_file)
+            logging.info('DB file exists = %s (uid=%s,gid=%s)', arg.db_file, os.stat(arg.db_file).st_uid, os.stat(arg.db_file).st_gid)
+
+
         else:
             logging.info('Making DB file = %s', arg.db_file)
             db_conn = sqlite3.connect(arg.db_file)
