@@ -1,3 +1,11 @@
+tuptime (5.2.3) unstable; urgency=low
+
+  * Update distribution packages
+  * Documentation revised
+  * Minnor code refactoring
+
+ -- Ricardo Fraile <r@rfmoz.eu>  Fri, 05 Jan 2024 10:32:00 +0100
+
 tuptime (5.2.2) unstable; urgency=low
 
   * Swich between longest/shortest on default output with -i

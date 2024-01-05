@@ -1,0 +1,8 @@
+[Unit]
+Description=Tuptime docker scheduled sync service
+Requires=tuptime-docker.service
+Conflicts=tuptime-sync.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker run --network none --rm -v /var/lib/tuptime/:/var/lib/tuptime/ tuptime -q

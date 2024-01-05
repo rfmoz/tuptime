@@ -6,7 +6,7 @@
 Install dependencies, latest versions:
 
     # pkg install python3 git
-    # pkg install py37-sqlite3  # (version number must match "python3 -V")
+    # pkg install py39-sqlite3  # (version number must match "python3 -V")
 
 Clone repository and copy executable file:
 
@@ -25,10 +25,9 @@ Change owner of the db path and file:
 
     # chown -R _tuptime:_tuptime /var/lib/tuptime
 
-Add the cron entry and restart the service:
+Add the cron entry, create a '/usr/local/etc/cron.d/tuptime' file with this content:
 
-    # echo '*/5 * * * *  /usr/local/bin/tuptime -q' > /var/cron/tabs/_tuptime
-    # service cron restart
+    */5 * * * * _tuptime (/usr/sbin/service tuptime enabled) && /usr/local/bin/tuptime -q
 
 Copy rc.d file:
 

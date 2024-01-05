@@ -32,7 +32,7 @@ case "$1" in
 			        --home "/var/lib/tuptime" \
 			        --shell '/usr/sbin/nologin' \
 			        --gecos 'Tuptime execution user,,,' \
-			        --force-badname _tuptime
+			        --allow-bad-names _tuptime
 			echo "done"
 		fi
 

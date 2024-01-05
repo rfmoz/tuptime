@@ -1,0 +1,39 @@
+==========================
+| Docker notes - Tuptime |
+==========================
+
+Tuptime could be executed inside a container via Docker.
+
+It only requires the creation of the path /var/lib/tuptime/ on the host to store the
+database file, which is done by Systemd automatically. All other runtime requirements
+reside inside the container and their execution is managed via Systemd too.
+
+The container is built over Alpine image, because their small footprint. But it could
+be built over any other OS image.
+
+Begin with this installation method getting the repo and creating the container:
+
+    # git clone https://github.com/rfmoz/tuptime.git
+    # cd tuptime/misc/docker/
+    # docker build  -t 'tuptime' .
+
+Copy the systemd files, the main service and the sync ones for the scheduled execution:
+
+    # install -m 644 tuptime-docker.service /etc/systemd/system/
+    # install -m 644 tuptime-sync-docker.* /etc/systemd/system/
+    # systemctl daemon-reload
+    # systemctl enable tuptime-docker.service && systemctl start tuptime-docker.service
+    # systemctl enable tuptime-sync-docker.timer && systemctl start tuptime-sync-docker.timer
+
+Also, create an alias for an easy execution (Maybe set it inside your ~/.profile or
+~/.bashrc):
+
+    # alias tuptime='/usr/bin/docker run --network none --rm -v /var/lib/tuptime/:/var/lib/tuptime/ tuptime'
+    # tuptime
+
+That's all.
+
+Note: If the same host has a local Tuptime installation, disable their Systemd execution:
+
+    # systemctl disable tuptime.service && systemctl stop tuptime.service
+    # systemctl disable tuptime-sync.timer && systemctl stop tuptime-sync.timer

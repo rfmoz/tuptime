@@ -1,0 +1,10 @@
+[Unit]
+Description=Tuptime docker scheduled sync timer
+
+[Timer]
+OnBootSec=1min
+OnCalendar=*:0/5
+Unit=tuptime-sync-docker.service
+
+[Install]
+WantedBy=timers.target

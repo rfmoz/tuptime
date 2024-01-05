@@ -24,10 +24,13 @@ from datetime import datetime
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATETIME_FMT = '%X %x'
-__version__ = '5.2.2'
+__version__ = '5.2.3'
 
-# Terminate when SIGPIPE signal is received
-signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+# Terminate gracefully when SIGPIPE signal is received.
+try:
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+except Exception:
+    pass
 
 # Set locale to the user’s default settings (LANG env. var)
 try:
@@ -382,6 +385,12 @@ def get_os_values():
         except Exception:
             logging.info('Linux boot_id not assigned')
 
+        try:
+            if not os.path.exists('/run/systemd/timesync/synchronized') and os.path.exists('/run/systemd'):
+                logging.info('Timesync state file not found = /run/systemd/timesync/synchronized')
+        except Exception as exp:
+            logging.info('Timesync check fails. %s', exp)
+
         return sis
 
     # Linux
@@ -428,7 +437,7 @@ def get_os_values():
     except Exception:
         logging.info('Current locale = None')
     logging.info('Sys values = %s', sis)
-    logging.info('Execution user = %s', os.getuid())
+    logging.info('Execution uid,gid = %s,%s', os.getuid(), os.getgid())
 
     # Avoid executing when OS clock is too out of phase
     if sis['btime'] < 946684800:   # 01/01/2000 00:00
@@ -460,7 +469,9 @@ def gain_db(sis, arg):
     # Test and create DB with the initial values
     try:
         if os.path.isfile(arg.db_file):
-            logging.info('DB file exists = %s', arg.db_file)
+            logging.info('DB file exists = %s (uid=%s,gid=%s)', arg.db_file, os.stat(arg.db_file).st_uid, os.stat(arg.db_file).st_gid)
+
+
         else:
             logging.info('Making DB file = %s', arg.db_file)
             db_conn = sqlite3.connect(arg.db_file)
@@ -848,14 +859,17 @@ def print_table(db_rows, arg):
         # Print cols by row
         for row in tbl:
 
+            # Convert the entire row to strings
+            row = [str(cell) for cell in row]
+
             # First in raw and next ones with side spaces
-            sys.stdout.write(str(row[0]).rjust(colpad[0]))
+            sys.stdout.write(row[0].rjust(colpad[0]))
             for i in range(1, len(row)):
                 if i in align_left:
-                    col = (side_spaces * ' ') + str(row[i]).ljust(colpad[i])
+                    col = (side_spaces * ' ') + row[i].ljust(colpad[i])
                 else:
-                    col = str(row[i]).rjust(colpad[i] + side_spaces)
-                sys.stdout.write(str('' + col))
+                    col = row[i].rjust(colpad[i] + side_spaces)
+                sys.stdout.write(col)
             print('')
 
 
@@ -942,7 +956,7 @@ def print_default(db_rows, sis, arg):
                     updown['ok'] += 1
                 updown['shutdowns'] += 1
 
-            # Get lists with all values
+            # Get lists with all values for later sum and count
             for key in cnt:
                 if row[key] is not False:
                     cnt[key].append(row[key])
@@ -969,11 +983,10 @@ def print_default(db_rows, sis, arg):
     sys_life = 0
 
     def1 = {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}
-    def2 = {'bootid': None, 'btime': False, 'offbtime': False, 'kernel': None, 'startup': None}
-    def3 = {**def1, **def2}
+    def2 = {**def1, 'bootid': None, 'btime': False, 'offbtime': False, 'kernel': None, 'startup': None}
 
     cal = {'tot': def1.copy(), 'ave': def1.copy()}
-    lmt = {'max-up': def3.copy(), 'max-down': def3.copy(), 'min-up': def3.copy(), 'min-down': def3.copy()}
+    lmt = {'max-up': def2.copy(), 'max-down': def2.copy(), 'min-up': def2.copy(), 'min-down': def2.copy()}
     rate = {k: float(v) for k, v in def1.items()}  # Float values of def1
 
     # Get values from all DB rows
@@ -1025,12 +1038,10 @@ def print_default(db_rows, sis, arg):
         for key in ('uptime', 'rntime', 'slptime', 'downtime'):
             if sis[key] is not None:
                 sis[key] = time_conv(sis[key])
-            for val in cal.values():
-                if val[key] is not False:
-                    val[key] = time_conv(val[key])
-            for val in lmt.values():
-                if val[key] is not False:
-                    val[key] = time_conv(val[key])
+            for dval in (cal, lmt):
+                for val in dval.values():
+                    if val[key] is not False:
+                        val[key] = time_conv(val[key])
 
         for key in ('btime', 'offbtime'):
             if sis[key] is not None:
@@ -1053,7 +1064,7 @@ def print_default(db_rows, sis, arg):
     downtime = {'average': str(cal['ave']['downtime']), 'long': str(lmt['max-down']['downtime']), 'short': str(lmt['min-down']['downtime']),
                 'sys_time': str(cal['tot']['downtime']), 'sys_rate': str(rate['downtime']) + '%'}
 
-    if arg.power:
+    if arg.power:  # Add power values if needed
         uptime['average'] += sp4 + '(rn: ' + str(cal['ave']['rntime']) + ' + slp: ' + str(cal['ave']['slptime']) + ')'
         uptime['long'] += sp4 + '(rn: ' + str(lmt['max-up']['rntime']) + ' + slp: ' + str(lmt['max-up']['slptime']) + ')'
         uptime['short'] += sp4 + '(rn: ' + str(lmt['min-up']['rntime']) + ' + slp: ' + str(lmt['min-up']['slptime']) + ')'
@@ -1061,10 +1072,10 @@ def print_default(db_rows, sis, arg):
         uptime['sys_rate'] += sp4 + '(rn: ' + str(rate['rntime']) + '% + slp: ' + str(rate['slptime']) + '%)'
         uptime['current'] += sp4 + '(rn: ' + str(sis['rntime']) + ' + slp: ' + str(sis['slptime']) + ')'
 
-    if arg.invert:
-        est = ['Shortest', 'short', 'min']
+    if arg.invert:  # Set longest or shortest values for uptime/downtime
+        bfp = {'name': 'Shortest', 'key': 'short', 'up': lmt['min-up'], 'down': lmt['min-down']}
     else:
-        est = ['Longest', 'long', 'max']
+        bfp = {'name': 'Longest', 'key': 'long', 'up': lmt['max-up'], 'down': lmt['max-down']}
 
     # System block print
     print(sp0 + 'System startups' + sp1 + str(updown['startups']) + sp3 + 'since' + sp3 + str(tstamp['min']), end='')
@@ -1083,29 +1094,27 @@ def print_default(db_rows, sis, arg):
     if not arg.csv: print('')
 
     # Uptime block print
-    key = est[2] + '-up'
-    if lmt[key]['btime'] is not False:
-        print(sp0 + est[0] + ' uptime' + sp1 + uptime[est[1]] + sp3 + 'from' + sp3 + str(lmt[key]['btime']) + sp0)
+    if bfp['up']['btime'] is not False:
+        print(sp0 + bfp['name'] + ' uptime' + sp1 + uptime[bfp['key']] + sp3 + 'from' + sp3 + str(bfp['up']['btime']) + sp0)
     else:
-        print(sp0 + est[0] + ' uptime' + sp1 + uptime[est[1]] + sp0)
+        print(sp0 + bfp['name'] + ' uptime' + sp1 + uptime[bfp['key']] + sp0)
     if arg.bootid:
-        print(sp0 + (sp5 * 4) + '...boot ID' + sp1 + str(lmt[key]['bootid']) + sp0)
+        print(sp0 + (sp5 * 4) + '...boot ID' + sp1 + str(bfp['up']['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp5 * 5) + '...kernel' + sp1 + str(lmt[key]['kernel']) + sp0)
+        print(sp0 + (sp5 * 5) + '...kernel' + sp1 + str(bfp['up']['kernel']) + sp0)
     print(sp0 + 'Average uptime' + sp1 + uptime['average'] + sp0)
     print(sp0 + 'System uptime' + sp1 + (sp5 * 8) + uptime['sys_rate'] + sp3 + '=' + sp3 + uptime['sys_time'] + sp0)
     if not arg.csv: print('')
 
     # Downtime block print
-    key = est[2] + '-down'
-    if lmt[key]['offbtime'] is not False:
-        print(sp0 + est[0] + ' downtime' + sp1 + downtime[est[1]] + sp3 + 'from' + sp3 + str(lmt[key]['offbtime']) + sp0)
+    if bfp['down']['offbtime'] is not False:
+        print(sp0 + bfp['name'] + ' downtime' + sp1 + downtime[bfp['key']] + sp3 + 'from' + sp3 + str(bfp['down']['offbtime']) + sp0)
     else:
-        print(sp0 + est[0] + ' downtime' + sp1 + downtime[est[1]] + sp0)
+        print(sp0 + bfp['name'] + ' downtime' + sp1 + downtime[bfp['key']] + sp0)
     if arg.bootid:
-        print(sp0 + (sp5 * 6) + '...boot ID' + sp1 + str(lmt[key]['bootid']) + sp0)
+        print(sp0 + (sp5 * 6) + '...boot ID' + sp1 + str(bfp['down']['bootid']) + sp0)
     if arg.kernel:
-        print(sp0 + (sp5 * 7) + '...kernel' + sp1 + str(lmt[key]['kernel']) + sp0)
+        print(sp0 + (sp5 * 7) + '...kernel' + sp1 + str(bfp['down']['kernel']) + sp0)
     print(sp0 + 'Average downtime' + sp1 + downtime['average'] + sp0)
     print(sp0 + 'System downtime' + sp1 + downtime['sys_rate'] + sp3 + '=' + sp3 + downtime['sys_time'] + sp0)
 
@@ -1246,7 +1255,11 @@ def main():
                 logging.info('DB info = update ok')
 
             except sqlite3.OperationalError:
-                logging.info('DB info = update skip')
+                if arg.endst:
+                        # Graceful register must be performed at shutdown by the init manager, with _tuptime user
+                        # or a privileged one. No one needs to do in other moment. A normal user can't write into DB
+                        logging.warning('DB warning = skip register a graceful shutdown. Are you allowed?')
+                logging.info('DB info = skip update')
 
     else:
         logging.info('DB info = skip by arg.update')
