@@ -24,7 +24,7 @@ from datetime import datetime
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATETIME_FMT = '%X %x'
-__version__ = '5.2.2'
+__version__ = '5.2.3'
 
 # Terminate gracefully when SIGPIPE signal is received.
 try:
@@ -1255,8 +1255,10 @@ def main():
                 logging.info('DB info = update ok')
 
             except sqlite3.OperationalError:
-                if arg.endst:  # Check execution user and file owner
-                    logging.warning('DB warning = skip register graceful shutdown')
+                if arg.endst:
+                        # Graceful register must be performed at shutdown by the init manager, with _tuptime user
+                        # or a privileged one. No one needs to do in other moment. A normal user can't write into DB
+                        logging.warning('DB warning = skip register a graceful shutdown. Are you allowed?')
                 logging.info('DB info = skip update')
 
     else:
