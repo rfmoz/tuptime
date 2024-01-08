@@ -2,9 +2,4 @@ u _tuptime - "Tuptime execution user" /var/lib/tuptime
 
 
 # Note:
-#
-#   This requires 'StateDirectory=tuptime' under [Service] in tuptime.service systemd unit file
-#   because the systemd-sysusers doesn't create home directories.
-#
-#   https://lists.freedesktop.org/archives/systemd-devel/2018-February/040330.html
-#   https://lists.freedesktop.org/archives/systemd-devel/2018-February/040348.html
+#   systemd-sysusers doesn't create home directories. Use in combination with tmpfiles.d
