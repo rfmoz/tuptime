@@ -25,17 +25,6 @@ case "$1" in
 		getent passwd tuptime >/dev/null && usermod -l _tuptime tuptime
 		getent group tuptime > /dev/null && groupmod -n _tuptime tuptime
 
-		# Create user if not exists
-		if ! getent passwd _tuptime >/dev/null ; then
-			echo -n "Adding _tuptime user..."
-			adduser --quiet --system --group --disabled-password \
-			        --home "/var/lib/tuptime" \
-			        --shell '/usr/sbin/nologin' \
-			        --gecos 'Tuptime execution user,,,' \
-			        --allow-bad-names _tuptime
-			echo "done"
-		fi
-
 		# Ensure right ownership
 		if [ -d /var/lib/tuptime ]; then
 			chown _tuptime:_tuptime /var/lib/tuptime
