@@ -1135,6 +1135,15 @@ def output_hub(db_rows, sis, arg):
     if len(db_rows) != last_st:
         logging.info('Real startups are not equal to enumerate startups. Deleted rows in DB')
 
+    if arg.endst:
+        if arg.endst != db_rows[-1]['endst']:
+            # Graceful register must be performed at shutdown by the init manager, with _tuptime user
+            # or a privileged one. No one needs to do in other moment. A normal user can't write into DB
+            print('Graceful shutdown in DB = mismatch. Are you allowed?')
+            sys.exit(1)
+        print('Graceful shutdown in DB = ok')
+        return
+
     if arg.update:
         # If the user can only read DB, the select query over DB return outdated numbers in last row
         # because the DB was not updated previously. The following snippet update them in memory
@@ -1256,9 +1265,7 @@ def main():
 
             except sqlite3.OperationalError:
                 if arg.endst:
-                        # Graceful register must be performed at shutdown by the init manager, with _tuptime user
-                        # or a privileged one. No one needs to do in other moment. A normal user can't write into DB
-                        logging.warning('DB warning = skip register a graceful shutdown. Are you allowed?')
+                    logging.warning('DB warning = skip register a graceful shutdown')
                 logging.info('DB info = skip update')
 
     else:
