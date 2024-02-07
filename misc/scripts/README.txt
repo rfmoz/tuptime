@@ -10,7 +10,7 @@ tuptime_join.py
     Join two tuptime db files into an other one.
 
 tuptime_modify.py
-    Modify registers keeping nearest values in sync.
+    Modify registers preserving nearest values in sync.
     Allow change 'end status', 'startup timestamp' and 'shutdown timestamp'.
 
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# tuptime - Report the historical and statistical real time of the system, keeping it between restarts.
+# tuptime - Report historical and statistical real time of the system, preserving it between restarts.
 # Author Ricardo Fraile - 2020
 
 # This program is free software: you can redistribute it and/or modify

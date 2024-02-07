@@ -11,7 +11,7 @@
 | Abstract |
 ============
 
-Tuptime report historical and statistical real time of the system, keeping it between restarts.
+Tuptime reports historical and statistical real time of the system, preserving it between restarts.
 Indeed, it can:
 
   - Count system startups

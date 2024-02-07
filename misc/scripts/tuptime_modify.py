@@ -3,7 +3,7 @@
 
 '''
 This script modify the "Startup Timestamp", "Shutdown Timestamp" and
-"End Status" on Tuptime database keeping the other values around in sync.
+"End Status" on Tuptime database preserving the other values around in sync.
 
 Increase 60 secs the startup datetime on register number 1:
     tuptime_modify.py -c startup -r 1 -s 60

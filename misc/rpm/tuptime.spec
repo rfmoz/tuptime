@@ -25,8 +25,8 @@ Requires(pre):	shadow-utils
 
 
 %description
-Tuptime track and report historical and statistical real time of the
-system, keeping the uptime and downtime between shutdowns.
+Tuptime tracks and reports historical and statistical real time of
+the system, preserving the uptime and downtime between shutdowns.
 
 
 %prep
