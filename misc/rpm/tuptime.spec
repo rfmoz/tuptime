@@ -1,6 +1,6 @@
 Name:		tuptime
-Version:	5.2.3
-Release:	2%{?dist}
+Version:	5.2.4
+Release:	1%{?dist}
 Summary:	Report historical system real time
 
 License:	GPL-2.0-or-later

@@ -3,7 +3,7 @@
 
 """tuptime - Report historical and statistical real time of the system,
 preserving it between restarts"""
-# Copyright (C) 2011-2023 - Ricardo F.
+# Copyright (C) 2011-2024 - Ricardo F.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ from datetime import datetime
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATETIME_FMT = '%X %x'
-__version__ = '5.2.3'
+__version__ = '5.2.4'
 
 # Terminate gracefully when SIGPIPE signal is received.
 try:
