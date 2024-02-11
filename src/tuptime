@@ -1139,7 +1139,7 @@ def output_hub(db_rows, sis, arg):
         if arg.endst != db_rows[-1]['endst']:
             # Graceful register must be performed at shutdown by the init manager, with _tuptime user
             # or a privileged one. No one needs to do in other moment. A normal user can't write into DB
-            print('Graceful shutdown in DB = mismatch. Are you allowed?')
+            print('Graceful shutdown in DB = mismatch')
             sys.exit(1)
         print('Graceful shutdown in DB = ok')
         return
@@ -1263,10 +1263,11 @@ def main():
                 db_conn.commit()
                 logging.info('DB info = update ok')
 
-            except sqlite3.OperationalError:
+            except sqlite3.OperationalError as exc:
                 if arg.endst:
-                    logging.warning('DB warning = skip register a graceful shutdown')
-                logging.info('DB info = skip update')
+                    logging.warning('DB warning = skip register a graceful shutdown, %s', exc)
+                else:
+                    logging.info('DB info = skip update values, %s', exc)
 
     else:
         logging.info('DB info = skip by arg.update')
