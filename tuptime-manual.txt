@@ -630,6 +630,8 @@ kernel   Name of the kernel
 The number of startup sequency is extracted from 'rowid', the signed integer 
 key that uniquely identifies the row within its table in sqlite.
 
+The bootid value is available since Linux 2.6.20 and FreeBSD 11.0.
+
 For reset all the values, simply delete the database file.
 
 It is possible to query and modify it directly, but it's better to use any of
@@ -756,6 +758,13 @@ Convert epoch to human datetime:
 
 Preceding conversions uses GNU date, on FreeBSD install "coreutils" and call
 them with "gdate".
+
+Examples of using it directly:
+
+         tuptime --tsince `date -d "1 day ago" +%s`
+         tuptime --tuntil `date -d "1 day ago" +%s`
+         tuptime --tsince `date -d "1 week ago" +%s` --tuntil `date -d "1 day ago" +%s`
+         tuptime --tat `date -d "1 day ago" +%s`
 
 More info about datetime input formats:
         man date
