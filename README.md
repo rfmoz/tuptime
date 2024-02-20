@@ -147,6 +147,9 @@ https://github.com/arigit/lastwake.py
 (bonus) dateutils - Not an alternative, but it is a nifty collection of tools to work with dates.
 https://github.com/hroptatyr/dateutils
 
+ruptime - Is a modern rwhod replacement that is easy to customize, not limited to a network, and does not send clear text data over the network.
+https://github.com/alexmyczko/ruptime
+
 
 ### More information
 
