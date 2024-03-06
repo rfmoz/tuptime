@@ -582,7 +582,7 @@ def control_drift(prev, sis):
 
         # Apply offset to btime, uptime and related
         if (sis['uptime'] + offset) > 0:
-            logging.info('System timestamp = %s', sis['btime'] + sis['uptime'])
+            #logging.info('System timestamp = %s', sis['btime'] + sis['uptime'])
 
             sis['uptime'] = sis['uptime'] + offset
             sis['btime'] = sis['btime'] - offset
@@ -599,7 +599,7 @@ def control_drift(prev, sis):
 
             # Fixed timestamp must be equal to system timestamp after drift values
             # Fixed btime must be equal to last btime from DB
-            logging.info('Fixed timestamp = %s', sis['btime'] + sis['uptime'])
+            #logging.info('Fixed timestamp = %s', sis['btime'] + sis['uptime'])
             logging.info('Fixed sys values = %s', sis)
 
         else:
