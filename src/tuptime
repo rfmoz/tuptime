@@ -306,7 +306,7 @@ def get_arguments():
 def get_os_values():
     """Get values from each type of operating system"""
 
-    sis = {'bootid': None, 'btime': None, 'uptime': None, 'rntime': None, 'slptime': None, 'offbtime': None, 'downtime': None, 'kernel': None}
+    sis = {'bootid': None, 'btime': None, 'uptime': None, 'rntime': None, 'slptime': None, 'downtime': None, 'kernel': None}
 
     def os_bsd(sis):
         """Get values from BSD"""
@@ -1048,9 +1048,10 @@ def print_default(db_rows, sis, arg):
                     if val[key] is not False:
                         val[key] = time_conv(val[key])
 
+        if sis['btime'] is not None:
+            sis['btime'] = datetime.fromtimestamp(sis['btime']).strftime(arg.dtm_format)
+
         for key in ('btime', 'offbtime'):
-            if sis[key] is not None:
-                sis[key] = datetime.fromtimestamp(sis[key]).strftime(arg.dtm_format)
             for val in lmt.values():
                 if val[key] is not False:
                     val[key] = datetime.fromtimestamp(val[key]).strftime(arg.dtm_format)
@@ -1227,15 +1228,14 @@ def main():
     # Check if system was restarted
     if arg.update and check_new_boot(prev, sis):
 
-        sis['offbtime'] = prev['buptime']
-        if sis['offbtime'] > sis['btime']:  # Assure btime. Never lower than shutdown
-            sis['btime'] = sis['offbtime']
+        if prev['buptime'] > sis['btime']:  # Assure btime. Never lower than shutdown
+            sis['btime'] = prev['buptime']
         sis['downtime'] = sis['btime'] - prev['buptime']
 
         try:
             # Save downtimes for previous boot
             conn.execute('update tuptime set offbtime =?, downtime =? where rowid =? ',
-                         (sis['offbtime'], sis['downtime'], prev['rowid']))
+                         (prev['buptime'], sis['downtime'], prev['rowid']))
 
             # Create a new boot register
             conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
