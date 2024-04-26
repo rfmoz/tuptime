@@ -306,7 +306,7 @@ def get_arguments():
 def get_os_values():
     """Get values from each type of operating system"""
 
-    sis = {'bootid': None, 'btime': None, 'uptime': None, 'rntime': None, 'slptime': None, 'downtime': None, 'kernel': None}
+    sis = {'bootid': None, 'btime': None, 'uptime': None, 'rntime': None, 'slptime': None, 'kernel': None}
 
     def os_bsd(sis):
         """Get values from BSD"""
@@ -985,8 +985,6 @@ def print_default(db_rows, sis, arg):
     tstamp = {'min': arg.ts, 'max': arg.tu}  # Args as init values
     cnt = {'bootid': [], 'uptime': [], 'rntime': [], 'slptime': [], 'downtime': [], 'kernel': []}
     range_trim = False
-    sys_life = 0
-
     def1 = {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}
     def2 = {**def1, 'bootid': None, 'btime': False, 'offbtime': False, 'kernel': None, 'startup': None}
 
@@ -1041,17 +1039,16 @@ def print_default(db_rows, sis, arg):
                 tstamp[key] = datetime.fromtimestamp(val).strftime(arg.dtm_format)
 
         for key in ('uptime', 'rntime', 'slptime', 'downtime'):
-            if sis[key] is not None:
+            if key != 'downtime' and sis[key] is not None:
                 sis[key] = time_conv(sis[key])
             for dval in (cal, lmt):
                 for val in dval.values():
                     if val[key] is not False:
                         val[key] = time_conv(val[key])
 
-        if sis['btime'] is not None:
-            sis['btime'] = datetime.fromtimestamp(sis['btime']).strftime(arg.dtm_format)
-
         for key in ('btime', 'offbtime'):
+            if key != 'offbtime' and sis[key] is not None:
+                sis[key] = datetime.fromtimestamp(sis[key]).strftime(arg.dtm_format)
             for val in lmt.values():
                 if val[key] is not False:
                     val[key] = datetime.fromtimestamp(val[key]).strftime(arg.dtm_format)
@@ -1230,12 +1227,12 @@ def main():
 
         if prev['buptime'] > sis['btime']:  # Assure btime. Never lower than shutdown
             sis['btime'] = prev['buptime']
-        sis['downtime'] = sis['btime'] - prev['buptime']
+        prev['downtime'] = sis['btime'] - prev['buptime']
 
         try:
             # Save downtimes for previous boot
             conn.execute('update tuptime set offbtime =?, downtime =? where rowid =? ',
-                         (prev['buptime'], sis['downtime'], prev['rowid']))
+                         (prev['buptime'], prev['downtime'], prev['rowid']))
 
             # Create a new boot register
             conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
