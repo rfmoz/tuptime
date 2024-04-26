@@ -386,8 +386,12 @@ def get_os_values():
             logging.info('Linux boot_id not assigned')
 
         try:
+            # Way to indicate a synchronized clock by SystemD. Check filename notes on systemd/src/time-wait-sync/time-wait-sync.c
+            # Check if SystemD is used, but file not exists. Could be mandatory, outstripping control_drift()
             if not os.path.exists('/run/systemd/timesync/synchronized') and os.path.exists('/run/systemd'):
                 logging.info('Timesync state file not found = /run/systemd/timesync/synchronized')
+                #logging.error('Clock no synchronized')
+                #sys.exit(1)
         except Exception as exp:
             logging.info('Timesync check fails. %s', exp)
 
@@ -603,7 +607,8 @@ def control_drift(prev, sis):
             logging.info('Fixed sys values = %s', sis)
 
         else:
-            # Keep btime from DB with current uptime until it can be fixed
+            # Keep btime from DB with current uptime until it can be fixed,
+            # and besides a consistent uptime + btime outcome fixed or not.
             sis['btime'] = prev['btime']
             logging.info('Drift decreases uptime under 1. Skipping fix')
             logging.info('Unfixed btime = %s', sis['btime'])
