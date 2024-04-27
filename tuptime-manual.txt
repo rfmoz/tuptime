@@ -627,7 +627,7 @@ endst    Type of shutdown [1 ok | 0 bad]
 downtime Downtime seconds
 kernel   Name of the kernel
 
-The number of startup sequency is extracted from 'rowid', the signed integer 
+The number of startup sequence is extracted from 'rowid', the signed integer 
 key that uniquely identifies the row within its table in sqlite.
 
 The bootid value is available since Linux 2.6.20 and FreeBSD 11.0.
@@ -663,10 +663,11 @@ performed by adjtime(3), systems running inside virtualized environments, server
 with high load or with high disk I/O, wrong computation of jiffies / HZ and the
 problema of lost ticks.
 
-A slightly drift is compensate over the uptime value, but a large drift can cause
-abnormal registers and output. For example, Raspberry Pi doesn't have any clock and
-initializes from 1 January 1970. A downtime of 0, when it's clear than it was
-physically impossible, it's a common indicator than the clock had a large sync jump.
+A slightly drift is compensate over the uptime value (btime always keeps the value
+registered on DB) but a large drift can cause abnormal registers and output. For
+example, Raspberry Pi doesn't have any clock and initializes from 1 January 1970.
+A downtime of 0, when it's clear than it was physically impossible, it's a common
+indicator than the clock had a large sync jump.
 
 As Tuptime have time dependency, its Systemd service unit pulls time-sync.target
 and, therefore, is ordered to start before it. Note that it doesn't assure that 
@@ -779,15 +780,19 @@ More info about datetime input formats:
 
 Tuptime can be executed with 'root' user, but it's recommendable the use of an
 unprivileged user, like '_tuptime' as the installation section points to avoid
-security problems. In any case, if the database file is not writable by the
-current execution user, the changes are not saved. This situation is covered
-for print values, but not for update database, that's why a user who can write
-in the database file must execute tuptime, usually from the init manager, to
-update values at startup and shutdown, at least.
+security problems.
 
-Kernel name is registered each time that tuptime update values. If ksplice is
-used to update the kernel, last kernel will have the whole time assignment
-since the last system start.
+Tuptime tries to save values on DB in every execution. If the user doesn't have
+permissions over the file, an informational verbose message is generated. This
+situation is normal and covered for print values, but not for update database,
+that's why a user who can write in the database file must execute tuptime,
+usually from the init manager, to update values at startup and shutdown, at least.
+
+Once a new startup is written on DB, the previous startup offbtime and downtime
+are registered, likewise the new startup sequence number, bootid and btime for
+the new current startup, none of them changes after that. Uptime, rntime,
+slptime, may change to accommodate drift. Also, kernel name could change if
+ksplice is used to update the kernel.
 
 Tuptime is backed by a SQLite database. It is highly resilient but fails can
 occur in any software and hardware level, producing a database corruption. Here
