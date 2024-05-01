@@ -1273,6 +1273,7 @@ def main():
                     logging.info('DB info = skip update values, %s', exc)
 
     else:
+        sis = control_drift(lastdb, sis)
         logging.info('DB info = skip by arg.update')
 
     if arg.quiet:
