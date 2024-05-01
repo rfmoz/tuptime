@@ -575,10 +575,10 @@ def upgrade_db(db_conn, conn, arg):
     logging.warning('Upgraded')
 
 
-def control_drift(prev, sis):
+def control_drift(lastdb, sis):
     """Check time drift due inconsistencies with system clock"""
 
-    offset = sis['btime'] - prev['btime']  # Calculate time offset
+    offset = sis['btime'] - lastdb['btime']  # Calculate time offset
     logging.info('Drift over btime = %s', offset)
 
     if offset:
@@ -610,7 +610,7 @@ def control_drift(prev, sis):
 
         else:
             # The btime value registered on DB is immutable, keep it
-            sis['btime'] = prev['btime']
+            sis['btime'] = lastdb['btime']
             logging.info('Drift decreases uptime under 1. Skipping fix')
             logging.info('Unfixed btime = %s', sis['btime'])
 
@@ -1177,7 +1177,7 @@ def output_hub(db_rows, sis, arg):
         print_default(db_rows, sis, arg)
 
 
-def check_new_boot(prev, sis):
+def check_new_boot(lastdb, sis):
     """Test if system has new boot"""
 
     # How tuptime does it:
@@ -1194,15 +1194,15 @@ def check_new_boot(prev, sis):
     # To avoid lost an uptime record, please be sure that the system has time sync enabled, the init/systemd
     # script and the cron task works as expected.
 
-    if prev['bootid'] != 'None' and sis['bootid'] != 'None':
-        if prev['bootid'] != sis['bootid']:
+    if lastdb['bootid'] != 'None' and sis['bootid'] != 'None':
+        if lastdb['bootid'] != sis['bootid']:
             logging.info('System restarted = True from bootid')
             return True
         else:
             logging.info('System restarted = False from bootid')
             return False
 
-    elif prev['buptime'] < sis['btime']:
+    elif lastdb['buptime'] < sis['btime']:
         logging.info('System restarted = True from btime')
         return True
 
@@ -1219,21 +1219,21 @@ def main():
     db_conn, conn = gain_db(sis, arg)
 
     conn.execute('select rowid, bootid, btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
-    prev = dict(zip(['rowid', 'bootid', 'btime', 'uptime', 'endst'], conn.fetchone()))
-    prev['buptime'] = prev['btime'] + prev['uptime']
-    logging.info('Last DB values = %s', prev)
+    lastdb = dict(zip(['rowid', 'bootid', 'btime', 'uptime', 'endst'], conn.fetchone()))
+    lastdb['buptime'] = lastdb['btime'] + lastdb['uptime']
+    logging.info('Last DB values = %s', lastdb)
 
     # Check if system was restarted
-    if arg.update and check_new_boot(prev, sis):
+    if arg.update and check_new_boot(lastdb, sis):
 
-        if prev['buptime'] > sis['btime']:  # Assure btime. Never lower than shutdown
-            sis['btime'] = prev['buptime']
-        prev['downtime'] = sis['btime'] - prev['buptime']
+        if lastdb['buptime'] > sis['btime']:  # Assure btime. Never lower than shutdown
+            sis['btime'] = lastdb['buptime']
+        lastdb['downtime'] = sis['btime'] - lastdb['buptime']
 
         try:
             # Save downtimes for previous boot
             conn.execute('update tuptime set offbtime =?, downtime =? where rowid =? ',
-                         (prev['buptime'], prev['downtime'], prev['rowid']))
+                         (lastdb['buptime'], lastdb['downtime'], lastdb['rowid']))
 
             # Create a new boot register
             conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
@@ -1252,17 +1252,17 @@ def main():
 
     elif arg.update:
         # Adjust time drift. Check only when system wasn't restarted
-        sis = control_drift(prev, sis)
+        sis = control_drift(lastdb, sis)
 
         # If a graceful shutdown was just registered before, let 5 seconds to next update to avoid being overlapped
         # with regular schedule execution (it can happen at shutdown)
-        if prev['endst'] and (prev['uptime'] + 5 > sis['uptime']) and not arg.endst:
+        if lastdb['endst'] and (lastdb['uptime'] + 5 > sis['uptime']) and not arg.endst:
             logging.info('DB info = graceful pass')
         else:
             try:
                 # Update current boot records
                 conn.execute('update tuptime set uptime =?, rntime =?, slptime =?, endst =?, kernel =? where rowid =?',
-                             (sis['uptime'], sis['rntime'], sis['slptime'], arg.endst, sis['kernel'], prev['rowid']))
+                             (sis['uptime'], sis['rntime'], sis['slptime'], arg.endst, sis['kernel'], lastdb['rowid']))
                 db_conn.commit()
                 logging.info('DB info = update ok')
 
