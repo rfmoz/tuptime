@@ -609,7 +609,7 @@ def control_drift(lastdb, sis):
             logging.info('Fixed sys values = %s', sis)
 
         else:
-            # The btime value registered on DB is immutable, keep it
+            # The btime value registered on DB is a startup reference, keep it
             sis['btime'] = lastdb['btime']
             logging.info('Drift decreases uptime under 1. Skipping fix')
 

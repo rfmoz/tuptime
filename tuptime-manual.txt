@@ -3,7 +3,7 @@
                          ----------------------
                               version 5.2.4
                                 Ricardo F.
-                               05/Jan/2024
+                               01/May/2024
 
 
 
@@ -803,9 +803,8 @@ This is a streaming replication tool for SQLite databases, it works fine with
 Tuptime. https://litestream.io/
 
 The uptime reference is linked with the wall clock time elapsed since boot, not
-the running effective time. Running (effective time) and hibernate power states
-are childs of the uptime and report accumulated values inside their time range,
-which counts since the startup until the shutdown.
+the running effective time. Both the running (effective time) and hibernate
+power states fall within the applicable uptime slot.
 
 If the system have configured a time zone with daylight saving time (DST),
 to avoid problems when the time change, the real time clock (RTC) should have
