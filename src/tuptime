@@ -574,40 +574,29 @@ def upgrade_db(db_conn, conn, arg):
 def control_drift(lastdb, sis):
     """Check time drift due inconsistencies with system clock"""
 
-    offset = sis['btime'] - lastdb['btime']  # Calculate time offset
+    offset = sis['btime'] - lastdb['btime']
     logging.info('Drift over btime = %s', offset)
 
+    # offset > 0 fixed now over current uptime value
+    # offset < 0 fixed later over next downtime value
     if offset:
-        logging.info('Fixing drift...')
+        #btime value registered on DB is a startup reference, keep it
+        #logging.info('System timestamp = %s', sis['btime'] + sis['uptime'])
+        sis['btime'] = lastdb['btime']
 
-        # Apply offset to btime, uptime and related
-        if (sis['uptime'] + offset) > 0:
-            #logging.info('System timestamp = %s', sis['btime'] + sis['uptime'])
+        if offset > 0:
+            logging.info('Fixing drift...')
 
+            # This also evade false startup register with next btime (not bootid) check
             sis['uptime'] = sis['uptime'] + offset
-            sis['btime'] = sis['btime'] - offset
-
-            # Apply offset to rntime if it has room for it, else, to slptime too
             sis['rntime'] = sis['rntime'] + offset
-            if sis['rntime'] < 1:
-                sis['slptime'] = sis['slptime'] + sis['rntime'] - 1
-                if sis['slptime'] < 0:
-                    logging.info('Drift decrease slptime under 0. Impossible')
-                    sis['slptime'] = 0
-                logging.info('Drift decrease rntime under 1. Impossible')
-                sis['rntime'] = 1  # Always keep almost 1 second
 
-            # Ater drift values:
-            #    Fixed timestamp must be equal to system timestamp
-            #    Fixed btime must be equal to btime registered on DB
-            #    Uptime value changes (and related) to accommodate drift
+            # After drift values, fixed timestamp must be equal to system timestamp
             #logging.info('Fixed timestamp = %s', sis['btime'] + sis['uptime'])
             logging.info('Fixed sys values = %s', sis)
 
         else:
-            # The btime value registered on DB is a startup reference, keep it
-            sis['btime'] = lastdb['btime']
-            logging.info('Drift decreases uptime under 1. Skipping fix')
+            logging.info('Drift below zero. Skipping fix')
 
     return sis
 
