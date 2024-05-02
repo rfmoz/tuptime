@@ -329,11 +329,8 @@ def get_os_values():
             # Time since some unspecified starting point. Contains sleep time on BSDs
             sis['uptime'] = time.clock_gettime(time.CLOCK_MONOTONIC)
             if sys.platform.startswith(('darwin')):
-                # OSX > 10.12 has only UPTIME_RAW. Avoid compare it with non _RAW
-                # counters. Their reference here is CLOCK_REALTIME, so remove the raw diff:
-                raw_diff = sis['uptime'] - time.clock_gettime(time.CLOCK_MONOTONIC_RAW)
-                # Time the system has been running. Not contains sleep time on OSX
-                sis['rntime'] = time.clock_gettime(time.CLOCK_UPTIME_RAW) + raw_diff
+                # OSX > 10.12 has only UPTIME_RAW. Avoid mix it with non _RAW counters, extract _RAW from MONOTONIC_ and remove it
+                sis['rntime'] = time.clock_gettime(time.CLOCK_UPTIME_RAW) + (sis['uptime'] - time.clock_gettime(time.CLOCK_MONOTONIC_RAW))
             else:
                 # Time the system has been running. Not contains sleep time on BSDs
                 sis['rntime'] = time.clock_gettime(time.CLOCK_UPTIME)
