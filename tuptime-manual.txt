@@ -663,11 +663,11 @@ performed by adjtime(3), systems running inside virtualized environments, server
 with high load or with high disk I/O, wrong computation of jiffies / HZ and the
 problema of lost ticks.
 
-A slightly drift is compensate over the uptime value (btime always keeps the value
-registered on DB) but a large drift can cause abnormal registers and output. For
-example, Raspberry Pi doesn't have any clock and initializes from 1 January 1970.
-A downtime of 0, when it's clear than it was physically impossible, it's a common
-indicator than the clock had a large sync jump.
+A slightly drift is compensate over uptime/downtime values (btime always keeps
+the initial value registered on DB). Large drift can cause abnormal registers and
+output. For example, Raspberry Pi doesn't have any clock and initializes from 1
+January 1970. A downtime of 0, when it's clear than it was physically impossible,
+it's a common indicator than the clock had a large sync jump.
 
 As Tuptime have time dependency, its Systemd service unit pulls time-sync.target
 and, therefore, is ordered to start before it. Note that it doesn't assure that 
