@@ -580,14 +580,13 @@ def control_drift(lastdb, sis):
     # offset > 0 fixed now over current uptime value
     # offset < 0 fixed later over next downtime value
     if offset:
-        #btime value registered on DB is a startup reference, keep it
         #logging.info('System timestamp = %s', sis['btime'] + sis['uptime'])
+        #btime value registered on DB is a startup reference, keep it
         sis['btime'] = lastdb['btime']
 
         if offset > 0:
             logging.info('Fixing drift...')
 
-            # This also evade false startup register with next btime (not bootid) check
             sis['uptime'] = sis['uptime'] + offset
             sis['rntime'] = sis['rntime'] + offset
 

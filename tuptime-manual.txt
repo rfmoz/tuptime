@@ -638,8 +638,8 @@ It is possible to query and modify it directly, but it's better to use any of
 the scripts located under 'misc/scripts' for modify, join or check it.
 
 If a complete row is deleted and the database is not recreate completely (vacuum),
-rowid keep the real information about startup number. Tuptime will advert about
-it if the verbose mode is enabled.
+rowid keep the real information about startup number. Tuptime will notify about
+'Deleted rows in DB' if the verbose mode is enabled.
 
 
 
@@ -784,15 +784,14 @@ security problems.
 
 Tuptime tries to save values on DB in every execution. If the user doesn't have
 permissions over the file, an informational verbose message is generated. This
-situation is normal and covered for print values, but not for update database,
-that's why a user who can write in the database file must execute tuptime,
-usually from the init manager, to update values at startup and shutdown, at least.
+situation is handled for print values, but not when register a graceful shutdown.
+That's why a user who can write in the database file must execute tuptime, usually
+from the init manager, to update values at startup and shutdown, at least.
 
 Once a new startup is written on DB, the previous startup offbtime and downtime
-are registered, likewise the new startup sequence number, bootid and btime for
-the new current startup, none of them changes after that. Uptime, rntime,
-slptime, may change to accommodate drift. Also, kernel name could change if
-ksplice is used to update the kernel.
+are registered, likewise the new startup number, bootid and btime for the new
+current startup, none of them changes after that. Uptime may change to
+accommodate drift and kernel name could change if live patching is used.
 
 Tuptime is backed by a SQLite database. It is highly resilient but fails can
 occur in any software and hardware level, producing a database corruption. Here
