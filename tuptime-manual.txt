@@ -648,26 +648,27 @@ rowid keep the real information about startup number. Tuptime will notify about
 ============================
 
 Large jumps over the date and time in a system can cause problems, especially
-when the uptime value is low.
+when the uptime value is low. Take care of the hardware clock RTC (if the
+system have), or how the operating system initializes their clock at startup.
 
-Take care of the hardware clock RTC (if the system have), or how the operating
-system initializes their clock at startup. Tuptime register the timestamp
-reported by the system at first execution after boot and use it to calculate
-the previous shutdown time and the current uptime value. The command 'who -b'
-do more less the same.
+Tuptime register a new startup time (btime) reported by the system at first
+execution after boot, likewise the new startup number and bootid. Also the
+previous startup offbtime and downtime are also written. None of them changes
+after that. Uptime may shift to accommodate drift and kernel name could be
+replaced if live patching is used.
 
 If the system starts with a incorrect datetime and some external time sync is
-used, like ntpd or timesyncd, a few time after boot the startup datetime reported
-by the system may change. This behaviour is also related with adjustments
-performed by adjtime(3), systems running inside virtualized environments, servers
-with high load or with high disk I/O, wrong computation of jiffies / HZ and the
-problema of lost ticks.
+used, like ntpd or timesyncd, a few time after boot the btime reported by the
+system may change (it is a live value computed by now() - uptime). This behaviour
+is also related with adjustments performed by adjtime(3), systems running inside
+virtualized environments, servers with high load or with high disk I/O, wrong
+computation of jiffies / HZ and the problema of lost ticks.
 
-A slightly drift is compensate over uptime/downtime values (btime always keeps
-the initial value registered on DB). Large drift can cause abnormal registers and
-output. For example, Raspberry Pi doesn't have any clock and initializes from 1
-January 1970. A downtime of 0, when it's clear than it was physically impossible,
-it's a common indicator than the clock had a large sync jump.
+A slightly drift is compensate over uptime/downtime values. Large drift can 
+produce unreal registers and output. For example, Raspberry Pi doesn't have any
+clock and initializes from 1 January 1970. A downtime of 0, when it's clear than
+it was physically impossible, it's a common indicator than the clock had a large
+sync jump.
 
 As Tuptime have time dependency, its Systemd service unit pulls time-sync.target
 and, therefore, is ordered to start before it. Note that it doesn't assure that 
@@ -787,11 +788,6 @@ permissions over the file, an informational verbose message is generated. This
 situation is handled for print values, but not when register a graceful shutdown.
 That's why a user who can write in the database file must execute tuptime, usually
 from the init manager, to update values at startup and shutdown, at least.
-
-Once a new startup is written on DB, the previous startup offbtime and downtime
-are registered, likewise the new startup number, bootid and btime for the new
-current startup, none of them changes after that. Uptime may change to
-accommodate drift and kernel name could change if live patching is used.
 
 Tuptime is backed by a SQLite database. It is highly resilient but fails can
 occur in any software and hardware level, producing a database corruption. Here
