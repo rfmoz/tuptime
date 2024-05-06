@@ -647,15 +647,9 @@ rowid keep the real information about startup number. Tuptime will notify about
 | About sync date and time |
 ============================
 
-Large jumps over the date and time in a system can cause problems, especially
-when the uptime value is low. Take care of the hardware clock RTC (if the
-system have), or how the operating system initializes their clock at startup.
-
-Tuptime register a new startup time (btime) reported by the system at first
-execution after boot, likewise the new startup number and bootid. Also the
-previous startup offbtime and downtime are also written. None of them changes
-after that. Uptime may shift to accommodate drift and kernel name could be
-replaced if live patching is used.
+Substantial time jumps within a running system may trigger unespected behavior.
+Take care of the hardware clock RTC (if the system have), or how the operating
+system initializes their clock at startup.
 
 If the system starts with a incorrect datetime and some external time sync is
 used, like ntpd or timesyncd, a few time after boot the btime reported by the
@@ -666,9 +660,9 @@ computation of jiffies / HZ and the problema of lost ticks.
 
 A slightly drift is compensate over uptime/downtime values. Large drift can 
 produce unreal registers and output. For example, Raspberry Pi doesn't have any
-clock and initializes from 1 January 1970. A downtime of 0, when it's clear than
-it was physically impossible, it's a common indicator than the clock had a large
-sync jump.
+clock and initializes from 1 January 1970. A downtime of 0, when it's evident
+that it was physically impossible, it's a common indicator than the clock had a
+large sync jump.
 
 As Tuptime have time dependency, its Systemd service unit pulls time-sync.target
 and, therefore, is ordered to start before it. Note that it doesn't assure that 
@@ -788,6 +782,12 @@ permissions over the file, an informational verbose message is generated. This
 situation is handled for print values, but not when register a graceful shutdown.
 That's why a user who can write in the database file must execute tuptime, usually
 from the init manager, to update values at startup and shutdown, at least.
+
+Tuptime register a new startup time (btime) reported by the system at first
+execution after boot, likewise the new startup number and bootid. Also the
+previous startup offbtime and downtime are also written. None of them changes
+after that. Uptime may shift to accommodate drift and kernel name could be
+replaced if live patching is used.
 
 Tuptime is backed by a SQLite database. It is highly resilient but fails can
 occur in any software and hardware level, producing a database corruption. Here
