@@ -585,17 +585,13 @@ def control_drift(lastdb, sis):
         sis['btime'] = lastdb['btime']
 
         if offset > 0:
-            logging.info('Fixing drift...')
-
             sis['uptime'] = sis['uptime'] + offset
             sis['rntime'] = sis['rntime'] + offset
-
             # After drift values, fixed timestamp must be equal to system timestamp
             #logging.info('Fixed timestamp = %s', sis['btime'] + sis['uptime'])
-            logging.info('Fixed sys values = %s', sis)
-
+            logging.info("Drifted sys values = {'btime': %s, 'uptime': %s, 'rntime': %s}", sis['btime'], sis['uptime'], sis['rntime'])
         else:
-            logging.info('Drift below zero. Skipping fix')
+            logging.info("Drifted sys values = {'btime': %s}", sis['btime'])
 
     return sis
 
