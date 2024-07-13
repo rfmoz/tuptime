@@ -102,6 +102,9 @@ su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -q)"
 
 
 %changelog
+* Fri Jul 13 2024 Ricardo Fraile <rfraile@rfraile.eu> 5.2.4-1
+- New release
+
 * Fri Jan 05 2024 Ricardo Fraile <rfraile@rfraile.eu> 5.2.3-1
 - New release
 
