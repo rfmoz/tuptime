@@ -2,7 +2,7 @@ Source: tuptime
 Section: utils
 Priority: optional
 Maintainer: Ricardo Fraile <r@rfmoz.eu>
-Build-Depends: debhelper-compat (= 13), dh-sequence-movetousr
+Build-Depends: debhelper-compat (= 13)
 Rules-Requires-Root: no
 Standards-Version: 4.6.2.0
 Homepage: https://github.com/rfmoz/tuptime
