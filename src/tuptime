@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""tuptime - Report the historical and statistical real time of the system,
-keeping it between restarts"""
-# Copyright (C) 2011-2023 - Ricardo F.
+"""tuptime - Report historical and statistical real time of the system,
+preserving it between restarts"""
+# Copyright (C) 2011-2024 - Ricardo F.
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ from datetime import datetime
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATETIME_FMT = '%X %x'
-__version__ = '5.2.3'
+__version__ = '5.2.4'
 
 # Terminate gracefully when SIGPIPE signal is received.
 try:
@@ -306,7 +306,7 @@ def get_arguments():
 def get_os_values():
     """Get values from each type of operating system"""
 
-    sis = {'bootid': None, 'btime': None, 'uptime': None, 'rntime': None, 'slptime': None, 'offbtime': None, 'downtime': None, 'kernel': None}
+    sis = {'bootid': None, 'btime': None, 'uptime': None, 'rntime': None, 'slptime': None, 'kernel': None}
 
     def os_bsd(sis):
         """Get values from BSD"""
@@ -329,11 +329,8 @@ def get_os_values():
             # Time since some unspecified starting point. Contains sleep time on BSDs
             sis['uptime'] = time.clock_gettime(time.CLOCK_MONOTONIC)
             if sys.platform.startswith(('darwin')):
-                # OSX > 10.12 has only UPTIME_RAW. Avoid compare it with non _RAW
-                # counters. Their reference here is CLOCK_REALTIME, so remove the raw diff:
-                raw_diff = sis['uptime'] - time.clock_gettime(time.CLOCK_MONOTONIC_RAW)
-                # Time the system has been running. Not contains sleep time on OSX
-                sis['rntime'] = time.clock_gettime(time.CLOCK_UPTIME_RAW) + raw_diff
+                # OSX > 10.12 has only UPTIME_RAW. Avoid mix it with non _RAW counters, extract _RAW from MONOTONIC_ and remove it
+                sis['rntime'] = time.clock_gettime(time.CLOCK_UPTIME_RAW) + (sis['uptime'] - time.clock_gettime(time.CLOCK_MONOTONIC_RAW))
             else:
                 # Time the system has been running. Not contains sleep time on BSDs
                 sis['rntime'] = time.clock_gettime(time.CLOCK_UPTIME)
@@ -386,8 +383,12 @@ def get_os_values():
             logging.info('Linux boot_id not assigned')
 
         try:
+            # Way to indicate a synchronized clock by SystemD, see filename notes on systemd/src/time-wait-sync/time-wait-sync.c
+            # Check if SystemD is used, but file not exists. Could be mandatory, outstripping control_drift()
             if not os.path.exists('/run/systemd/timesync/synchronized') and os.path.exists('/run/systemd'):
                 logging.info('Timesync state file not found = /run/systemd/timesync/synchronized')
+                #logging.error('Clock no synchronized')
+                #sys.exit(1)
         except Exception as exp:
             logging.info('Timesync check fails. %s', exp)
 
@@ -411,9 +412,8 @@ def get_os_values():
             logging.error('"%s" value unallocate from system. Execution aborted', key)
             sys.exit(1)
         if key in ('uptime', 'rntime') and float(value) < 0:
-            logging.warning('Reset invalid "%s" value "%s"', key, value)
-            if key == 'uptime': sis['uptime'] = 1
-            if key == 'rntime': sis['rntime'] = 1
+            logging.error('"%s" value "%s" below zero. Execution aborted', key, value)
+            sys.exit(1)
 
     # Set number OS values as integer
     for key in ('btime', 'uptime', 'rntime'):
@@ -571,42 +571,27 @@ def upgrade_db(db_conn, conn, arg):
     logging.warning('Upgraded')
 
 
-def control_drift(prev, sis):
+def control_drift(lastdb, sis):
     """Check time drift due inconsistencies with system clock"""
 
-    offset = sis['btime'] - prev['btime']  # Calculate time offset
+    offset = sis['btime'] - lastdb['btime']
     logging.info('Drift over btime = %s', offset)
 
+    # offset > 0 fixed now over current uptime value
+    # offset < 0 fixed later over next downtime value
     if offset:
-        logging.info('Fixing drift...')
+        #logging.info('System timestamp = %s', sis['btime'] + sis['uptime'])
+        #btime value registered on DB is a startup reference, keep it
+        sis['btime'] = lastdb['btime']
 
-        # Apply offset to btime, uptime and related
-        if (sis['uptime'] + offset) > 0:
-            logging.info('System timestamp = %s', sis['btime'] + sis['uptime'])
-
+        if offset > 0:
             sis['uptime'] = sis['uptime'] + offset
-            sis['btime'] = sis['btime'] - offset
-
-            # Apply offset to rntime if it has room for it, else, to slptime too
             sis['rntime'] = sis['rntime'] + offset
-            if sis['rntime'] < 1:
-                sis['slptime'] = sis['slptime'] + sis['rntime'] - 1
-                if sis['slptime'] < 0:
-                    logging.info('Drift decrease slptime under 0. Impossible')
-                    sis['slptime'] = 0
-                logging.info('Drift decrease rntime under 1. Impossible')
-                sis['rntime'] = 1  # Always keep almost 1 second
-
-            # Fixed timestamp must be equal to system timestamp after drift values
-            # Fixed btime must be equal to last btime from DB
-            logging.info('Fixed timestamp = %s', sis['btime'] + sis['uptime'])
-            logging.info('Fixed sys values = %s', sis)
-
+            # After drift values, fixed timestamp must be equal to system timestamp
+            #logging.info('Fixed timestamp = %s', sis['btime'] + sis['uptime'])
+            logging.info("Drifted sys values = {'btime': %s, 'uptime': %s, 'rntime': %s}", sis['btime'], sis['uptime'], sis['rntime'])
         else:
-            # Keep btime from DB with current uptime until it can be fixed
-            sis['btime'] = prev['btime']
-            logging.info('Drift decreases uptime under 1. Skipping fix')
-            logging.info('Unfixed btime = %s', sis['btime'])
+            logging.info("Drifted sys values = {'btime': %s}", sis['btime'])
 
     return sis
 
@@ -980,8 +965,6 @@ def print_default(db_rows, sis, arg):
     tstamp = {'min': arg.ts, 'max': arg.tu}  # Args as init values
     cnt = {'bootid': [], 'uptime': [], 'rntime': [], 'slptime': [], 'downtime': [], 'kernel': []}
     range_trim = False
-    sys_life = 0
-
     def1 = {'uptime': 0, 'rntime': 0, 'slptime': 0, 'downtime': 0}
     def2 = {**def1, 'bootid': None, 'btime': False, 'offbtime': False, 'kernel': None, 'startup': None}
 
@@ -1036,7 +1019,7 @@ def print_default(db_rows, sis, arg):
                 tstamp[key] = datetime.fromtimestamp(val).strftime(arg.dtm_format)
 
         for key in ('uptime', 'rntime', 'slptime', 'downtime'):
-            if sis[key] is not None:
+            if key != 'downtime' and sis[key] is not None:
                 sis[key] = time_conv(sis[key])
             for dval in (cal, lmt):
                 for val in dval.values():
@@ -1044,7 +1027,7 @@ def print_default(db_rows, sis, arg):
                         val[key] = time_conv(val[key])
 
         for key in ('btime', 'offbtime'):
-            if sis[key] is not None:
+            if key != 'offbtime' and sis[key] is not None:
                 sis[key] = datetime.fromtimestamp(sis[key]).strftime(arg.dtm_format)
             for val in lmt.values():
                 if val[key] is not False:
@@ -1135,6 +1118,15 @@ def output_hub(db_rows, sis, arg):
     if len(db_rows) != last_st:
         logging.info('Real startups are not equal to enumerate startups. Deleted rows in DB')
 
+    if arg.endst:
+        if arg.endst != db_rows[-1]['endst']:
+            # Graceful register must be performed at shutdown by the init manager, with _tuptime user
+            # or a privileged one. No one needs to do in other moment. A normal user can't write into DB
+            print('Graceful shutdown in DB = mismatch')
+            sys.exit(1)
+        print('Graceful shutdown in DB = ok')
+        return
+
     if arg.update:
         # If the user can only read DB, the select query over DB return outdated numbers in last row
         # because the DB was not updated previously. The following snippet update them in memory
@@ -1164,7 +1156,7 @@ def output_hub(db_rows, sis, arg):
         print_default(db_rows, sis, arg)
 
 
-def check_new_boot(prev, sis):
+def check_new_boot(lastdb, sis):
     """Test if system has new boot"""
 
     # How tuptime does it:
@@ -1181,15 +1173,15 @@ def check_new_boot(prev, sis):
     # To avoid lost an uptime record, please be sure that the system has time sync enabled, the init/systemd
     # script and the cron task works as expected.
 
-    if prev['bootid'] != 'None' and sis['bootid'] != 'None':
-        if prev['bootid'] != sis['bootid']:
+    if lastdb['bootid'] != 'None' and sis['bootid'] != 'None':
+        if lastdb['bootid'] != sis['bootid']:
             logging.info('System restarted = True from bootid')
             return True
         else:
             logging.info('System restarted = False from bootid')
             return False
 
-    elif prev['buptime'] < sis['btime']:
+    elif lastdb['buptime'] < sis['btime']:
         logging.info('System restarted = True from btime')
         return True
 
@@ -1206,22 +1198,21 @@ def main():
     db_conn, conn = gain_db(sis, arg)
 
     conn.execute('select rowid, bootid, btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
-    prev = dict(zip(['rowid', 'bootid', 'btime', 'uptime', 'endst'], conn.fetchone()))
-    prev['buptime'] = prev['btime'] + prev['uptime']
-    logging.info('Last DB values = %s', prev)
+    lastdb = dict(zip(['rowid', 'bootid', 'btime', 'uptime', 'endst'], conn.fetchone()))
+    lastdb['buptime'] = lastdb['btime'] + lastdb['uptime']
+    logging.info('Last DB values = %s', lastdb)
 
     # Check if system was restarted
-    if arg.update and check_new_boot(prev, sis):
+    if arg.update and check_new_boot(lastdb, sis):
 
-        sis['offbtime'] = prev['buptime']
-        if sis['offbtime'] > sis['btime']:  # Assure btime. Never lower than shutdown
-            sis['btime'] = sis['offbtime']
-        sis['downtime'] = sis['btime'] - prev['buptime']
+        if lastdb['buptime'] > sis['btime']:  # Assure btime. Never lower than shutdown
+            sis['btime'] = lastdb['buptime']
+        lastdb['downtime'] = sis['btime'] - lastdb['buptime']
 
         try:
             # Save downtimes for previous boot
             conn.execute('update tuptime set offbtime =?, downtime =? where rowid =? ',
-                         (sis['offbtime'], sis['downtime'], prev['rowid']))
+                         (lastdb['buptime'], lastdb['downtime'], lastdb['rowid']))
 
             # Create a new boot register
             conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
@@ -1240,28 +1231,28 @@ def main():
 
     elif arg.update:
         # Adjust time drift. Check only when system wasn't restarted
-        sis = control_drift(prev, sis)
+        sis = control_drift(lastdb, sis)
 
         # If a graceful shutdown was just registered before, let 5 seconds to next update to avoid being overlapped
         # with regular schedule execution (it can happen at shutdown)
-        if prev['endst'] and (prev['uptime'] + 5 > sis['uptime']) and not arg.endst:
+        if lastdb['endst'] and (lastdb['uptime'] + 5 > sis['uptime']) and not arg.endst:
             logging.info('DB info = graceful pass')
         else:
             try:
                 # Update current boot records
                 conn.execute('update tuptime set uptime =?, rntime =?, slptime =?, endst =?, kernel =? where rowid =?',
-                             (sis['uptime'], sis['rntime'], sis['slptime'], arg.endst, sis['kernel'], prev['rowid']))
+                             (sis['uptime'], sis['rntime'], sis['slptime'], arg.endst, sis['kernel'], lastdb['rowid']))
                 db_conn.commit()
                 logging.info('DB info = update ok')
 
-            except sqlite3.OperationalError:
+            except sqlite3.OperationalError as exc:
                 if arg.endst:
-                        # Graceful register must be performed at shutdown by the init manager, with _tuptime user
-                        # or a privileged one. No one needs to do in other moment. A normal user can't write into DB
-                        logging.warning('DB warning = skip register a graceful shutdown. Are you allowed?')
-                logging.info('DB info = skip update')
+                    logging.warning('DB warning = skip register a graceful shutdown, %s', exc)
+                else:
+                    logging.info('DB info = skip update values, %s', exc)
 
     else:
+        sis = control_drift(lastdb, sis)
         logging.info('DB info = skip by arg.update')
 
     if arg.quiet:

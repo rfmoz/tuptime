@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 5.2.3
+                              version 5.2.4
                                 Ricardo F.
-                               05/Jan/2024
+                               01/May/2024
 
 
 
@@ -11,7 +11,7 @@
 | Abstract |
 ============
 
-Tuptime report historical and statistical real time of the system, keeping it between restarts.
+Tuptime reports historical and statistical real time of the system, preserving it between restarts.
 Indeed, it can:
 
   - Count system startups
@@ -627,8 +627,10 @@ endst    Type of shutdown [1 ok | 0 bad]
 downtime Downtime seconds
 kernel   Name of the kernel
 
-The number of startup sequency is extracted from 'rowid', the signed integer 
+The number of startup sequence is extracted from 'rowid', the signed integer 
 key that uniquely identifies the row within its table in sqlite.
+
+The bootid value is available since Linux 2.6.20 and FreeBSD 11.0.
 
 For reset all the values, simply delete the database file.
 
@@ -636,8 +638,8 @@ It is possible to query and modify it directly, but it's better to use any of
 the scripts located under 'misc/scripts' for modify, join or check it.
 
 If a complete row is deleted and the database is not recreate completely (vacuum),
-rowid keep the real information about startup number. Tuptime will advert about
-it if the verbose mode is enabled.
+rowid keep the real information about startup number. Tuptime will notify about
+'Deleted rows in DB' if the verbose mode is enabled.
 
 
 
@@ -645,26 +647,22 @@ it if the verbose mode is enabled.
 | About sync date and time |
 ============================
 
-Large jumps over the date and time in a system can cause problems, especially
-when the uptime value is low.
-
+Substantial time jumps within a running system may trigger unespected behavior.
 Take care of the hardware clock RTC (if the system have), or how the operating
-system initializes their clock at startup. Tuptime register the timestamp
-reported by the system at first execution after boot and use it to calculate
-the previous shutdown time and the current uptime value. The command 'who -b'
-do more less the same.
+system initializes their clock at startup.
 
 If the system starts with a incorrect datetime and some external time sync is
-used, like ntpd or timesyncd, a few time after boot the startup datetime reported
-by the system may change. This behaviour is also related with adjustments
-performed by adjtime(3), systems running inside virtualized environments, servers
-with high load or with high disk I/O, wrong computation of jiffies / HZ and the
-problema of lost ticks.
+used, like ntpd or timesyncd, a few time after boot the btime reported by the
+system may change (it is a live value computed by now() - uptime). This behaviour
+is also related with adjustments performed by adjtime(3), systems running inside
+virtualized environments, servers with high load or with high disk I/O, wrong
+computation of jiffies / HZ and the problema of lost ticks.
 
-A slightly drift is compensate over the uptime value, but a large drift can cause
-abnormal registers and output. For example, Raspberry Pi doesn't have any clock and
-initializes from 1 January 1970. A downtime of 0, when it's clear than it was
-physically impossible, it's a common indicator than the clock had a large sync jump.
+A slightly drift is compensate over uptime/downtime values. Large drift can 
+produce unreal registers and output. For example, Raspberry Pi doesn't have any
+clock and initializes from 1 January 1970. A downtime of 0, when it's evident
+that it was physically impossible, it's a common indicator than the clock had a
+large sync jump.
 
 As Tuptime have time dependency, its Systemd service unit pulls time-sync.target
 and, therefore, is ordered to start before it. Note that it doesn't assure that 
@@ -757,6 +755,13 @@ Convert epoch to human datetime:
 Preceding conversions uses GNU date, on FreeBSD install "coreutils" and call
 them with "gdate".
 
+Examples of using it directly:
+
+         tuptime --tsince `date -d "1 day ago" +%s`
+         tuptime --tuntil `date -d "1 day ago" +%s`
+         tuptime --tsince `date -d "1 week ago" +%s` --tuntil `date -d "1 day ago" +%s`
+         tuptime --tat `date -d "1 day ago" +%s`
+
 More info about datetime input formats:
         man date
         'https://www.gnu.org/software/coreutils/manual/html_node/
@@ -770,15 +775,19 @@ More info about datetime input formats:
 
 Tuptime can be executed with 'root' user, but it's recommendable the use of an
 unprivileged user, like '_tuptime' as the installation section points to avoid
-security problems. In any case, if the database file is not writable by the
-current execution user, the changes are not saved. This situation is covered
-for print values, but not for update database, that's why a user who can write
-in the database file must execute tuptime, usually from the init manager, to
-update values at startup and shutdown, at least.
+security problems.
 
-Kernel name is registered each time that tuptime update values. If ksplice is
-used to update the kernel, last kernel will have the whole time assignment
-since the last system start.
+Tuptime tries to save values on DB in every execution. If the user doesn't have
+permissions over the file, an informational verbose message is generated. This
+situation is handled for print values, but not when register a graceful shutdown.
+That's why a user who can write in the database file must execute tuptime, usually
+from the init manager, to update values at startup and shutdown, at least.
+
+Tuptime register a new startup time (btime) reported by the system at first
+execution after boot, likewise the new startup number and bootid. Also the
+previous startup offbtime and downtime are also written. None of them changes
+after that. Uptime may shift to accommodate drift and kernel name could be
+replaced if live patching is used.
 
 Tuptime is backed by a SQLite database. It is highly resilient but fails can
 occur in any software and hardware level, producing a database corruption. Here
@@ -789,9 +798,8 @@ This is a streaming replication tool for SQLite databases, it works fine with
 Tuptime. https://litestream.io/
 
 The uptime reference is linked with the wall clock time elapsed since boot, not
-the running effective time. Running (effective time) and hibernate power states
-are childs of the uptime and report accumulated values inside their time range,
-which counts since the startup until the shutdown.
+the running effective time. Both the running (effective time) and hibernate
+power states fall within the applicable uptime slot.
 
 If the system have configured a time zone with daylight saving time (DST),
 to avoid problems when the time change, the real time clock (RTC) should have

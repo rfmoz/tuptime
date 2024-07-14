@@ -41,9 +41,9 @@ Z.- For testing with "dev" branch. Install "git" on step "1" and replace step "2
 
     dnf -y install git
     cd ~
-    git clone -b dev --depth=1 https://github.com/rfmoz/tuptime.git tuptime-5.2.3
+    git clone -b dev --depth=1 https://github.com/rfmoz/tuptime.git tuptime-5.2.4
     rpmdev-setuptree
     cd ~/rpmbuild/SPECS/
-    cp ../../tuptime-5.2.3/misc/rpm/tuptime.spec .
-    tar -czvf ../SOURCES/5.2.3.tar.gz ../../tuptime-5.2.3
+    cp ../../tuptime-5.2.4/misc/rpm/tuptime.spec .
+    tar -czvf ../SOURCES/5.2.4.tar.gz ../../tuptime-5.2.4
     rpmbuild -ba --target=noarch tuptime.spec

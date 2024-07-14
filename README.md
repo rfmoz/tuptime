@@ -1,7 +1,7 @@
 tuptime
 =======
 
-Tuptime is a tool for report the historical and statistical real time of the system, keeping it between restarts. Like uptime command but with more interesting output.
+Tuptime reports the historical and statistical real time of the system, preserving it between restarts. Like uptime command, but with more interesting output.
 
 
 ### Sample output

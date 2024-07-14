@@ -1,6 +1,6 @@
 Name:		tuptime
-Version:	5.2.3
-Release:	2%{?dist}
+Version:	5.2.4
+Release:	1%{?dist}
 Summary:	Report historical system real time
 
 License:	GPL-2.0-or-later
@@ -25,8 +25,8 @@ Requires(pre):	shadow-utils
 
 
 %description
-Tuptime track and report historical and statistical real time of the
-system, keeping the uptime and downtime between shutdowns.
+Tuptime tracks and reports historical and statistical real time of
+the system, preserving the uptime and downtime between shutdowns.
 
 
 %prep
@@ -102,6 +102,9 @@ su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -q)"
 
 
 %changelog
+* Fri Jul 13 2024 Ricardo Fraile <rfraile@rfraile.eu> 5.2.4-1
+- New release
+
 * Fri Jan 05 2024 Ricardo Fraile <rfraile@rfraile.eu> 5.2.3-1
 - New release
 
