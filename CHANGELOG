@@ -1,8 +1,7 @@
 tuptime (5.2.4) unstable; urgency=low
 
   * Move files from /lib to /usr/lib in DEB package
-  * Replace adduser with sysusers in DEB package
-  * Using tmpfiles.d to set DB dir in DEB package
+  * Replace adduser with sysusers.d in DEB package
   * Update documentation
   * Minnor code refactoring
 

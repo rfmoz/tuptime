@@ -1,6 +1,6 @@
 src/systemd/tuptime.service usr/lib/systemd/system/
 src/systemd/tuptime-sync.service usr/lib/systemd/system/
 src/systemd/tuptime-sync.timer usr/lib/systemd/system/
-src/systemd/tuptime-tmpfiles.conf usr/lib/tmpfiles.d/
+src/systemd/sysusers.d/tuptime.conf usr/lib/sysusers.d/
 src/init.d/debian/tuptime etc/init.d/
 src/tuptime usr/bin/

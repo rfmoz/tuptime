@@ -121,7 +121,7 @@ echo '  [OK]'
 echo "+ Creating Tuptime execution user '_tuptime'"
 if systemd-sysusers --version > /dev/null 2>&1; then
 	echo "  ...using systemd-sysusers"
-        install -m 644 "${F_TMP1}"/src/systemd/tuptime.sysusers /usr/lib/sysusers.d/tuptime.conf
+        install -m 644 "${F_TMP1}"/src/systemd/sysusers.d/tuptime.conf /usr/lib/sysusers.d/
         ((SELX)) && restorecon -vF /usr/lib/sysusers.d/tuptime.conf
 	systemd-sysusers /usr/lib/sysusers.d/tuptime.conf
 	echo '  [OK]'

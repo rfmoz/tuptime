@@ -1,5 +1,0 @@
-u _tuptime - "Tuptime execution user" /var/lib/tuptime
-
-
-# Note:
-#   systemd-sysusers doesn't create home directories. Use in combination with tmpfiles.d
