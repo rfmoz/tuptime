@@ -179,18 +179,9 @@ elif [ "${PID1}" = 'init' ] && [ -f /lib/lsb/init-functions ]; then
 	update-rc.d tuptime defaults
 	echo '  [OK]'
 
-elif [ "${PID1}" = 'init' ] && [ -f /etc/rc.conf ]; then
+elif { [ "${PID1}" = 'init' ] && [ -f /etc/rc.conf ]; } || [ "${PID1}" = 'openrc-init' ]; then
 	echo "+ Copying OpenRC file for init"
 	install -m 755 "${F_TMP1}"/src/openrc/tuptime /etc/init.d/
-	((SELX)) && restorecon -vF /etc/init.d/tuptime
-	rc-update add tuptime default
-	rc-service tuptime start
-	echo '  [OK]'
-
-elif [ "${PID1}" = 'openrc-init' ]; then
-	echo "+ Copying OpenRC file for openrc-init"
-	install -m 755 "${F_TMP1}"/src/openrc/tuptime /etc/init.d/
-	((SELX)) && restorecon -vF /etc/init.d/tuptime
 	rc-update add tuptime default
 	rc-service tuptime start
 	echo '  [OK]'
@@ -203,6 +194,8 @@ elif [ "${PID1}" = 'runit' ]; then
 		ln -s /etc/sv/tuptime/ /etc/service/tuptime
 	fi
 	sv start tuptime
+	echo '  [OK]'
+
 else
 	echo "#########################################"
 	echo " WARNING - Any init file for your system"
