@@ -9,7 +9,7 @@ set -e
 # 	 bash tuptime-install.sh -d	Install using dev branch
 #
 
-VERSION=1.9.2
+VERSION=1.9.3
 
 # Execution user
 EXUSR='_tuptime'
@@ -195,11 +195,14 @@ elif [ "${PID1}" = 'openrc-init' ]; then
 	rc-service tuptime start
 	echo '  [OK]'
 
-elif [ "${PID1}" = 'runit' ] && [ -f /etc/rc.local ] && [ -f /etc/rc.shutdown ]; then
+elif [ "${PID1}" = 'runit' ]; then
 	echo "+ Runit startup and shutdown execution"
-	echo 'tuptime -q' >> /etc/rc.local
-	echo 'tuptime -qg' >> /etc/rc.shutdown
-
+	install -d -m 755 /etc/sv/tuptime
+	install -m 755 "${F_TMP1}"/src/runit/* /etc/sv/tuptime/
+	if [ ! -L /etc/service/tuptime ]; then
+		ln -s /etc/sv/tuptime/ /etc/service/tuptime
+	fi
+	sv start tuptime
 else
 	echo "#########################################"
 	echo " WARNING - Any init file for your system"
