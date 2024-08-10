@@ -179,8 +179,8 @@ elif [ "${PID1}" = 'init' ] && [ -f /lib/lsb/init-functions ]; then
 	update-rc.d tuptime defaults
 	echo '  [OK]'
 
-elif { [ "${PID1}" = 'init' ] && [ -f /etc/rc.conf ]; } || [ "${PID1}" = 'openrc-init' ]; then
-	echo "+ Copying OpenRC file for init"
+elif ([ "${PID1}" = 'init' ] && [ -f /etc/rc.conf ]) || [ "${PID1}" = 'openrc-init' ]; then
+	echo "+ Copying OpenRC file"
 	install -m 755 "${F_TMP1}"/src/openrc/tuptime /etc/init.d/
 	rc-update add tuptime default
 	rc-service tuptime start
