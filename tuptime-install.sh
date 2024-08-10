@@ -188,12 +188,8 @@ elif { [ "${PID1}" = 'init' ] && [ -f /etc/rc.conf ]; } || [ "${PID1}" = 'openrc
 
 elif [ "${PID1}" = 'runit' ]; then
 	echo "+ Runit startup and shutdown execution"
-	install -d -m 755 /etc/sv/tuptime
-	install -m 755 "${F_TMP1}"/src/runit/* /etc/sv/tuptime/
-	if [ ! -L /etc/service/tuptime ]; then
-		ln -s /etc/sv/tuptime/ /etc/service/tuptime
-	fi
-	sv start tuptime
+	echo 'tuptime -q' >> /etc/rc.local
+	echo 'tuptime -qg' >> /etc/rc.shutdown
 	echo '  [OK]'
 
 else

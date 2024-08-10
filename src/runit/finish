@@ -1,2 +1,0 @@
-#!/bin/sh
-exec chpst -u _tuptime /usr/bin/tuptime -qg
