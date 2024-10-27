@@ -48,6 +48,10 @@ Install dependencies, latest versions:
 
     # pkg_add git python
 
+Create python3 symlink, if not exits:
+
+    # ln -s $(ls /usr/local/bin/python3.*[0-9]) /usr/local/bin/python3
+
 Clone repository and copy executable file:
 
     # git clone --depth=1 https://github.com/rfmoz/tuptime.git
