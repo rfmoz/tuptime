@@ -705,14 +705,15 @@ def reorder(db_rows, arg, last_st):
 
         if arg.order:
             match_value = {'u': 'uptime', 'r': 'rntime', 's': 'slptime', 'e': 'endst', 'd': 'downtime', 'k': 'kernel'}
-            db_rows = sorted(db_rows, key=lambda x: (x[match_value[arg.order]]))
+            # Sort rows by the selected field, placing False values at the end
+            db_rows = sorted(db_rows, key=lambda x: (float('inf') if x[match_value[arg.order]] is False else x[match_value[arg.order]]))
 
         if arg.reverse:
-            db_rows = list(reversed(db_rows))
+            db_rows.reverse()
 
         if arg.invert:
-            for ind, _ in enumerate(db_rows):
-                db_rows[ind]['startup'] = db_rows[ind]['startup'] - last_st
+            for row in db_rows:
+                row['startup'] -= last_st
 
     return db_rows
 
