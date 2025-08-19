@@ -829,11 +829,9 @@ def print_table(db_rows, arg):
     # Print table values
     if arg.csv:
         for row in tbl:
-            for key, value in enumerate(row):
-                sys.stdout.write('"' + str(value) + '"')
-                if (key + 1) != len(row):
-                    sys.stdout.write(',')
-            print('')
+            for value in row[:-1]:
+                print('"' + str(value) + '"', end=',')
+            print('"' + str(row[-1]) + '"')
 
     else:
         # Get index position of elements left aligned
@@ -849,14 +847,13 @@ def print_table(db_rows, arg):
             row = [str(cell) for cell in row]
 
             # First in raw and next ones with side spaces
-            sys.stdout.write(row[0].rjust(colpad[0]))
+            col = row[0].rjust(colpad[0])
             for i in range(1, len(row)):
                 if i in align_left:
-                    col = (side_spaces * ' ') + row[i].ljust(colpad[i])
+                    col += (side_spaces * ' ' ) + row[i].ljust(colpad[i])
                 else:
-                    col = row[i].rjust(colpad[i] + side_spaces)
-                sys.stdout.write(col)
-            print('')
+                    col += row[i].rjust(colpad[i] + side_spaces)
+            print(col)
 
 
 def print_tat(db_rows, sis, last_st, arg):
