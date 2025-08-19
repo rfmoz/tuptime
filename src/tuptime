@@ -283,9 +283,9 @@ def get_arguments():
     # Expand exclude range
     if arg.exclude is not None:
         try:
-            ex_extend = [ss.split('-') for ss in arg.exclude.split(',')]
-            ex_extend = [range(int(i[0]), int(i[1])+1) if len(i) == 2 else i for i in ex_extend]
-            arg.exclude = sorted({int(item) for sublist in ex_extend for item in sublist})
+            ex_extend = [range(int(i[0]), int(i[1]) + 1) if len(i) == 2 else [int(i[0])]
+                         for i in (ss.split('-') for ss in arg.exclude.split(','))]
+            arg.exclude = sorted({item for sublist in ex_extend for item in sublist})
         except:
             logging.warning('Invalid exclude argument value. Not applied')
             arg.exclude = None
