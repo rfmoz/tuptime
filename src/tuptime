@@ -512,7 +512,7 @@ def gain_db(sis, arg):
     return conn, cur
 
 
-def upgrade_db(db_conn, conn, arg):
+def upgrade_db(conn, cur, arg):
     """Upgrade DB to current format"""
 
     if not os.access(arg.db_file, os.W_OK):
@@ -521,46 +521,27 @@ def upgrade_db(db_conn, conn, arg):
     logging.warning('Upgrading DB file = %s', arg.db_file)
 
     try:
-        columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
-
-        if 'rntime' not in columns or 'slptime' not in columns:  # new in tuptime v4
-            logging.warning('Upgrading DB with power states')
-            conn.execute('create table if not exists tuptimeNew'
-                         ' (btime integer, uptime integer, rntime integer, slptime integer,'
-                         ' offbtime integer, endst integer, downtime integer, kernel text)')
-            conn.execute('update tuptime set uptime = cast(round(uptime) as int)')
-            conn.execute('update tuptime set offbtime = cast(round(offbtime) as int)')
-            conn.execute('update tuptime set downtime = cast(round(downtime) as int)')
-            conn.execute('insert into tuptimeNew'
-                         ' (btime, uptime, offbtime, endst, downtime, kernel)'
-                         ' SELECT btime, uptime, offbtime, endst, downtime, kernel'
-                         ' FROM tuptime')
-            conn.execute('update tuptimeNew set rntime = uptime')
-            conn.execute('update tuptimeNew set slptime = 0')
-            conn.execute('drop table tuptime')
-            conn.execute('alter table tuptimeNew RENAME TO tuptime')
-            conn.execute('PRAGMA user_version = 4')
-            db_conn.commit()
+        columns = [i[1] for i in cur.execute('PRAGMA table_info(tuptime)')]
 
         if 'bootid' not in columns:  # new in tuptime v5
             logging.warning('Upgrading DB with boot ID')
-            conn.execute('create table if not exists tuptimeNew'
+            cur.execute('create table if not exists tuptimeNew'
                          ' (bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
                          ' offbtime integer, endst integer, downtime integer, kernel text)')
-            conn.execute('insert into tuptimeNew'
+            cur.execute('insert into tuptimeNew'
                          ' (btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel)'
                          ' SELECT btime, uptime, rntime, slptime, offbtime, endst, downtime, kernel'
                          ' FROM tuptime')
-            conn.execute('update tuptimeNew set bootid = "None"')
-            conn.execute('update tuptimeNew set kernel = "None" where kernel = ""')
-            conn.execute('drop table tuptime')
-            conn.execute('alter table tuptimeNew RENAME TO tuptime')
-            conn.execute('PRAGMA user_version = 5')
-            db_conn.commit()
+            cur.execute('update tuptimeNew set bootid = "None"')
+            cur.execute('update tuptimeNew set kernel = "None" where kernel = ""')
+            cur.execute('drop table tuptime')
+            cur.execute('alter table tuptimeNew RENAME TO tuptime')
+            cur.execute('PRAGMA user_version = 5')
+            conn.commit()
 
         logging.warning('Set DB user_version')
-        conn.execute('PRAGMA user_version = 5')
-        db_conn.commit()
+        cur.execute('PRAGMA user_version = 5')
+        conn.commit()
 
     except Exception as exp_db:
         logging.error('Upgrading DB format failed. "%s"', exp_db)
