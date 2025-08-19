@@ -817,7 +817,7 @@ def print_table(db_rows, arg):
         align_left = [tbl[0].index(i) for i in ('End', 'Kernel') if i in tbl[0]]
 
         # Get the maximum width of the given column index
-        colpad = [max([len(str(row[i])) for row in tbl]) for i in range(len(tbl[0]))]
+        colpad = [max(len(str(cell)) for cell in col) for col in zip(*tbl)]
 
         # Print cols by row
         for row in tbl:
