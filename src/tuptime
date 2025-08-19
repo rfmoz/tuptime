@@ -452,18 +452,18 @@ def gain_db(sis, arg):
     """Assure DB state and get DB connection"""
 
     # If db_file keeps default value, check for DB environment variable
-    if arg.db_file == DB_FILE:
-        if os.environ.get('TUPTIME_DBF'):
-            arg.db_file = os.environ.get('TUPTIME_DBF')
-            logging.info('DB environ var = %s', arg.db_file)
+    if arg.db_file == DB_FILE and os.environ.get('TUPTIME_DBF'):
+        arg.db_file = os.environ.get('TUPTIME_DBF')
+        logging.info('DB environ var = %s', arg.db_file)
 
     # Test path
-    arg.db_file = os.path.abspath(arg.db_file)  # Get absolute or relative path
+    dir_path = os.path.dirname(arg.db_file)
     try:
-        if os.makedirs(os.path.dirname(arg.db_file), exist_ok=True):
-            logging.info('Making path = %s', os.path.dirname(arg.db_file))
+        if dir_path and not os.path.exists(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
+            logging.info('Making path = %s', dir_path)
     except Exception as exp_path:
-        logging.error('Check DB path "%s": %s', os.path.dirname(arg.db_file), exp_path)
+        logging.error('Check DB path "%s": %s', dir_path, exp_path)
         sys.exit(1)
 
     # Test and create DB with the initial values
@@ -471,22 +471,20 @@ def gain_db(sis, arg):
         if os.path.isfile(arg.db_file):
             logging.info('DB file exists = %s (uid=%s,gid=%s)', arg.db_file, os.stat(arg.db_file).st_uid, os.stat(arg.db_file).st_gid)
 
-
         else:
             logging.info('Making DB file = %s', arg.db_file)
-            db_conn = sqlite3.connect(arg.db_file)
-            db_conn.set_trace_callback(logging.debug)
-            conn = db_conn.cursor()
-            conn.execute('BEGIN deferred')
-            conn.execute('create table tuptime'
-                         ' (bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
-                         ' offbtime integer, endst integer, downtime integer, kernel text)')
-            conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?) ',
-                         (sis['bootid'], sis['btime'], sis['uptime'], sis['rntime'],
-                          sis['slptime'], None, arg.endst, None, sis['kernel']))
-            conn.execute('PRAGMA user_version = {}'.format(__version__.partition('.')[0]))
-            db_conn.commit()
-            db_conn.close()
+            with sqlite3.connect(arg.db_file) as conn:
+                conn.set_trace_callback(logging.debug)
+                cur = conn.cursor()
+                cur.execute('BEGIN deferred')
+                cur.execute('create table tuptime'
+                             ' (bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
+                             ' offbtime integer, endst integer, downtime integer, kernel text)')
+                cur.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?) ',
+                             (sis['bootid'], sis['btime'], sis['uptime'], sis['rntime'],
+                             sis['slptime'], None, arg.endst, None, sis['kernel']))
+                cur.execute('PRAGMA user_version = {}'.format(__version__.partition('.')[0]))
+                conn.commit()
     except Exception as exp_file:
         logging.error('Check DB file "%s": %s', arg.db_file, exp_file)
         sys.exit(1)
@@ -494,24 +492,24 @@ def gain_db(sis, arg):
     # Get DB connection and begin transaction
     try:
         logging.info('Getting DB connection')
-        db_conn = sqlite3.connect(arg.db_file)
-        db_conn.row_factory = sqlite3.Row
-        db_conn.set_trace_callback(logging.debug)
-        conn = db_conn.cursor()
-        conn.execute('BEGIN deferred')
+        conn = sqlite3.connect(arg.db_file)
+        conn.row_factory = sqlite3.Row
+        conn.set_trace_callback(logging.debug)
+        cur = conn.cursor()
+        cur.execute('BEGIN deferred')
     except Exception as exp_conn:
         logging.error('DB connection failed: %s', exp_conn)
         sys.exit(1)
 
     # Check if DB has the old format
-    user_version = conn.execute('PRAGMA user_version').fetchone()[0]
+    user_version = cur.execute('PRAGMA user_version').fetchone()[0]
     if arg.verbose:
         logging.info('DB user_version: %s', user_version)
     if user_version < 5:
         logging.warning('DB format outdated')
-        upgrade_db(db_conn, conn, arg)
+        upgrade_db(conn, cur, arg)
 
-    return db_conn, conn
+    return conn, cur
 
 
 def upgrade_db(db_conn, conn, arg):
