@@ -1171,10 +1171,10 @@ def main():
 
     arg = get_arguments()
     sis = get_os_values()
-    db_conn, conn = gain_db(sis, arg)
+    conn, cur = gain_db(sis, arg)
 
-    conn.execute('select rowid, bootid, btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
-    lastdb = dict(zip(['rowid', 'bootid', 'btime', 'uptime', 'endst'], conn.fetchone()))
+    cur.execute('select rowid, bootid, btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
+    lastdb = dict(zip(['rowid', 'bootid', 'btime', 'uptime', 'endst'], cur.fetchone()))
     lastdb['buptime'] = lastdb['btime'] + lastdb['uptime']
     logging.info('Last DB values = %s', lastdb)
 
@@ -1187,14 +1187,14 @@ def main():
 
         try:
             # Save downtimes for previous boot
-            conn.execute('update tuptime set offbtime =?, downtime =? where rowid =? ',
+            cur.execute('update tuptime set offbtime =?, downtime =? where rowid =? ',
                          (lastdb['buptime'], lastdb['downtime'], lastdb['rowid']))
 
             # Create a new boot register
-            conn.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
+            cur.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?)',
                          (sis['bootid'], sis['btime'], sis['uptime'], sis['rntime'],
                           sis['slptime'], None, arg.endst, None, sis['kernel']))
-            db_conn.commit()
+            conn.commit()
             logging.info('DB info = insert ok')
 
         except Exception as exp:
@@ -1216,9 +1216,9 @@ def main():
         else:
             try:
                 # Update current boot records
-                conn.execute('update tuptime set uptime =?, rntime =?, slptime =?, endst =?, kernel =? where rowid =?',
+                cur.execute('update tuptime set uptime =?, rntime =?, slptime =?, endst =?, kernel =? where rowid =?',
                              (sis['uptime'], sis['rntime'], sis['slptime'], arg.endst, sis['kernel'], lastdb['rowid']))
-                db_conn.commit()
+                conn.commit()
                 logging.info('DB info = update ok')
 
             except sqlite3.OperationalError as exc:
@@ -1231,17 +1231,15 @@ def main():
         sis = control_drift(lastdb, sis)
         logging.info('DB info = skip by arg.update')
 
-    if arg.quiet:
-        db_conn.close()
-        logging.info('Quiet mode')
-
-    else:
-        # Get all rows to determine print values. Convert from sqlite row object to dict to allow item allocation
-        conn.execute('select rowid as startup, * from tuptime')
-        db_rows = [dict(row) for row in conn.fetchall()]
-        db_conn.close()
-
-        output_hub(db_rows, sis, arg)
+    try:
+        if arg.quiet:
+            logging.info('Quiet mode')
+        else:
+            # Get all rows to determine print values. Convert from sqlite row object to dict to allow item allocation
+            db_rows = [dict(row) for row in conn.execute('select rowid as startup, * from tuptime')]
+            output_hub(db_rows, sis, arg)
+    finally:
+        conn.close()
 
 
 if __name__ == "__main__":
