@@ -863,22 +863,22 @@ def print_tat(db_rows, sis, last_st, arg):
     if arg.tat < 0:
         arg.tat = sis['btime'] + sis['uptime'] + arg.tat
 
-    report = {'at': arg.tat, 'status': None}
+    report = {'at': arg.tat, 'status': None, 'startup': 0, 'time': 0, 'time_fwd': 0, 'time_total': 0, 'bootid': None, 'kernel': None}
 
     for row in db_rows:
-        for key in ('startup', 'bootid', 'kernel'):
-            report[key] = row[key]
 
         # Report UP if tat fall into btime + uptime range
-        if (arg.tat >= row['btime']) and (arg.tat < (row['btime'] + row['uptime'])):
+        if row['btime'] <= arg.tat < row['btime'] + row['uptime']:
             report['status'] = 'UP'
             report['time'] = arg.tat - row['btime']
             report['time_fwd'] = row['uptime'] - report['time']
             report['time_total'] = row['uptime']
+            for key in ('startup', 'bootid', 'kernel'):
+                report[key] = row[key]
             break
 
         # Report DOWN if tat fall into offbtime + downtime range
-        elif (arg.tat >= row['offbtime']) and (arg.tat < (row['offbtime'] + row['downtime'])):
+        elif row['offbtime'] <= arg.tat < row['offbtime'] + row['downtime']:
             report['time'] = arg.tat - row['offbtime']
             report['time_fwd'] = row['downtime'] - report['time']
             if row['endst'] == 1:
@@ -886,19 +886,18 @@ def print_tat(db_rows, sis, last_st, arg):
             elif row['endst'] == 0:
                 report['status'] = 'DOWN-BAD'
             report['time_total'] = row['downtime']
+            for key in ('startup', 'bootid', 'kernel'):
+                report[key] = row[key]
             break
 
-    # If status keep their default value, no match, clean all other variables. Also, cover unexpected division by zero
-    if report['status'] is None or report['time_total'] == 0:
-        report['startup'] = report['time'] = report['time_fwd'] = 0
-        report['bootid'] = report['kernel'] = 'None'
-        perctg_1 = perctg_2 = 0.0
-    else:
+    if report['time_total'] > 0:
         perctg_1 = round(report['time'] * 100 / report['time_total'], arg.dec)
         perctg_2 = round(report['time_fwd'] * 100 / report['time_total'], arg.dec)
+    else:
+        perctg_1 = perctg_2 = 0.0
 
-        if arg.invert:
-            report['startup'] = report['startup'] - last_st
+    if arg.invert and report['status']:
+        report['startup'] -= last_st
 
     if not arg.seconds:
         report['at'] = datetime.fromtimestamp(report['at']).strftime(arg.dtm_format)
