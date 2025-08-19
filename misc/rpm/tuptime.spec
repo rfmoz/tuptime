@@ -1,5 +1,5 @@
 Name:		tuptime
-Version:	5.2.4
+Version:	5.2.5
 Release:	1%{?dist}
 Summary:	Report historical system real time
 
@@ -102,6 +102,9 @@ su -s /bin/sh _tuptime -c "(umask 0022 && /usr/bin/tuptime -q)"
 
 
 %changelog
+* Fri Aug 19 2025 Ricardo Fraile <rfraile@rfraile.eu> 5.2.5-1
+- New release
+
 * Fri Jul 13 2024 Ricardo Fraile <rfraile@rfraile.eu> 5.2.4-1
 - New release
 

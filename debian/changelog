@@ -1,3 +1,9 @@
+tuptime (5.2.5) unstable; urgency=low
+
+  * Minnor code refactoring
+
+ -- Ricardo Fraile <r@rfmoz.eu>  Tue, 19 Aug 2025 21:56:00 +0100
+
 tuptime (5.2.4) unstable; urgency=low
 
   * Move files from /lib to /usr/lib in DEB package
