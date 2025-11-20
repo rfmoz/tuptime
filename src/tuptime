@@ -23,7 +23,7 @@ from datetime import datetime
 
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
-DATETIME_FMT = '%X %x'
+DATETIME_FMT = '%x %X'
 __version__ = '5.2.5'
 
 # Terminate gracefully when SIGPIPE signal is received.
