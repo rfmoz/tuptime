@@ -594,10 +594,11 @@ def time_conv(secs):
         if (dtm[key] == 0) and (line == '') and (key != 's'):
             continue
         else:
-            line += str(dtm[key]) + key + ' '
+            fill = 3 if key == 'd' else 2
+            line += str(dtm[key]).zfill(fill) + key + ' '
 
-    # Return without last space char
-    return str(line[:-1])
+    # Chop start zeroes and last space
+    return str(line[:-1]).strip('0')
 
 
 def trim_rows(db_rows, sis, last_st, arg):
