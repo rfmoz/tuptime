@@ -590,15 +590,18 @@ def time_conv(secs):
     # Build datetime sentence with this order
     for key in ('yr', 'd', 'h', 'm', 's'):
 
-        # Avoid print empty values at the beginning, except seconds
-        if (dtm[key] == 0) and (line == '') and (key != 's'):
-            continue
-        else:
-            fill = 3 if key == 'd' else 2
-            line += str(dtm[key]).zfill(fill) + key + ' '
+        fill = 3 if key == 'd' else 2
 
-    # Chop start zeroes and last space
-    return str(line[:-1]).strip('0')
+        # Always print seconds and skip other empty values
+        if key == 's':
+            line += str(dtm[key]).zfill(fill) + key + ' '
+        else:
+            if (dtm[key] == 0) and (line == ''):
+                continue
+            line += str(dtm[key]).zfill(fill).lstrip('0') + key + ' '
+
+    # Chop last space
+    return str(line[:-1])
 
 
 def trim_rows(db_rows, sis, last_st, arg):
