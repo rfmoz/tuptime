@@ -794,46 +794,36 @@ def print_table(db_rows, arg):
     if not arg.kernel:
         tops.pop('kernel')
 
-    # Assign remaining values for print the header
-    tbl = [tuple(tops.values())]
+    # Remaining header values
+    thead = list(tops.values())
+
+    # Prepare table rows
+    table = [[row[k] for k in list(tops.keys())] for row in format_output(db_rows, arg)]
+    table.insert(0, thead) # add headers as first row
 
     # Add empty brake up line if csv is not used
     if not arg.csv:
-        tbl.append(tuple(' ') * len(tbl[0]))
-
-    # Assign table values for print
-    for row_dict in format_output(db_rows, arg):
-        rowd = tuple(row_dict[i] for i in tops)
-        tbl.append(rowd)
+        table.insert(1, [''] * len(table[0]))
 
     # Print table values
     if arg.csv:
-        for row in tbl:
-            for value in row[:-1]:
-                print('"' + str(value) + '"', end=',')
-            print('"' + str(row[-1]) + '"')
+        for row in table:
+            print(','.join(f'"{v}"' for v in row))
+        return
 
-    else:
-        # Get index position of elements left aligned
-        align_left = [tbl[0].index(i) for i in ('End', 'Kernel') if i in tbl[0]]
+    # Determine column width
+    col_width = [max([len(str(row[i])) for row in table]) for i in range(len(thead))]
+    spacing = ' ' * side_spaces # fixed spacing between all columns
 
-        # Get the maximum width of the given column index
-        colpad = [max(len(str(cell)) for cell in col) for col in zip(*tbl)]
+    # Columns to left-align
+    align_left = [i for i, h in enumerate(thead) if h in ('End', 'Kernel')]
 
-        # Print cols by row
-        for row in tbl:
-
-            # Convert the entire row to strings
-            row = [str(cell) for cell in row]
-
-            # First in raw and next ones with side spaces
-            col = row[0].rjust(colpad[0])
-            for i in range(1, len(row)):
-                if i in align_left:
-                    col += (side_spaces * ' ' ) + row[i].ljust(colpad[i])
-                else:
-                    col += row[i].rjust(colpad[i] + side_spaces)
-            print(col)
+    # Print table in a single loop
+    for row in table:
+        print(spacing.join(
+            str(cell).ljust(col_width[i]) if i in align_left else str(cell).rjust(col_width[i])
+            for i, cell in enumerate(row)
+        ))
 
 
 def print_tat(db_rows, sis, last_st, arg):
