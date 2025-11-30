@@ -590,16 +590,18 @@ def time_conv(secs):
     # Build datetime sentence with this order
     for key in ('yr', 'd', 'h', 'm', 's'):
 
-        # Avoid print empty values. Set zero fill
-        if key == 's':
-            fill = 1 if line == '' else 2
-        else:
-            if dtm[key] == 0 and line == '':
-                continue
-            fill = 3 if key == 'd' else 2
+        # Set zero fill
+        fill = 2
+        if key == 's' and line == '':
+            fill = 1
+        elif key == 'd':
+            fill = 3
 
         # Strip starting zeros except in seconds
         if line == '' and key != 's':
+            # Avoid print empty values
+            if dtm[key] == 0:
+                continue
             line += str(dtm[key]).zfill(fill).lstrip('0') + key + ' '
         else:
             line += str(dtm[key]).zfill(fill) + key + ' '
