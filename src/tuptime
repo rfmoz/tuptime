@@ -331,11 +331,9 @@ def get_os_values():
             if hasattr(time, "CLOCK_UPTIME"):
                 # Time the system has been running. Not contains sleep time on BSDs
                 sis['rntime'] = time.clock_gettime(time.CLOCK_UPTIME)
-            elif hasattr(time, "CLOCK_UPTIME_RAW"):
+            else:
                 # OSX > 10.12 has only UPTIME_RAW. Avoid mix it with non _RAW counters, extract _RAW from MONOTONIC_ and remove it
                 sis['rntime'] = time.clock_gettime(time.CLOCK_UPTIME_RAW) + (sis['uptime'] - time.clock_gettime(time.CLOCK_MONOTONIC_RAW))
-            else:
-                sis['rntime'] = sis['uptime']
         except Exception as exp:
             logging.info('Old uptime/rntime assignment. %s', exp)
             logging.info('Power states disabled, values assigned from uptime')
