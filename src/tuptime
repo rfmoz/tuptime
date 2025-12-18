@@ -599,11 +599,11 @@ def time_conv(secs):
             # Avoid print empty values
             if dtm[key] == 0:
                 continue
-            line += str(dtm[key]).zfill(fill).lstrip('0') + key + ' '
+            line += str(dtm[key]) + key + ' '
         else:
             line += str(dtm[key]).zfill(fill) + key + ' '
 
-    return str(line[:-1])
+    return line[:-1]
 
 
 def trim_rows(db_rows, sis, last_st, arg):
