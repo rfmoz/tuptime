@@ -584,20 +584,12 @@ def time_conv(secs):
     dtm['d'], dtm['h'] = divmod(dtm['h'], 24)
     dtm['yr'], dtm['d'] = divmod(dtm['d'], 365)
 
-    # Build datetime sentence with this order
-    for key in ('yr', 'd', 'h', 'm', 's'):
+    # Build datetime sentence with this order and fill zeros number
+    for key, fill in (('yr', 0), ('d', 3), ('h', 2), ('m', 2), ('s', 2)):
 
-        # Set zero fill
-        fill = 2
-        if key == 's' and line == '':
-            fill = 1
-        elif key == 'd':
-            fill = 3
-
-        # Strip starting zeros except in seconds
-        if line == '' and key != 's':
-            # Avoid print empty values
-            if dtm[key] == 0:
+        # Skip left emtpy values and avoid zero fill over first value and seconds
+        if line == '':
+            if dtm[key] == 0 and key != 's':
                 continue
             line += str(dtm[key]) + key + ' '
         else:
@@ -813,7 +805,7 @@ def print_table(db_rows, arg):
     # Print table values
     if arg.csv:
         for row in table:
-            print(','.join(f'"{v}"' for v in row))
+            print(','.join('"'+ str(v) +'"' for v in row))
         return
 
     # Determine column width
@@ -827,8 +819,7 @@ def print_table(db_rows, arg):
     for row in table:
         print(spacing.join(
             str(cell).ljust(col_width[i]) if i in align_left else str(cell).rjust(col_width[i])
-            for i, cell in enumerate(row)
-        ))
+            for i, cell in enumerate(row)))
 
 
 def print_tat(db_rows, sis, last_st, arg):
