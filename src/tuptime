@@ -809,7 +809,7 @@ def print_table(db_rows, arg):
         return
 
     # Determine column width
-    col_width = [max([len(str(row[i])) for row in table]) for i in range(len(thead))]
+    col_width = [max(len(str(row[i])) for row in table) for i in range(len(thead))]
     spacing = ' ' * side_spaces # fixed spacing between all columns
 
     # Columns to left-align
@@ -923,6 +923,52 @@ def print_default(db_rows, sis, arg):
 
         return updown, cnt, lmt
 
+    def eval_range(db_rows, arg, tstamp, range_trim):
+        """Get range limits and check range trimmed"""
+
+        first_row, last_row = db_rows[0], db_rows[-1]
+
+        # Max timestamp - until datetime
+        # Get rightmost (older) value from last row if arg.tu is not used
+        if tstamp['max'] is None:
+            if last_row['offbtime'] is not False:
+                tstamp['max'] = last_row['offbtime'] + last_row['downtime']
+            elif last_row['btime'] is not False:
+                tstamp['max'] = last_row['btime'] + last_row['uptime']
+
+        # Min timestamp - since datetime
+        # Get leftmost (newer) value, always btime, from first row value if arg.ts is not used
+        if tstamp['min'] is None:
+            tstamp['min'] = first_row['btime']
+
+        # Check if range is trimmed
+        if arg.exclude:
+            range_trim = last_row['startup'] - first_row['startup'] != len(db_rows) - 1
+
+        return tstamp, range_trim
+
+    def eval_stats(arg, cal, cnt, rate):
+        """Get totals, averages, and rates"""
+
+        # Get totals and system life
+        for key in cal['tot']:
+            cal['tot'][key] += sum(cnt[key])
+        sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
+
+        # Get rates and average uptime / downtime
+        if sys_life > 0:
+            for key in rate:
+                rate[key] = round((cal['tot'][key] * 100) / sys_life, arg.dec)
+
+            if cnt['uptime']:
+                for key in ('uptime', 'rntime', 'slptime'):
+                    cal['ave'][key] = int(round(cal['tot'][key] / len(cnt['uptime'])))
+
+            if cnt['downtime']:
+                cal['ave']['downtime'] = int(round(cal['tot']['downtime'] / len(cnt['downtime'])))
+
+        return cal, rate, sys_life
+
     # Set default values
     updown = {'startups': 0, 'shutdowns': 0, 'ok': 0, 'bad': 0}
     tstamp = {'min': arg.ts, 'max': arg.tu}  # Args as init values
@@ -935,43 +981,11 @@ def print_default(db_rows, sis, arg):
     lmt = {'max-up': def2.copy(), 'max-down': def2.copy(), 'min-up': def2.copy(), 'min-down': def2.copy()}
     rate = {k: float(v) for k, v in def1.items()}  # Float values of def1
 
-    # Get values from all DB rows
-    updown, cnt, lmt = parse_rows(db_rows, updown, cnt, lmt)
-
-    # Max timestamp - until datetime
-    # Get rightmost (older) value from last row if arg.tu is not used
-    if db_rows and tstamp['max'] is None:
-        if db_rows[-1]['offbtime'] is not False:
-            tstamp['max'] = db_rows[-1]['offbtime'] + db_rows[-1]['downtime']
-        elif db_rows[-1]['btime'] is not False:
-            tstamp['max'] = db_rows[-1]['btime'] + db_rows[-1]['uptime']
-
-    # Min timestamp - since datetime
-    # Get leftmost (newer) value, always btime, from first row value if arg.ts is not used
-    if db_rows and tstamp['min'] is None:
-        tstamp['min'] = db_rows[0]['btime']
-
-    # Check if range is trimmed
-    if db_rows and arg.exclude:
-        if db_rows[-1]['startup'] - db_rows[0]['startup'] != len(db_rows) - 1:
-            range_trim = True
-
-    # Get totals and system life
-    for key in cal['tot']:
-        cal['tot'][key] += sum(cnt[key])
-    sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
-
-    # Get rates and average uptime / downtime
-    if sys_life > 0:
-        for key in rate:
-            rate[key] = round((cal['tot'][key] * 100) / sys_life, arg.dec)
-
-        if cnt['uptime']:
-            for key in ('uptime', 'rntime', 'slptime'):
-                cal['ave'][key] = int(round(cal['tot'][key] / len(cnt['uptime'])))
-
-        if cnt['downtime']:
-            cal['ave']['downtime'] = int(round(cal['tot']['downtime'] / len(cnt['downtime'])))
+    # Get values from all DB rows, ranges and stats
+    if db_rows:
+        updown, cnt, lmt = parse_rows(db_rows, updown, cnt, lmt)
+        tstamp, range_trim = eval_range(db_rows, arg, tstamp, range_trim)
+    cal, rate, sys_life = eval_stats(arg, cal, cnt, rate)
 
     # Output style: Apply human printable values or keep seconds
     if not arg.seconds:
