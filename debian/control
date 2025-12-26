@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Ricardo Fraile <r@rfmoz.eu>
 Build-Depends: debhelper-compat (= 13)
-Standards-Version: 4.7.2.0
+Standards-Version: 4.7.3.0
 Homepage: https://github.com/rfmoz/tuptime
 
 Package: tuptime
