@@ -1239,7 +1239,7 @@ def main():
             logging.info('Quiet mode')
         else:
             # Get all rows to determine print values. Convert from sqlite row object to dict to allow item allocation
-            db_rows = [dict(row) for row in conn.execute('select rowid as startup, * from tuptime')]
+            db_rows = [dict(row) for row in cur.execute('select rowid as startup, * from tuptime')]
             output_hub(db_rows, sis, arg)
     finally:
         conn.close()
