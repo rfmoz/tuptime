@@ -1,6 +1,9 @@
 tuptime (5.2.5) unstable; urgency=low
 
-  * Minnor code refactoring
+  * Add zero padding on time counters
+  * Change datetime output order
+  * Set fallback locale to C
+  * Code refactoring
 
  -- Ricardo Fraile <r@rfmoz.eu>  Tue, 19 Aug 2025 21:56:00 +0100
 
