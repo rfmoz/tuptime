@@ -66,6 +66,10 @@ For Linux systems:
            # systemctl enable tuptime.service && systemctl start tuptime.service
            # systemctl enable tuptime-sync.timer && systemctl start tuptime-sync.timer
 
+      Alpine:
+
+           # apk add tuptime@testing
+
 
    + Using bash script:
       

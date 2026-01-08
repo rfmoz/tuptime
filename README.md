@@ -79,6 +79,7 @@ Or swich to -l | --list option:
 * FreeBSD: https://www.freshports.org/sysutils/tuptime
 * Archlinux: https://aur.archlinux.org/packages/tuptime
 * OpenSUSE: https://software.opensuse.org/package/tuptime (Community Maintained / Unofficial)
+* Alpine: https://pkgs.alpinelinux.org/package/edge/testing/x86_64/tuptime
 
 #### By one-liner script
 
@@ -135,10 +136,10 @@ properly. See 'tuptime-manual.txt' for more information.
 journalctl --list-boots - Show a tabular list of boot numbers (relative to the current boot), their IDs, and the timestamps of the first and last message pertaining to the boot. Close output than 'tuptime  -bit'.
 https://github.com/systemd/systemd/
 
-uptimed - Is an uptime record daemon keeping track of the highest uptimes a computer system ever had. It uses the system boot time to keep sessions apart from each other.
+uptimed - Uptime record daemon keeping track of the highest uptimes a computer system ever had. It uses the system boot time to keep sessions apart from each other.
 https://github.com/rpodgorny/uptimed
 
-downtimed - Is a program for monitoring operating system downtime, uptime, shutdowns and crashes and for keeping record of such events.
+downtimed - Monitoring operating system downtime, uptime, shutdowns and crashes and for keeping record of such events.
 https://dist.epipe.com/downtimed/
 
 lastwake - Analyzes the system journal and prints out wake-up and sleep timestamps; for each cycle it tells whether the system was suspended to RAM or to disk (hibernated).
