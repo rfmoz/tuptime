@@ -1,6 +1,5 @@
 Source: tuptime
 Section: utils
-Priority: optional
 Maintainer: Ricardo Fraile <r@rfmoz.eu>
 Build-Depends: debhelper-compat (= 13)
 Standards-Version: 4.7.3.0
