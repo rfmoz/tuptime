@@ -9,7 +9,7 @@ set -e
 # 	 bash tuptime-install.sh -d	Install using dev branch
 #
 
-VERSION=1.9.2
+VERSION=1.9.3
 
 # Execution user
 EXUSR='_tuptime'
@@ -179,26 +179,18 @@ elif [ "${PID1}" = 'init' ] && [ -f /lib/lsb/init-functions ]; then
 	update-rc.d tuptime defaults
 	echo '  [OK]'
 
-elif [ "${PID1}" = 'init' ] && [ -f /etc/rc.conf ]; then
-	echo "+ Copying OpenRC file for init"
+elif ([ "${PID1}" = 'init' ] && [ -f /etc/rc.conf ]) || [ "${PID1}" = 'openrc-init' ]; then
+	echo "+ Copying OpenRC file"
 	install -m 755 "${F_TMP1}"/src/openrc/tuptime /etc/init.d/
-	((SELX)) && restorecon -vF /etc/init.d/tuptime
 	rc-update add tuptime default
 	rc-service tuptime start
 	echo '  [OK]'
 
-elif [ "${PID1}" = 'openrc-init' ]; then
-	echo "+ Copying OpenRC file for openrc-init"
-	install -m 755 "${F_TMP1}"/src/openrc/tuptime /etc/init.d/
-	((SELX)) && restorecon -vF /etc/init.d/tuptime
-	rc-update add tuptime default
-	rc-service tuptime start
-	echo '  [OK]'
-
-elif [ "${PID1}" = 'runit' ] && [ -f /etc/rc.local ] && [ -f /etc/rc.shutdown ]; then
+elif [ "${PID1}" = 'runit' ]; then
 	echo "+ Runit startup and shutdown execution"
 	echo 'tuptime -q' >> /etc/rc.local
 	echo 'tuptime -qg' >> /etc/rc.shutdown
+	echo '  [OK]'
 
 else
 	echo "#########################################"

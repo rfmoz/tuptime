@@ -1,3 +1,13 @@
+tuptime (5.2.5) unstable; urgency=low
+
+  * Add zero padding on time counters
+  * Print date before time in datetime output
+  * Set fallback locale to C
+  * init.d script checks data path at startup
+  * Code refactoring
+
+ -- Ricardo Fraile <r@rfmoz.eu>  Sun, 11 Jan 2026 10:22:00 +0100
+
 tuptime (5.2.4) unstable; urgency=low
 
   * Move files from /lib to /usr/lib in DEB package
