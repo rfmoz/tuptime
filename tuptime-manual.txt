@@ -3,7 +3,7 @@
                          ----------------------
                               version 5.2.5
                                 Ricardo F.
-                               19/Aug/2025
+                               11/Jan/2026
 
 
 
@@ -11,7 +11,7 @@
 | Abstract |
 ============
 
-Tuptime reports historical and statistical real time of the system, preserving it between restarts.
+Tuptime reports the system’s historical and statistical uptime, preserved across reboots.
 Indeed, it can:
 
   - Count system startups
@@ -287,11 +287,11 @@ These are the command line options, no configuration file is used:
         %X	Locale’s appropriate time representation.
         %%	A literal '%' character.
 
-  To see the full set of format codes supported on your platform, consult the
+  To see the full set of format codes supported on your platform, check the
   strftime(3) documentation.
 
   Examples:
-         tuptime -d '%X %x'  # (locale by default)
+         tuptime -d '%x %X'  # (locale by default)
          tuptime -d '%H:%M:%S   %m-%d-%Y'  # MDY style
          tuptime -d '%H:%M:%S   %d-%b-%Y'  # DMY style
 
@@ -533,7 +533,7 @@ TUPTIME_DBF
 | Schedule execution |
 ======================
 
-It's important to have a schedule execution. If the init or systemd scripts
+Scheduled execution is essential. If the init or systemd scripts
 are installed as it needs, the program only update values at startup and 
 shutdown, but if the system fails, hangs or whatever, the uptime time will
 be lost. Be sure that the cron entry or, in other case, the systemd
