@@ -842,25 +842,28 @@ def print_tat(db_rows, sis, last_st, arg):
 
         # Report UP if tat fall into btime + uptime range
         if row['btime'] <= arg.tat < row['btime'] + row['uptime']:
-            report['status'] = 'UP'
-            report['time'] = arg.tat - row['btime']
-            report['time_fwd'] = row['uptime'] - report['time']
-            report['time_total'] = row['uptime']
-            for key in ('startup', 'bootid', 'kernel'):
-                report[key] = row[key]
+            report.update(
+                status='UP',
+                time=arg.tat - row['btime'],
+                time_fwd=row['uptime'] - (arg.tat - row['btime']),
+                time_total=row['uptime'],
+                startup=row['startup'],
+                bootid=row['bootid'],
+                kernel=row['kernel']
+            )
             break
 
         # Report DOWN if tat fall into offbtime + downtime range
         elif row['offbtime'] <= arg.tat < row['offbtime'] + row['downtime']:
-            report['time'] = arg.tat - row['offbtime']
-            report['time_fwd'] = row['downtime'] - report['time']
-            if row['endst'] == 1:
-                report['status'] = 'DOWN-OK'
-            elif row['endst'] == 0:
-                report['status'] = 'DOWN-BAD'
-            report['time_total'] = row['downtime']
-            for key in ('startup', 'bootid', 'kernel'):
-                report[key] = row[key]
+            report.update(
+                status='DOWN-OK' if row['endst'] == 1 else 'DOWN-BAD',
+                time=arg.tat - row['offbtime'],
+                time_fwd=row['downtime'] - (arg.tat - row['offbtime']),
+                time_total=row['downtime'],
+                startup=row['startup'],
+                bootid=row['bootid'],
+                kernel=row['kernel']
+            )
             break
 
     pct1 = round(report['time'] * 100 / report['time_total'], arg.dec) if report['time_total'] else 0.0
@@ -1010,10 +1013,10 @@ def print_default(db_rows, sis, arg):
                     val[key] = datetime.fromtimestamp(val[key]).strftime(arg.dtm_format)
 
     uptime = {'average': str(cal['ave']['uptime']), 'long': str(lmt['max-up']['uptime']), 'short': str(lmt['min-up']['uptime']),
-              'sys_time': str(cal['tot']['uptime']), 'sys_rate': str(rate['uptime']) + '%', 'current': str(sis['uptime'])}
+              'sys_time': str(cal['tot']['uptime']), 'sys_rate': f'{rate["uptime"]}%', 'current': str(sis['uptime'])}
 
     downtime = {'average': str(cal['ave']['downtime']), 'long': str(lmt['max-down']['downtime']), 'short': str(lmt['min-down']['downtime']),
-                'sys_time': str(cal['tot']['downtime']), 'sys_rate': str(rate['downtime']) + '%'}
+                'sys_time': str(cal['tot']['downtime']), 'sys_rate': f'{rate["downtime"]}%'}
 
     if arg.power:
         sep = '","' if arg.csv else ' '
@@ -1049,9 +1052,9 @@ def print_default(db_rows, sis, arg):
     else:
         p(f'{bfp["name"]} uptime', uptime[bfp['key']])
     if arg.bootid:
-        p('   ...boot ID', bfp['up']['bootid'])
+        p('    ...boot ID', bfp['up']['bootid'])
     if arg.kernel:
-        p('    ...kernel', bfp['up']['kernel'])
+        p('     ...kernel', bfp['up']['kernel'])
     p('Average uptime', uptime['average'])
     p('System uptime', uptime['sys_rate'], '=', uptime['sys_time'])
     if not arg.csv: print('')
