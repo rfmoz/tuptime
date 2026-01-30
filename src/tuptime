@@ -36,6 +36,7 @@ except Exception:
 try:
     locale.setlocale(locale.LC_ALL, '')
 except locale.Error:
+    # Fallback to C locale if user's locale is invalid
     locale.setlocale(locale.LC_ALL, 'C')
 
 
@@ -121,7 +122,7 @@ def get_arguments():
         dest='invert',
         action='store_true',
         default=False,
-        help='startup number in reverse count | swich between longest/shortest on default output'
+        help='startup number in reverse count | switch between longest/shortest on default output'
     )
     parser.add_argument(
         '-k', '--kernel',
@@ -332,7 +333,7 @@ def get_os_values():
                 # Time the system has been running. Not contains sleep time on BSDs
                 sis['rntime'] = time.clock_gettime(time.CLOCK_UPTIME)
             else:
-                # OSX > 10.12 has only UPTIME_RAW. Avoid mix it with non _RAW counters, extract _RAW from MONOTONIC_ and remove it
+                # OSX > 10.12 has only UPTIME_RAW. Avoid mixing it with non _RAW counters, extract _RAW from MONOTONIC_ and remove it
                 sis['rntime'] = time.clock_gettime(time.CLOCK_UPTIME_RAW) + (sis['uptime'] - time.clock_gettime(time.CLOCK_MONOTONIC_RAW))
         except Exception as exp:
             logging.info('Old uptime/rntime assignment. %s', exp)
@@ -411,7 +412,7 @@ def get_os_values():
     # Check right allocation of core variables before continue
     for key, value in sis.items():
         if key in ('btime', 'uptime', 'rntime') and value is None:
-            logging.error('"%s" value unallocate from system. Execution aborted', key)
+            logging.error('"%s" value unallocated from system. Execution aborted', key)
             sys.exit(1)
         if key in ('uptime', 'rntime') and float(value) < 0:
             logging.error('"%s" value "%s" below zero. Execution aborted', key, value)
@@ -589,7 +590,7 @@ def time_conv(secs):
     # Build datetime sentence with this order and fill zeros number
     for key, fill in (('yr', 0), ('d', 3), ('h', 2), ('m', 2), ('s', 2)):
 
-        # Skip left emtpy values and avoid zero fill over first value and seconds
+        # Skip left empty values and avoid zero fill over first value and seconds
         if line == '':
             if dtm[key] == 0 and key != 's':
                 continue
@@ -756,25 +757,25 @@ def print_list(db_rows, arg):
 
     for row in format_output(db_rows, arg):
         p('Startup', row['startup'], *(['at', row['btime']] if row['btime'] else []))
-        
+
         if arg.bootid and row['bootid']:
             p('Boot ID', row['bootid'])
-        
+
         if row['uptime']:
             p('Uptime', row['uptime'])
             if arg.power:
                 p('Running', row['rntime'])
                 p('Sleeping', row['slptime'])
-        
+
         if row['offbtime']:
             p('Shutdown', row['endst'], 'at', row['offbtime'])
-        
+
         if row['downtime']:
             p('Downtime', row['downtime'])
-        
+
         if arg.kernel:
             p('Kernel', row['kernel'])
-        
+
         if not arg.csv: print()
 
 
@@ -814,7 +815,7 @@ def print_table(db_rows, arg):
 def print_tat(db_rows, sis, last_st, arg):
     """Report system status at specific timestamp"""
 
-    # Negative value decrease actual timestamp
+    # Negative value decreases actual timestamp
     if arg.tat < 0:
         arg.tat = sis['btime'] + sis['uptime'] + arg.tat
 
@@ -822,7 +823,7 @@ def print_tat(db_rows, sis, last_st, arg):
 
     for row in db_rows:
 
-        # Report UP if tat fall into btime + uptime range
+        # Report UP if tat falls into btime + uptime range
         if row['btime'] <= arg.tat < row['btime'] + row['uptime']:
             report.update(
                 status='UP',
@@ -835,7 +836,7 @@ def print_tat(db_rows, sis, last_st, arg):
             )
             break
 
-        # Report DOWN if tat fall into offbtime + downtime range
+        # Report DOWN if tat falls into offbtime + downtime range
         elif row['offbtime'] <= arg.tat < row['offbtime'] + row['downtime']:
             report.update(
                 status='DOWN-OK' if row['endst'] == 1 else 'DOWN-BAD',
@@ -1080,8 +1081,8 @@ def output_hub(db_rows, sis, arg):
         return
 
     if arg.update:
-        # If the user can only read DB, the select query over DB return outdated numbers in last row
-        # because the DB was not updated previously. The following snippet update them in memory
+        # If the user can only read DB, the select query over DB returns outdated numbers in last row
+        # because the DB was not updated previously. The following snippet updates them in memory
         # If the user wrote into DB, the values are the same
         for key in ('uptime', 'rntime', 'slptime', 'kernel'):
             db_rows[-1][key] = sis[key]
@@ -1118,7 +1119,7 @@ def check_new_boot(lastdb, sis):
     #    If not exists, checking if the value resultant from previous btime plus previous uptime (both
     #    saved into DB) is lower than current btime with at least 1 second of diference.
     #
-    # Checking boot id is the most secure way to detect a new boot. Working with time values is not 100% relialible.
+    # Checking boot id is the most secure way to detect a new boot. Working with time values is not 100% reliable.
     # In some particular cases the btime value from /proc/stat or from the system clock functions may change.
     # When tuptime doesn't register a new boot, only an update of the records, it tries to fix the drift.
     #
