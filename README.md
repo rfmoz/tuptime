@@ -1,18 +1,18 @@
 tuptime
 =======
 
-Tuptime reports the historical and statistical real time of the system, preserving it between restarts. Like uptime command, but with more interesting output.
+Tuptime reports the system’s historical and statistical uptime, preserved across reboots. Like uptime, but with richer output.
 
 
 ### Sample output
 
 Just after install:
 
-	System startups:        1  since  21:54:09 24/09/15
+	System startups:        1  since  24/09/15 21:54:09
 	System shutdowns:       0 ok  +  0 bad
 	System life:            21m 30s
 
-	Longest uptime:         21m 30s  from  21:54:09 24/09/15
+	Longest uptime:         21m 30s  from  24/09/15 21:54:09
 	Average uptime:         21m 30s
 	System uptime:          100.0%  =  21m 30s
 
@@ -20,50 +20,50 @@ Just after install:
 	Average downtime:       0s
 	System downtime:        0.0%  =  0s
 
-	Current uptime:         21m 30s  since  21:54:09 24/09/15
+	Current uptime:         21m 30s  since  24/09/15 21:54:09
 
 A few days later:
 
-	System startups:        110  since  10:15:27 08/08/15
+	System startups:        110  since  08/08/15 10:15:27
 	System shutdowns:       107 ok  +  2 bad
-	System life:            47d 12h 2m 15s
+	System life:            47d 12h 02m 15s
 
-	Longest uptime:         2h 10m 44s  from  20:49:17 09/08/15
-	Average uptime:         25m 8s
-	System uptime:          4.04%  =  1d 22h 4m 44s
+	Longest uptime:         2h 10m 44s  from  09/08/15 20:49:17
+	Average uptime:         25m 08s
+	System uptime:          4.04%  =  1d 22h 04m 44s
 
-	Longest downtime:	7d 10h 17m 26s  from  06:09:45 10/08/15
+	Longest downtime:	7d 10h 17m 26s  from  10/08/15 06:09:45
 	Average downtime:       9h 56m 42s
 	System downtime:        95.96%  =  45d 13h 57m 30s
 
-	Current uptime:         23m 33s  since  21:54:09 24/09/15
+	Current uptime:         23m 33s  since  24/09/15 21:54:09
 
 Swich to -t | --table option:
 
 	No.        Startup T.        Uptime         Shutdown T.   End    Downtime
                                                                                                                                     
-	1   10:15:27 08/08/15           42s   10:16:09 08/08/15    OK         16s
-	2   10:16:26 08/08/15           49s   10:17:15 08/08/15    OK         16s
-	3   10:17:32 08/08/15        5m 47s   10:23:19 08/08/15    OK         16s
-	4   10:23:36 08/08/15            9s   10:23:45 08/08/15   BAD         42s
-	5   10:24:28 08/08/15     2h 9m 27s   12:33:55 08/08/15    OK     41m 44s
+	1   08/08/15 10:15:27           42s   08/08/15 10:16:09    OK         16s
+	2   08/08/15 10:16:26           49s   08/08/15 10:17:15    OK         16s
+	3   08/08/15 10:17:32        5m 47s   08/08/15 10:23:19    OK         16s
+	4   08/08/15 10:23:36            9s   08/08/15 10:23:45   BAD         42s
+	5   08/08/15 10:24:28    2h 09m 27s   08/08/15 12:33:55    OK     41m 44s
         . . .
 
 Or swich to -l | --list option:
 
-	Startup:  1  at  10:15:27 08/08/15
+	Startup:  1  at  08/08/15 10:15:27
 	Uptime:   42s
-	Shutdown: OK  at  10:16:09 08/08/15
+	Shutdown: OK  at  08/08/15 10:16:09
 	Downtime: 16s
 
-	Startup:  2  at  10:16:26 08/08/15
+	Startup:  2  at  08/08/15 10:16:26
 	Uptime:   49s
-	Shutdown: OK  at  10:17:15 08/08/15
+	Shutdown: OK  at  08/08/15 10:17:15
 	Downtime: 16s
 
-	Startup:  3  at  10:17:32 08/08/15
+	Startup:  3  at  08/08/15 10:17:32
 	Uptime:   5m 47s
-	Shutdown: OK  at  10:23:19 08/08/15
+	Shutdown: OK  at  08/08/15 10:23:19
 	Downtime: 16s
 	. . .
 
