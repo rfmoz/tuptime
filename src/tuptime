@@ -503,8 +503,7 @@ def gain_db(sis, arg):
 
     # Check if DB has the old format
     user_version = cur.execute('PRAGMA user_version').fetchone()[0]
-    if arg.verbose:
-        logging.info('DB user_version: %s', user_version)
+    logging.info('DB user_version: %s', user_version)
     if user_version < 5:
         logging.warning('DB format outdated')
         upgrade_db(conn, cur, arg)
@@ -686,7 +685,7 @@ def reorder(db_rows, arg, last_st):
         if arg.order:
             match_value = {'u': 'uptime', 'r': 'rntime', 's': 'slptime', 'e': 'endst', 'd': 'downtime', 'k': 'kernel'}
             # Sort rows by the selected field, False values under 0
-            db_rows = sorted(db_rows, key=lambda x: (-float('inf') if x[match_value[arg.order]] is False else x[match_value[arg.order]]))
+            db_rows.sort(key=lambda x: (-float('inf') if x[match_value[arg.order]] is False else x[match_value[arg.order]]))
 
         if arg.reverse:
             db_rows.reverse()
@@ -937,7 +936,7 @@ def print_default(db_rows, sis, arg):
 
         # Get totals and system life
         for key in cal['tot']:
-            cal['tot'][key] += sum(cnt[key])
+            cal['tot'][key] = sum(cnt[key])
         sys_life = cal['tot']['uptime'] + cal['tot']['downtime']
 
         # Get rates and average uptime / downtime
