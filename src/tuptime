@@ -738,10 +738,10 @@ def format_output(db_rows, arg):
     return db_rows
 
 
-def get_printer(csv_mode, label_width=21):
+def get_printer(arg, label_width=21):
     """Return print helper function"""
 
-    if csv_mode:
+    if arg.csv:
         def p(label, *extra):
             print(f'"{label}"', *(f'"{e}"' for e in extra), sep=',')
     else:
@@ -753,7 +753,7 @@ def get_printer(csv_mode, label_width=21):
 def print_list(db_rows, arg):
     """Print values as list"""
 
-    p = get_printer(arg.csv, 10)
+    p = get_printer(arg, 10)
 
     for row in format_output(db_rows, arg):
         p('Startup', row['startup'], *(['at', row['btime']] if row['btime'] else []))
@@ -860,7 +860,7 @@ def print_tat(db_rows, sis, last_st, arg):
         report['time'] = time_conv(report['time'])
         report['time_fwd'] = time_conv(report['time_fwd'])
 
-    p = get_printer(arg.csv)
+    p = get_printer(arg)
 
     p('System status', report['status'], 'at', report['at'], 'on', report['startup'])
     if arg.bootid:
@@ -1015,7 +1015,7 @@ def print_default(db_rows, sis, arg):
     else:
         bfp = {'name': 'Longest', 'key': 'long', 'up': lmt['max-up'], 'down': lmt['max-down']}
 
-    p = get_printer(arg.csv)
+    p = get_printer(arg)
 
     # System block
     p('System startups', updown['startups'], 'since', tstamp['min'],
