@@ -432,7 +432,7 @@ def get_os_values():
 
     # Set text OS values
     sis['bootid'] = str(sis['bootid'])
-    sis['kernel'] = str(platform.platform())
+    sis['kernel'] = platform.platform()
 
     logging.info('Python = %s', platform.python_version())
     logging.info('Locale = %s', locale.getlocale())
@@ -483,7 +483,7 @@ def gain_db(sis, arg):
                 cur.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?) ',
                              (sis['bootid'], sis['btime'], sis['uptime'], sis['rntime'],
                              sis['slptime'], None, arg.endst, None, sis['kernel']))
-                cur.execute('PRAGMA user_version = {}'.format(__version__.partition('.')[0]))
+                cur.execute(f'PRAGMA user_version = {__version__.partition(".")[0]}')
                 conn.commit()
     except Exception as exp_file:
         logging.error('Check DB file "%s": %s', arg.db_file, exp_file)
