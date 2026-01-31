@@ -5,7 +5,9 @@ STOP=60
 
 start() {
         echo 'Tuptime start'
-        ln -s /opt/tuptime/ /var/lib/tuptime 2> /dev/null
+        if [ ! -e /var/lib/tuptime ]; then
+           ln -s /opt/tuptime/ /var/lib/tuptime
+        fi
         /usr/bin/python3 /usr/bin/tuptime -q
 }
 
