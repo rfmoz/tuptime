@@ -45,14 +45,14 @@ do_start () {
             chown $USER:$USER $PATH_DATA
             chmod 0755 $PATH_DATA
         fi
-        su -s /bin/sh $USER -c "$PATH_BIN -q" > /dev/null
+        su -s /bin/sh $USER -c "$PATH_BIN -q"
 }
 
 do_stop () {
         # Stop service
         log_action_begin_msg "Stopping $BIN_NAME"
         log_end_msg 0
-        su -s /bin/sh $USER -c "$PATH_BIN -qg" > /dev/null
+        su -s /bin/sh $USER -c "$PATH_BIN -qg"
 }
 
 do_status () {
