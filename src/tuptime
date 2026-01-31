@@ -737,7 +737,7 @@ def format_output(db_rows, arg):
     return db_rows
 
 
-def get_printer(arg, label_width=21):
+def get_printer(arg, label_width=20):
     """Return print helper function"""
 
     if arg.csv:
@@ -752,10 +752,14 @@ def get_printer(arg, label_width=21):
 def print_list(db_rows, arg):
     """Print values as list"""
 
-    p = get_printer(arg, 10)
+    p = get_printer(arg, 9)
 
     for row in format_output(db_rows, arg):
-        p('Startup', row['startup'], *(['at', row['btime']] if row['btime'] else []))
+
+        if row['btime']:
+            p('Startup', row['startup'], 'at', row['btime'])
+        else:
+            p('Startup', row['startup'])
 
         if arg.bootid and row['bootid']:
             p('Boot ID', row['bootid'])
@@ -794,7 +798,7 @@ def print_table(db_rows, arg):
         cols.pop('kernel')
 
     headers = list(cols.values())
-    all_rows = [headers] + [[row[k] for k in list(cols.keys())] for row in format_output(db_rows, arg)]
+    all_rows = [headers] + [[row[k] for k in cols.keys()] for row in format_output(db_rows, arg)]
 
     if arg.csv:
         for row in all_rows:
