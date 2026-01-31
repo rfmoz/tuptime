@@ -38,7 +38,6 @@ do_stop () {
         # Stop service
         echo -n $"Stopping tuptime: "
         daemon --user $USER $PATH_BIN -qg
-        $PATH_BIN -qg
         RETVAL=$?
          echo
         [ $RETVAL -eq 0 ] && rm -f ${LOCKFILE}
