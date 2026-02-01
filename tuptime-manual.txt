@@ -1,7 +1,7 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 5.2.5
+                              version 5.2.6
                                 Ricardo F.
                                11/Jan/2026
 
