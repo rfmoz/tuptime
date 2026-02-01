@@ -3,21 +3,39 @@
 =======================
 
 
-Tuptime is compatible with OSX, which comes with 'python' installed by default.
+Tuptime is compatible with macOS. Python 3 must be installed (via Homebrew,
+python.org, or Xcode Command Line Tools) as modern macOS does not include
+Python by default.
 
 But for now, I haven't found a clean way to configure a Launchd task to be 
 executed before shutdown, so, Tuptime can't register the whole time and the 
 shutdown status.
 
-The closest approach is to have a Launchd plist that runs at startup and each
-minute. The drawbacks will be an error range <60 secs. and a BAD shutdown
-status always.
+The closest approach is to have a Launchd plist that runs at startup and
+every 60 seconds thereafter. The drawbacks are:
+- Uptime accuracy loss of up to 60 seconds
+- All shutdowns marked as BAD (no graceful shutdown detection)
+- No way to capture the exact shutdown time
 
 To install the .plist, copy file to the right location:
 
     # git clone --depth=1 https://github.com/rfmoz/tuptime.git
-    # cp src/launchd/localhost.tuptime.plist /Library/LaunchDaemons/
+    # cp tuptime/src/launchd/localhost.tuptime.plist /Library/LaunchDaemons/
 
 Load it:
 
     # launchctl load -w /Library/LaunchDaemons/localhost.tuptime.plist
+
+Verify it's running:
+
+    # launchctl list | grep tuptime
+    # tuptime
+
+To uninstall:
+
+    # launchctl unload /Library/LaunchDaemons/localhost.tuptime.plist
+    # rm /Library/LaunchDaemons/localhost.tuptime.plist
+
+Note: On macOS 10.14 (Mojave) and later, you may need to grant Full Disk
+Access to the terminal application running tuptime, or add it to System
+Preferences > Security & Privacy > Privacy > Full Disk Access.

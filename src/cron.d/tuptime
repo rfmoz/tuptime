@@ -1,6 +1,6 @@
 # /etc/cron.d/tuptime: crontab entry for tuptime update. 
 
-# NOTE: Decrease the execution time for increase accuracity.
+# NOTE: Decrease the execution time for increase accuracy.
 
 
 */5 * * * *   _tuptime    [ -x /usr/bin/tuptime ] && /usr/bin/tuptime -q

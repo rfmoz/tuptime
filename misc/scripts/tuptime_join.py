@@ -96,7 +96,7 @@ def order_files(arg):
     # Check if DBs have the old format
     for conn, fname in ((conn0, arg.files[0]), (conn1, arg.files[1])):
         columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
-        if 'rntime' and 'slptime' and 'bootid' not in columns:
+        if 'rntime' not in columns or 'slptime' not in columns or 'bootid' not in columns:
             logging.error('DB format outdated on file: %', str(fname))
             sys.exit(1)
 

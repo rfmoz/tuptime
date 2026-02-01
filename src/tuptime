@@ -449,7 +449,7 @@ def get_os_values():
 
 
 def gain_db(sis, arg):
-    """Assure DB state and get DB connection"""
+    """Ensure DB state and get DB connection"""
 
     # If db_file keeps default value, check for DB environment variable
     if arg.db_file == DB_FILE and os.environ.get('TUPTIME_DBF'):
@@ -1165,7 +1165,7 @@ def main():
     # Check if system was restarted
     if arg.update and check_new_boot(lastdb, sis):
 
-        if lastdb['buptime'] > sis['btime']:  # Assure btime. Never lower than shutdown
+        if lastdb['buptime'] > sis['btime']:  # Ensure btime. Never lower than shutdown
             sis['btime'] = lastdb['buptime']
         lastdb['downtime'] = sis['btime'] - lastdb['buptime']
 

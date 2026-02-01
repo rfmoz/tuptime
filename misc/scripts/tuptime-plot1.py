@@ -66,7 +66,7 @@ def get_arguments():
         dest='report_events',
         action='store_true',
         default=False,
-        help='swich to report startup/shutdown events instead of hours'
+        help='switch to report startup/shutdown events instead of hours'
     )
     arg = parser.parse_args()
     return arg

@@ -28,8 +28,8 @@ while getopts s:p:e: flag; do
 done
 
 # Set X and Y size
-Xcm=$(cut -dx -f1 <<< $Size)
-Ycm=$(cut -dx -f2 <<< $Size)	
+Xcm=$(cut -dx -f1 <<< "$Size")
+Ycm=$(cut -dx -f2 <<< "$Size")	
 XnY="-W $Xcm -H $Ycm"
 
 echo "Execution: $0 [-s Width x Height] [ -p Past Days] [ -e End Date]"

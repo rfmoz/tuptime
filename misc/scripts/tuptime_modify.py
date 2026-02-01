@@ -17,7 +17,7 @@ Increase 30 secs the shutdown datetime on register number 12:
 Decrease 300 secs the shutdown datetime on register number 47 with verbose:
     tuptime_modify.py -c shutdown -r 47 -s -300 -v
 
-Swich end status value on register 54:
+Switch end status value on register 54:
     tuptime_modify.py -c endst -r 54
 '''
 
@@ -115,9 +115,9 @@ def backup_dbf(arg):
 
 
 def fix_endst(arg, reg, conn, modt, orgt):
-    """Swich end status register"""
+    """Switch end status register"""
 
-    # Swich between values 1 to 0 and 0 to 1
+    # Switch between values 1 to 0 and 0 to 1
     modt['endst'] = 1 - orgt['endst']
 
     print('\t   modified\tendst: ' + str(modt['endst']))
@@ -235,7 +235,7 @@ def main():
 
     # Check if DB have the old format
     columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'slptime' and 'bootid' not in columns:
+    if 'rntime' not in columns or 'slptime' not in columns or 'bootid' not in columns:
         logging.error('DB format outdated')
         sys.exit(1)
 

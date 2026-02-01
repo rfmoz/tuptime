@@ -38,7 +38,7 @@ A few days later:
 
 	Current uptime:         23m 33s  since  24/09/15 21:54:09
 
-Swich to -t | --table option:
+Switch to -t | --table option:
 
 	No.        Startup T.        Uptime         Shutdown T.   End    Downtime
                                                                                                                                     
@@ -49,7 +49,7 @@ Swich to -t | --table option:
 	5   08/08/15 10:24:28    2h 09m 27s   08/08/15 12:33:55    OK     41m 44s
         . . .
 
-Or swich to -l | --list option:
+Or switch to -l | --list option:
 
 	Startup:  1  at  08/08/15 10:15:27
 	Uptime:   42s
@@ -94,12 +94,12 @@ Clone the repo:
 
 	git clone --depth=1 https://github.com/rfmoz/tuptime.git
 
-Copy the 'tuptime' file located under 'latest/' directory to '/usr/bin/' and make it executable:
+Copy the 'tuptime' file located under 'tuptime/src/' directory to '/usr/bin/' and make it executable:
 
 	cp tuptime/src/tuptime /usr/bin/tuptime
 	chmod ugo+x /usr/bin/tuptime
 
-Assure that the system pass the prerequisites:
+Ensure that the system passes the prerequisites:
 
 	python 3.X 
 
@@ -115,25 +115,25 @@ properly. See 'tuptime-manual.txt' for more information.
 
 - It doesn't run as a daemon, at least, it only needs execution when the init manager startup and shutdown the system. To avoid issues with a switch off without a proper shutdown, like power failures, a cron job and a .timer unit are shipped with the project to update the registers each n minutes. As a system administrator, you can easily choose the best number for your particular system requirements.
 
-- It is written in Python using common modules and as few as possible, quick execution, easy to see what is inside it, and modify it for fit for your particular use case.
+- It is written in Python using common modules and as few as possible, quick execution, easy to see what is inside it, and modify it to fit for your particular use case.
 
 - It registers the times in a sqlite database. Any other software can use it. The specs are in the tuptime-manual.txt. Also, it has the option to output the registers in seconds and epoch or/and in csv format, easy to pipe it to other commands.
 
-- Its main purpose is tracking all the system startups/shutdowns and present that information to the user in a more understandable way. Don't have mail alerts when a milestones are reached or the limitation of keep the last n records.
+- Its main purpose is tracking all the system startups/shutdowns and present that information to the user in a more understandable way. It doesn't have mail alerts when milestones are reached or the limitation of keeping the last n records.
 
-- It's written to avoid false startups registers. This is an issue that sometimes happens when the NTP adjust the system clock, on virtualized environments, on servers with high load, when the system resynchronized with their RTC clock after a suspend and resume cycle...
+- It's written to avoid false startups registers. This is an issue that sometimes happens when the NTP adjust the system clock, on virtualized environments, on servers with high load, when the system resynchronizes with its RTC clock after a suspend and resume cycle...
 
 - It can report:
   - Registers as a table or list ordering by any label.
   - The whole life of the system or only a part of it, closing the range between startups/shutdowns or timestamps.
   - Accumulated running and sleeping time over an uptime.
-  - The kernel version used and boot idenfiers.
+  - The kernel version used and boot identifiers.
   - The system state at specific point in time.
 
 
 ### Alternatives
 
-journalctl --list-boots - Show a tabular list of boot numbers (relative to the current boot), their IDs, and the timestamps of the first and last message pertaining to the boot. Close output than 'tuptime  -bit'.
+journalctl --list-boots - Show a tabular list of boot numbers (relative to the current boot), their IDs, and the timestamps of the first and last message pertaining to the boot. Closer output than 'tuptime  -bit'.
 https://github.com/systemd/systemd/
 
 uptimed - Uptime record daemon keeping track of the highest uptimes a computer system ever had. It uses the system boot time to keep sessions apart from each other.

@@ -11,7 +11,7 @@
     Older releases of Fedora, Redhat 7, CentOS 7, install from EPEL:
         yum -y install rpmdevtools wget python3-rpm-macros python-srpm-macros
 
-2.- Change to any unprivileged user and create the package. Not build packages using root.
+2.- Change to any unprivileged user and create the package. Dont build packages using root.
 
     cd ~
     rpmdev-setuptree

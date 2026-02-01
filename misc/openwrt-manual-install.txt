@@ -13,7 +13,7 @@ Get the code and copy the executable file:
     # unzip master.zip
     # cp tuptime/src/tuptime /usr/bin/ && chmod 755 /usr/bin/tuptime
 
-As OpenWRT have a symlink from /var/ to /tmp/ and Tuptime saves their db on /var/lib/tuptime, their content will be lost in each startup. So, it's needed a new destination for the db (cron init file do the same for /var/spool):
+As OpenWRT has a symlink from /var/ to /tmp/ and Tuptime saves its db on /var/lib/tuptime, its content will be lost in each startup. So, a new destination is needed for the db (cron init file do the same for /var/spool):
 
     # mkdir -p /opt/tuptime
     # ln -s /opt/tuptime/ /var/lib/tuptime

@@ -7,7 +7,7 @@
 
     apt-get install dpkg-dev debhelper git
 
-2.- Change to any unprivileged user and create the package. Not build packages using root.
+2.- Change to any unprivileged user and create the package. Dont build packages using root.
 
     cd ~
     git clone --depth=1 https://github.com/rfmoz/tuptime.git

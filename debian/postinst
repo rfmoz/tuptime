@@ -23,7 +23,7 @@ case "$1" in
 
 		# Rename to underscore if previous exists
 		getent passwd tuptime >/dev/null && usermod -l _tuptime tuptime
-		getent group tuptime > /dev/null && groupmod -n _tuptime tuptime
+		getent group tuptime >/dev/null && groupmod -n _tuptime tuptime
 	;;
 
 	abort-upgrade|abort-remove|abort-deconfigure)
