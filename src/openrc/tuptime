@@ -3,7 +3,6 @@
 name='tuptime'
 command='/usr/bin/tuptime'
 command_user='_tuptime'
-command_args='-q'
 
 depend() {
         need localmount
@@ -25,6 +24,6 @@ stop() {
 
 status() {
         ebegin "Status ${name}"
-        su ${command_user} -s /bin/sh -c "${command} -q"
+        su ${command_user} -s /bin/sh -c "${command}"
         eend $?
 }
