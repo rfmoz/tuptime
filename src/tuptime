@@ -984,20 +984,17 @@ def print_default(db_rows, sis, arg):
                 tstamp[key] = datetime.fromtimestamp(val).strftime(arg.dtm_format)
 
         # Convert sis values
-        for key in ('uptime', 'rntime', 'slptime'):
-            if sis[key] is not None:
-                sis[key] = time_conv(sis[key])
-
         for key in ('uptime', 'rntime', 'slptime', 'downtime'):
+            if sis.get(key) is not None:
+                sis[key] = time_conv(sis[key])
             for dval in (cal, lmt):
                 for val in dval.values():
                     if val[key] is not False:
                         val[key] = time_conv(val[key])
 
-        if sis['btime'] is not None:
-            sis['btime'] = datetime.fromtimestamp(sis['btime']).strftime(arg.dtm_format)
-
         for key in ('btime', 'offbtime'):
+            if sis.get(key) is not None:
+                sis[key] = datetime.fromtimestamp(sis[key]).strftime(arg.dtm_format)
             for val in lmt.values():
                 if val[key] is not False:
                     val[key] = datetime.fromtimestamp(val[key]).strftime(arg.dtm_format)
