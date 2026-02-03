@@ -1,7 +1,7 @@
 tuptime
 =======
 
-Tuptime reports the system’s historical and statistical uptime, preserved across reboots. Like uptime, but with richer output.
+Tuptime reports historical and statistical system uptime, preserved across reboots. Like uptime, but with extended information.
 
 
 ### Sample output
@@ -101,7 +101,7 @@ Copy the 'tuptime' file located under 'tuptime/src/' directory to '/usr/bin/' an
 
 Ensure that the system passes the prerequisites:
 
-	python 3.X 
+	Python 3
 
 Run first with a privileged user:
 

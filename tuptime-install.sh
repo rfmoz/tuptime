@@ -194,7 +194,7 @@ elif [ "${PID1}" = 'runit' ]; then
 
 else
 	echo "#########################################"
-	echo " WARNING - Any init file for your system"
+	echo " WARNING - No init file for your system"
 	echo "#########################################"
 	echo '  [BAD]'
 fi
@@ -228,7 +228,7 @@ elif [ -d /etc/periodic/15min/ ]; then
 
 else
 	echo "#########################################"
-	echo " WARNING - Any cron file for your system"
+	echo " WARNING - No cron file for your system"
 	echo "#########################################"
 	echo '  [BAD]'
 fi

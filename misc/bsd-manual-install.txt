@@ -95,7 +95,7 @@ Installation complete.
 
 Install dependencies:
 
-    # PKG_PATH=https://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/(amd64|i386|etc)/(9.4|10.0|etc)/All/
+    # PKG_PATH=https://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/<arch>/<version>/All/
     # export PKG_PATH
     # pkg_add pkgin
     # pkgin install fetch python3?
