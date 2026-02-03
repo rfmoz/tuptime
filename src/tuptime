@@ -683,9 +683,9 @@ def reorder(db_rows, arg, last_st):
     if db_rows:
 
         if arg.order:
-            match_value = {'u': 'uptime', 'r': 'rntime', 's': 'slptime', 'e': 'endst', 'd': 'downtime', 'k': 'kernel'}
+            match_value = {'u': 'uptime', 'r': 'rntime', 's': 'slptime', 'e': 'endst', 'd': 'downtime', 'k': 'kernel'}[arg.order]
             # Sort rows by the selected field, False values under 0
-            db_rows.sort(key=lambda x: (-float('inf') if x[match_value[arg.order]] is False else x[match_value[arg.order]]))
+            db_rows.sort(key=lambda x: (-float('inf') if x[match_value] is False else x[match_value]))
 
         if arg.reverse:
             db_rows.reverse()
