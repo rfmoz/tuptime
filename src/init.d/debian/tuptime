@@ -17,8 +17,8 @@
 
 ### BEGIN INIT INFO
 # Provides:          tuptime
-# Required-Start:    $local_fs $time $remote_fs
-# Required-Stop:     $local_fs $time $remote_fs
+# Required-Start:    $local_fs $time
+# Required-Stop:     $local_fs $time
 # Should-Start:
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
