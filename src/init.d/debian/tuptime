@@ -35,16 +35,17 @@ BIN_NAME='tuptime'
 PATH_BIN="/usr/bin/$BIN_NAME"
 PATH_DATA='/var/lib/tuptime'
 
+# Ensure data directory exists before any operation
+if [ ! -d $PATH_DATA ]; then
+    mkdir -p $PATH_DATA
+    chown $USER:$USER $PATH_DATA
+    chmod 0755 $PATH_DATA
+fi
 
 do_start () {
         # Start service
         log_action_begin_msg "Starting $BIN_NAME"
         log_end_msg 0
-        if [ ! -d $PATH_DATA ]; then
-            mkdir -p $PATH_DATA
-            chown $USER:$USER $PATH_DATA
-            chmod 0755 $PATH_DATA
-        fi
         su -s /bin/sh $USER -c "$PATH_BIN -q"
 }
 
