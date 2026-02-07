@@ -97,7 +97,7 @@ def order_files(arg):
     for conn, fname in ((conn0, arg.files[0]), (conn1, arg.files[1])):
         columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
         if 'rntime' not in columns or 'slptime' not in columns or 'bootid' not in columns:
-            logging.error('DB format outdated on file: %', str(fname))
+            logging.error('DB format outdated on file: %s', str(fname))
             sys.exit(1)
 
     # Check older file
@@ -119,6 +119,9 @@ def main():
 
     print('Old source file: \t' + str(f_old))
     print('New source file:\t' + str(f_new))
+
+    if f_old == f_new or arg.dest in (f_old, f_new):
+        sys.exit('Error: input and destination files must be different')
 
     # Use old file as starting DB. Copy as destination file.
     copyfile(f_old, arg.dest)
