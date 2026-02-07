@@ -773,6 +773,30 @@ More info about datetime input formats:
 
 
 
+===================
+| JSON formatting |
+===================
+
+Tuptime CSV output can be converted to JSON for integration with other tools
+or further processing. The --table option is best suited for this, as it provides
+headers and consistent columns:
+
+	tuptime -tc | csvjson
+
+The --list option is redundant here since --table covers the same data in a more
+structured format.
+
+Default output has variable columns with label–value pairs (also --tat), that
+require additional processing. Either of the following could work:
+
+	tuptime -c | python3 -c 'import csv,sys,json; \
+	print(json.dumps([{r[0]:r[1:]} for r in csv.reader(sys.stdin)]))'
+
+	(echo k,v1,v2,v3; tuptime -c) | csvjson --key k
+        # Note: adjust header columns v* to match the maximum in output
+
+
+
 ===========
 | Caveats |
 ===========
