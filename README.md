@@ -1,6 +1,11 @@
 tuptime
 =======
 
+[![License](https://img.shields.io/github/license/rfmoz/tuptime)](https://github.com/rfmoz/tuptime/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/rfmoz/tuptime)](https://github.com/rfmoz/tuptime/releases)
+[![Python](https://img.shields.io/badge/python-3-blue)](https://www.python.org/)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/rfmoz/tuptime)
+
 Tuptime reports historical and statistical system uptime, preserved across reboots. Like uptime, but with extended information.
 
 
