@@ -155,3 +155,5 @@ https://github.com/alexmyczko/ruptime
 ### More information
 
 Please, read tuptime-manual.txt for a complete reference guide.
+
+DeepWiki: https://deepwiki.com/rfmoz/tuptime
