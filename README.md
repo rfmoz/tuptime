@@ -21,7 +21,7 @@ Just after install:
 	Average uptime:         21m 30s
 	System uptime:          100.0%  =  21m 30s
 
-	Longest downtime:	0s
+	Longest downtime:       0s
 	Average downtime:       0s
 	System downtime:        0.0%  =  0s
 
@@ -37,7 +37,7 @@ A few days later:
 	Average uptime:         25m 08s
 	System uptime:          4.04%  =  1d 22h 04m 44s
 
-	Longest downtime:	7d 10h 17m 26s  from  10/08/15 06:09:45
+	Longest downtime:       7d 10h 17m 26s  from  10/08/15 06:09:45
 	Average downtime:       9h 56m 42s
 	System downtime:        95.96%  =  45d 13h 57m 30s
 
