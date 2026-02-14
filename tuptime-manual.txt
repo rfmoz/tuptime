@@ -792,6 +792,9 @@ require additional processing. Either of the following could work:
 	tuptime -c | python3 -c 'import csv,sys,json; \
 	print(json.dumps([{r[0]:r[1:]} for r in csv.reader(sys.stdin)]))'
 
+	tuptime -c | python3 -c "import csv,json,sys; \
+	print(json.dumps({r[0]: ' '.join(r[1:]) for r in csv.reader(sys.stdin)}))"
+
 	(echo k,v1,v2,v3; tuptime -c) | csvjson --key k
         # Note: adjust header columns v* to match the maximum in output
 
