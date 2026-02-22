@@ -742,7 +742,7 @@ def get_printer(arg, label_width=20):
 
     if arg.csv:
         def p(label, *extra):
-            print(f'"{label}"', *(f'"{e}"' for e in extra), sep=',')
+            print(f'"{label.lstrip()}"', *(f'"{e}"' for e in extra), sep=',')
     else:
         def p(label, *extra):
             print(f'{label + ":":<{label_width}}', *extra, sep='  ')
