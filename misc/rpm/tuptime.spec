@@ -1,6 +1,6 @@
 Name:		tuptime
-Version:	5.2.5
-Release:	2%{?dist}
+Version:	5.2.6
+Release:	1%{?dist}
 Summary:	Report historical system real time
 
 License:	GPL-2.0-or-later
@@ -80,5 +80,5 @@ cp src/man/tuptime.1 %{buildroot}%{_mandir}/man1/
 
 
 %changelog
-* Mon Feb 02 2026 Ricardo Fraile <rfraile@rfraile.eu> 5.2.5-2
+* Wed Apr 01 2026 Ricardo Fraile <rfraile@rfraile.eu> 5.2.6-1
 - RPM release
