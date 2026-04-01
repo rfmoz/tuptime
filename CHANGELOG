@@ -1,7 +1,7 @@
 tuptime (5.2.6) unstable; urgency=low
 
   * Add time-sync check on init scripts
-  * Assure data path at start
+  * Assure database directory exists at start
   * Check input and destination files must be different
   * Remove remote_fs dependency
   * Update documentation
@@ -38,7 +38,7 @@ tuptime (5.2.3) unstable; urgency=low
 
 tuptime (5.2.2) unstable; urgency=low
 
-  * Swich between longest/shortest on default output with -i
+  * Switch between longest/shortest on default output with -i
   * Option -x, --silent renamed to -q, --quiet
   * Change repository name
 
@@ -72,7 +72,7 @@ tuptime (5.1.0) unstable; urgency=low
 
   * Cover DB writes with transactions
   * Register DB version on PRAGMA user_version
-  * Adding --pctl option. Show percentil over average values
+  * Adding --pctl option. Show percentile over average values
   * Code refactoring
   * Update .deb package
 
@@ -155,7 +155,7 @@ tuptime (3.4.0) unstable; urgency=low
 
   * Adding DragonflyBSD, OpenBSD and NetBSD support
   * Improve error report when checking db path and file
-  * Arguments refactoring. Change deprecated module optparse to argpaser
+  * Arguments refactoring. Change deprecated module optparse to argparser
   * Adding --decp option. Allow change decimal length in percentages
   * Fixed equal number of values per line in csv output
   * Fix right termination when SIGPIPE signal is received

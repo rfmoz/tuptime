@@ -1,7 +1,7 @@
 tuptime (5.2.6) unstable; urgency=low
 
   * Add time-sync check on init scripts
-  * Assure data path at start
+  * Assure database directory exists at start
   * Check input and destination files must be different
   * Remove remote_fs dependency
   * Update documentation
