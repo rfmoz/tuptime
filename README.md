@@ -90,7 +90,7 @@ Or switch to -l | --list option:
 
 #### By one-liner script
 
-	bash < <(curl -Ls https://git.io/tuptime-install.sh)
+	bash < <(curl -Ls https://raw.githubusercontent.com/rfmoz/tuptime/master/tuptime-install.sh)
 
 
 #### By manual method
