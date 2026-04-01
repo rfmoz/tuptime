@@ -87,7 +87,7 @@ For Linux systems:
 
            With sysusers:
 
-               # install -m 644 tuptime/src/systemd/tuptime.sysusers /usr/lib/sysusers.d/tuptime.conf
+               # install -m 644 tuptime/src/systemd/sysusers.d/tuptime.conf /usr/lib/sysusers.d/tuptime.conf
                # systemd-sysusers /usr/lib/sysusers.d/tuptime.conf
 
            With useradd:
