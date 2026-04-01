@@ -11,7 +11,7 @@ Get the code and copy the executable file:
 
     # wget https://github.com/rfmoz/tuptime/archive/master.zip
     # unzip master.zip
-    # cp tuptime/src/tuptime /usr/bin/ && chmod 755 /usr/bin/tuptime
+    # cp tuptime-master/src/tuptime /usr/bin/ && chmod 755 /usr/bin/tuptime
 
 As OpenWRT has a symlink from /var/ to /tmp/ and Tuptime saves its db on /var/lib/tuptime, its content will be lost in each startup. So, a new destination is needed for the db (cron init file do the same for /var/spool):
 
@@ -24,7 +24,7 @@ Add the cron execution. Include the following line in '/etc/crontabs/root':
 
 Copy the init file and set the right permissions:
 
-    # cp tuptime/src/init.d/openwrt/tuptime /etc/init.d/tuptime
+    # cp tuptime-master/src/init.d/openwrt/tuptime /etc/init.d/tuptime
     # chmod 755 /etc/init.d/tuptime
 
 Start and enable cron and tuptime:
