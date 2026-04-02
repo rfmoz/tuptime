@@ -1,3 +1,14 @@
+tuptime (5.2.6) unstable; urgency=low
+
+  * Add time-sync check on init scripts
+  * Assure database directory exists at start
+  * Check input and destination files must be different
+  * Remove remote_fs dependency
+  * Update documentation
+  * Code refactoring
+
+ -- Ricardo Fraile <r@rfmoz.eu>  Wed, 01 Apr 2026 20:10:00 +0200
+
 tuptime (5.2.5) unstable; urgency=low
 
   * Add zero padding on time counters
@@ -13,7 +24,7 @@ tuptime (5.2.4) unstable; urgency=low
   * Move files from /lib to /usr/lib in DEB package
   * Replace adduser with sysusers.d in DEB package
   * Update documentation
-  * Minnor code refactoring
+  * Minor code refactoring
 
  -- Ricardo Fraile <r@rfmoz.eu>  Sat, 13 Jul 2024 13:21:00 +0100
 
@@ -21,13 +32,13 @@ tuptime (5.2.3) unstable; urgency=low
 
   * Update distribution packages
   * Documentation revised
-  * Minnor code refactoring
+  * Minor code refactoring
 
  -- Ricardo Fraile <r@rfmoz.eu>  Fri, 05 Jan 2024 10:32:00 +0100
 
 tuptime (5.2.2) unstable; urgency=low
 
-  * Swich between longest/shortest on default output with -i
+  * Switch between longest/shortest on default output with -i
   * Option -x, --silent renamed to -q, --quiet
   * Change repository name
 
@@ -61,7 +72,7 @@ tuptime (5.1.0) unstable; urgency=low
 
   * Cover DB writes with transactions
   * Register DB version on PRAGMA user_version
-  * Adding --pctl option. Show percentil over average values
+  * Adding --pctl option. Show percentile over average values
   * Code refactoring
   * Update .deb package
 
@@ -78,7 +89,7 @@ tuptime (5.0.1) unstable; urgency=low
 
   * Identify new startups with boot_id on FreeBSD
   * Option --decp renamed to --dec and -e equal to it.
-  * Minnor code refactoring
+  * Minor code refactoring
 
  -- Ricardo Fraile <rfraile@rfraile.eu>  Sat, 31 Oct 2020 15:06:00 +0100
 
@@ -119,7 +130,7 @@ tuptime (3.5.0) unstable; urgency=low
   * Avoid execution if the startup date is prior to 01/Jan/2000 00:00
   * Avoid correct drift when it decreases uptime under 0
   * Fix register shutdown with negative downtime
-  * Minnor code refactoring
+  * Minor code refactoring
 
  -- Ricardo Fraile <rfraile@rfraile.eu>  Wed, 20 Feb 2019 17:02:00 +0100
 
@@ -144,7 +155,7 @@ tuptime (3.4.0) unstable; urgency=low
 
   * Adding DragonflyBSD, OpenBSD and NetBSD support
   * Improve error report when checking db path and file
-  * Arguments refactoring. Change deprecated module optparse to argpaser
+  * Arguments refactoring. Change deprecated module optparse to argparser
   * Adding --decp option. Allow change decimal length in percentages
   * Fixed equal number of values per line in csv output
   * Fix right termination when SIGPIPE signal is received
@@ -321,7 +332,7 @@ tuptime (1.5.0) stable; urgency=low
 
   * Print estimated uptime between starts.
   * Print actual uptime for the system.
-  * Fix and improve code, remove repetitive lines and minnor bugs.
+  * Fix and improve code, remove repetitive lines and Minor bugs.
   * Check if the variable in the conf file is a number.
   * Start using Scalar::Util module.
   * Print system uptime date.
@@ -348,15 +359,15 @@ tuptime (1.2.0) stable; urgency=low
 
   * Change speak option to verbose.
   * Fix lost information in files when update.
-  * Minnor corrections in text strings.
+  * Minor corrections in text strings.
 
  -- Ricardo Fraile <rfraile@rfraile.eu>  Mon, 13 Jun 2011 10:00:00 -0400
 
 tuptime (1.1.0) stable; urgency=low
 
   * Any user can print the times, not only root.
-  * Minnor changes to speak option.
-  * Minnor corrections.
+  * Minor changes to speak option.
+  * Minor corrections.
 
  -- Ricardo Fraile <rfraile@rfraile.eu>  Fri, 10 Jun 2011 10:00:00 -0400
 

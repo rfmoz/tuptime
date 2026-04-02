@@ -2,7 +2,21 @@
 # -*- coding: utf-8 -*-
 
 '''
-Test database integrity. Try to catch weird errors and fix them.
+Test database integrity. Try to catch weird errors and normalize db.
+
+Tests:
+  1 - Boot time after shutdown time (btime > offbtime) -> Delete row
+  2 - Previous shutdown after current boot (prev offbtime > btime) -> Delete row
+  3 - Downtime continuity (prev offbtime + prev downtime != btime) -> Recalc downtime
+  4 - Uptime consistency (btime + uptime != offbtime) -> Recalc uptime
+  5 - Running + sleep = uptime (rntime + slptime != uptime) -> Adjust rntime/slptime
+  6 - Negative uptime -> Delete row
+  7 - Negative running time -> Delete row
+  8 - Negative sleep time -> Delete row
+  9 - Negative downtime -> Delete row
+ 10 - Sequential rowids (gaps from deleted rows) -> Vacuum DB
+
+Tests 1-9 fix data inconsistencies, test 10 runs last to compact DB after deletions.
 '''
 
 import sys, argparse, locale, signal, logging, sqlite3
@@ -219,7 +233,7 @@ def main():
 
     # Check if DB have the old format
     columns = [i[1] for i in conn.execute('PRAGMA table_info(tuptime)')]
-    if 'rntime' and 'slptime' and 'bootid' not in columns:
+    if 'rntime' not in columns or 'slptime' not in columns or 'bootid' not in columns:
         logging.error('DB format outdated')
         sys.exit(1)
 

@@ -17,7 +17,7 @@ EXUSR='_tuptime'
 # Destination dir for executable file
 D_BIN='/usr/bin'
 
-# Swich dev branch
+# Switch dev branch
 DEV=0
 
 
@@ -47,7 +47,7 @@ while getopts ":d" opt; do
 done
 
 # Test if it is a linux system
-if [ $(uname -s) != "Linux" ]; then
+if [ "$(uname -s)" != "Linux" ]; then
 	echo "Sorry, only for Linux systems"
 	exit 1
 fi
@@ -55,7 +55,7 @@ fi
 # Test required commands
 check_command() {
 	if ! command -v "$1" &> /dev/null; then
-		echo "ERROR: "$1" command not found"
+		echo "ERROR: $1 command not found"
 		echo "Please install it"
 		exit 1
 	fi
@@ -89,7 +89,7 @@ else
 	SYSDPATH='/lib/systemd/system/'
 fi
 
-# Set Selinux swich
+# Set SElinux swich
 if getenforce 2> /dev/null | grep -q 'Enforcing'; then
        	echo "Selinux enabled in Enforcing"
 	SELX=1
@@ -194,7 +194,7 @@ elif [ "${PID1}" = 'runit' ]; then
 
 else
 	echo "#########################################"
-	echo " WARNING - Any init file for your system"
+	echo " WARNING - No init file for your system"
 	echo "#########################################"
 	echo '  [BAD]'
 fi
@@ -228,7 +228,7 @@ elif [ -d /etc/periodic/15min/ ]; then
 
 else
 	echo "#########################################"
-	echo " WARNING - Any cron file for your system"
+	echo " WARNING - No cron file for your system"
 	echo "#########################################"
 	echo '  [BAD]'
 fi

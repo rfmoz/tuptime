@@ -1,9 +1,9 @@
                          ----------------------
                             Tuptime    Manual
                          ----------------------
-                              version 5.2.5
+                              version 5.2.6
                                 Ricardo F.
-                               11/Jan/2026
+                               01/Apr/2026
 
 
 
@@ -11,12 +11,12 @@
 | Abstract |
 ============
 
-Tuptime reports the system’s historical and statistical uptime, preserved across reboots.
+Tuptime reports historical and statistical system uptime, preserved across reboots.
 Indeed, it can:
 
   - Count system startups
   - Register first boot time (since installation time)
-  - Count nicely and accidentally shutdowns 
+  - Count graceful and accidental shutdowns
   - Uptime and downtime percentage since first boot time
   - Accumulated system uptime (running and sleeping), downtime and total
   - Register used kernels and boot IDs
@@ -42,7 +42,7 @@ Software:
 
 If a distro is used, all is met with:
     - In Linux:  'python' package >= 3.0
-    - In FreeBSD: 'python3' and 'py36-sqlite3'
+    - In FreeBSD: 'python3' and 'py3*-sqlite3'
 
 Also, execution via Docker is available, see note below.
 
@@ -75,7 +75,7 @@ For Linux systems:
       
        Download and execute the installation script:
 
-           # bash < <(curl -Ls https://git.io/tuptime-install.sh)
+           # bash < <(curl -Ls https://raw.githubusercontent.com/rfmoz/tuptime/master/tuptime-install.sh)
 
    + Manual install:
 
@@ -87,7 +87,7 @@ For Linux systems:
 
            With sysusers:
 
-               # install -m 644 tuptime/src/systemd/tuptime.sysusers /usr/lib/sysusers.d/tuptime.conf
+               # install -m 644 tuptime/src/systemd/sysusers.d/tuptime.conf /usr/lib/sysusers.d/tuptime.conf
                # systemd-sysusers /usr/lib/sysusers.d/tuptime.conf
 
            With useradd:
@@ -95,7 +95,7 @@ For Linux systems:
                # useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
                  --shell '/bin/false' --comment 'Tuptime execution user' _tuptime
 
-       Execute tuptime with a privilege user for create DB path:
+       Execute tuptime with a privilege user to create DB path:
 
            # tuptime
 
@@ -111,12 +111,12 @@ For Linux systems:
 
            With systemd timer:
 
-               # install -m 644 tuptime/src/systemd/tuptime-sync.* /lib/systemd/system/
+               # install -m 644 tuptime/src/systemd/tuptime-sync.* /usr/lib/systemd/system/
                # systemctl enable tuptime-sync.timer && systemctl start tuptime-sync.timer
 
        Copy systemd service file and enable it:
 
-           # install -m 644 tuptime/src/systemd/tuptime.service /lib/systemd/system/tuptime.service
+           # install -m 644 tuptime/src/systemd/tuptime.service /usr/lib/systemd/system/tuptime.service
            # systemctl enable tuptime.service && systemctl start tuptime.service
 
        Or if it is an old RedHat system or derivate, copy the init file:
@@ -124,7 +124,7 @@ For Linux systems:
            # install -m 755 tuptime/src/init.d/redhat/tuptime /etc/init.d/tuptime
            # chkconfig --add tuptime && chkconfig tuptime on
 
-       Or if it is and old Debian system or derivate, copy the init file:
+       Or if it is an old Debian system or derivate, copy the init file:
 
            # install -m 755 tuptime/src/init.d/debian/tuptime /etc/init.d/tuptime
            # update-rc.d tuptime defaults
@@ -193,7 +193,7 @@ These are the command line options, no configuration file is used:
   -f FILE, --filedb FILE
                         database file (/var/lib/tuptime/tuptime.db)
   -g, --graceful        register a graceful shutdown
-  -i, --invert          startup number in reverse count | swich between
+  -i, --invert          startup number in reverse count | switch between
                         longest/shortest on default output
   -k, --kernel          show kernel version
   -l, --list            enumerate system life as list
@@ -328,7 +328,7 @@ These are the command line options, no configuration file is used:
   
 -g, --graceful
   Register the time in DB as a graceful shutdown. This option is the way that
-  tuptime have for know if is a good or a bad shutdown. This is used in the 
+  tuptime has to know if is a good or a bad shutdown. This is used in the
   init.d and systemd files at the shutdown process.
 
   Examples:
@@ -338,10 +338,9 @@ These are the command line options, no configuration file is used:
 
 -i, --invert
   Print startup number in reverse count starting since last boot when it's
-  used in conjunction with (-t), (-l), or (--tat) options. Equal than the output of
+  used in conjunction with (-t), (-l), or (--tat) options. Equal to the output of
   'journalctl --list-boots'.
   Change Longest to Shortest values on default output report.
-  Change Total Uptime to Downtime on (-m) option.
 
   Examples:
          tuptime -t -i
@@ -396,7 +395,8 @@ These are the command line options, no configuration file is used:
 
 -p, --power
   Print the running and sleeping accumulated time for the correspondent uptime slot.
-  Note that only Python >= 3.6 can register this values.
+  Note that only Python >= 3.6 can register these values.
+  Cannot be used in combination with --tsince, --tuntil or --tat.
 
   Examples:
          tuptime -p
@@ -406,7 +406,7 @@ These are the command line options, no configuration file is used:
 
 
 -q, --quiet
-  Update values into database without compute and print output values.
+  Update values into database without computing and printing output values.
 
   Examples:
          tuptime -q
@@ -451,8 +451,8 @@ These are the command line options, no configuration file is used:
 
 
 --tat
-  Report system status at specific timestamp, register number enclosed and time
-  elapsed and remaining in that matched status.
+  System status at epoch timestamp, register number enclosed and time
+  elapsed and remaining in that matched status. Mutually exclusive with -l and -t.
 
   Examples:
          tuptime --tat 1555280149
@@ -534,12 +534,12 @@ TUPTIME_DBF
 ======================
 
 Scheduled execution is essential. If the init or systemd scripts
-are installed as it needs, the program only update values at startup and 
+are installed as needed, the program only updates values at startup and
 shutdown, but if the system fails, hangs or whatever, the uptime time will
 be lost. Be sure that the cron entry or, in other case, the systemd
 tuptime-sync.[timer|service] units are installed as expected.
 
-Why is it needed the use of an other .service file with the name tuptime-sync?
+Why is it needed to use an other .service file with the name tuptime-sync?
 The default tuptime.service file uses the option 'RemainAfterExit=true' and
 nowadays the systemd timer can't restart an already running service, so, this
 is the best workaround.
@@ -585,30 +585,30 @@ Current uptime:
 
 From 2.x to 3.x:
     From 2.x to 3.0, reorder columns, added offbtime, endst and downtime. From 3.0 to 3.1,
-    added kernel column. The migration scripts are loated at:
+    added kernel column. The migration scripts are located at:
     
-    https://github.com/rfmoz/tuptime/blob/master/misc/cripts/db-tuptime-migrate-2.0-to-3.0.sh
-    https://github.com/rfmoz/tuptime/blob/master/misc/cripts/db-tuptime-migrate-3.0-to-3.1.sh
+    https://github.com/rfmoz/tuptime/blob/master/misc/scripts/db-tuptime-migrate-2.0-to-3.0.sh
+    https://github.com/rfmoz/tuptime/blob/master/misc/scripts/db-tuptime-migrate-3.0-to-3.1.sh
  
 From 3.x to 4.x:
     Added rntime and slptime registers, also uptime, rntime, slptime, downtime are now integers.
-    The migrations is done automatically from Tuptime. Also, the migration script
+    The migration is done automatically from Tuptime. Also, the migration script
     is located at:
 
-    https://github.com/rfmoz/tuptime/blob/master/misc/cripts/db-tuptime-migrate-3.1-to-4.0.sh
+    https://github.com/rfmoz/tuptime/blob/master/misc/scripts/db-tuptime-migrate-3.1-to-4.0.sh
  
 From 4.x to 5.x:
-    Added bootid register. The migrations is done automatically from Tuptime.
+    Added bootid register. The migration is done automatically from Tuptime.
     Also, the migration script is located at:
 
-    https://github.com/rfmoz/tuptime/blob/master/misc/cripts/db-tuptime-migrate-4.0-to-5.0.sh
+    https://github.com/rfmoz/tuptime/blob/master/misc/scripts/db-tuptime-migrate-4.0-to-5.0.sh
 
 
 ==================
 | Database Specs |
 ==================
 
-Tuptime use a sqlite3 database located in '/var/lib/tuptime/tuptime.db' with
+Tuptime uses a sqlite3 database located in '/var/lib/tuptime/tuptime.db' with
 the following format:
 
 tuptime (bootid text,
@@ -636,13 +636,13 @@ key that uniquely identifies the row within its table in sqlite.
 
 The bootid value is available since Linux 2.6.20 and FreeBSD 11.0.
 
-For reset all the values, simply delete the database file.
+To reset all the values, simply delete the database file.
 
 It is possible to query and modify it directly, but it's better to use any of
-the scripts located under 'misc/scripts' for modify, join or check it.
+the scripts located under 'misc/scripts' to modify, join or check it.
 
-If a complete row is deleted and the database is not recreate completely (vacuum),
-rowid keep the real information about startup number. Tuptime will notify about
+If a complete row is deleted and the database is not recreated completely (vacuum),
+rowid keeps the real information about startup number. Tuptime will notify about
 'Deleted rows in DB' if the verbose mode is enabled.
 
 
@@ -651,33 +651,33 @@ rowid keep the real information about startup number. Tuptime will notify about
 | About sync date and time |
 ============================
 
-Substantial time jumps within a running system may trigger unespected behavior.
-Take care of the hardware clock RTC (if the system have), or how the operating
-system initializes their clock at startup.
+Substantial time jumps within a running system may trigger unexpected behavior.
+Take care of the hardware clock RTC (if the system has), or how the operating
+system initializes its clock at startup.
 
-If the system starts with a incorrect datetime and some external time sync is
-used, like ntpd or timesyncd, a few time after boot the btime reported by the
+If the system starts with an incorrect datetime and some external time sync is
+used, like ntpd or timesyncd, a short time after boot the btime reported by the
 system may change (it is a live value computed by now() - uptime). This behaviour
 is also related with adjustments performed by adjtime(3), systems running inside
 virtualized environments, servers with high load or with high disk I/O, wrong
-computation of jiffies / HZ and the problema of lost ticks.
+computation of jiffies / HZ and the problems of lost ticks.
 
-A slightly drift is compensate over uptime/downtime values. Large drift can 
+A slight drift is compensated over uptime/downtime values. Large drift can
 produce unreal registers and output. For example, Raspberry Pi doesn't have any
 clock and initializes from 1 January 1970. A downtime of 0, when it's evident
 that it was physically impossible, it's a common indicator than the clock had a
 large sync jump.
 
-As Tuptime have time dependency, its Systemd service unit pulls time-sync.target
-and, therefore, is ordered to start before it. Note that it doesn't assure that 
+As Tuptime has time dependency, its Systemd service unit pulls time-sync.target
+and, therefore, is ordered to start before it. Note that it doesn't ensure that
 the clock synchronization is achieved, only that it needs the start of the 
 synchronization service and the date isn't going to be before last shutdown. On
 last releases of Systemd, there is a new unit that delays reaching time-sync.target 
-until stay on sync 'systemd-time-wait-sync', but it isn't enable by default nowadays.
+until stays in sync 'systemd-time-wait-sync', but it isn't enabled by default nowadays.
 
 On Linux systems running Systemd, when the system clock has been synchronized, the
-file /run/systemd/timesync/synchronized is created. Tuptime check it and print a
-verbose line when it doesn't exists 'INFO:Timesync state file not found'.
+file /run/systemd/timesync/synchronized is created. Tuptime checks it and prints a
+verbose line when it doesn't exist 'INFO:Timesync state file not found'.
 
 A few recommendations / workarounds are:
 
@@ -698,17 +698,17 @@ the end of 'After=' and 'Wants=' lines.
 Force a time sync in the 'tuptime.unit' file. Add under '[Service]' definition the 
 line 'ExecStartPre=/usr/bin/ntpdate pool.ntp.org'
 
-If the systems is a single-board computer, like Raspberry Pi or Beaglebone, use a
+If the system is a single-board computer, like Raspberry Pi or Beaglebone, use a
 RTC module and configure it properly.
 
 Without Systemd, use a ntp client and delay the execution of tuptime until the time
 is synced. Also, 'ntp-wait' can be added to the init script and the cron line
-preceeding the tuptime execution.
+preceding the tuptime execution.
 
-Try and failure is the best way to find the right solution for the environment in 
+Trial and error is the best way to find the right solution for the environment in
 which the system is running.
 
-The drift value that Tuptime have reference is reported in verbose mode 'tuptime -v'
+The drift value that Tuptime has as reference is reported in verbose mode 'tuptime -v'
 in the line 'INFO:Drift over btime'. Values around +-1 are common and can be
 considered as normal.
 
@@ -756,7 +756,7 @@ Convert human datetime to epoch:
 Convert epoch to human datetime:
         date -d "@1516748400"
 
-Preceding conversions uses GNU date, on FreeBSD install "coreutils" and call
+Preceding conversions use GNU date, on FreeBSD install "coreutils" and call
 them with "gdate".
 
 Examples of using it directly:
@@ -770,6 +770,41 @@ More info about datetime input formats:
         man date
         'https://www.gnu.org/software/coreutils/manual/html_node/
         Date-input-formats.html#Date-input-formats'
+
+
+
+===================
+| JSON formatting |
+===================
+
+Tuptime CSV output can be converted to JSON for integration with other tools
+or further processing. The --table option is best suited for this, as it provides
+headers and consistent columns:
+
+	tuptime -tc | csvjson
+
+The --list option is redundant here since --table covers the same data in a more
+structured format.
+
+Default output has variable columns with label–value pairs (also --tat), that
+require additional processing. Either of the following could work:
+
+	tuptime -c | python3 -c 'import csv,sys,json; \
+	print(json.dumps([{r[0]:r[1:]} for r in csv.reader(sys.stdin)]))'
+
+	tuptime -c | python3 -c "import csv,json,sys; \
+	print(json.dumps({r[0]: ' '.join(r[1:]) for r in csv.reader(sys.stdin)}))"
+
+	(echo k,v1,v2,v3; tuptime -c) | csvjson --key k
+        # Note: adjust header columns v* to match the maximum in output
+
+
+
+==================
+| More Resources |
+==================
+
+DeepWiki: https://deepwiki.com/rfmoz/tuptime
 
 
 
@@ -793,11 +828,11 @@ previous startup offbtime and downtime are also written. None of them changes
 after that. Uptime may shift to accommodate drift and kernel name could be
 replaced if live patching is used.
 
-Tuptime is backed by a SQLite database. It is highly resilient but fails can
+Tuptime is backed by a SQLite database. It is highly resilient but failures can
 occur in any software and hardware level, producing a database corruption. Here
 is an excellent documentation about it https://www.sqlite.org/howtocorrupt.html
 
-If a backup of the DB file is needed in other place, take a look to Litestream.
+If a backup of the DB file is needed in another place, take a look at Litestream.
 This is a streaming replication tool for SQLite databases, it works fine with
 Tuptime. https://litestream.io/
 
@@ -805,14 +840,14 @@ The uptime reference is linked with the wall clock time elapsed since boot, not
 the running effective time. Both the running (effective time) and hibernate
 power states fall within the applicable uptime slot.
 
-If the system have configured a time zone with daylight saving time (DST),
-to avoid problems when the time change, the real time clock (RTC) should have
-set to universal time coordinated (UTC), not local time. Check it with 
+If the system has configured a time zone with daylight saving time (DST),
+to avoid problems when the time change, the real time clock (RTC) should be
+set to universal time coordinated (UTC), not local time. Check it with
 'timedatectl' command.  Reports involving DST changes are completely right.
 The system current local time zone is the reference for all timestamps printed.
 https://tldp.org/HOWTO/Clock-2.html
 
-If the Linux system execute a full force shutdown or reboot, like for example
+If the Linux system executes a full forced shutdown or reboot, like for example
 "systemctl --force --force reboot", as it doesn't follow the steps to produce
 a clean shutdown, the "End status" remains in bad state.
 

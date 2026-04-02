@@ -17,8 +17,8 @@
 
 ### BEGIN INIT INFO
 # Provides:          tuptime
-# Required-Start:    $local_fs $time $remote_fs
-# Required-Stop:     $local_fs $time $remote_fs
+# Required-Start:    $local_fs $time
+# Required-Stop:     $local_fs $time
 # Should-Start:
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
@@ -35,7 +35,6 @@ BIN_NAME='tuptime'
 PATH_BIN="/usr/bin/$BIN_NAME"
 PATH_DATA='/var/lib/tuptime'
 
-
 do_start () {
         # Start service
         log_action_begin_msg "Starting $BIN_NAME"
@@ -45,19 +44,19 @@ do_start () {
             chown $USER:$USER $PATH_DATA
             chmod 0755 $PATH_DATA
         fi
-        su -s /bin/sh $USER -c "$PATH_BIN -q" > /dev/null
+        su -s /bin/sh $USER -c "$PATH_BIN -q"
 }
 
 do_stop () {
         # Stop service
         log_action_begin_msg "Stopping $BIN_NAME"
         log_end_msg 0
-        su -s /bin/sh $USER -c "$PATH_BIN -qg" > /dev/null
+        su -s /bin/sh $USER -c "$PATH_BIN -qg"
 }
 
 do_status () {
         # Status service
-        su -s /bin/sh $USER -c "$PATH_BIN"
+        su -s /bin/sh $USER -c "$PATH_BIN -q"
 }
 
 

@@ -11,7 +11,7 @@
 SOURCE_DB='/var/lib/tuptime/tuptime.db'
 
 # Check bash execution
-if [ ! -n "$BASH" ]; then
+if [ -z "$BASH" ]; then
 	echo "--- WARNING - execute only with BASH ---"
 fi
 
@@ -24,8 +24,7 @@ else
 fi
 
 # Test sqlite3 command
-sqlite3 -version > /dev/null
-if [ $? -ne 0 ]; then
+if ! sqlite3 -version > /dev/null 2>&1; then
 	echo "Please, install \"sqlite3\" command for manage sqlite v3 databases"
 	exit 2
 fi

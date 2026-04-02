@@ -13,18 +13,18 @@ depend() {
 
 start() {
         ebegin "Starting ${name}"
-        su ${command_user} -s /bin/sh -c "${command} -q"
+        su ${command_user} -s /bin/sh -c "${command} ${command_args}"
         eend $?
 }
 
 stop() {
         ebegin "Stopping ${name}"
-        su ${command_user} -s /bin/sh -c "${command} -qg"
+        su ${command_user} -s /bin/sh -c "${command} ${command_args} -g"
         eend $?
 }
 
 status() {
         ebegin "Status ${name}"
-        su ${command_user} -s /bin/sh -c "${command} -q"
+        su ${command_user} -s /bin/sh -c "${command} ${command_args}"
         eend $?
 }

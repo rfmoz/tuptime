@@ -27,6 +27,11 @@ RETVAL=0
 do_start () {
         # Start service
         echo -n $"Starting tuptime: "
+        if [ ! -d /var/lib/tuptime ]; then
+            mkdir -p /var/lib/tuptime
+            chown $USER:$USER /var/lib/tuptime
+            chmod 0755 /var/lib/tuptime
+        fi
         daemon --user $USER $PATH_BIN -q
         RETVAL=$?
          echo
@@ -38,7 +43,6 @@ do_stop () {
         # Stop service
         echo -n $"Stopping tuptime: "
         daemon --user $USER $PATH_BIN -qg
-        $PATH_BIN -qg
         RETVAL=$?
          echo
         [ $RETVAL -eq 0 ] && rm -f ${LOCKFILE}
@@ -47,7 +51,7 @@ do_stop () {
 
 do_status () {
         # Status service
-        $PATH_BIN
+        su -s /bin/sh $USER -c "$PATH_BIN -q"
 }
 
 

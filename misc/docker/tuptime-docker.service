@@ -1,6 +1,7 @@
 [Unit]
 Description=Tuptime docker service
-After=docker.service
+After=docker.service time-sync.target
+Wants=time-sync.target
 Requires=docker.service
 Conflicts=tuptime.service
 

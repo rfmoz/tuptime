@@ -63,7 +63,7 @@ def get_arguments():
         dest='report_pie',
         action='store_true',
         default=False,
-        help='swich to  pie report with accumulated hours'
+        help='switch to  pie report with accumulated hours'
     )
     arg = parser.parse_args()
     return arg

@@ -6,7 +6,7 @@
 Install dependencies, latest versions:
 
     # pkg install python3
-    # pkg install py311-sqlite3  # (version number must match "python3 -V")
+    # pkg install py3*-sqlite3  # (version number must match "python3 -V")
 
 Get code and copy executable file:
 
@@ -29,12 +29,12 @@ Add the cron entry, create a '/usr/local/etc/cron.d/tuptime' file with this cont
 
 Copy rc.d file:
 
-    # mkdir /usr/local/etc/rc.d/
+    # mkdir -p /usr/local/etc/rc.d/
     # install -m 555 tuptime-master/src/rc.d/freebsd/tuptime /usr/local/etc/rc.d/tuptime
     # sysrc tuptime_enable=YES
     # service tuptime start
 
-It's all done.
+Installation complete.
 
 
 
@@ -76,6 +76,7 @@ Set the right permissions to cron file and restart the service:
 
     # chown _tuptime:crontab /var/cron/tabs/_tuptime 
     # chmod 600 /var/cron/tabs/_tuptime 
+    # rcctl restart cron
 
 Copy rc.d file:
 
@@ -83,7 +84,7 @@ Copy rc.d file:
     # rcctl enable tuptime
     # rcctl start tuptime
 
-It's all done.
+Installation complete.
 
 
 
@@ -94,7 +95,7 @@ It's all done.
 
 Install dependencies:
 
-    # PKG_PATH=http://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/(amd64|i386|etc)/(9.4|10.0|etc)/All/
+    # PKG_PATH=https://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/<arch>/<version>/All/
     # export PKG_PATH
     # pkg_add pkgin
     # pkgin install fetch python3?
@@ -119,6 +120,7 @@ Execute tuptime with a privileged user to create db path and change user/group:
 
     # tuptime
     # chown -R _tuptime:_tuptime /var/lib/tuptime
+    # service cron restart
 
 Add the cron entry, create a '/var/cron/tabs/_tuptime' file with this content:
 
@@ -138,4 +140,4 @@ Copy rc.d file:
     # echo 'tuptime_enable="YES"' >> /etc/rc.conf
     # service tuptime start
 
-It's all done.
+Installation complete.
