@@ -29,10 +29,16 @@ DATE_FORMAT = '%X %x'
 __version__ = '1.0.1'
 
 # Terminate when SIGPIPE signal is received
-signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+try:
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+except Exception:
+    pass
 
 # Set locale to the users default settings (LANG env. var)
-locale.setlocale(locale.LC_ALL, '')
+try:
+    locale.setlocale(locale.LC_ALL, '')
+except locale.Error:
+    locale.setlocale(locale.LC_ALL, 'C')
 
 
 def get_arguments():
