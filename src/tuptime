@@ -709,30 +709,29 @@ def format_output(db_rows, arg):
         if row['uptime'] is False:
             row['uptime'] = row['rntime'] = row['slptime'] = ''
         else:
-            if not arg.seconds:
-                for key in ('uptime', 'rntime', 'slptime'):
+            for key in ('uptime', 'rntime', 'slptime'):
+                if arg.seconds:
+                    row[key] = str(row[key])
+                else:
                     row[key] = time_conv(row[key])
 
-        if row['endst'] is False:
+        if row['endst'] is False or row['offbtime'] is False or row['downtime'] is False:
             row['endst'] = ''
-        else:
-            if row['offbtime'] is False or row['downtime'] is False:
-                row['endst'] = ''
-            else:
-                if row['endst'] == 1:
-                    row['endst'] = 'OK'
-                elif row['endst'] == 0:
-                    row['endst'] = 'BAD'
+        elif row['endst'] == 1:
+            row['endst'] = 'OK'
+        elif row['endst'] == 0:
+            row['endst'] = 'BAD'
 
         for key in ('btime', 'offbtime', 'downtime'):
             if row[key] is False:
                 row[key] = ''
+            elif arg.seconds:
+                row[key] = str(row[key])
             else:
-                if not arg.seconds:
-                    if key == 'downtime':
-                        row[key] = time_conv(row[key])
-                    else:
-                        row[key] = datetime.fromtimestamp(row[key]).strftime(arg.dtm_format)
+                if key == 'downtime':
+                    row[key] = time_conv(row[key])
+                else:
+                    row[key] = datetime.fromtimestamp(row[key]).strftime(arg.dtm_format)
 
     return db_rows
 
@@ -898,12 +897,12 @@ def print_default(db_rows, sis, arg):
                     cnt[key].append(row[key])
 
             # Get limits for uptime and downtime values
-            if row['uptime']:
+            if row['uptime'] is not False:
                 if lmt['max-up']['bootid'] is None or lmt['max-up']['uptime'] <= row['uptime']:
                     lmt['max-up'] = row.copy()
                 if lmt['min-up']['bootid'] is None or lmt['min-up']['uptime'] >= row['uptime']:
                     lmt['min-up'] = row.copy()
-            if row['downtime']:
+            if row['downtime'] is not False:
                 if lmt['max-down']['bootid'] is None or lmt['max-down']['downtime'] <= row['downtime']:
                     lmt['max-down'] = row.copy()
                 if lmt['min-down']['bootid'] is None or lmt['min-down']['downtime'] >= row['downtime']:
@@ -1031,7 +1030,7 @@ def print_default(db_rows, sis, arg):
         p('System boot IDs', len(set(cnt['bootid'])))
     if arg.kernel:
         p('System kernels', len(set(cnt['kernel'])))
-    if not arg.csv: print('')
+    if not arg.csv: print()
 
     # Uptime block
     if bfp['up']['btime'] is not False:
@@ -1044,7 +1043,7 @@ def print_default(db_rows, sis, arg):
         p('     ...kernel', bfp['up']['kernel'])
     p('Average uptime', uptime['average'])
     p('System uptime', uptime['sys_rate'], '=', uptime['sys_time'])
-    if not arg.csv: print('')
+    if not arg.csv: print()
 
     # Downtime block
     if bfp['down']['offbtime'] is not False:
@@ -1060,7 +1059,7 @@ def print_default(db_rows, sis, arg):
 
     # Current block
     if arg.update:
-        if not arg.csv: print('')
+        if not arg.csv: print()
         p('Current uptime', uptime['current'], 'since', sis['btime'])
         if arg.bootid:
             p('    ...boot ID', sis['bootid'])
