@@ -95,6 +95,8 @@ def err_cnt(arg):
 
 
 def test0(arg, db_rows, conn):
+    if not db_rows:
+        return
     if len(db_rows) != db_rows[-1]['startup']:
         print(' Possible deleted rows in db. Real startups are not equal to enumerate startups')
 
@@ -130,14 +132,15 @@ def test2(arg, row, conn, prev_row):
 
 
 def test3(arg, row, conn, prev_row):
-    if prev_row['offbtime'] + prev_row['downtime'] != row['btime']:
+    if prev_row['offbtime'] and \
+       prev_row['offbtime'] + prev_row['downtime'] != row['btime']:
         print(row['startup'])
         print(' prev_row offbtime + prev_row downtime != btime')
         print(' ' + str(prev_row['offbtime']) + ' + ' + str(prev_row['downtime']) + ' != ' + str(row['btime']))
 
         if arg.fix:
             fixed = row['btime'] - prev_row['offbtime']
-            conn.execute('update tuptime set downtime =? where rowid =?', (fixed, (row['startup'] - 1)))
+            conn.execute('update tuptime set downtime =? where rowid =?', (fixed, prev_row['startup']))
             print(' FIXED: prev_row downtime = ' + str(fixed))
         err_cnt(arg)
 

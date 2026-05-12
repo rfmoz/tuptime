@@ -112,7 +112,7 @@ def get_arguments():
     )
     arg = parser.parse_args()
 
-    if not (arg.kwh or arg.mwh):
+    if arg.kwh is None and arg.mwh is None:
         parser.error('Set at least one price for -m (MWh) or -k (kWh)')
 
     return arg

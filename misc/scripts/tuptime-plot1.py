@@ -136,10 +136,10 @@ def main():
 
     daysplt = []  # List for all day splits with their events
     ftmp = tempfile.NamedTemporaryFile().name  # File to store Tuptime csv
-    shutst = None
 
     # Iterate over each element in (since, until) list
     for nran, _  in enumerate(date_list):
+        shutst = None
         tsince = str(int(date_list[nran][0]))  # Timestamp arg tsince
         tuntil = str(int(date_list[nran][1]))  # timestamp arg tuntil
 
@@ -196,10 +196,10 @@ def main():
 
             # Per day, get total value for each type of event
             if arg.report_events:
-                daysplit_events = [(sum(j)) for j in zip(*daysplit_events)]
+                daysplit_events = [(sum(j)) for j in zip(*daysplit_events)] or [0, 0, 0]
             else:
                 # Convert seconds to hours
-                daysplit_events = [(sum(j) / 3600) for j in zip(*daysplit_events)]
+                daysplit_events = [(sum(j) / 3600) for j in zip(*daysplit_events)] or [0, 0, 0]
 
             # Populate daysplt list with totals
             daysplt.append(daysplit_events)
