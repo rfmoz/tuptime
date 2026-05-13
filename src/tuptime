@@ -1033,6 +1033,8 @@ def print_default(db_rows, sis, arg):
     if not arg.csv: print()
 
     # Uptime block
+    p('System uptime', uptime['sys_rate'], '=', uptime['sys_time'])
+    p('Average uptime', uptime['average'])
     if bfp['up']['btime'] is not False:
         p(f'{bfp["name"]} uptime', uptime[bfp['key']], 'from', bfp['up']['btime'])
     else:
@@ -1041,11 +1043,11 @@ def print_default(db_rows, sis, arg):
         p('    ...boot ID', bfp['up']['bootid'])
     if arg.kernel:
         p('     ...kernel', bfp['up']['kernel'])
-    p('Average uptime', uptime['average'])
-    p('System uptime', uptime['sys_rate'], '=', uptime['sys_time'])
     if not arg.csv: print()
 
     # Downtime block
+    p('System downtime', downtime['sys_rate'], '=', downtime['sys_time'])
+    p('Average downtime', downtime['average'])
     if bfp['down']['offbtime'] is not False:
         p(f'{bfp["name"]} downtime', downtime[bfp['key']], 'from', bfp['down']['offbtime'])
     else:
@@ -1054,8 +1056,6 @@ def print_default(db_rows, sis, arg):
         p('      ...boot ID', bfp['down']['bootid'])
     if arg.kernel:
         p('       ...kernel', bfp['down']['kernel'])
-    p('Average downtime', downtime['average'])
-    p('System downtime', downtime['sys_rate'], '=', downtime['sys_time'])
 
     # Current block
     if arg.update:

@@ -566,13 +566,13 @@ System uptime:
 System downtime:
   Percentage of time and time counter.
 
+Average uptime:
+Average downtime:
+  Average time counter.
+
 Longest uptime:
 Longest downtime:
-  Time counter and date with the longest/shortest uptime register. 
-
-Average uptime:
-Average downtime: 
-  Average time counter.
+  Time counter and date with the longest/shortest uptime register.
 
 Current uptime:
   Actual time counter and datetime since registered boot timestamp.

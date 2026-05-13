@@ -19,13 +19,13 @@ Just after install:
 	System shutdowns:       0 ok  +  0 bad
 	System life:            21m 30s
 
-	Longest uptime:         21m 30s  from  24/09/15 21:54:09
-	Average uptime:         21m 30s
 	System uptime:          100.0%  =  21m 30s
+	Average uptime:         21m 30s
+	Longest uptime:         21m 30s  from  24/09/15 21:54:09
 
-	Longest downtime:       0s
-	Average downtime:       0s
 	System downtime:        0.0%  =  0s
+	Average downtime:       0s
+	Longest downtime:       0s
 
 	Current uptime:         21m 30s  since  24/09/15 21:54:09
 
@@ -35,13 +35,13 @@ A few days later:
 	System shutdowns:       107 ok  +  2 bad
 	System life:            47d 12h 02m 15s
 
-	Longest uptime:         2h 10m 44s  from  09/08/15 20:49:17
-	Average uptime:         25m 08s
 	System uptime:          4.04%  =  1d 22h 04m 44s
+	Average uptime:         25m 08s
+	Longest uptime:         2h 10m 44s  from  09/08/15 20:49:17
 
-	Longest downtime:       7d 10h 17m 26s  from  10/08/15 06:09:45
-	Average downtime:       9h 56m 42s
 	System downtime:        95.96%  =  45d 13h 57m 30s
+	Average downtime:       9h 56m 42s
+	Longest downtime:       7d 10h 17m 26s  from  10/08/15 06:09:45
 
 	Current uptime:         23m 33s  since  24/09/15 21:54:09
 
