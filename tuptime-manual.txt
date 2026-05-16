@@ -199,7 +199,7 @@ These are the command line options, no configuration file is used:
   -l, --list            enumerate system life as list
   -n, --no-update       avoid update values into DB
   -o TYPE, --order TYPE
-                        order by [u]ptime, [r]untime, [s]leep, [e]ndst, [d]owntime, [k]ernel
+                        order by [u]ptime, [r]un, [s]leep, [e]ndst, [d]owntime, [k]ernel
   -p, --power           show power states run + sleep
   -q, --quiet           update values into DB without output
   -r, --reverse         reverse order in listings
