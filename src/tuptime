@@ -163,14 +163,6 @@ def get_arguments():
         help='show power states run + sleep'
     )
     parser.add_argument(
-        '--pctl',
-        dest='percentile',
-        default=None,
-        action='store',
-        type=int,
-        help=argparse.SUPPRESS
-    )
-    parser.add_argument(
         '-q', '--quiet',
         dest='quiet',
         default=False,
@@ -294,8 +286,6 @@ def get_arguments():
     if arg.decp:
         arg.dec = arg.decp
         logging.warning('Argument \'--decp\' is deprecated in favour of \'--dec\'')
-    if arg.percentile:
-        logging.warning('Argument \'--pctl\' deprecated without functionality')
     if arg.silent:
         arg.quiet = arg.silent
         logging.warning('Argument \'-x\' is deprecated in favour of \'-q\'')
