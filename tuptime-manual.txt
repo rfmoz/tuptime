@@ -185,7 +185,7 @@ These are the command line options, no configuration file is used:
   -b, --bootid          show boot identifier
   -c, --csv             csv output
   -d DATETIME_FMT, --date DATETIME_FMT
-                        datetime/timestamp format output
+                        datetime format for output
   -e DECIMALS, --dec DECIMALS
                         number of decimals in percentages
   -E, --exclude STARTUP
@@ -193,7 +193,7 @@ These are the command line options, no configuration file is used:
   -f FILE, --file FILE
                         database file (/var/lib/tuptime/tuptime.db)
   -g, --graceful        register a graceful shutdown
-  -i, --invert          startup number in reverse count | switch between
+  -i, --invert          reverse startup count in listings; switch
                         longest/shortest on default output
   -k, --kernel          show kernel version
   -l, --list            enumerate system life as list
@@ -251,7 +251,7 @@ These are the command line options, no configuration file is used:
 
 
 -d <DATETIME_FMT>, --date=<DATETIME_FMT>
-  Change the datetime/timestamp format.
+  Change the datetime format.
   By default the output use the configured system locales.
   The following is a list of all the format codes that the 1989 C standard
   requires, and these work on all platforms with a standard C implementation.
@@ -337,10 +337,9 @@ These are the command line options, no configuration file is used:
 
 
 -i, --invert
-  Print startup number in reverse count starting since last boot when it's
-  used in conjunction with (-t), (-l), or (--tat) options. Equal to the output of
-  'journalctl --list-boots'.
-  Change Longest to Shortest values on default output report.
+  Reverse startup count in listings when used with (-t), (-l), or (--tat).
+  Equal to the output of 'journalctl --list-boots'.
+  Switch Longest to Shortest values on default output.
 
   Examples:
          tuptime -t -i
@@ -377,14 +376,14 @@ These are the command line options, no configuration file is used:
 
 
 -o [u|r|s|e|d|k], --order=[u|r|s|e|d|k]
-  Order enumerate output from table or list by:
-    <u>  uptime
-    <r>  runtime
-    <s>  sleep time
-    <e>  end status
-    <d>  downtime
-    <k>  kernel
-  Therefore, only works in conjunction with (-t) or (-l) options.
+  Order listings by:
+    [u]  uptime
+    [r]  runtime
+    [s]  sleep time
+    [e]  end status
+    [d]  downtime
+    [k]  kernel
+  Only works in conjunction with (-t) or (-l) options.
 
   Examples:
          tuptime -t -o e
@@ -424,7 +423,7 @@ These are the command line options, no configuration file is used:
 
 
 -s, --seconds
-  Change default human readable datetime/timestamp style and print times in seconds
+  Change default human readable datetime style and print times in seconds
   and datetimes in epoch.
 
   Examples:
@@ -481,7 +480,7 @@ These are the command line options, no configuration file is used:
 
 
 -U <STARTUP>, --until <STARTUP>
-  Limit values only up until this startup number. Take it from (-t) table or
+  Limit values only until this startup number. Take it from (-t) table or
   (-l) list reports. Negative values are allowed.
 
   Examples:
