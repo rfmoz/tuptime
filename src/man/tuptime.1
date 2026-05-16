@@ -51,7 +51,7 @@ T}
 Output in csv format
 T}
 \-d | \-\-date DATETIME_FMT@T{
-Datetime/timestamp format output
+Datetime format for output
 T}
 \-e | \-\-dec DECIMALS@T{
 Number of decimals in percentages
@@ -66,22 +66,22 @@ T}
 Register a graceful shutdown
 T}
 \-i | \-\-invert@T{
-Startup number in reverse count (for \-t, \-l, \-\-tat) | switch between longest/shortest on default output
+Reverse startup count in listings; switch longest/shortest on default output
 T}
 \-k | \-\-kernel@T{
 Show kernel version
 T}
 \-l | \-\-list@T{
-Enumerate system life as list. Mutually exclusive with -t and --tat
+Enumerate system life as list. Mutually exclusive with \-t and \-\-tat
 T}
 \-n | \-\-no-update@T{
 Avoid update values into DB
 T}
 \-o | \-\-order TYPE@T{
-Order enumerate by [u|r|s|e|d|k]. Only works with \-t or \-l. (u = uptime | r = runtime | s = sleep time | e = end status | d = downtime | k = kernel)
+Order by [u]ptime, [r]untime, [s]leep, [e]ndst, [d]owntime, [k]ernel. Only works with \-t or \-l
 T}
 \-p | \-\-power@T{
-Show power states run + sleep. Cannot be used in combination with --tsince, --tuntil or --tat
+Show power states run + sleep. Cannot be used in combination with \-\-tsince, \-\-tuntil or \-\-tat
 T}
 \-q | \-\-quiet@T{
 Update values into DB without output
@@ -108,7 +108,7 @@ T}
 Limit until this epoch timestamp
 T}
 \-U | \-\-until STARTUP@T{
-Limit up until this startup number
+Limit until this startup number
 T}
 \-v | \-\-verbose@T{
 Verbose output
@@ -138,11 +138,11 @@ Time counter since first startup timestamp available.
 .B System uptime / System downtime
 Percentage of time and time counter.
 .TP
-.B Longest uptime / Longest downtime
-Time counter and date with the longest/shortest uptime/downtime register.
-.TP
 .B Average uptime / Average downtime
 Average time counter.
+.TP
+.B Longest uptime / Longest downtime
+Time counter and date with the longest/shortest uptime/downtime register.
 .TP
 .B Current uptime
 Actual time counter and datetime since registered boot timestamp.
@@ -156,7 +156,7 @@ Default output.
 Enumerate system life as table. Mutually exclusive with \-l and \-\-tat.
 .TP
 .B tuptime \-l
-Enumerate system life as list. Mutually exclusive with -t and --tat.
+Enumerate system life as list. Mutually exclusive with \-t and \-\-tat.
 .TP
 .B tuptime \-k
 Add kernel information to the output.
@@ -165,11 +165,11 @@ Add kernel information to the output.
 Report in csv format.
 .TP
 .B tuptime \-s
-Change default human readable datetime/timestamp style and print times in
+Change default human readable datetime style and print times in
 seconds and datetimes in epoch.
 .TP
 .B tuptime \-d '%H:%M:%S %m\-%d\-%Y'
-Change the datetime/timestamp format. By default the output use the
+Change the datetime format. By default the output use the
 configured system locales.
 .TP
 .B tuptime \-\-tsince \-31557600
