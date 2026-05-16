@@ -47,7 +47,7 @@ def get_arguments():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-f', '--filedb',
+        '-f', '--file',
         dest='db_file',
         default=DB_FILE,
         action='store',

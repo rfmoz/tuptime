@@ -74,7 +74,7 @@ def get_arguments():
         metavar='DATETIME_FMT',
         default=DATETIME_FMT,
         action='store',
-        help='datetime/timestamp format output'
+        help='datetime format for output'
     )
     parser.add_argument(
         '-e', '--dec',
@@ -102,7 +102,7 @@ def get_arguments():
         help=argparse.SUPPRESS
     )
     parser.add_argument(
-        '-f', '--filedb',
+        '-f', '--file',
         dest='db_file',
         default=DB_FILE,
         action='store',
@@ -122,7 +122,7 @@ def get_arguments():
         dest='invert',
         action='store_true',
         default=False,
-        help='startup number in reverse count | switch between longest/shortest on default output'
+        help='reverse startup count in listings; switch longest/shortest on default output'
     )
     parser.add_argument(
         '-k', '--kernel',
@@ -139,7 +139,7 @@ def get_arguments():
         help='enumerate system life as list'
     )
     parser.add_argument(
-        '-n', '--noup',
+        '-n', '--no-update',
         dest='update',
         default=True,
         action='store_false',
@@ -153,7 +153,7 @@ def get_arguments():
         action='store',
         type=str,
         choices=['u', 'r', 's', 'e', 'd', 'k'],
-        help='order enumerate by [u|r|s|e|d|k]'
+        help='order by [u]ptime, [r]untime, [s]leep, [e]ndst, [d]owntime, [k]ernel'
     )
     parser.add_argument(
         '-p', '--power',
@@ -241,7 +241,7 @@ def get_arguments():
         action='store',
         metavar='STARTUP',
         type=int,
-        help='limit up until this startup number'
+        help='limit until this startup number'
     )
     parser.add_argument(
         '-v', '--verbose',

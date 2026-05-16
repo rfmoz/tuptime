@@ -59,7 +59,7 @@ T}
 \-E | \-\-exclude STARTUP@T{
 Startup numbers to exclude, comma separated and target ranges with dash (e.g. '2,10\-20,50')
 T}
-\-f | \-\-filedb FILE@T{
+\-f | \-\-file FILE@T{
 Database file (/var/lib/tuptime/tuptime.db)
 T}
 \-g | \-\-graceful@T{
@@ -74,7 +74,7 @@ T}
 \-l | \-\-list@T{
 Enumerate system life as list. Mutually exclusive with -t and --tat
 T}
-\-n | \-\-noup@T{
+\-n | \-\-no-update@T{
 Avoid update values into DB
 T}
 \-o | \-\-order TYPE@T{
@@ -121,7 +121,7 @@ T}
 .SS ENVIRONMENT
 .TP
 .B TUPTIME_DBF
-Set an alternative database file path. The argument \-f, \-\-filedb takes
+Set an alternative database file path. The argument \-f, \-\-file takes
 precedence over this.
 
 .SH DEFAULT OUTPUT

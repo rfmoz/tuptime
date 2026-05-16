@@ -20,7 +20,7 @@ Join registers of two db files into other:
     tuptime_join.py /backup/old/tuptime.db /var/lib/tuptime/tuptime.db -d /tmp/tt.db
 
 Check if all is ok:
-    tuptime --noup -t -f /tmp/tt.db
+    tuptime --no-update -t -f /tmp/tt.db
 
 Check owner (usually tuptime:tuptime) and copy modified file to right location. Re-check owner:
     ls -al /var/lib/tuptime/tuptime.db

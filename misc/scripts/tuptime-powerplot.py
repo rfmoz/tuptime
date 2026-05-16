@@ -62,7 +62,7 @@ def get_arguments():
         type=str
     )
     parser.add_argument(
-        '-f', '--filedb',
+        '-f', '--file',
         dest='dbfile',
         default=None,
         action='store',
