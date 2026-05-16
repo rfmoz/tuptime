@@ -600,6 +600,16 @@ def time_conv(secs):
     return line[:-1]
 
 
+def fmt_rate(value, dec):
+    """Format percentage; use < or > prefix when rounding would hide a non-zero/non-100 value."""
+    rounded = round(value, dec)
+    if value > 0.0 and rounded == 0.0:
+        return f'<{10 ** -dec:.{dec}f}%'
+    if value < 100.0 and rounded == 100.0:
+        return f'>{100.0 - 10 ** -dec:.{dec}f}%'
+    return f'{rounded}%'
+
+
 def trim_rows(db_rows, sis, last_st, arg):
     """Report rows since or until a given startup number or timestamp
 
@@ -851,8 +861,8 @@ def print_tat(db_rows, sis, last_st, arg):
             )
             break
 
-    pct1 = round(report['time'] * 100 / report['time_total'], arg.dec) if report['time_total'] else 0.0
-    pct2 = round(report['time_fwd'] * 100 / report['time_total'], arg.dec) if report['time_total'] else 0.0
+    pct1 = report['time'] * 100 / report['time_total'] if report['time_total'] else 0.0
+    pct2 = report['time_fwd'] * 100 / report['time_total'] if report['time_total'] else 0.0
 
     if arg.invert and report['status']:
         report['startup'] -= last_st
@@ -869,8 +879,8 @@ def print_tat(db_rows, sis, last_st, arg):
         p('   ...boot ID', report['bootid'])
     if arg.kernel:
         p('    ...kernel', report['kernel'])
-    p('   elapsed in', f'{pct1}%', '=', report['time'])
-    p(' remaining in', f'{pct2}%', '=', report['time_fwd'])
+    p('   elapsed in', fmt_rate(pct1, arg.dec), '=', report['time'])
+    p(' remaining in', fmt_rate(pct2, arg.dec), '=', report['time_fwd'])
 
 
 def print_default(db_rows, sis, arg):
@@ -945,7 +955,7 @@ def print_default(db_rows, sis, arg):
         # Get rates and average uptime / downtime
         if sys_life > 0:
             for key in rate:
-                rate[key] = round((cal['tot'][key] * 100) / sys_life, arg.dec)
+                rate[key] = (cal['tot'][key] * 100) / sys_life
 
             if cnt['uptime']:
                 for key in ('uptime', 'rntime', 'slptime'):
@@ -999,10 +1009,10 @@ def print_default(db_rows, sis, arg):
                     val[key] = datetime.fromtimestamp(val[key]).strftime(arg.dtm_format)
 
     uptime = {'average': str(cal['ave']['uptime']), 'long': str(lmt['max-up']['uptime']), 'short': str(lmt['min-up']['uptime']),
-              'sys_time': str(cal['tot']['uptime']), 'sys_rate': f'{rate["uptime"]}%', 'current': str(sis['uptime'])}
+              'sys_time': str(cal['tot']['uptime']), 'sys_rate': fmt_rate(rate["uptime"], arg.dec), 'current': str(sis['uptime'])}
 
     downtime = {'average': str(cal['ave']['downtime']), 'long': str(lmt['max-down']['downtime']), 'short': str(lmt['min-down']['downtime']),
-                'sys_time': str(cal['tot']['downtime']), 'sys_rate': f'{rate["downtime"]}%'}
+                'sys_time': str(cal['tot']['downtime']), 'sys_rate': fmt_rate(rate["downtime"], arg.dec)}
 
     if arg.power:
         sep = '","' if arg.csv else ' '
@@ -1010,7 +1020,7 @@ def print_default(db_rows, sis, arg):
         uptime['long'] += f'{sep}(rn: {lmt["max-up"]["rntime"]} + slp: {lmt["max-up"]["slptime"]})'
         uptime['short'] += f'{sep}(rn: {lmt["min-up"]["rntime"]} + slp: {lmt["min-up"]["slptime"]})'
         uptime['sys_time'] += f'{sep}(rn: {cal["tot"]["rntime"]} + slp: {cal["tot"]["slptime"]})'
-        uptime['sys_rate'] += f'{sep}(rn: {rate["rntime"]}% + slp: {rate["slptime"]}%)'
+        uptime['sys_rate'] += f'{sep}(rn: {fmt_rate(rate["rntime"], arg.dec)} + slp: {fmt_rate(rate["slptime"], arg.dec)})'
         uptime['current'] += f'{sep}(rn: {sis["rntime"]} + slp: {sis["slptime"]})'
 
     if arg.invert:  # Set longest or shortest values for uptime/downtime
