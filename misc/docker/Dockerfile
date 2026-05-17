@@ -1,4 +1,3 @@
-FROM alpine:latest
-
-RUN apk add tuptime --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing/
-ENTRYPOINT [ "tuptime" ]
+FROM python:3-alpine
+RUN wget https://raw.githubusercontent.com/rfmoz/tuptime/master/src/tuptime -O /usr/bin/tuptime && chmod +x /usr/bin/tuptime
+ENTRYPOINT ["tuptime"]
