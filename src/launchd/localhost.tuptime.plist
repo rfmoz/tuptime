@@ -6,14 +6,14 @@
 	<string>localhost.tuptime</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>sh</string>
-		<string>-c</string>
-		<string>/usr/bin/tuptime -q</string>
+		<string>/usr/local/bin/tuptime-wrapper</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>
-	<key>StartInterval</key>
-	<integer>60</integer>
+	<key>KeepAlive</key>
+	<true/>
+	<key>TimeoutStopInterval</key>
+	<integer>5</integer>
 	<key>EnvironmentVariables</key>
 	<dict>
 		<key>PATH</key>

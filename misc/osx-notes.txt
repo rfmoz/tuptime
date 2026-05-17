@@ -1,41 +1,60 @@
-=======================
-| OSX notes - Tuptime |
-=======================
+==========================
+| macOS notes - Tuptime |
+==========================
 
 
 Tuptime is compatible with macOS. Python 3 must be installed (via Homebrew,
 python.org, or Xcode Command Line Tools) as modern macOS does not include
 Python by default.
 
-But for now, I haven't found a clean way to configure a Launchd task to be 
-executed before shutdown, so, Tuptime can't register the whole time and the 
-shutdown status.
+macOS has no equivalent to systemd's ExecStop= or FreeBSD's rc.d stop().
+launchd sends SIGTERM to daemons at shutdown and then SIGKILL after a
+configurable timeout. The plist sets TimeoutStopInterval to 5 seconds;
+tuptime -g completes in under 100ms, so graceful shutdown is reliable
+in practice.
 
-The closest approach is to have a Launchd plist that runs at startup and
-every 60 seconds thereafter. The drawbacks are:
-- Uptime accuracy loss of up to 60 seconds
-- All shutdowns marked as BAD (no graceful shutdown detection)
-- No way to capture the exact shutdown time
+The provided wrapper script (tuptime-wrapper) runs as a persistent launchd
+daemon. It registers startup, updates the DB every 5 minutes, and traps
+SIGTERM to register a graceful shutdown.
 
-To install the .plist, copy file to the right location:
+Note: /usr/bin/ is read-only on macOS 10.15 (Catalina) and later due to
+System Integrity Protection (SIP). Use /usr/local/bin/ instead.
+
+To install, copy both files and make the wrapper executable:
 
     # git clone --depth=1 https://github.com/rfmoz/tuptime.git
+    # cp tuptime/src/tuptime /usr/local/bin/tuptime
+    # chmod +x /usr/local/bin/tuptime
+    # cp tuptime/src/launchd/tuptime-wrapper /usr/local/bin/tuptime-wrapper
+    # chmod +x /usr/local/bin/tuptime-wrapper
     # cp tuptime/src/launchd/localhost.tuptime.plist /Library/LaunchDaemons/
 
-Load it:
+Create the database directory:
+
+    # mkdir -p /var/lib/tuptime
+
+Load it (macOS 12 Monterey and later):
+
+    # launchctl bootstrap system /Library/LaunchDaemons/localhost.tuptime.plist
+
+On older macOS:
 
     # launchctl load -w /Library/LaunchDaemons/localhost.tuptime.plist
 
 Verify it's running:
 
     # launchctl list | grep tuptime
-    # tuptime
 
-To uninstall:
+To uninstall (macOS 12 Monterey and later):
+
+    # launchctl bootout system /Library/LaunchDaemons/localhost.tuptime.plist
+    # rm /Library/LaunchDaemons/localhost.tuptime.plist
+    # rm /usr/local/bin/tuptime-wrapper
+    # rm /usr/local/bin/tuptime
+
+On older macOS:
 
     # launchctl unload /Library/LaunchDaemons/localhost.tuptime.plist
     # rm /Library/LaunchDaemons/localhost.tuptime.plist
-
-Note: On macOS 10.14 (Mojave) and later, you may need to grant Full Disk
-Access to the terminal application running tuptime, or add it to System
-Preferences > Security & Privacy > Privacy > Full Disk Access.
+    # rm /usr/local/bin/tuptime-wrapper
+    # rm /usr/local/bin/tuptime
