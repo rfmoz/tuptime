@@ -160,10 +160,10 @@ Via Docker:
    Please, read misc/docker/docker-notes.txt
 
 
-Partial support for OSX (Darwin) system:
+Partial support for macOS (Darwin) system:
 
-   Tuptime is compatible with OSX, but the integration with LaunchD is not
-   complete. Please, read misc/osx-notes.txt
+   Tuptime is compatible with macOS, but graceful shutdown registration via
+   launchd is best-effort. Please, read misc/osx-notes.txt
 
 
 Note about Python 2.7:

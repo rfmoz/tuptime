@@ -1,0 +1,12 @@
+#!/bin/sh
+# Persistent launchd daemon for tuptime on macOS.
+# Registers startup, updates DB every 5 minutes, and traps SIGTERM for graceful shutdown.
+
+trap '/usr/local/bin/tuptime -g; exit 0' TERM INT
+
+/usr/local/bin/tuptime
+
+while true; do
+    sleep 300 & wait $!
+    /usr/local/bin/tuptime -q
+done

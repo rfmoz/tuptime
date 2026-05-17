@@ -6,7 +6,7 @@
 Install dependencies, latest versions:
 
     # pkg install python3
-    # pkg install py3*-sqlite3  # (version number must match "python3 -V")
+    # pkg install py3X-sqlite3  # (replace X with the version number from "python3 -V", e.g. py311-sqlite3)
 
 Get code and copy executable file:
 
@@ -45,11 +45,11 @@ Installation complete.
 
 Install dependencies, latest versions:
 
-    # pkg_add wget python
+    # pkg_add wget python3
 
-If not exists yet, create python3 symlink:
+If not exists yet, create python3 symlink (replace X with the installed version):
 
-    # ln -s $(ls /usr/local/bin/python3.*[0-9]) /usr/local/bin/python3
+    # ln -s /usr/local/bin/python3.X /usr/local/bin/python3
 
 Get code and copy executable file:
 
@@ -98,12 +98,12 @@ Install dependencies:
     # PKG_PATH=https://ftp.netbsd.org/pub/pkgsrc/packages/NetBSD/<arch>/<version>/All/
     # export PKG_PATH
     # pkg_add pkgin
-    # pkgin install fetch python3?
+    # pkgin install fetch python3X  # (replace X with the available version, e.g. python312)
 
-Create a symlink for the Python3 interpreter:
+Create a symlink for the Python3 interpreter (replace X.Y with the installed version):
 
     # mkdir -p /usr/local/bin/
-    # ln -s /usr/pkg/bin/python3.? /usr/local/bin/python3
+    # ln -s /usr/pkg/bin/python3.X /usr/local/bin/python3
      
 Get code and copy executable file:
 
