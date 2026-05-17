@@ -5,7 +5,7 @@
 
 1.- Install dependencies:
 
-    apt-get install dpkg-dev debhelper git
+    apt-get install build-essential dpkg-dev debhelper git
 
 2.- Change to any unprivileged user and create the package. Dont build packages using root.
 
@@ -20,7 +20,7 @@
 
 4.- As root, install and check if all was ok:
 
-    dpkg -i tuptime-*.deb
+    dpkg -i ../tuptime-*.deb
     systemctl status tuptime.service
 
 
