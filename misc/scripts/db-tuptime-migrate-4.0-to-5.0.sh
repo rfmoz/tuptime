@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-# This script update the tuptime database format from version 4.0.0 or above to to 5.0.0
+# This script update the tuptime database format from version 4.0.0 or above to 5.0.0
 #
 # Usage:
 # 	Execute this script.
@@ -49,7 +49,8 @@ sqlite3 "${TMP_DBF}" "INSERT INTO tuptimeNew(btime, uptime, rntime, slptime, off
 sqlite3 "${TMP_DBF}" "update tuptimeNew set bootid = 'None';" && \
 sqlite3 "${TMP_DBF}" "update tuptimeNew set kernel = 'None' where kernel = '';" && \
 sqlite3 "${TMP_DBF}" "DROP TABLE tuptime;" && \
-sqlite3 "${TMP_DBF}" "ALTER TABLE tuptimeNew RENAME TO tuptime;" || exit 5
+sqlite3 "${TMP_DBF}" "ALTER TABLE tuptimeNew RENAME TO tuptime;" && \
+sqlite3 "${TMP_DBF}" "PRAGMA user_version = 5;" || exit 5
 
 # Backup original db and rename the temp db as source
 mv "${SOURCE_DB}" "${SOURCE_DB}"."${BKP_DATE}".back && \

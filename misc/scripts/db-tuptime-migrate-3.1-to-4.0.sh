@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-# This script update the tuptime database format from version 3.1.0 or above to to 4.0.0
+# This script update the tuptime database format from version 3.1.0 or above to 4.0.0
 #
 # Usage:
 # 	Execute this script.
