@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -eo pipefail
 
 #
 # Tuptime installation linux script
@@ -65,22 +65,14 @@ check_command "curl"
 check_command "tar"
 check_command "python3"
 
-# Test python version
-PYTHON_VERSION=$(python3 --version | awk '{print $2}')
-if [[ "$(cut -d'.' -f1 <<<"$PYTHON_VERSION")" -lt 3 ]]; then
-	echo "ERROR: Python 3 or later is required"
-	echo "Please upgrade your Python installation"
-	exit 1
-else
-	# Test if all modules needed are available
-	REQUIRED_PYTHON_MODULES=("sys" "os" "argparse" "locale" "platform" "signal" "logging" "sqlite3" "datetime")
-	for module in "${REQUIRED_PYTHON_MODULES[@]}"; do
-		if ! python3 -c "import $module" &> /dev/null; then
-			echo "ERROR: Required Python module '$module' is not available."
-			exit 1
-		fi
-	done
-fi
+# Test if all python modules needed are available
+REQUIRED_PYTHON_MODULES=("sys" "os" "argparse" "locale" "platform" "signal" "logging" "sqlite3" "datetime")
+for module in "${REQUIRED_PYTHON_MODULES[@]}"; do
+	if ! python3 -c "import $module" &> /dev/null; then
+		echo "ERROR: Required Python module '$module' is not available."
+		exit 1
+	fi
+done
 
 # Set SystemD path
 if [ -d /usr/lib/systemd/system/ ]; then
@@ -89,9 +81,9 @@ else
 	SYSDPATH='/lib/systemd/system/'
 fi
 
-# Set SElinux swich
+# Set SElinux switch
 if getenforce 2> /dev/null | grep -q 'Enforcing'; then
-       	echo "Selinux enabled in Enforcing"
+	echo "Selinux enabled in Enforcing"
 	SELX=1
 else
 	SELX=0
@@ -119,20 +111,22 @@ install -m 755 "${F_TMP1}"/src/tuptime "${D_BIN}"/tuptime
 echo '  [OK]'
 
 echo "+ Creating Tuptime execution user '_tuptime'"
-if systemd-sysusers --version > /dev/null 2>&1; then
+if command -v systemd-sysusers > /dev/null 2>&1; then
 	echo "  ...using systemd-sysusers"
-        install -m 644 "${F_TMP1}"/src/systemd/sysusers.d/tuptime.conf /usr/lib/sysusers.d/
-        ((SELX)) && restorecon -vF /usr/lib/sysusers.d/tuptime.conf
+	install -m 644 "${F_TMP1}"/src/systemd/sysusers.d/tuptime.conf /usr/lib/sysusers.d/
+	((SELX)) && restorecon -vF /usr/lib/sysusers.d/tuptime.conf
 	systemd-sysusers /usr/lib/sysusers.d/tuptime.conf
 	echo '  [OK]'
 
-elif useradd -h > /dev/null 2>&1; then
+elif command -v useradd > /dev/null 2>&1; then
 	echo "  ...using useradd"
-	useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
-        	--shell '/bin/false' --comment 'Tuptime execution user' "${EXUSR}" && echo '  [OK]'
-elif adduser -h > /dev/null 2>&1; then
+	id "${EXUSR}" > /dev/null 2>&1 || useradd --system --no-create-home --home-dir '/var/lib/tuptime' \
+        	--shell '/bin/false' --comment 'Tuptime execution user' "${EXUSR}"
+	echo '  [OK]'
+elif command -v adduser > /dev/null 2>&1; then
 	echo "  ...using adduser"
-	adduser -S -H -h '/var/lib/tuptime' -s '/bin/false' "${EXUSR}" && echo '  [OK]'
+	id "${EXUSR}" > /dev/null 2>&1 || adduser -S -H -h '/var/lib/tuptime' -s '/bin/false' "${EXUSR}"
+	echo '  [OK]'
 else
 	echo "#######################################"
 	echo " WARNING - _tuptime user not available"
@@ -165,7 +159,7 @@ if [ "${PID1}" = 'systemd' ]; then
 	echo '  [OK]'
 
 elif [ "${PID1}" = 'init' ] && [ -f /etc/rc.d/init.d/functions ]; then
-	echo "+ Copying  SysV init RedHat file"
+	echo "+ Copying SysV init RedHat file"
 	install -m 755 "${F_TMP1}"/src/init.d/redhat/tuptime /etc/init.d/tuptime
 	((SELX)) && restorecon -vF /etc/init.d/tuptime
 	chkconfig --add tuptime
@@ -200,7 +194,7 @@ else
 fi
 
 # Install cron
-if [ -d "${SYSDPATH}" ]; then
+if [ "${PID1}" = 'systemd' ]; then
 	echo "+ Copying tuptime-sync.timer and .service"
 	install -m 644 "${F_TMP1}"/src/systemd/tuptime-sync.*  "${SYSDPATH}"
 	((SELX)) && restorecon -vF "${SYSDPATH}"tuptime-sync.*
