@@ -5,4 +5,4 @@ Conflicts=tuptime-sync.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/docker run --network none --rm -v /var/lib/tuptime/:/var/lib/tuptime/ tuptime -q
+ExecStart=/usr/bin/docker run --network none --rm --cap-drop all --security-opt no-new-privileges -v /var/lib/tuptime/:/var/lib/tuptime/ tuptime -q

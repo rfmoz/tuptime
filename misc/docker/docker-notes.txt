@@ -28,7 +28,7 @@ Copy the systemd files, the main service and the sync ones for the scheduled exe
 Also, create an alias for an easy execution (Maybe set it inside your ~/.profile or
 ~/.bashrc):
 
-    # alias tuptime='/usr/bin/docker run --network none --rm -v /var/lib/tuptime/:/var/lib/tuptime/ tuptime'
+    # alias tuptime='/usr/bin/docker run --network none --rm --cap-drop all --security-opt no-new-privileges -v /var/lib/tuptime/:/var/lib/tuptime/ tuptime'
     # tuptime
 
 That's all.

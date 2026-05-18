@@ -8,8 +8,8 @@ Conflicts=tuptime.service
 [Service]
 Type=oneshot
 RemainAfterExit=true
-ExecStart=/usr/bin/docker run --network none --rm -v /var/lib/tuptime/:/var/lib/tuptime/ tuptime -q
-ExecStop=/usr/bin/docker run --network none --rm -v /var/lib/tuptime/:/var/lib/tuptime/ tuptime -qg
+ExecStart=/usr/bin/docker run --network none --rm --cap-drop all --security-opt no-new-privileges -v /var/lib/tuptime/:/var/lib/tuptime/ tuptime -q
+ExecStop=/usr/bin/docker run --network none --rm --cap-drop all --security-opt no-new-privileges -v /var/lib/tuptime/:/var/lib/tuptime/ tuptime -qg
 StateDirectory=tuptime
 
 [Install]
