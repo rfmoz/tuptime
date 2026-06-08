@@ -104,7 +104,7 @@ Create a symlink for the Python3 interpreter (replace X.Y with the installed ver
 
     # mkdir -p /usr/local/bin/
     # ln -s /usr/pkg/bin/python3.X /usr/local/bin/python3
-     
+
 Get code and copy executable file:
 
     # fetch -o tuptime.zip https://github.com/rfmoz/tuptime/archive/refs/heads/master.zip
@@ -116,28 +116,19 @@ Add tuptime user/group:
     # groupadd _tuptime
     # useradd -d /var/lib/tuptime -s /sbin/nologin -g _tuptime _tuptime
 
-Execute tuptime with a privileged user to create db path and change user/group:
+Execute tuptime with a privileged user to create the db path and set ownership:
 
     # tuptime
     # chown -R _tuptime:_tuptime /var/lib/tuptime
-    # service cron restart
 
-Add the cron entry, create a '/var/cron/tabs/_tuptime' file with this content:
+Add the cron entry to the _tuptime user's crontab ("crontab -u _tuptime -e"):
 
-    SHELL=/bin/sh
-    PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin/
-    */5       *       *       *       *       tuptime -q
-
-Set the right permissions to cron file and restart the service:
-
-    # chown _tuptime /var/cron/tabs/_tuptime 
-    # chmod 600 /var/cron/tabs/_tuptime
-    # service cron restart
+    */5 * * * * /usr/local/bin/tuptime -q
 
 Copy rc.d file:
 
-    # install -m 555 tuptime-master/src/rc.d/freebsd/tuptime /etc/rc.d/tuptime
-    # echo 'tuptime_enable="YES"' >> /etc/rc.conf
-    # service tuptime start
+    # install -m 555 tuptime-master/src/rc.d/netbsd/tuptime /etc/rc.d/tuptime
+    # echo 'tuptime=YES' >> /etc/rc.conf
+    # /etc/rc.d/tuptime start
 
 Installation complete.

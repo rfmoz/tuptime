@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# PROVIDE: tuptime
+# REQUIRE: DAEMON
+# KEYWORD: shutdown
+#
+# Add the following line to /etc/rc.conf to enable tuptime:
+#   tuptime=YES
+
+. /etc/rc.subr
+
+name="tuptime"
+rcvar=$name
+command="/usr/local/bin/tuptime"
+tuptime_user="_tuptime"
+start_cmd="tuptime_start"
+stop_cmd="tuptime_stop"
+
+tuptime_start()
+{
+	echo "Starting ${name}."
+	su -m ${tuptime_user} -c "${command} -q" 2>/dev/null || ${command} -q
+}
+
+tuptime_stop()
+{
+	echo "Stopping ${name}."
+	su -m ${tuptime_user} -c "${command} -qg" 2>/dev/null || ${command} -qg
+}
+
+load_rc_config "$name"
+run_rc_command "$1"
