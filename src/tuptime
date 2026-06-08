@@ -461,6 +461,9 @@ def gain_db(sis, arg):
     # Test and create DB with the initial values
     try:
         if os.path.isfile(arg.db_file):
+            if open(arg.db_file, 'rb').read(15) != b'SQLite format 3':
+                logging.error('DB file "%s" is not a valid database', arg.db_file)
+                sys.exit(1)
             logging.info('DB file exists = %s (uid=%s,gid=%s)', arg.db_file, os.stat(arg.db_file).st_uid, os.stat(arg.db_file).st_gid)
 
         else:
