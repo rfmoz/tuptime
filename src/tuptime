@@ -594,14 +594,15 @@ def time_conv(secs):
 
 def fmt_rate(value, dec):
     """Format percentage; use < or > prefix when rounding would hide a non-zero/non-100 value."""
+
     rounded = round(value, dec)
+    step = 10 ** -dec
+
     if value > 0.0 and rounded == 0.0:
-        return f'<{10 ** -dec:.{dec}f}%'
+        return f'<{step:.{dec}f}%'
     if value < 100.0 and rounded == 100.0:
-        return f'>{100.0 - 10 ** -dec:.{dec}f}%'
-    if dec == 0:
-        return f'{int(rounded)}%'
-    return f'{rounded}%'
+        return f'>{100.0 - step:.{dec}f}%'
+    return f'{rounded:.{dec}f}%'
 
 
 def trim_rows(db_rows, sis, last_st, arg):
