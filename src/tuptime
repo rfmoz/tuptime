@@ -357,7 +357,7 @@ def get_os_values():
             logging.info('Old btime assignment. %s', exp)
             with open('/proc/stat', encoding='utf-8') as fl2:
                 for line in fl2:
-                    if line.startswith('btime'): sis['btime'] = line.split()[1]
+                    if line.startswith('btime'): sis['btime'] = line.split()[1]; break
 
         try:  # uptime and rntime must be together to avoid time mismatch between them
             # Time since some unspecified starting point. Contains sleep time on linux
@@ -1159,7 +1159,7 @@ def main():
     conn, cur = gain_db(sis, arg)
 
     cur.execute('select rowid, bootid, btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
-    lastdb = dict(zip(['rowid', 'bootid', 'btime', 'uptime', 'endst'], cur.fetchone()))
+    lastdb = dict(cur.fetchone())
     lastdb['buptime'] = lastdb['btime'] + lastdb['uptime']
     logging.info('Last DB values = %s', lastdb)
 
