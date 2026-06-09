@@ -458,33 +458,19 @@ def gain_db(sis, arg):
         logging.error('Check DB path "%s": %s', dir_path, exp_path)
         sys.exit(1)
 
-    # Test and create DB with the initial values
+    # Test DB file with magic header
     try:
         if os.path.isfile(arg.db_file):
-            if open(arg.db_file, 'rb').read(15) != b'SQLite format 3':
-                logging.error('DB file "%s" is not a valid database', arg.db_file)
-                sys.exit(1)
+            with open(arg.db_file, 'rb') as f:
+                if f.read(15) != b'SQLite format 3':
+                    logging.error('DB file "%s" is not a valid database', arg.db_file)
+                    sys.exit(1)
             logging.info('DB file exists = %s (uid=%s,gid=%s)', arg.db_file, os.stat(arg.db_file).st_uid, os.stat(arg.db_file).st_gid)
-
-        else:
-            logging.info('Create DB file = %s', arg.db_file)
-            with sqlite3.connect(arg.db_file) as conn:
-                conn.set_trace_callback(logging.debug)
-                cur = conn.cursor()
-                cur.execute('BEGIN deferred')
-                cur.execute('create table tuptime'
-                             ' (bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
-                             ' offbtime integer, endst integer, downtime integer, kernel text)')
-                cur.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?) ',
-                             (sis['bootid'], sis['btime'], sis['uptime'], sis['rntime'],
-                             sis['slptime'], None, arg.endst, None, sis['kernel']))
-                cur.execute(f'PRAGMA user_version = {__version__.partition(".")[0]}')
-                conn.commit()
     except Exception as exp_file:
         logging.error('Check DB file "%s": %s', arg.db_file, exp_file)
         sys.exit(1)
 
-    # Get DB connection and begin transaction
+    # Get DB connection
     try:
         logging.info('Getting DB connection')
         conn = sqlite3.connect(arg.db_file)
@@ -495,6 +481,19 @@ def gain_db(sis, arg):
     except Exception as exp_conn:
         logging.error('DB connection failed: %s', exp_conn)
         sys.exit(1)
+
+    # Initialize DB if table not exist
+    if not cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='tuptime'").fetchone():
+        logging.info('Initializing DB file = %s', arg.db_file)
+        cur.execute('create table tuptime'
+                     ' (bootid text, btime integer, uptime integer, rntime integer, slptime integer,'
+                     ' offbtime integer, endst integer, downtime integer, kernel text)')
+        cur.execute('insert into tuptime values (?,?,?,?,?,?,?,?,?) ',
+                     (sis['bootid'], sis['btime'], sis['uptime'], sis['rntime'],
+                     sis['slptime'], None, arg.endst, None, sis['kernel']))
+        cur.execute(f'PRAGMA user_version = {__version__.partition(".")[0]}')
+        conn.commit()
+        cur.execute('BEGIN deferred')
 
     # Check if DB has the old format
     user_version = cur.execute('PRAGMA user_version').fetchone()[0]
@@ -530,8 +529,6 @@ def upgrade_db(conn, cur, arg):
             cur.execute('update tuptimeNew set kernel = "None" where kernel = ""')
             cur.execute('drop table tuptime')
             cur.execute('alter table tuptimeNew RENAME TO tuptime')
-            cur.execute('PRAGMA user_version = 5')
-            conn.commit()
 
         logging.warning('Set DB user_version')
         cur.execute('PRAGMA user_version = 5')
