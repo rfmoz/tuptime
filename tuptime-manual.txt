@@ -187,7 +187,7 @@ These are the command line options, no configuration file is used:
   -d DATETIME_FMT, --date DATETIME_FMT
                         datetime format for output
   -e DECIMALS, --dec DECIMALS
-                        number of decimals in percentages
+                        number of decimals in percentages (0 to 9)
   -E, --exclude STARTUP
                         startup numbers to exclude
   -f FILE, --file FILE
@@ -298,6 +298,7 @@ These are the command line options, no configuration file is used:
 
 -e DECIMALS, --dec DECIMALS
   Change the decimal length in percentages. The number is rounded to this value.
+  The valid range is from 0 to 9.
 
   Examples:
          tuptime --dec 9
