@@ -17,7 +17,7 @@ preserving it between restarts"""
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, os, argparse, locale, platform, signal, logging, sqlite3, time
+import sys, os, argparse, locale, signal, logging, sqlite3, time
 from datetime import datetime
 # On os_bsd(): import subprocess
 
@@ -424,9 +424,9 @@ def get_os_values():
 
     # Set text OS values
     sis['bootid'] = str(sis['bootid'])
-    sis['kernel'] = platform.platform()
+    sis['kernel'] = f'{os.uname().sysname}-{os.uname().release}'
 
-    logging.info('Python = %s', platform.python_version())
+    logging.info('Python = %s', sys.version.split()[0])
     logging.info('Locale = %s', locale.getlocale())
     logging.info('Sys values = %s', sis)
     logging.info('Execution uid,gid = %s,%s', os.getuid(), os.getgid())
