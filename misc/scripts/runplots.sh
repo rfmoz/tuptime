@@ -47,4 +47,4 @@ echo -e "End Date:\t ${EndDT}\n"
 $PyEx "$(dirname "$0")/tuptime-plot1.py" $XnY -e $EndDT -p $pDays > /dev/null &
 $PyEx "$(dirname "$0")/tuptime-plot1.py" $XnY -e $EndDT -p $pDays -x > /dev/null &
 $PyEx "$(dirname "$0")/tuptime-plot2.py" $XnY -e $EndDT -p $pDays > /dev/null &
-$PyEx "$(dirname "$0")/tuptime-plot2.py" $XnY -e $EndDT -p $pDays -x
+$PyEx "$(dirname "$0")/tuptime-plot2.py" $XnY -e $EndDT -p $pDays -x > /dev/null &
