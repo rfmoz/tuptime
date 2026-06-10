@@ -938,7 +938,7 @@ def print_default(db_rows, sis, arg):
 
         return tstamp, range_trim
 
-    def eval_stats(arg, cal, cnt, rate):
+    def eval_stats(cal, cnt, rate):
         """Get totals, averages, and rates"""
 
         # Get totals and system life
@@ -976,7 +976,7 @@ def print_default(db_rows, sis, arg):
     if db_rows:
         updown, cnt, lmt = parse_rows(db_rows, updown, cnt, lmt)
         tstamp, range_trim = eval_range(db_rows, arg, tstamp, range_trim)
-    cal, rate, sys_life = eval_stats(arg, cal, cnt, rate)
+    cal, rate, sys_life = eval_stats(cal, cnt, rate)
 
     # Output style: Apply human printable values or keep seconds
     if not arg.seconds:
