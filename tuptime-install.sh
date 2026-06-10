@@ -66,7 +66,7 @@ check_command "tar"
 check_command "python3"
 
 # Test if all python modules needed are available
-REQUIRED_PYTHON_MODULES=("sys" "os" "argparse" "locale" "platform" "signal" "logging" "sqlite3" "datetime")
+REQUIRED_PYTHON_MODULES=("sys" "os" "argparse" "locale" "signal" "logging" "sqlite3" "time")
 for module in "${REQUIRED_PYTHON_MODULES[@]}"; do
 	if ! python3 -c "import $module" &> /dev/null; then
 		echo "ERROR: Required Python module '$module' is not available."

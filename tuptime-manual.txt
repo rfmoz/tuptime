@@ -38,7 +38,7 @@ Operating systems:
 Software:
    - Python 3.x
    - Python modules (most included in python core by default):
-       sys, os, argparse, locale, platform, signal, logging, sqlite3, datetime
+       sys, os, argparse, locale, signal, logging, sqlite3, time
 
 If a distro is used, all is met with:
     - In Linux:  'python' package >= 3.0

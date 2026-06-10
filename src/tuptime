@@ -18,7 +18,6 @@ preserving it between restarts"""
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys, os, argparse, locale, signal, logging, sqlite3, time
-from datetime import datetime
 # On os_bsd(): import subprocess
 
 
@@ -736,7 +735,7 @@ def format_output(db_rows, arg):
                 if key == 'downtime':
                     row[key] = time_conv(row[key])
                 else:
-                    row[key] = datetime.fromtimestamp(row[key]).strftime(arg.dtm_format)
+                    row[key] = time.strftime(arg.dtm_format, time.localtime(row[key]))
 
     return db_rows
 
@@ -863,7 +862,7 @@ def print_tat(db_rows, sis, last_st, arg):
         report['startup'] -= last_st
 
     if not arg.seconds:
-        report['at'] = datetime.fromtimestamp(report['at']).strftime(arg.dtm_format)
+        report['at'] = time.strftime(arg.dtm_format, time.localtime(report['at']))
         report['time'] = time_conv(report['time'])
         report['time_fwd'] = time_conv(report['time_fwd'])
 
@@ -985,7 +984,7 @@ def print_default(db_rows, sis, arg):
 
         for key, val in tstamp.items():
             if val is not None:
-                tstamp[key] = datetime.fromtimestamp(val).strftime(arg.dtm_format)
+                tstamp[key] = time.strftime(arg.dtm_format, time.localtime(val))
 
         # Convert sis values
         for key in ('uptime', 'rntime', 'slptime', 'downtime'):
@@ -998,10 +997,10 @@ def print_default(db_rows, sis, arg):
 
         for key in ('btime', 'offbtime'):
             if sis.get(key) is not None:
-                sis[key] = datetime.fromtimestamp(sis[key]).strftime(arg.dtm_format)
+                sis[key] = time.strftime(arg.dtm_format, time.localtime(sis[key]))
             for val in lmt.values():
                 if val[key] is not False:
-                    val[key] = datetime.fromtimestamp(val[key]).strftime(arg.dtm_format)
+                    val[key] = time.strftime(arg.dtm_format, time.localtime(val[key]))
 
     uptime = {'average': str(cal['ave']['uptime']), 'long': str(lmt['max-up']['uptime']), 'short': str(lmt['min-up']['uptime']),
               'sys_time': str(cal['tot']['uptime']), 'sys_rate': fmt_rate(rate["uptime"], arg.dec), 'current': str(sis['uptime'])}
