@@ -376,15 +376,16 @@ def get_os_values():
         except Exception:
             logging.info('Linux boot_id not assigned')
 
-        try:
-            # Way to indicate a synchronized clock by SystemD, see filename notes on systemd/src/time-wait-sync/time-wait-sync.c
-            # Check if SystemD is used, but file not exists. Could be mandatory, outstripping control_drift()
-            if not os.path.exists('/run/systemd/timesync/synchronized') and os.path.exists('/run/systemd'):
-                logging.info('Timesync state file not found = /run/systemd/timesync/synchronized')
-                #logging.error('Clock no synchronized')
-                #sys.exit(1)
-        except Exception as exp:
-            logging.info('Timesync check fails. %s', exp)
+        if logging.getLogger().isEnabledFor(logging.INFO):
+            try:
+                # Way to indicate a synchronized clock by SystemD, see filename notes on systemd/src/time-wait-sync/time-wait-sync.c
+                # Check if SystemD is used, but file not exists. Could be mandatory, outstripping control_drift()
+                if not os.path.exists('/run/systemd/timesync/synchronized') and os.path.exists('/run/systemd'):
+                    logging.info('Timesync state file not found = /run/systemd/timesync/synchronized')
+                    #logging.error('Clock no synchronized')
+                    #sys.exit(1)
+            except Exception as exp:
+                logging.info('Timesync check fails. %s', exp)
 
         return sis
 
@@ -425,10 +426,11 @@ def get_os_values():
     sis['bootid'] = str(sis['bootid'])
     sis['kernel'] = f'{os.uname().sysname}-{os.uname().release}'
 
-    logging.info('Python = %s', sys.version.split()[0])
-    logging.info('Locale = %s', locale.getlocale())
-    logging.info('Sys values = %s', sis)
-    logging.info('Execution uid,gid = %s,%s', os.getuid(), os.getgid())
+    if logging.getLogger().isEnabledFor(logging.INFO):
+        logging.info('Python = %s', sys.version.split()[0])
+        logging.info('Locale = %s', locale.getlocale())
+        logging.info('Sys values = %s', sis)
+        logging.info('Execution uid,gid = %s,%s', os.getuid(), os.getgid())
 
     # Avoid executing when OS clock is too out of phase
     if sis['btime'] < 946684800:   # 01/01/2000 00:00
@@ -464,7 +466,8 @@ def gain_db(sis, arg):
                 if f.read(15) != b'SQLite format 3':
                     logging.error('DB file "%s" is not a valid database', arg.db_file)
                     sys.exit(1)
-            logging.info('DB file exists = %s (uid=%s,gid=%s)', arg.db_file, os.stat(arg.db_file).st_uid, os.stat(arg.db_file).st_gid)
+            if logging.getLogger().isEnabledFor(logging.INFO):
+                logging.info('DB file exists = %s (uid=%s,gid=%s)', arg.db_file, os.stat(arg.db_file).st_uid, os.stat(arg.db_file).st_gid)
     except Exception as exp_file:
         logging.error('Check DB file "%s": %s', arg.db_file, exp_file)
         sys.exit(1)
