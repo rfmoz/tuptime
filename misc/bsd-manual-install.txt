@@ -102,8 +102,7 @@ Install dependencies:
 
 Create a symlink for the Python3 interpreter (replace X.Y with the installed version):
 
-    # mkdir -p /usr/local/bin/
-    # ln -s /usr/pkg/bin/python3.X /usr/local/bin/python3
+    # ln -s /usr/pkg/bin/python3.X /usr/pkg/bin/python3
 
 Get code and copy executable file:
 
