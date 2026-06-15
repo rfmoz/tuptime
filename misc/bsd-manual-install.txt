@@ -108,6 +108,7 @@ Get code and copy executable file:
 
     # fetch -o tuptime.zip https://github.com/rfmoz/tuptime/archive/refs/heads/master.zip
     # unzip tuptime.zip
+    # mkdir -p /usr/local/bin/
     # install -m 755 tuptime-master/src/tuptime /usr/local/bin/tuptime
 
 Add tuptime user/group:

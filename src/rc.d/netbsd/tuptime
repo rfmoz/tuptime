@@ -9,6 +9,8 @@
 
 . /etc/rc.subr
 
+export PATH=$PATH:/usr/pkg/bin:/usr/local/bin
+
 name="tuptime"
 rcvar=$name
 command="/usr/local/bin/tuptime"
