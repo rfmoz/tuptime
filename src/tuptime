@@ -23,7 +23,7 @@ import sys, os, argparse, locale, signal, logging, sqlite3, time
 
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 DATETIME_FMT = '%x %X'
-__version__ = '5.2.6'
+__version__ = '5.2.7'
 
 # Terminate gracefully when SIGPIPE signal is received.
 try:
@@ -259,10 +259,11 @@ def get_arguments():
     )
     arg = parser.parse_args()
 
-    # Check enable verbose
+    # Enable debug logging
     if arg.verbose:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
         logging.info('Version = %s', (__version__))
+        logging.info('Current time = %s', time.strftime(arg.dtm_format, time.localtime(time.time())))
 
     if (arg.power and (arg.ts or arg.tu or arg.tat)) or (arg.tat and (arg.ts or arg.tu)):
         # - power states report accumulated time across an uptime range, it isn't possible to
