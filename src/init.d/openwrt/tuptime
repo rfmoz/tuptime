@@ -3,15 +3,17 @@
 START=99
 STOP=60
 
+TUPTIME_BIN=/usr/bin
+TUPTIME_DIR=/opt/tuptime
+
 start() {
+        [ -d $TUPTIME_DIR ] || mkdir -p $TUPTIME_DIR
+        [ -e /var/lib/tuptime ] || ln -s $TUPTIME_DIR /var/lib/tuptime
         echo 'Tuptime start'
-        if [ ! -e /var/lib/tuptime ]; then
-           ln -s /opt/tuptime/ /var/lib/tuptime
-        fi
-        /usr/bin/python3 /usr/bin/tuptime -q
+        $TUPTIME_BIN/python3 $TUPTIME_BIN/tuptime -q
 }
 
 stop() {
         echo 'Tuptime stop'
-        /usr/bin/python3 /usr/bin/tuptime -qg
+        $TUPTIME_BIN/python3 $TUPTIME_BIN/tuptime -qg
 }
