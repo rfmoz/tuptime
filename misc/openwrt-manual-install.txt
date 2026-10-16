@@ -5,18 +5,26 @@
 
 Install dependencies:
 
-    # opkg update && opkg install python3-light python3-sqlite3 python3-logging wget unzip
+On OpenWRT 25.12 and newer (apk):
+
+    # apk update && apk add python3-light python3-sqlite3 python3-logging
+
+On OpenWRT 24.10 and older (opkg):
+
+    # opkg update && opkg install python3-light python3-sqlite3 python3-logging
 
 Get the code and copy the executable file:
 
-    # wget https://github.com/rfmoz/tuptime/archive/master.zip
-    # unzip master.zip
-    # cp tuptime-master/src/tuptime /usr/bin/ && chmod 755 /usr/bin/tuptime
+    # wget -O /usr/bin/tuptime https://raw.githubusercontent.com/rfmoz/tuptime/master/src/tuptime
+    # chmod 755 /usr/bin/tuptime
 
-As OpenWRT has a symlink from /var/ to /tmp/ and Tuptime saves its db on /var/lib/tuptime, its content will be lost in each startup. So, a new destination is needed for the db (cron init file do the same for /var/spool):
+OpenWRT mounts /tmp as tmpfs and /var is a symlink to it, so the default database path /var/lib/tuptime/tuptime.db would be lost on every reboot.
+Redirect it to a persistent path:
 
     # mkdir -p /opt/tuptime
     # ln -s /opt/tuptime/ /var/lib/tuptime
+
+The init file recreates this symlink on every boot.
 
 Add the cron execution. Include the following line in '/etc/crontabs/root':
 
@@ -24,7 +32,7 @@ Add the cron execution. Include the following line in '/etc/crontabs/root':
 
 Copy the init file and set the right permissions:
 
-    # cp tuptime-master/src/init.d/openwrt/tuptime /etc/init.d/tuptime
+    # wget -O /etc/init.d/tuptime https://raw.githubusercontent.com/rfmoz/tuptime/master/src/init.d/openwrt/tuptime
     # chmod 755 /etc/init.d/tuptime
 
 Start and enable cron and tuptime:
@@ -39,3 +47,5 @@ Test it:
     # tuptime
 
 That's all, enjoy it.
+
+NOTE: Embedded devices usually have a low-precision RTC that tends to drift over time. Enable NTP if available.
