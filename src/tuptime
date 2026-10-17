@@ -1162,7 +1162,7 @@ def main():
     conn, cur = gain_db(sis, arg)
 
     cur.execute('select rowid, bootid, btime, uptime, endst from tuptime where rowid = (select max(rowid) from tuptime)')
-    lastdb = dict(cur.fetchone())
+    lastdb = dict(cur.fetchone() or sys.exit(f'No boot records in DB file: {arg.db_file}'))
     lastdb['buptime'] = lastdb['btime'] + lastdb['uptime']
     logging.info('Last DB values = %s', lastdb)
 
