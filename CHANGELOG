@@ -1,3 +1,15 @@
+tuptime (5.2.7) unstable; urgency=low
+
+  * Improve output formatting and percentages
+  * Fix input validation, empty data and edge cases
+  * Clean up command line options
+  * Update database initialization and integrity checks
+  * Add NetBSD rc.d script and macOS Launchd wrapper
+  * Update init scripts, install script and documentation
+  * Code refactoring
+
+ -- Ricardo Fraile <r@rfmoz.eu>  Sat, 17 Oct 2026 07:52:17 +0200
+
 tuptime (5.2.6) unstable; urgency=low
 
   * Add time-sync check on init scripts
