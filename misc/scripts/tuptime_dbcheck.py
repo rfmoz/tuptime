@@ -15,19 +15,20 @@ Tests:
   8 - Negative sleep time -> Delete row
   9 - Negative downtime -> Delete row
  10 - Sequential rowids (gaps from deleted rows) -> Vacuum DB
+ 11 - Null or empty bootid/kernel -> Set to 'None'
 
-Tests 1-9 fix data inconsistencies, test 10 runs last to compact DB after deletions.
+Tests 1-9 fix data inconsistencies, test 10 compacts the DB after deletions and test 11 normalizes null/empty bootid and kernel values.
 '''
 
 import sys, argparse, locale, signal, logging, sqlite3
 
-__version__ = '1.1.1'
+__version__ = '1.2.0'
 DB_FILE = '/var/lib/tuptime/tuptime.db'
 fixcnt = 0
 errcnt = 0
 
 # List of tests to auto-execute
-TESTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+TESTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
 # Terminate when SIGPIPE signal is received
 try:
@@ -231,6 +232,19 @@ def test9(arg, row, conn):
         err_cnt(arg)
 
 
+def test11(arg, row, conn):
+    for col in ('bootid', 'kernel'):
+        if row[col] in (None, ''):
+            print(row['startup'])
+            print(' ' + col + ' is null or empty')
+            print(' ' + repr(row[col]))
+
+            if arg.fix:
+                conn.execute('update tuptime set ' + col + ' =? where rowid =?', ('None', row['startup']))
+                print(" FIXED: " + col + " = 'None'")
+            err_cnt(arg)
+
+
 def main():
 
     arg = get_arguments()
@@ -286,6 +300,9 @@ def main():
 
             if i == 9:
                 test9(arg, row, conn)
+
+            if i == 11:
+                test11(arg, row, conn)
 
             prev_row = row
 
