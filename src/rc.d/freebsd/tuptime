@@ -14,6 +14,9 @@ tuptime_user="_tuptime"
 start_cmd="${name}_start"
 stop_cmd="${name}_stop"
 
+# python must be reachable through PATH
+export PATH=$PATH:/usr/local/bin/
+
 tuptime_start()
 {
 	echo "Starting ${name}."
