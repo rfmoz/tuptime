@@ -874,9 +874,9 @@ def print_tat(db_rows, sis, last_st, arg):
 
     p('System status', report['status'], 'at', report['at'], 'on', report['startup'])
     if arg.bootid:
-        p('   ...boot ID', report['bootid'])
+        p('System status boot ID' if arg.csv else '   ...boot ID', report['bootid'])
     if arg.kernel:
-        p('    ...kernel', report['kernel'])
+        p('System status kernel' if arg.csv else '    ...kernel', report['kernel'])
     p('   elapsed in', fmt_rate(pct1, arg.dec), '=', report['time'])
     p(' remaining in', fmt_rate(pct2, arg.dec), '=', report['time_fwd'])
 
@@ -1048,9 +1048,9 @@ def print_default(db_rows, sis, arg):
     else:
         p(f'{bfp["name"]} uptime', uptime[bfp['key']])
     if arg.bootid:
-        p('    ...boot ID', bfp['up']['bootid'])
+        p(f'{bfp["name"]} uptime boot ID' if arg.csv else '    ...boot ID', bfp['up']['bootid'])
     if arg.kernel:
-        p('     ...kernel', bfp['up']['kernel'])
+        p(f'{bfp["name"]} uptime kernel' if arg.csv else '     ...kernel', bfp['up']['kernel'])
     if not arg.csv: print()
 
     # Downtime block
@@ -1061,18 +1061,18 @@ def print_default(db_rows, sis, arg):
     else:
         p(f'{bfp["name"]} downtime', downtime[bfp['key']])
     if arg.bootid:
-        p('      ...boot ID', bfp['down']['bootid'])
+        p(f'{bfp["name"]} downtime boot ID' if arg.csv else '      ...boot ID', bfp['down']['bootid'])
     if arg.kernel:
-        p('       ...kernel', bfp['down']['kernel'])
+        p(f'{bfp["name"]} downtime kernel' if arg.csv else '       ...kernel', bfp['down']['kernel'])
 
     # Current block
     if arg.update:
         if not arg.csv: print()
         p('Current uptime', uptime['current'], 'since', sis['btime'])
         if arg.bootid:
-            p('    ...boot ID', sis['bootid'])
+            p('Current uptime boot ID' if arg.csv else '    ...boot ID', sis['bootid'])
         if arg.kernel:
-            p('     ...kernel', sis['kernel'])
+            p('Current uptime kernel' if arg.csv else '     ...kernel', sis['kernel'])
 
 
 def output_hub(db_rows, sis, arg):

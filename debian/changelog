@@ -2,6 +2,7 @@ tuptime (5.2.7) unstable; urgency=low
 
   * Improve output formatting and percentages
   * Fix input validation, empty data and edge cases
+  * Fix duplicate labels for boot ID and kernel on CSV output
   * Clean up command line options
   * Update database initialization and integrity checks
   * Add NetBSD rc.d script and macOS Launchd wrapper
