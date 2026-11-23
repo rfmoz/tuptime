@@ -193,8 +193,8 @@ These are the command line options, no configuration file is used:
   -f FILE, --file FILE
                         database file (/var/lib/tuptime/tuptime.db)
   -g, --graceful        register a graceful shutdown
-  -i, --invert          reverse startup count in listings; switch
-                        longest/shortest on default output
+  -i, --invert          invert presentation: reverse startup count in
+                        listings and --tat; shortest values on default output
   -k, --kernel          show kernel version
   -l, --list            enumerate system life as list
   -n, --no-update       avoid update values into DB
@@ -338,14 +338,16 @@ These are the command line options, no configuration file is used:
 
 
 -i, --invert
-  Reverse startup count in listings when used with (-t) or (-l).
-  Equal to the output of 'journalctl --list-boots'.
-  Switch Longest to Shortest values on default output.
+  Invert the default presentation. In listings (-t, -l) and in --tat, reverse
+  the startup count: the last startup is 0 and previous ones are negative.
+  Combine with -r to match the 'journalctl --list-boots' order. In default
+  output, show Shortest instead of Longest uptime/downtime.
 
   Examples:
          tuptime -t -i
          tuptime -tib
          tuptime -l --invert
+         tuptime -l -i -r
          tuptime -i
 
 
