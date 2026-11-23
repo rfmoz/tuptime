@@ -207,7 +207,7 @@ These are the command line options, no configuration file is used:
   -S STARTUP, --since STARTUP
                         limit from this startup number
   -t, --table           enumerate system life as table
-  --tat TIMESTAMP       system status at epoch timestamp
+  --tat TIMESTAMP       system state at epoch timestamp
   --tsince TIMESTAMP    limit from this epoch timestamp
   --tuntil TIMESTAMP    limit until this epoch timestamp
   -U STARTUP, --until STARTUP
@@ -338,7 +338,7 @@ These are the command line options, no configuration file is used:
 
 
 -i, --invert
-  Reverse startup count in listings when used with (-t), (-l), or (--tat).
+  Reverse startup count in listings when used with (-t) or (-l).
   Equal to the output of 'journalctl --list-boots'.
   Switch Longest to Shortest values on default output.
 
@@ -450,13 +450,14 @@ These are the command line options, no configuration file is used:
          tuptime --table
 
 
---tat
-  System status at epoch timestamp, register number enclosed and time
-  elapsed and remaining in that matched status. Mutually exclusive with -l and -t.
+--tat <TIMESTAMP>
+  System state at epoch timestamp, UP, DOWN or NO-RECORD. Negative values
+  are relative to the current time. Mutually exclusive with -l and -t.
 
   Examples:
          tuptime --tat 1555280149
          tuptime --tat `date -d "1 day ago" +%s`
+         tuptime --tat -86400
          tuptime -cs --tat 1555281311
 
 

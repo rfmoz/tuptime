@@ -207,7 +207,7 @@ def get_arguments():
         default=None,
         action='store',
         type=int,
-        help='system status at epoch timestamp'
+        help='system state at epoch timestamp'
     )
     parser.add_argument(
         '--tsince',
@@ -765,7 +765,7 @@ def print_list(db_rows, arg):
 
         if row['btime']:
             p('Startup', row['startup'], 'at', row['btime'])
-        else:
+        elif row['startup'] is not False:
             p('Startup', row['startup'])
 
         if arg.bootid and row['bootid']:
@@ -785,6 +785,9 @@ def print_list(db_rows, arg):
 
         if arg.kernel:
             p('Kernel', row['kernel'])
+
+        if row.get('status'):
+            p('Status', row['status'], 'at', row['at'])
 
         if not arg.csv: print()
 
@@ -822,63 +825,30 @@ def print_table(db_rows, arg):
                         else str(row[i]).rjust(widths[i]) for i in range(len(row))))
 
 
-def print_tat(db_rows, sis, last_st, arg):
-    """Report system status at specific timestamp"""
+def state_at(db_rows, sis, arg):
+    """Return the system state at a specific timestamp"""
 
     # Negative value decreases actual timestamp
     if arg.tat < 0:
         arg.tat = sis['btime'] + sis['uptime'] + arg.tat
 
-    report = {'at': arg.tat, 'status': None, 'startup': 0, 'time': 0, 'time_fwd': 0, 'time_total': 0, 'bootid': None, 'kernel': None}
-
     for row in db_rows:
-
-        # Report UP if tat falls into btime + uptime range
         if row['btime'] <= arg.tat < row['btime'] + row['uptime']:
-            report.update(
-                status='UP',
-                time=arg.tat - row['btime'],
-                time_fwd=row['uptime'] - (arg.tat - row['btime']),
-                time_total=row['uptime'],
-                startup=row['startup'],
-                bootid=row['bootid'],
-                kernel=row['kernel']
-            )
+            row.update(uptime=arg.tat - row['btime'], rntime=False, slptime=False,
+                       offbtime=False, endst=False, downtime=False, status='UP')
             break
-
-        # Report DOWN if tat falls into offbtime + downtime range
-        elif row['offbtime'] <= arg.tat < row['offbtime'] + row['downtime']:
-            report.update(
-                status='DOWN-OK' if row['endst'] == 1 else 'DOWN-BAD',
-                time=arg.tat - row['offbtime'],
-                time_fwd=row['downtime'] - (arg.tat - row['offbtime']),
-                time_total=row['downtime'],
-                startup=row['startup'],
-                bootid=row['bootid'],
-                kernel=row['kernel']
-            )
+        if row['offbtime'] <= arg.tat < row['offbtime'] + row['downtime']:
+            row.update(downtime=arg.tat - row['offbtime'], status='DOWN')
             break
+    else:
+        row = dict.fromkeys(db_rows[-1], False)
+        row['status'] = 'NO-RECORD'
 
-    pct1 = report['time'] * 100 / report['time_total'] if report['time_total'] else 0.0
-    pct2 = report['time_fwd'] * 100 / report['time_total'] if report['time_total'] else 0.0
-
-    if arg.invert and report['status']:
-        report['startup'] -= last_st
-
-    if not arg.seconds:
-        report['at'] = time.strftime(arg.dtm_format, time.localtime(report['at']))
-        report['time'] = time_conv(report['time'])
-        report['time_fwd'] = time_conv(report['time_fwd'])
-
-    p = get_printer(arg)
-
-    p('System status', report['status'], 'at', report['at'], 'on', report['startup'])
-    if arg.bootid:
-        p('System status boot ID' if arg.csv else '   ...boot ID', report['bootid'])
-    if arg.kernel:
-        p('System status kernel' if arg.csv else '    ...kernel', report['kernel'])
-    p('   elapsed in', fmt_rate(pct1, arg.dec), '=', report['time'])
-    p(' remaining in', fmt_rate(pct2, arg.dec), '=', report['time_fwd'])
+    if arg.seconds:
+        row['at'] = str(arg.tat)
+    else:
+        row['at'] = time.strftime(arg.dtm_format, time.localtime(arg.tat))
+    return [row]
 
 
 def print_default(db_rows, sis, arg):
@@ -1115,7 +1085,7 @@ def output_hub(db_rows, sis, arg):
     elif arg.table:
         print_table(reorder(db_rows, arg, last_st), arg)
     elif arg.tat is not None:
-        print_tat(db_rows, sis, last_st, arg)
+        print_list(state_at(db_rows, sis, arg), arg)
     else:
         print_default(db_rows, sis, arg)
 
