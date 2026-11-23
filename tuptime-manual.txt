@@ -223,7 +223,7 @@ These are the command line options, no configuration file is used:
   Examples:
           tuptime -A 34
           tuptime --at 22
-          tuptime -l -A -1  # List last register
+          tuptime -l -A 0  # List last register
 
 
 -b, --bootid
@@ -416,13 +416,13 @@ These are the command line options, no configuration file is used:
 
 
 -r, --reverse
-  Reverse order for table or list output.
+  Reverse order in listings. Only works with -t or -l.
 
   Examples:
-         tuptime -r
-         tuptime -lur
-         tuptime -teo --reverse
-         tuptime -l --reverse
+         tuptime -l -r
+         tuptime -t -r
+         tuptime -l -o u -r
+         tuptime -t -o e --reverse
 
 
 -s, --seconds
