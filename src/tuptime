@@ -765,7 +765,7 @@ def print_list(db_rows, arg):
 
         if row['btime']:
             p('Startup', row['startup'], 'at', row['btime'])
-        elif row['startup'] is not False:
+        else:
             p('Startup', row['startup'])
 
         if arg.bootid and row['bootid']:
@@ -841,10 +841,9 @@ def state_at(db_rows, sis, last_st, arg):
             row.update(downtime=arg.tat - row['offbtime'], status='DOWN')
             break
     else:
-        row = dict.fromkeys(db_rows[-1], False)
-        row['status'] = 'NO-RECORD'
+        return []
 
-    if arg.invert and row['startup'] is not False:
+    if arg.invert:
         row['startup'] -= last_st
 
     if arg.seconds:
